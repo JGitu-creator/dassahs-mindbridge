@@ -144,10 +144,18 @@ export default function Home() {
     setHistory([]);
   };
 
+  const handleReset = () => { 
+    playClick(); 
+    setData(null); 
+    setInput(''); 
+    setCurrentChunk(-1); 
+  };
+
   // --- AUDIO ENGINE (THE DOPAMINE SOUNDS) ---
   const playRewardSound = (isFinal = false) => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioContextClass();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
@@ -162,7 +170,8 @@ export default function Home() {
 
   const playClick = () => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioContextClass();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
@@ -265,7 +274,7 @@ export default function Home() {
     } else if (data && currentChunk === data.chunks.length - 1) {
       setRewardType('final');
       playRewardSound(true);
-      setTimeout(() => { setRewardType('none'); setData(null); setInput(''); setCurrentChunk(-1); }, 5000);
+      setTimeout(() => { setRewardType('none'); handleReset(); }, 5000);
     }
   };
 
