@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as mammoth from 'mammoth';
 
-// Use require for pdf-parse as it often lacks proper ESM exports
-const pdf = require('pdf-parse');
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,6 +16,8 @@ export async function POST(req: NextRequest) {
     let text = '';
 
     if (file.name.endsWith('.pdf')) {
+      // DYNAMIC REQUIRE to prevent build-time crashes
+      const pdf = require('pdf-parse');
       const data = await pdf(buffer);
       text = data.text;
     } else if (file.name.endsWith('.docx')) {
