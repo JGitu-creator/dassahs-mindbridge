@@ -132,7 +132,6 @@ export default function Home() {
   };
 
   const handleLogin = async () => {
-    playClick();
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin }
@@ -140,7 +139,6 @@ export default function Home() {
   };
 
   const handleLogout = async () => {
-    playClick();
     await supabase.auth.signOut();
     setUser(null);
     setHistory([]);
@@ -326,9 +324,8 @@ export default function Home() {
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl w-full space-y-10 z-10 px-4 pt-24">
           <header className="text-center space-y-6">
-            {/* REMOVED BLUR FROM BRAIN LOGO AREA */}
             <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative overflow-visible">
-              <Brain size={64} md:size={80} />
+              <Brain size={64} />
               <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-2xl -z-10" />
             </motion.div>
             <h1 className="text-6xl md:text-9xl font-black text-white leading-none tracking-tighter">Dassah's <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">MindBridge</span></h1>
@@ -395,7 +392,7 @@ export default function Home() {
           <div className="fixed inset-0 bg-[#050810]/98 backdrop-blur-3xl z-[500] flex items-center justify-center p-6">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-lg w-full bg-slate-900 border-2 border-blue-500/40 p-12 md:p-20 rounded-[4rem] text-center space-y-10 shadow-[0_0_100px_rgba(59,130,246,0.3)]">
               <div className="mx-auto w-32 h-32 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse"><Crown size={64} /></div>
-              <h2 className="text-5xl font-black text-white tracking-tighter italic">Bridge Full!</h2>
+              <h2 className="text-5xl font-black text-white tracking-tighter italic">Bridge Overload!</h2>
               <p className="text-slate-400 text-xl leading-relaxed font-medium">{!user ? "You've crossed your 3 free guest bridges! Join Hadassah to cross 10 for free every day." : "You've used your 10 free daily bridges! Go Pro for unlimited clarity."}</p>
               <div className="space-y-6">
                 {!user ? <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-8 rounded-[2.5rem] font-black uppercase tracking-widest text-xl shadow-2xl transition-all">Sign In with Google</button> : <button className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 py-8 rounded-[2.5rem] font-black uppercase tracking-widest shadow-2xl text-xl hover:scale-105 transition-all">Go Pro ($9/mo)</button>}
