@@ -7,7 +7,7 @@ import {
   CheckCircle2, Upload, BarChart3, Volume2, MessageCircle, 
   X, Send, Sparkles, BookOpen, Clock, Zap, Layers, ChevronRight,
   Headphones, MousePointer2, Type, Star, LogIn, LogOut, Crown,
-  Ghost, Swords, Rocket, Music, Trophy, Sparkle
+  Ghost, Swords, Rocket, Music, Trophy, Sparkle, Palette
 } from 'lucide-react';
 import Papa from 'papaparse';
 import {
@@ -17,6 +17,14 @@ import { supabase } from '@/lib/supabase';
 
 // --- THEME & CONSTANTS ---
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+type Theme = 'midnight' | 'forest' | 'cyberpunk';
+
+const THEMES = {
+  midnight: { bg: '#050810', accent: '#3b82f6', text: '#f8fafc' },
+  forest: { bg: '#061a12', accent: '#10b981', text: '#ecfdf5' },
+  cyberpunk: { bg: '#1a0b2e', accent: '#d946ef', text: '#fdf4ff' }
+};
 
 interface SimplifiedData {
   tldr: string[];
@@ -70,25 +78,21 @@ const StarParticles = ({ count = 20, isFinal = false }: { count?: number, isFina
 // --- MAIN APPLICATION ---
 
 export default function Home() {
-  // Core State
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<SimplifiedData | null>(null);
   const [currentChunk, setCurrentChunk] = useState(-1);
   const [history, setHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-  
-  // Auth & Monetization State
   const [user, setUser] = useState<any>(null);
   const [usageCount, setUsageCount] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);
-
-  // ADHD Focus Features State
   const [isBionic, setIsBionic] = useState(true);
   const [audioMode, setAudioMode] = useState<'none' | 'brown' | 'suspense' | 'action'>('none');
   const [mouseFocus, setMouseFocus] = useState(false);
-  const [mousePos, setMousePos] = useState({ y: 0 });
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
+  const [theme, setTheme] = useState<Theme>('midnight');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -97,9 +101,7 @@ export default function Home() {
   const catchphrases = ["DASTASTIC FOCUS!", "HADASSAH'S HERO!", "PURE DASSA-MAGIC!", "BRIDGE MASTER!", "CLARITY UNLOCKED!"];
   const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
 
-  // --- INITIALIZATION ---
   useEffect(() => {
-    // Auth Listener
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) loadHistory(session.user.id);
@@ -109,11 +111,8 @@ export default function Home() {
       if (session?.user) loadHistory(session.user.id);
       else setHistory([]);
     });
-
-    // Local Usage
     setUsageCount(parseInt(localStorage.getItem('mindbridge_usage') || '0'));
     
-    // Extension/Query Handling
     const urlParams = new URLSearchParams(window.location.search);
     const textParam = urlParams.get('text');
     if (textParam) {
@@ -125,7 +124,6 @@ export default function Home() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // --- DATABASE & AUTH ---
   const loadHistory = async (userId: string) => {
     const { data: dbH } = await supabase.from('history').select('*').eq('user_id', userId).order('created_at', { ascending: false });
     if (dbH) setHistory(dbH.map(h => ({ id: h.id, date: new Date(h.created_at).toLocaleString(), title: h.title, data: h.data })));
@@ -144,21 +142,13 @@ export default function Home() {
     setHistory([]);
   };
 
-  const handleReset = () => { 
-    playClick(); 
-    setData(null); 
-    setInput(''); 
-    setCurrentChunk(-1); 
-  };
-
-  // --- AUDIO ENGINE (THE DOPAMINE SOUNDS) ---
   const playRewardSound = (isFinal = false) => {
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'triangle';
+      osc.type = isFinal ? 'sine' : 'triangle';
       osc.frequency.setValueAtTime(isFinal ? 523.25 : 880, ctx.currentTime); 
       osc.frequency.exponentialRampToValueAtTime(isFinal ? 1046.5 : 1760, ctx.currentTime + 0.2);
       gain.gain.setValueAtTime(0.1, ctx.currentTime);
@@ -203,10 +193,14 @@ export default function Home() {
             out[i] *= 3.5;
           } else if (audioMode === 'suspense') {
             phase += 0.005;
-            out[i] = white * 0.05 + Math.sin(phase) * 0.03; 
+            out[i] = white * 0.05 + Math.sin(phase) * 0.03; // Hum with low freq pulse
           } else if (audioMode === 'action') {
             phase += 0.15;
-            out[i] = white * 0.1 * (Math.sin(phase) > 0.5 ? 1 : 0.2); 
+            // Rhythmic heart-beat style pulse
+            const pulse = Math.sin(phase) > 0.8 ? 1.0 : 0.2;
+            out[i] = white * 0.1 * pulse;
+          } else {
+            out[i] = white * 0.15;
           }
         }
       };
@@ -222,7 +216,6 @@ export default function Home() {
     };
   }, [audioMode]);
 
-  // --- CORE ACTIONS ---
   const handleSimplify = async (textToSimplify = input) => {
     playClick();
     if (!textToSimplify.trim()) return;
@@ -233,37 +226,39 @@ export default function Home() {
       const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify }) });
       const result = await res.json();
       setData(result);
-      
       const title = result.tldr[0].slice(0, 30) + '...';
       if (user) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
-      
-      const newC = usageCount + 1; 
-      setUsageCount(newC); 
-      localStorage.setItem('mindbridge_usage', newC.toString());
+      setUsageCount(prev => {
+        const next = prev + 1;
+        localStorage.setItem('mindbridge_usage', next.toString());
+        return next;
+      });
       setCurrentChunk(-1);
     } catch (err) { alert('The Bridge encountered a storm! Try again.'); } finally { setLoading(false); }
   };
 
-  const handleFileUpload = (e: any) => {
+  const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setLoading(true);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      let text = event.target?.result as string;
-      // STRIPPING NON-READABLE CHARACTERS (THE "JARGON")
-      text = text.replace(/[^\x20-\x7E\n\t]/g, ' '); 
-      // Removing excessive spaces
-      text = text.replace(/\s\s+/g, ' ');
-      setInput(text.slice(0, 10000));
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/parse', { method: 'POST', body: formData });
+      const result = await res.json();
+      if (result.text) {
+        setInput(result.text);
+      } else {
+        throw new Error("No text extracted");
+      }
+    } catch (err) {
+      alert("Failed to read this file. Try a simple .txt or .csv!");
+    } finally {
       setLoading(false);
-    };
-    reader.onerror = () => {
-      alert("Could not read this file. Try a simple .txt or .csv!");
-      setLoading(false);
-    };
-    reader.readAsText(file);
+    }
   };
+
+  const handleReset = () => { playClick(); setData(null); setInput(''); setCurrentChunk(-1); };
 
   const handleNext = () => {
     if (data && currentChunk < data.chunks.length - 1) {
@@ -278,8 +273,14 @@ export default function Home() {
     }
   };
 
+  const currentTheme = THEMES[theme];
+
   return (
-    <main onMouseMove={(e) => mouseFocus && setMousePos({ y: e.clientY })} className="min-h-screen bg-[#050810] text-slate-200 font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40">
+    <main 
+      onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
+      className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-colors duration-1000"
+      style={{ backgroundColor: currentTheme.bg, color: currentTheme.text }}
+    >
       
       {/* --- DOPAMINE REWARDS --- */}
       <AnimatePresence>
@@ -297,11 +298,11 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* --- TUNNEL VISION --- */}
+      {/* --- TUNNEL VISION (FULL SCREEN X/Y) --- */}
       <AnimatePresence>
         {mouseFocus && (
           <div className="fixed inset-0 pointer-events-none z-[90] hidden md:block">
-            <div className="absolute inset-0 bg-[#050810]/95 backdrop-blur-[8px]" style={{ maskImage: `radial-gradient(circle 150px at center ${mousePos.y}px, transparent 80%, black 100%)`, WebkitMaskImage: `radial-gradient(circle 150px at center ${mousePos.y}px, transparent 80%, black 100%)` }} />
+            <div className="absolute inset-0 bg-black/90 backdrop-blur-[10px]" style={{ maskImage: `radial-gradient(circle 150px at ${mousePos.x}px ${mousePos.y}px, transparent 80%, black 100%)`, WebkitMaskImage: `radial-gradient(circle 150px at ${mousePos.x}px ${mousePos.y}px, transparent 80%, black 100%)` }} />
           </div>
         )}
       </AnimatePresence>
@@ -315,8 +316,14 @@ export default function Home() {
             <button onClick={() => { playClick(); setMouseFocus(!mouseFocus); }} className={`hidden md:flex p-3 rounded-xl transition-all ${mouseFocus ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><MousePointer2 size={20}/></button>
             <div className="flex items-center gap-1 px-2 border-l border-white/10 ml-1">
               {[ {m:'none', i:<X size={12}/>}, {m:'brown', i:<Layers size={12}/>}, {m:'suspense', i:<Ghost size={12}/>}, {m:'action', i:<Swords size={12}/>} ].map((s) => (
-                <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-white/5 text-slate-500 hover:text-slate-300'}`}>{s.i}</button>
+                <button key={s.m} onClick={() => setAudioMode(s.m as any)} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-white/5 text-slate-500 hover:text-slate-300'}`}>{s.i}</button>
               ))}
+            </div>
+            <div className="flex items-center gap-1 px-2 border-l border-white/10 ml-1">
+              {(['midnight', 'forest', 'cyberpunk'] as Theme[]).map((t) => (
+                <button key={t} onClick={() => setTheme(t)} className={`w-6 h-6 rounded-full border-2 transition-all ${theme === t ? 'border-white scale-110' : 'border-transparent opacity-50'}`} style={{ backgroundColor: THEMES[t].accent }} />
+              ))}
+              <Palette size={14} className="ml-1 text-slate-500" />
             </div>
           </div>
         </div>
@@ -329,52 +336,50 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* --- MAIN UI --- */}
+      {/* --- MAIN UI (MAX WIDTH FIXED) --- */}
       {!data ? (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl w-full space-y-10 z-10 px-4 pt-24">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24">
           <header className="text-center space-y-6">
-            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative overflow-visible">
-              <Brain size={64} />
-              <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-2xl -z-10" />
+            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative">
+              <Brain size={64} md:size={80} />
             </motion.div>
-            <h1 className="text-6xl md:text-9xl font-black text-white leading-none tracking-tighter">Dassah's <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">MindBridge</span></h1>
+            <h1 className="text-5xl md:text-8xl font-black text-white leading-none tracking-tighter">Dassah's <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">MindBridge</span></h1>
             <p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight">By <span className="text-white border-b-2 border-blue-500 pb-1">Hadassah</span></p>
           </header>
 
-          <div className="bg-slate-900/40 backdrop-blur-3xl rounded-[3rem] md:rounded-[5rem] border border-white/10 p-3 shadow-2xl">
-            <textarea className="w-full h-72 md:h-96 p-10 md:p-16 text-xl md:text-2xl bg-transparent resize-none focus:outline-none placeholder:text-slate-800 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
-            <div className="bg-white/5 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4.5rem] flex flex-col sm:flex-row justify-between items-center gap-8 border border-white/5">
+          <div className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-3 shadow-2xl overflow-hidden">
+            <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-800 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
+            <div className="bg-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-white/5">
               <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4">
-                {loading ? <Loader2 className="animate-spin text-blue-500" /> : <Upload size={24} className="text-blue-500" />} 
-                Clean Document
+                <Upload size={24} className="text-blue-500" /> Clean Document
               </button>
-              <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white px-16 md:px-24 py-6 md:py-8 rounded-[2rem] md:rounded-[3rem] font-black uppercase tracking-[0.2em] shadow-2xl hover:shadow-blue-500/50 transition-all active:scale-95 text-xl">
-                {loading ? 'Bridging...' : 'Bridge It'}
+              <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl hover:shadow-blue-500/50 transition-all active:scale-95 text-lg">
+                {loading ? <Loader2 className="animate-spin" /> : 'Bridge It'}
               </button>
             </div>
           </div>
         </motion.div>
       ) : (
-        <div className="max-w-3xl w-full pt-32 pb-20 z-10 px-4">
+        <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">
           <AnimatePresence mode="wait">
             {currentChunk === -1 ? (
-              <motion.div key="summary" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-slate-900/60 backdrop-blur-3xl p-10 md:p-20 rounded-[3.5rem] md:rounded-[5rem] border border-white/10 space-y-12 shadow-2xl">
+              <motion.div key="summary" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-white/5 backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-white/10 space-y-12 shadow-2xl">
                 <div className="flex items-center justify-between">
                   <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center gap-3"><Rocket size={18}/> Saved {data.readingTime}</div>
                   <button onClick={handleReset} className="p-5 bg-white/5 rounded-3xl text-slate-500 hover:text-red-400 transition-all"><X size={24}/></button>
                 </div>
-                <div className="space-y-8"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2><p className="text-4xl md:text-5xl font-black leading-[1.1] text-white tracking-tight">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div>
-                <div className="space-y-12">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/5 text-blue-400 flex items-center justify-center font-black mr-8 border border-white/5 group-hover:border-blue-500/50 transition-all text-xl">{i + 1}</span><p className="text-2xl md:text-3xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div>
-                <button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-blue-600 py-8 md:py-10 rounded-[2.5rem] md:rounded-[4rem] font-black uppercase tracking-[0.3em] text-2xl shadow-[0_20px_50px_rgba(59,130,246,0.4)] hover:bg-blue-500 transition-all active:scale-95">Open the Bridge <ArrowRight className="inline ml-4"/></button>
+                <div className="space-y-8"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2><p className="text-3xl md:text-4xl font-black leading-[1.1] text-white tracking-tight">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div>
+                <div className="space-y-10">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white/5 text-blue-400 flex items-center justify-center font-black mr-6 border border-white/5 group-hover:border-blue-500/50 transition-all text-lg">{i + 1}</span><p className="text-xl md:text-2xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div>
+                <button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-blue-600 py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:bg-blue-500 transition-all active:scale-95">Open the Bridge <ArrowRight className="inline ml-4"/></button>
               </motion.div>
             ) : (
-              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-slate-900/60 backdrop-blur-3xl p-10 md:p-20 rounded-[3.5rem] md:rounded-[5rem] border border-white/10 min-h-[600px] flex flex-col shadow-2xl relative">
+              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-white/5 backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-white/10 min-h-[500px] flex flex-col shadow-2xl relative">
                 <div className="absolute top-10 left-10 text-[10px] font-black text-blue-500/40 uppercase tracking-[0.5em]">Module {currentChunk + 1} / {data.chunks.length}</div>
-                <h2 className="text-5xl md:text-8xl font-black mb-12 text-white tracking-tighter leading-none pt-10">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
-                <div className="bg-blue-500/5 p-10 md:p-16 rounded-[2.5rem] md:rounded-[4rem] border border-blue-500/10 flex-grow text-3xl md:text-4xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
-                <div className="pt-16 flex gap-6">
-                  <button onClick={() => { playClick(); setCurrentChunk(c => c - 1); }} className={`flex-1 py-8 md:py-10 rounded-[2rem] md:rounded-[3rem] font-black uppercase text-xs transition-all border border-white/5 ${currentChunk === 0 ? 'opacity-10 pointer-events-none' : 'bg-white/5 hover:bg-white/10'}`}>Back</button>
-                  <button onClick={handleNext} className="flex-[3] bg-gradient-to-r from-blue-600 via-purple-600 to-blue-500 py-8 md:py-10 rounded-[2rem] md:rounded-[3.5rem] font-black uppercase shadow-2xl active:scale-95 text-lg md:text-2xl tracking-widest">{currentChunk < data.chunks.length - 1 ? 'Next' : 'DASTASTIC FINISH!'}</button>
+                <h2 className="text-4xl md:text-6xl font-black mb-10 text-white tracking-tighter leading-none pt-8">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
+                <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 flex-grow text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
+                <div className="pt-12 flex gap-6">
+                  <button onClick={() => { playClick(); setCurrentChunk(c => c - 1); }} className={`flex-1 py-6 rounded-[2rem] font-black uppercase text-xs transition-all border border-white/5 ${currentChunk === 0 ? 'opacity-10 pointer-events-none' : 'bg-white/5 hover:bg-white/10'}`}>Back</button>
+                  <button onClick={handleNext} className="flex-[3] bg-gradient-to-r from-blue-600 via-purple-600 to-blue-500 py-6 rounded-[2rem] font-black uppercase shadow-2xl active:scale-95 text-lg tracking-widest">{currentChunk < data.chunks.length - 1 ? 'Next' : 'DASTASTIC FINISH!'}</button>
                 </div>
               </motion.div>
             )}
@@ -383,7 +388,7 @@ export default function Home() {
       )}
 
       {/* --- HIDDEN ELEMENTS --- */}
-      <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv" />
+      <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
       
       <AnimatePresence>
         {showHistory && (
@@ -398,7 +403,7 @@ export default function Home() {
 
       <AnimatePresence>
         {showPaywall && (
-          <div className="fixed inset-0 bg-[#050810]/98 backdrop-blur-3xl z-[500] flex items-center justify-center p-6">
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-6">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-lg w-full bg-slate-900 border-2 border-blue-500/40 p-12 md:p-20 rounded-[4rem] text-center space-y-10 shadow-[0_0_100px_rgba(59,130,246,0.3)]">
               <div className="mx-auto w-32 h-32 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse"><Crown size={64} /></div>
               <h2 className="text-5xl font-black text-white tracking-tighter italic">Bridge Overload!</h2>
