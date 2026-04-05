@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pdf from 'pdf-parse';
-import mammoth from 'mammoth';
+import * as mammoth from 'mammoth';
+
+// Use require for pdf-parse as it often lacks proper ESM exports
+const pdf = require('pdf-parse');
 
 export async function POST(req: NextRequest) {
   try {
