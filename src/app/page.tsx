@@ -372,7 +372,7 @@ export default function Home() {
                 <button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-blue-600 py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:bg-blue-500 transition-all active:scale-95">Open the Bridge <ArrowRight className="inline ml-4"/></button>
               </motion.div>
             ) : (
-              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-white/5 backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-white/10 min-h-[500px] flex flex-col shadow-2xl relative">
+              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-slate-900/60 backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-white/10 min-h-[500px] flex flex-col shadow-2xl relative">
                 <div className="absolute top-10 left-10 text-[10px] font-black text-blue-500/40 uppercase tracking-[0.5em]">Module {currentChunk + 1} / {data.chunks.length}</div>
                 <h2 className="text-4xl md:text-6xl font-black mb-10 text-white tracking-tighter leading-none pt-8">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
                 <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 flex-grow text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
