@@ -118,6 +118,21 @@ export default function Home() {
     if (dbH) setHistory(dbH.map(h => ({ id: h.id, date: new Date(h.created_at).toLocaleString(), title: h.title, data: h.data })));
   };
 
+  const handleLogin = async () => {
+    playClick();
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+  };
+
+  const handleLogout = async () => {
+    playClick();
+    await supabase.auth.signOut();
+    setUser(null);
+    setHistory([]);
+  };
+
   const stopAudio = () => {
     if (noiseNodeRef.current) { noiseNodeRef.current.disconnect(); noiseNodeRef.current = null; }
     if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') { audioCtxRef.current.close(); audioCtxRef.current = null; }
@@ -125,7 +140,8 @@ export default function Home() {
 
   const playClick = () => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioContextClass();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
@@ -139,7 +155,6 @@ export default function Home() {
     } catch (e) {}
   };
 
-  // Advanced Audio Engine
   useEffect(() => {
     if (audioMode !== 'none') {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -158,10 +173,10 @@ export default function Home() {
             out[i] *= 3.5;
           } else if (audioMode === 'suspense') {
             phase += 0.005;
-            out[i] = white * 0.05 + Math.sin(phase) * 0.02; // Eerie hum
+            out[i] = white * 0.05 + Math.sin(phase) * 0.02; 
           } else if (audioMode === 'action') {
             phase += 0.1;
-            out[i] = white * 0.1 * (Math.sin(phase) > 0 ? 1 : 0.5); // Rhythmic pulse
+            out[i] = white * 0.1 * (Math.sin(phase) > 0 ? 1 : 0.5);
           } else {
             out[i] = white * 0.15;
           }
@@ -187,19 +202,16 @@ export default function Home() {
       else { setHistory(prev => [{ id: Math.random().toString(36).substr(2, 9), title, data: result }, ...prev].slice(0, 10)); }
       const newC = usageCount + 1; setUsageCount(newC); localStorage.setItem('mindbridge_usage', newC.toString());
       setCurrentChunk(-1);
-    } catch (err) { alert('Hadassah had a small glitch! Try again.'); } finally { setLoading(false); }
+    } catch (err) { alert('Hadassah had a small glitch!'); } finally { setLoading(false); }
   };
 
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setLoading(true);
-    // Note: PDF/DOCX require server-side parsing or heavy client libraries. 
-    // For now, we'll alert if noisy and improve text stripping.
     const reader = new FileReader();
     reader.onload = async (event) => {
       let text = event.target?.result as string;
-      // Clean "Computer Jargon" (Binary/Hidden chars)
       text = text.replace(/[^\x20-\x7E\n\t]/g, ''); 
       setInput(text.slice(0, 10000));
       setLoading(false);
@@ -207,8 +219,22 @@ export default function Home() {
     reader.readAsText(file);
   };
 
+  const handleReset = () => { playClick(); setData(null); setInput(''); setCurrentChunk(-1); };
+
+  const handleNext = () => {
+    playClick();
+    if (data && currentChunk < data.chunks.length - 1) {
+      setCurrentChunk(c => c + 1);
+      setRewardType('step');
+      setTimeout(() => setRewardType('none'), 2000);
+    } else if (data && currentChunk === data.chunks.length - 1) {
+      setRewardType('final');
+      setTimeout(() => { setRewardType('none'); handleReset(); }, 4000);
+    }
+  };
+
   return (
-    <main onMouseMove={(e) => mouseFocus && setMousePos({ y: e.clientY })} className="min-h-screen bg-[#070b14] text-slate-200 font-sans p-2 md:p-8 flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/30">
+    <main onMouseMove={(e) => mouseFocus && setMousePos({ y: e.clientY })} className="min-h-screen bg-[#070b14] text-slate-200 font-sans p-2 md:p-8 flex flex-col items-center justify-center relative overflow-x-hidden">
       <AnimatePresence>
         {rewardType !== 'none' && (
           <>
@@ -223,16 +249,12 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* Improved Tunnel Vision (Darker & Sharper) */}
-      <AnimatePresence>
-        {mouseFocus && (
-          <div className="fixed inset-0 pointer-events-none z-[90] hidden md:block">
-            <div className="absolute inset-0 bg-[#070b14]/90 backdrop-blur-[6px]" style={{ maskImage: `radial-gradient(circle 120px at center ${mousePos.y}px, transparent 80%, black 100%)`, WebkitMaskImage: `radial-gradient(circle 120px at center ${mousePos.y}px, transparent 80%, black 100%)` }} />
-          </div>
-        )}
-      </AnimatePresence>
+      {mouseFocus && (
+        <div className="fixed inset-0 pointer-events-none z-[90] hidden md:block">
+          <div className="absolute inset-0 bg-[#070b14]/90 backdrop-blur-[6px]" style={{ maskImage: `radial-gradient(circle 120px at center ${mousePos.y}px, transparent 80%, black 100%)`, WebkitMaskImage: `radial-gradient(circle 120px at center ${mousePos.y}px, transparent 80%, black 100%)` }} />
+        </div>
+      )}
 
-      {/* Smart Toolbar */}
       <div className="fixed top-2 md:top-8 left-2 md:left-8 right-2 md:right-8 flex justify-between items-center z-[110] bg-slate-900/40 backdrop-blur-lg p-2 rounded-2xl border border-white/5 md:bg-transparent md:border-none">
         <div className="flex gap-1.5 md:gap-3">
           <button onClick={() => setShowHistory(true)} className="p-2.5 md:p-4 bg-white/5 rounded-xl border border-white/10 text-slate-400 hover:text-blue-400"><Clock size={18} /></button>
@@ -251,10 +273,21 @@ export default function Home() {
         </div>
       </div>
 
+      <AnimatePresence>
+        {showHistory && (
+          <motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-80 bg-slate-900/80 backdrop-blur-xl z-[120] p-8 border-r border-white/10 shadow-2xl overflow-y-auto">
+            <div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> History</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors"><X size={20} /></button></div>
+            <div className="space-y-4">{history.map((item) => (
+              <button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-white/5 hover:bg-white/10 border border-white/5 hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>
+            ))}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl w-full space-y-6 z-10 px-2">
           <div className="text-center space-y-4 md:space-y-6 mb-8 mt-12 md:mt-0">
-            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 6 }} className="mx-auto w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-[2rem] md:rounded-[3rem] flex items-center justify-center shadow-2xl border border-white/20"><Brain size={48} md:size={64} /></motion.div>
+            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 6 }} className="mx-auto w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-[2rem] md:rounded-[3rem] flex items-center justify-center shadow-2xl border border-white/20"><Brain size={48} /></motion.div>
             <h1 className="text-5xl md:text-8xl font-black text-white leading-none tracking-tighter">Mind<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">Bridge</span></h1>
             <p className="text-lg md:text-2xl text-slate-400 max-w-lg mx-auto leading-relaxed font-medium">By <span className="text-white font-bold tracking-widest uppercase text-sm">Hadassah</span></p>
           </div>
