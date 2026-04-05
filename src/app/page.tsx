@@ -132,6 +132,7 @@ export default function Home() {
   };
 
   const handleLogin = async () => {
+    playClick();
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin }
@@ -139,6 +140,7 @@ export default function Home() {
   };
 
   const handleLogout = async () => {
+    playClick();
     await supabase.auth.signOut();
     setUser(null);
     setHistory([]);
@@ -151,7 +153,7 @@ export default function Home() {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(isFinal ? 523.25 : 880, ctx.currentTime); // C5 or A5
+      osc.frequency.setValueAtTime(isFinal ? 523.25 : 880, ctx.currentTime); 
       osc.frequency.exponentialRampToValueAtTime(isFinal ? 1046.5 : 1760, ctx.currentTime + 0.2);
       gain.gain.setValueAtTime(0.1, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
@@ -177,7 +179,8 @@ export default function Home() {
 
   useEffect(() => {
     if (audioMode !== 'none') {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioContextClass();
       const bufferSize = 4096;
       let lastOut = 0.0;
       let phase = 0;
@@ -204,11 +207,11 @@ export default function Home() {
       audioCtxRef.current = ctx; noiseNodeRef.current = node;
     } else {
       if (noiseNodeRef.current) noiseNodeRef.current.disconnect();
-      if (audioCtxRef.current) audioCtxRef.current.close();
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') audioCtxRef.current.close();
     }
     return () => {
       if (noiseNodeRef.current) noiseNodeRef.current.disconnect();
-      if (audioCtxRef.current) audioCtxRef.current.close();
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') audioCtxRef.current.close();
     };
   }, [audioMode]);
 
@@ -237,11 +240,20 @@ export default function Home() {
   const handleFileUpload = (e: any) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setLoading(true);
     const reader = new FileReader();
     reader.onload = (event) => {
       let text = event.target?.result as string;
-      text = text.replace(/[^\x20-\x7E\n\t]/g, ''); // Clean jargon
+      // STRIPPING NON-READABLE CHARACTERS (THE "JARGON")
+      text = text.replace(/[^\x20-\x7E\n\t]/g, ' '); 
+      // Removing excessive spaces
+      text = text.replace(/\s\s+/g, ' ');
       setInput(text.slice(0, 10000));
+      setLoading(false);
+    };
+    reader.onerror = () => {
+      alert("Could not read this file. Try a simple .txt or .csv!");
+      setLoading(false);
     };
     reader.readAsText(file);
   };
@@ -267,8 +279,8 @@ export default function Home() {
         {rewardType !== 'none' && (
           <>
             <StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} />
-            <motion.div initial={{ opacity: 0, scale: 0.5, y: 100 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.5 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4">
-              <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-amber-500 p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(59,130,246,0.8)] border-4 border-white/30 backdrop-blur-3xl flex flex-col items-center gap-6 text-center">
+            <motion.div initial={{ opacity: 0, scale: 0.5, y: 100 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.5 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center">
+              <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-amber-500 p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(59,130,246,0.8)] border-4 border-white/30 backdrop-blur-3xl flex flex-col items-center gap-6">
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}><Trophy size={rewardType === 'final' ? 80 : 48} className="text-white" /></motion.div>
                 <h2 className="font-black italic text-4xl md:text-8xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "HADASSAH TRIUMPH!" : currentCatchphrase}</h2>
                 {rewardType === 'final' && <p className="text-white/80 font-bold uppercase tracking-widest md:text-xl">You conquered the noise!</p>}
@@ -288,22 +300,22 @@ export default function Home() {
       </AnimatePresence>
 
       {/* --- SMART DYNAMIC TOOLBAR --- */}
-      <nav className="fixed top-0 left-0 right-0 z-[110] p-4 flex justify-between items-center pointer-events-none">
-        <div className="flex gap-2 pointer-events-auto">
-          <button onClick={() => setShowHistory(true)} className="p-4 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90"><Clock size={20}/></button>
-          <div className="flex bg-white/5 backdrop-blur-xl p-1 rounded-2xl border border-white/10 shadow-xl">
-            <button onClick={() => setIsBionic(!isBionic)} className={`p-3 rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={20}/></button>
-            <button onClick={() => setMouseFocus(!mouseFocus)} className={`hidden md:flex p-3 rounded-xl transition-all ${mouseFocus ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><MousePointer2 size={20}/></button>
+      <nav className="fixed top-0 left-0 right-0 z-[110] p-4 flex justify-between items-center bg-slate-900/20 backdrop-blur-md border-b border-white/5">
+        <div className="flex gap-2">
+          <button onClick={() => { playClick(); setShowHistory(true); }} className="p-3 md:p-4 bg-white/5 rounded-2xl border border-white/10 text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90"><Clock size={20}/></button>
+          <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 shadow-xl">
+            <button onClick={() => { playClick(); setIsBionic(!isBionic); }} className={`p-2 md:p-3 rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={20}/></button>
+            <button onClick={() => { playClick(); setMouseFocus(!mouseFocus); }} className={`hidden md:flex p-3 rounded-xl transition-all ${mouseFocus ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><MousePointer2 size={20}/></button>
             <div className="flex items-center gap-1 px-2 border-l border-white/10 ml-1">
               {[ {m:'none', i:<X size={12}/>}, {m:'brown', i:<Layers size={12}/>}, {m:'suspense', i:<Ghost size={12}/>}, {m:'action', i:<Swords size={12}/>} ].map((s) => (
-                <button key={s.m} onClick={() => setAudioMode(s.m as any)} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-white/5 text-slate-500 hover:text-slate-300'}`}>{s.i}</button>
+                <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-white/5 text-slate-500 hover:text-slate-300'}`}>{s.i}</button>
               ))}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3 pointer-events-auto">
+        <div className="flex items-center gap-3">
           {user ? (
-            <button onClick={handleLogout} className="bg-white/5 backdrop-blur-xl px-4 py-3 rounded-2xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Log Out</button>
+            <button onClick={handleLogout} className="bg-white/5 px-4 py-3 rounded-2xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Log Out</button>
           ) : (
             <button onClick={handleLogin} className="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-2xl text-white font-black text-[10px] uppercase tracking-widest shadow-[0_10px_25px_rgba(59,130,246,0.4)] transition-all active:scale-95">Join Hadassah</button>
           )}
@@ -312,19 +324,26 @@ export default function Home() {
 
       {/* --- MAIN UI --- */}
       {!data ? (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl w-full space-y-10 z-10 px-4 pt-20">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl w-full space-y-10 z-10 px-4 pt-24">
           <header className="text-center space-y-6">
-            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border border-white/20"><Brain size={64} md:size={80} /></motion.div>
-            <h1 className="text-6xl md:text-9xl font-black text-white leading-none tracking-tighter">Mind<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">Bridge</span></h1>
+            {/* REMOVED BLUR FROM BRAIN LOGO AREA */}
+            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative overflow-visible">
+              <Brain size={64} md:size={80} />
+              <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-2xl -z-10" />
+            </motion.div>
+            <h1 className="text-6xl md:text-9xl font-black text-white leading-none tracking-tighter">Dassah's <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">MindBridge</span></h1>
             <p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight">By <span className="text-white border-b-2 border-blue-500 pb-1">Hadassah</span></p>
           </header>
 
           <div className="bg-slate-900/40 backdrop-blur-3xl rounded-[3rem] md:rounded-[5rem] border border-white/10 p-3 shadow-2xl">
             <textarea className="w-full h-72 md:h-96 p-10 md:p-16 text-xl md:text-2xl bg-transparent resize-none focus:outline-none placeholder:text-slate-800 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
             <div className="bg-white/5 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4.5rem] flex flex-col sm:flex-row justify-between items-center gap-8 border border-white/5">
-              <button onClick={() => fileInputRef.current?.click()} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4"><Upload size={24} className="text-blue-500" /> Clean Document</button>
+              <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4">
+                {loading ? <Loader2 className="animate-spin text-blue-500" /> : <Upload size={24} className="text-blue-500" />} 
+                Clean Document
+              </button>
               <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white px-16 md:px-24 py-6 md:py-8 rounded-[2rem] md:rounded-[3rem] font-black uppercase tracking-[0.2em] shadow-2xl hover:shadow-blue-500/50 transition-all active:scale-95 text-xl">
-                {loading ? <Loader2 className="animate-spin" /> : 'Bridge It'}
+                {loading ? 'Bridging...' : 'Bridge It'}
               </button>
             </div>
           </div>
@@ -359,12 +378,24 @@ export default function Home() {
 
       {/* --- HIDDEN ELEMENTS --- */}
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv" />
+      
+      <AnimatePresence>
+        {showHistory && (
+          <motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-80 bg-slate-900/90 backdrop-blur-3xl z-[120] p-8 border-r border-white/10 shadow-2xl overflow-y-auto">
+            <div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors"><X size={20} /></button></div>
+            <div className="space-y-4">{history.map((item) => (
+              <button key={item.id} onClick={() => { playClick(); setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-white/5 hover:bg-white/10 border border-white/5 hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>
+            ))}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {showPaywall && (
           <div className="fixed inset-0 bg-[#050810]/98 backdrop-blur-3xl z-[500] flex items-center justify-center p-6">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-lg w-full bg-slate-900 border-2 border-blue-500/40 p-12 md:p-20 rounded-[4rem] text-center space-y-10 shadow-[0_0_100px_rgba(59,130,246,0.3)]">
               <div className="mx-auto w-32 h-32 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse"><Crown size={64} /></div>
-              <h2 className="text-5xl font-black text-white tracking-tighter italic">Bridge Overload!</h2>
+              <h2 className="text-5xl font-black text-white tracking-tighter italic">Bridge Full!</h2>
               <p className="text-slate-400 text-xl leading-relaxed font-medium">{!user ? "You've crossed your 3 free guest bridges! Join Hadassah to cross 10 for free every day." : "You've used your 10 free daily bridges! Go Pro for unlimited clarity."}</p>
               <div className="space-y-6">
                 {!user ? <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-8 rounded-[2.5rem] font-black uppercase tracking-widest text-xl shadow-2xl transition-all">Sign In with Google</button> : <button className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 py-8 rounded-[2.5rem] font-black uppercase tracking-widest shadow-2xl text-xl hover:scale-105 transition-all">Go Pro ($9/mo)</button>}

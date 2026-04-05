@@ -16,7 +16,7 @@ document.getElementById('simplifyBtn').addEventListener('click', async () => {
     statusEl.innerText = "Building your Bridge...";
 
     const encodedText = encodeURIComponent(text.slice(0, 3000));
-    // Updated to the permanent production URL
+    // ENSURING THE PRODUCTION URL IS USED
     const appUrl = `https://dassahs-mindbridge.vercel.app/?text=${encodedText}`;
     
     chrome.tabs.create({ url: appUrl });
