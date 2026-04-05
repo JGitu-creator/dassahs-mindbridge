@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "ADHD Cognitive Filter",
+  "version": "1.0",
+  "description": "Simplifies dense webpages for an ADHD-friendly experience.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*"
+  ]
+}
