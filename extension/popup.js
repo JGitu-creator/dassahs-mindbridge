@@ -4,25 +4,27 @@ document.getElementById('simplifyBtn').addEventListener('click', async () => {
   const btn = document.getElementById('simplifyBtn');
 
   statusEl.innerText = "Capturing text...";
+  btn.style.opacity = "0.5";
   btn.disabled = true;
 
   try {
     const response = await chrome.tabs.sendMessage(tab.id, { action: "extractText" });
     const text = response.text;
 
-    if (!text) throw new Error("Could not find any readable text on this page.");
+    if (!text) throw new Error("Could not find any readable text.");
 
-    statusEl.innerText = "Simplifying with AI...";
+    statusEl.innerText = "Building your Bridge...";
 
     const encodedText = encodeURIComponent(text.slice(0, 3000));
-    // Updated to use the Cloud Shell URL instead of localhost
-    const appUrl = `https://3000-cs-f06254f1-44e4-4f26-820c-02f0a6c124b7.cs-europe-west1-onse.cloudshell.dev/?text=${encodedText}`;
+    // Updated to the permanent production URL
+    const appUrl = `https://dassahs-mindbridge.vercel.app/?text=${encodedText}`;
     
     chrome.tabs.create({ url: appUrl });
     window.close(); 
 
   } catch (err) {
     statusEl.innerText = "Error: " + err.message;
+    btn.style.opacity = "1";
     btn.disabled = false;
   }
 });

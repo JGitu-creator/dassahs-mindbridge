@@ -4,81 +4,97 @@
   <style>
     body {
       width: 320px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      padding: 16px;
-      background: #f8fafc;
-      color: #0f172a;
+      padding: 24px;
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      overflow: hidden;
     }
-    .header {
+    .container {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
+      text-align: center;
+      gap: 20px;
     }
-    .icon {
-      width: 32px;
-      height: 32px;
-      background: #3b82f6;
-      border-radius: 8px;
+    .logo-area {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-weight: bold;
+      box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    .title {
-      font-weight: 800;
-      font-size: 18px;
+    h1 {
+      font-size: 20px;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: -0.025em;
+      background: linear-gradient(to right, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .btn {
+    p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin: 0;
+      line-height: 1.5;
+    }
+    button {
       width: 100%;
-      background: #2563eb;
+      padding: 14px;
+      background: #3b82f6;
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 12px;
-      font-weight: bold;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       cursor: pointer;
-      box-shadow: 0 4px 6px -1px rgb(37 99 235 / 0.2);
-      transition: all 0.2s;
-      margin-bottom: 12px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
-    .btn:hover {
-      background: #1d4ed8;
-      transform: translateY(-1px);
+    button:hover {
+      background: #2563eb;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
     }
-    .btn:disabled {
-      background: #94a3b8;
-      cursor: not-allowed;
+    button:active {
+      transform: translateY(0);
     }
-    .status {
-      font-size: 13px;
-      color: #64748b;
-      text-align: center;
+    #status {
+      font-size: 11px;
+      font-weight: 700;
+      color: #3b82f6;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      height: 16px;
     }
     .footer {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid #e2e8f0;
-      font-size: 11px;
-      color: #94a3b8;
-      text-align: center;
+      font-size: 10px;
+      color: #475569;
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="icon">B</div>
-    <div class="title">Cognitive Filter</div>
+  <div class="container">
+    <div class="logo-area">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: white;"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .52 8.105H19a2 2 0 0 0 .1-3.998 4 4 0 0 0-1.517-7.767A3 3 0 1 0 12 5z"/></svg>
+    </div>
+    <div>
+      <h1>MindBridge</h1>
+      <p>Quiet the noise. Cross the bridge.</p>
+    </div>
+    <div id="status">Ready to Simplify</div>
+    <button id="simplifyBtn">Simplify This Page</button>
+    <div class="footer">Dassah's MindBridge v1.0</div>
   </div>
-
-  <button id="simplifyBtn" class="btn">Simplify This Page</button>
-  <div id="status" class="status">Click to remove the noise!</div>
-
-  <div class="footer">
-    Requires your Cognitive Filter App to be running at localhost:3000
-  </div>
-
   <script src="popup.js"></script>
 </body>
 </html>
