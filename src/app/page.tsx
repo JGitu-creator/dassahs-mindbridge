@@ -231,13 +231,25 @@ export default function Home() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      setInput(text);
-      handleSimplify(text);
-    };
-    reader.readAsText(file);
+    
+    if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+      Papa.parse(file, {
+        complete: (results) => {
+          const text = JSON.stringify(results.data);
+          setInput(text.slice(0, 10000));
+          handleSimplify(text);
+        },
+        header: true,
+      });
+    } else {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target?.result as string;
+        setInput(text);
+        handleSimplify(text);
+      };
+      reader.readAsText(file);
+    }
   };
 
   const speak = (text: string) => {
@@ -270,7 +282,7 @@ export default function Home() {
     if (!data?.chartData) return null;
     const { type, data: chartValues } = data.chartData;
     return (
-      <div className="h-56 w-full mt-6 bg-slate-900/40 backdrop-blur-md rounded-3xl p-6 border border-white/10">
+      <div className="h-48 md:h-56 w-full mt-6 bg-slate-900/40 backdrop-blur-md rounded-2xl md:rounded-3xl p-4 md:p-6 border border-white/10">
         <ResponsiveContainer width="100%" height="100%">
           {type === 'bar' ? (
             <BarChart data={chartValues}>
@@ -288,7 +300,7 @@ export default function Home() {
             </LineChart>
           ) : (
             <PieChart>
-              <Pie data={chartValues} innerRadius={65} outerRadius={85} paddingAngle={8} dataKey="value">
+              <Pie data={chartValues} innerRadius={50} outerRadius={70} md:innerRadius={65} md:outerRadius={85} paddingAngle={8} dataKey="value">
                 {chartValues.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
               </Pie>
               <Tooltip contentStyle={{ borderRadius: '16px', background: '#1e293b', border: 'none' }} />
@@ -322,7 +334,10 @@ export default function Home() {
   };
 
   return (
-    <main onMouseMove={(e) => mouseFocus && setMousePos({ y: e.clientY })} className="min-h-screen bg-[#0f172a] text-slate-200 font-sans p-4 md:p-8 flex flex-col items-center justify-center relative overflow-hidden">
+    <main 
+      onMouseMove={(e) => mouseFocus && setMousePos({ y: e.clientY })}
+      className="min-h-screen bg-[#0f172a] text-slate-200 font-sans p-4 md:p-8 flex flex-col items-center justify-center relative overflow-x-hidden"
+    >
       {/* Dopamine Rewards System */}
       <AnimatePresence>
         {rewardType !== 'none' && (
@@ -332,14 +347,14 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.5, y: 50 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.5 }} 
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[400] pointer-events-none"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[400] pointer-events-none w-full px-4"
             >
-              <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500 p-8 rounded-[3rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] flex flex-col items-center gap-4 border border-white/20 backdrop-blur-xl">
+              <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500 p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] flex flex-col items-center gap-4 border border-white/20 backdrop-blur-xl">
                 <div className="flex gap-2">
-                  <Star size={rewardType === 'final' ? 64 : 32} className="text-white animate-bounce" fill="currentColor" />
-                  {rewardType === 'final' && <Sparkles size={64} className="text-white animate-pulse" />}
+                  <Star size={rewardType === 'final' ? 48 : 32} className="text-white animate-bounce" fill="currentColor" />
+                  {rewardType === 'final' && <Sparkles size={48} className="text-white animate-pulse" />}
                 </div>
-                <span className="font-black uppercase tracking-tighter text-white text-4xl text-center italic drop-shadow-lg">
+                <span className="font-black uppercase tracking-tighter text-white text-2xl md:text-4xl text-center italic drop-shadow-lg">
                   {rewardType === 'final' ? "DASTASTIC TRIUMPH!" : currentCatchphrase}
                 </span>
               </div>
@@ -350,85 +365,123 @@ export default function Home() {
 
       <AnimatePresence>
         {mouseFocus && (
-          <div className="fixed inset-0 pointer-events-none z-[90]">
+          <div className="fixed inset-0 pointer-events-none z-[90] hidden md:block">
             <div className="absolute inset-0 bg-[#0f172a]/80 backdrop-blur-[4px]" style={{ maskImage: `linear-gradient(to bottom, black 0%, black calc(${mousePos.y}px - 60px), transparent calc(${mousePos.y}px - 40px), transparent calc(${mousePos.y}px + 40px), black calc(${mousePos.y}px + 60px), black 100%)`, WebkitMaskImage: `linear-gradient(to bottom, black 0%, black calc(${mousePos.y}px - 60px), transparent calc(${mousePos.y}px - 40px), transparent calc(${mousePos.y}px + 40px), black calc(${mousePos.y}px + 60px), black 100%)` }} />
           </div>
         )}
       </AnimatePresence>
 
-      <div className="fixed top-8 left-8 right-8 flex justify-between items-center z-[110]">
-        <div className="flex gap-3">
-          <button onClick={() => { playClick(); setShowHistory(true); }} className="p-4 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 text-slate-400 hover:text-blue-400"><Clock size={16} /></button>
-          <div className="flex bg-white/5 backdrop-blur-md p-1 rounded-2xl border border-white/10">
-            <button onClick={() => { playClick(); setIsBionic(!isBionic); }} className={`p-3 rounded-xl flex items-center gap-2 ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}><Type size={18} /></button>
-            <button onClick={() => { playClick(); setMouseFocus(!mouseFocus); }} className={`p-3 rounded-xl flex items-center gap-2 ${mouseFocus ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400'}`}><MousePointer2 size={18} /></button>
-            <div className="flex items-center gap-1 px-2 border-l border-white/10 ml-1">
-              {['none', 'brown', 'pink', 'white'].map((mode) => (
+      {/* Toolbar */}
+      <div className="fixed top-4 md:top-8 left-4 md:left-8 right-4 md:right-8 flex justify-between items-center z-[110]">
+        <div className="flex gap-2 md:gap-3">
+          <button onClick={() => { playClick(); setShowHistory(true); }} className="p-3 md:p-4 bg-white/5 backdrop-blur-md rounded-xl md:rounded-2xl border border-white/10 text-slate-400 hover:text-blue-400"><Clock size={16} /></button>
+          <div className="flex bg-white/5 backdrop-blur-md p-1 rounded-xl md:rounded-2xl border border-white/10">
+            <button onClick={() => { playClick(); setIsBionic(!isBionic); }} className={`p-2 md:p-3 rounded-lg md:rounded-xl flex items-center gap-2 ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}><Type size={18} /></button>
+            <button onClick={() => { playClick(); setMouseFocus(!mouseFocus); }} className={`hidden md:flex p-3 rounded-xl items-center gap-2 ${mouseFocus ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400'}`}><MousePointer2 size={18} /></button>
+            <div className="flex items-center gap-1 px-1 md:px-2 border-l border-white/10 ml-1">
+              {['none', 'brown', 'pink'].map((mode) => (
                 <button key={mode} onClick={() => { playClick(); setAudioMode(mode as any); }} className={`w-6 h-6 rounded-md text-[8px] font-black uppercase flex items-center justify-center transition-all ${audioMode === mode ? 'bg-emerald-600 text-white' : 'bg-white/5 text-slate-500'}`}>{mode[0]}</button>
               ))}
               <Headphones size={14} className="ml-1 text-slate-500" />
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-white/10"><span className="text-xs font-black uppercase tracking-[0.2em] text-slate-300 italic">Dassah's MindBridge</span></div>
+        <div className="hidden sm:flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-white/10"><span className="text-xs font-black uppercase tracking-[0.2em] text-slate-300 italic">Dassah's MindBridge</span></div>
       </div>
 
       <AnimatePresence>
         {showHistory && (
-          <motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-80 bg-slate-900/80 backdrop-blur-xl z-[120] p-8 border-r border-white/10 shadow-2xl overflow-y-auto">
+          <motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-72 md:w-80 bg-slate-900/80 backdrop-blur-xl z-[120] p-6 md:p-8 border-r border-white/10 shadow-2xl overflow-y-auto">
             <div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> History</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors"><X size={20} /></button></div>
             <div className="space-y-4">{history.map((item) => (
-              <button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-white/5 hover:bg-white/10 border border-white/5 hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>
+              <button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-4 md:p-5 rounded-[1.25rem] md:rounded-[1.5rem] bg-white/5 hover:bg-white/10 border border-white/5 hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>
             ))}</div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {!data ? (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl w-full space-y-8 z-10">
-          <div className="text-center space-y-6 mb-12">
-            <motion.div animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 5 }} className="mx-auto w-28 h-28 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-[2.5rem] flex items-center justify-center shadow-[0_20px_50px_rgba(59,130,246,0.3)] border border-white/20"><Brain size={56} /></motion.div>
-            <h1 className="text-7xl font-black text-white leading-none tracking-tighter">Mind<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">Bridge</span></h1>
-            <p className="text-xl text-slate-400 max-w-lg mx-auto leading-relaxed">Turn information chaos into pure <span className="text-blue-400 font-bold">Clarity</span>.</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl w-full space-y-6 md:y-8 z-10 pt-12 md:pt-0">
+          <div className="text-center space-y-4 md:space-y-6 mb-8 md:mb-12">
+            <motion.div animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 5 }} className="mx-auto w-20 h-20 md:w-28 md:h-28 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-[1.5rem] md:rounded-[2.5rem] flex items-center justify-center shadow-[0_20px_50px_rgba(59,130,246,0.3)] border border-white/20"><Brain size={40} md:size={56} /></motion.div>
+            <h1 className="text-5xl md:text-7xl font-black text-white leading-none tracking-tighter">Mind<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">Bridge</span></h1>
+            <p className="text-lg md:text-xl text-slate-400 max-w-lg mx-auto leading-relaxed px-4">Turn information chaos into pure <span className="text-blue-400 font-bold">Clarity</span>.</p>
           </div>
-          <div className="bg-slate-900/60 backdrop-blur-2xl rounded-[3rem] border border-white/10 p-2 shadow-2xl">
-            <textarea className="w-full h-72 p-10 text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-700 text-slate-200" placeholder="Paste your noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
-            <div className="bg-white/5 p-8 rounded-[2.5rem] flex justify-between items-center border border-white/5">
-              <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.2em] hover:text-white transition-colors"><Upload size={18} className="inline mr-2" /> Upload</button>
-              <button onClick={() => handleSimplify()} disabled={loading} className="bg-gradient-to-r from-blue-600 to-blue-400 text-white px-16 py-6 rounded-[2rem] font-black uppercase tracking-[0.1em] shadow-xl hover:shadow-blue-500/40 transition-all active:scale-95">{loading ? 'Bridging...' : 'Simplify'}</button>
+          <div className="bg-slate-900/60 backdrop-blur-2xl rounded-[2rem] md:rounded-[3rem] border border-white/10 p-2 shadow-2xl mx-2">
+            <textarea className="w-full h-64 md:h-72 p-6 md:p-10 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-700 text-slate-200" placeholder="Paste your noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
+            <div className="bg-white/5 p-6 md:p-8 rounded-[1.75rem] md:rounded-[2.5rem] flex flex-col sm:flex-row justify-between items-center gap-4 border border-white/5">
+              <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.2em] hover:text-white transition-colors w-full sm:w-auto"><Upload size={18} className="inline mr-2" /> Upload</button>
+              <button onClick={() => handleSimplify()} disabled={loading} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white px-12 md:px-16 py-4 md:py-6 rounded-[1.5rem] md:rounded-[2rem] font-black uppercase tracking-[0.1em] shadow-xl hover:shadow-blue-500/40 transition-all active:scale-95">{loading ? 'Bridging...' : 'Simplify'}</button>
             </div>
           </div>
         </motion.div>
       ) : (
-        <div className="max-w-2xl w-full pt-10 z-10">
+        <div className="max-w-2xl w-full pt-16 md:pt-10 z-10 px-2">
           {currentChunk === -1 ? (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-slate-900/60 backdrop-blur-3xl p-12 rounded-[3.5rem] border border-white/10 space-y-12 shadow-2xl">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-slate-900/60 backdrop-blur-3xl p-6 md:p-12 rounded-[2rem] md:rounded-[3.5rem] border border-white/10 space-y-8 md:space-y-12 shadow-2xl">
               <div className="flex items-center justify-between">
-                <div className="bg-blue-500/10 text-blue-400 px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase border border-blue-500/20">Save {data.readingTime}</div>
-                <div className="flex gap-4">
-                  <button onClick={() => { playClick(); speak(data.whyCare); }} className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all"><Volume2 size={20} /></button>
-                  <button onClick={handleReset} className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all"><RefreshCcw size={20} /></button>
+                <div className="bg-blue-500/10 text-blue-400 px-4 md:px-6 py-2 rounded-2xl text-[10px] font-black uppercase border border-blue-500/20">Save {data.readingTime}</div>
+                <div className="flex gap-2 md:gap-4">
+                  <button onClick={() => { playClick(); speak(data.whyCare); }} className="p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5 hover:bg-white/10 transition-all"><Volume2 size={20} /></button>
+                  <button onClick={handleReset} className="p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5 hover:bg-white/10 transition-all"><RefreshCcw size={20} /></button>
                 </div>
               </div>
-              <div className="space-y-6"><h2 className="text-[10px] uppercase tracking-[0.3em] text-blue-400 font-black italic">Purpose</h2><p className="text-3xl font-bold">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div>
-              <div className="space-y-8">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="w-12 h-12 rounded-[1.25rem] bg-white/5 text-blue-400 flex items-center justify-center font-black mr-6 border border-white/5 group-hover:border-blue-500/50 transition-all shadow-inner">{i + 1}</span><p className="text-xl mt-2 font-medium text-slate-300">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div>
-              <button onClick={handleNext} className="w-full bg-blue-600 py-7 rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-lg shadow-xl shadow-blue-600/30 hover:bg-blue-500 transition-all">Start Journey</button>
+              <div className="space-y-4 md:space-y-6"><h2 className="text-[10px] uppercase tracking-[0.3em] text-blue-400 font-black italic">Purpose</h2><p className="text-2xl md:text-3xl font-bold">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div>
+              <div className="space-y-6 md:space-y-8">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-[1.25rem] bg-white/5 text-blue-400 flex items-center justify-center font-black mr-4 md:mr-6 border border-white/5 group-hover:border-blue-500/50 transition-all shadow-inner">{i + 1}</span><p className="text-lg md:text-xl mt-1 md:mt-2 font-medium text-slate-300">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div>
+              <button onClick={handleNext} className="w-full bg-blue-600 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-base md:text-lg shadow-xl shadow-blue-600/30 hover:bg-blue-500 transition-all">Start Journey</button>
             </motion.div>
           ) : (
-            <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="bg-slate-900/60 backdrop-blur-3xl p-12 rounded-[3.5rem] border border-white/10 min-h-[550px] flex flex-col shadow-2xl">
-              <h2 className="text-5xl font-black mb-10 text-white tracking-tighter">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
-              <div className="bg-blue-500/5 p-10 rounded-[2.5rem] border border-blue-500/10 flex-grow text-2xl leading-relaxed font-medium text-slate-300 shadow-inner italic">
+            <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="bg-slate-900/60 backdrop-blur-3xl p-6 md:p-12 rounded-[2rem] md:rounded-[3.5rem] border border-white/10 min-h-[450px] md:min-h-[550px] flex flex-col shadow-2xl">
+              <h2 className="text-3xl md:text-5xl font-black mb-6 md:mb-10 text-white tracking-tighter">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
+              <div className="bg-blue-500/5 p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-blue-500/10 flex-grow text-xl md:text-2xl leading-relaxed font-medium text-slate-300 shadow-inner italic">
                 {isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}
               </div>
-              <div className="pt-12 flex justify-between gap-6">
-                <button onClick={() => { playClick(); setCurrentChunk(c => c - 1); }} className="flex-1 py-6 rounded-[2rem] font-black uppercase bg-white/5 border border-white/5 hover:bg-white/10 transition-all">Back</button>
-                <button onClick={handleNext} className="flex-[2] bg-gradient-to-r from-blue-600 to-blue-400 py-6 rounded-[2rem] font-black uppercase shadow-[0_15px_40px_rgba(59,130,246,0.4)] hover:shadow-blue-500/60 transition-all active:scale-95">{currentChunk < data.chunks.length - 1 ? 'Next Step' : 'Finalize!'}</button>
+              <div className="pt-8 md:pt-12 flex justify-between gap-4 md:gap-6">
+                <button onClick={() => { playClick(); setCurrentChunk(c => c - 1); }} className="flex-1 py-4 md:py-6 rounded-[1.25rem] md:rounded-[2rem] font-black uppercase bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-xs">Back</button>
+                <button onClick={handleNext} className="flex-[2] bg-gradient-to-r from-blue-600 to-blue-400 py-4 md:py-6 rounded-[1.25rem] md:rounded-[2rem] font-black uppercase shadow-[0_15px_40px_rgba(59,130,246,0.4)] hover:shadow-blue-500/60 transition-all active:scale-95 text-xs">{currentChunk < data.chunks.length - 1 ? 'Next Step' : 'Finalize!'}</button>
               </div>
             </motion.div>
           )}
         </div>
       )}
-      <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
+      <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".csv,.txt" />
+
+      {/* Persistent AI Assistant */}
+      {data && (
+        <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-[200]">
+          <AnimatePresence>
+            {showChat && (
+              <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="absolute bottom-20 md:bottom-28 right-0 w-[85vw] sm:w-[24rem] h-[60vh] md:h-[34rem] bg-slate-900/95 backdrop-blur-3xl rounded-[2rem] md:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] border border-white/10 flex flex-col overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 md:p-8 flex justify-between items-center shadow-xl">
+                  <div className="flex items-center gap-3"><Sparkles size={20} className="animate-pulse" /><span className="font-black uppercase tracking-[0.2em] text-xs">MindBridge AI</span></div>
+                  <button onClick={() => setShowChat(false)} className="hover:bg-white/10 p-2 rounded-2xl transition-colors"><X size={20} /></button>
+                </div>
+                <div className="flex-grow overflow-y-auto p-6 md:p-8 space-y-6 scrollbar-hide">
+                  {chatHistory.map((msg, i) => (
+                    <div key={i} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] p-4 md:p-5 rounded-[1.25rem] md:rounded-[1.75rem] text-sm leading-relaxed font-medium ${msg.type === 'user' ? 'bg-blue-600 text-white shadow-xl rounded-br-none' : 'bg-white/10 text-slate-200 border border-white/5 rounded-bl-none'}`}>{msg.text}</div>
+                    </div>
+                  ))}
+                  {chatLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-white/5 p-4 rounded-xl animate-pulse">
+                        <Loader2 size={16} className="animate-spin text-blue-400" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="p-6 md:p-8 bg-white/5 border-t border-white/10 flex gap-3">
+                  <input type="text" value={question} onChange={(e) => setQuestion(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && askQuestion()} placeholder="Ask anything..." className="flex-grow bg-transparent text-sm focus:outline-none placeholder:text-slate-700 font-bold" />
+                  <button onClick={askQuestion} disabled={chatLoading || !question.trim()} className="bg-blue-600 text-white p-3 md:p-4 rounded-xl md:rounded-2xl hover:bg-blue-500 shadow-xl transition-all"><Send size={18} /></button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowChat(!showChat)} className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-tr from-blue-600 to-purple-600 text-white rounded-2xl md:rounded-[2.5rem] flex items-center justify-center shadow-[0_20px_50px_rgba(59,130,246,0.5)] border border-white/20">
+            {showChat ? <X size={28} md:size={40} /> : <MessageCircle size={28} md:size={40} />}
+          </motion.button>
+        </div>
+      )}
     </main>
   );
 }
