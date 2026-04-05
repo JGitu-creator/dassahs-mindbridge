@@ -6,7 +6,7 @@ import {
   ArrowRight, Brain, Loader2, RefreshCcw, FileText, 
   CheckCircle2, Upload, BarChart3, Volume2, MessageCircle, 
   X, Send, Sparkles, BookOpen, Clock, Zap, Layers, ChevronRight,
-  Headphones, MousePointer2, Type, Star
+  Headphones, MousePointer2, Type, Star, LogIn, LogOut, User, Crown
 } from 'lucide-react';
 import Papa from 'papaparse';
 import {
@@ -22,6 +22,7 @@ import {
   PieChart,
   Pie,
 } from 'recharts';
+import { supabase } from '@/lib/supabase';
 
 interface SimplifiedData {
   tldr: string[];
@@ -57,19 +58,13 @@ const BionicText = ({ text }: { text: string }) => {
   );
 };
 
-// Reward Particles Component
 const StarParticles = ({ count = 12, isFinal = false }: { count?: number, isFinal?: boolean }) => {
   return (
     <div className="fixed inset-0 pointer-events-none z-[300]">
       {[...Array(count)].map((_, i) => (
         <motion.div
           key={i}
-          initial={{ 
-            opacity: 1, 
-            scale: 0, 
-            x: '50vw', 
-            y: '50vh' 
-          }}
+          initial={{ opacity: 1, scale: 0, x: '50vw', y: '50vh' }}
           animate={{ 
             opacity: 0, 
             scale: Math.random() * 1.5 + 0.5,
@@ -99,6 +94,12 @@ export default function Home() {
   const [history, setHistory] = useState<{ id: string; date: string; title: string; data: SimplifiedData }[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   
+  // Auth State
+  const [user, setUser] = useState<any>(null);
+  const [usageCount, setUsageCount] = useState(0);
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // Neuro-Friendly Features State
   const [isBionic, setIsBionic] = useState(true);
   const [audioMode, setAudioMode] = useState<'none' | 'brown' | 'white' | 'pink'>('none');
   const [mouseFocus, setMouseFocus] = useState(false);
@@ -112,9 +113,22 @@ export default function Home() {
   const catchphrases = ["Dastastic Mind!", "MindBridge Master!", "Pure Dassah Magic!", "Dassah-lightful!", "Mind Refined!"];
   const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
 
+  // Handle Auth & Load History
   useEffect(() => {
-    const stored = localStorage.getItem('adhd_filter_history');
-    if (stored) setHistory(JSON.parse(stored));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) loadHistory(session.user.id);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) loadHistory(session.user.id);
+      else setHistory([]);
+    });
+
+    // Local usage check
+    const localUsage = localStorage.getItem('mindbridge_usage') || '0';
+    setUsageCount(parseInt(localUsage));
 
     const urlParams = new URLSearchParams(window.location.search);
     const textParam = urlParams.get('text');
@@ -124,7 +138,41 @@ export default function Home() {
       handleSimplify(decodedText);
       window.history.replaceState({}, document.title, "/");
     }
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const loadHistory = async (userId: string) => {
+    const { data: dbHistory, error } = await supabase
+      .from('history')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (dbHistory) {
+      setHistory(dbHistory.map(h => ({
+        id: h.id,
+        date: new Date(h.created_at).toLocaleString(),
+        title: h.title,
+        data: h.data
+      })));
+    }
+  };
+
+  const handleLogin = async () => {
+    playClick();
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+  };
+
+  const handleLogout = async () => {
+    playClick();
+    await supabase.auth.signOut();
+    setUser(null);
+    setHistory([]);
+  };
 
   const stopAudio = () => {
     if (noiseNodeRef.current) {
@@ -198,18 +246,36 @@ export default function Home() {
     return () => stopAudio();
   }, [audioMode]);
 
-  const saveToHistory = (newData: SimplifiedData) => {
-    const entry = { id: Math.random().toString(36).substr(2, 9), date: new Date().toLocaleString(), title: newData.tldr[0].slice(0, 30) + '...', data: newData };
-    setHistory(prev => {
-      const updated = [entry, ...prev].slice(0, 10);
-      localStorage.setItem('adhd_filter_history', JSON.stringify(updated));
-      return updated;
-    });
+  const saveToHistory = async (newData: SimplifiedData) => {
+    const entryTitle = newData.tldr[0].slice(0, 30) + '...';
+    if (user) {
+      await supabase.from('history').insert({
+        user_id: user.id,
+        title: entryTitle,
+        data: newData
+      });
+      loadHistory(user.id);
+    } else {
+      const entry = { id: Math.random().toString(36).substr(2, 9), date: new Date().toLocaleString(), title: entryTitle, data: newData };
+      setHistory(prev => {
+        const updated = [entry, ...prev].slice(0, 10);
+        localStorage.setItem('adhd_filter_history', JSON.stringify(updated));
+        return updated;
+      });
+    }
   };
 
   const handleSimplify = async (textToSimplify = input) => {
     playClick();
     if (!textToSimplify.trim()) return;
+
+    // Usage check
+    const currentLimit = user ? 10 : 3;
+    if (usageCount >= currentLimit) {
+      setShowPaywall(true);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/simplify', {
@@ -219,7 +285,12 @@ export default function Home() {
       });
       const result = await res.json();
       setData(result);
-      saveToHistory(result);
+      await saveToHistory(result);
+      
+      const newCount = usageCount + 1;
+      setUsageCount(newCount);
+      localStorage.setItem('mindbridge_usage', newCount.toString());
+      
       setCurrentChunk(-1);
     } catch (err) {
       alert('Failed to simplify.');
@@ -232,6 +303,13 @@ export default function Home() {
     const file = e.target.files?.[0];
     if (!file) return;
     
+    // Safety check for common ADHD garbage-text formats
+    const allowedTypes = ['text/plain', 'text/csv'];
+    if (!allowedTypes.includes(file.type) && !file.name.endsWith('.csv') && !file.name.endsWith('.txt')) {
+      alert("Please upload .txt or .csv files. PDFs and Word docs are too 'noisy' for the bridge right now!");
+      return;
+    }
+
     if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
       Papa.parse(file, {
         complete: (results) => {
@@ -300,7 +378,7 @@ export default function Home() {
             </LineChart>
           ) : (
             <PieChart>
-              <Pie data={chartValues} innerRadius={50} outerRadius={70} md:innerRadius={65} md:outerRadius={85} paddingAngle={8} dataKey="value">
+              <Pie data={chartValues} innerRadius={50} outerRadius={70} paddingAngle={8} dataKey="value">
                 {chartValues.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
               </Pie>
               <Tooltip contentStyle={{ borderRadius: '16px', background: '#1e293b', border: 'none' }} />
@@ -334,32 +412,44 @@ export default function Home() {
   };
 
   return (
-    <main 
-      onMouseMove={(e) => mouseFocus && setMousePos({ y: e.clientY })}
-      className="min-h-screen bg-[#0f172a] text-slate-200 font-sans p-4 md:p-8 flex flex-col items-center justify-center relative overflow-x-hidden"
-    >
+    <main onMouseMove={(e) => mouseFocus && setMousePos({ y: e.clientY })} className="min-h-screen bg-[#0f172a] text-slate-200 font-sans p-4 md:p-8 flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/30">
       {/* Dopamine Rewards System */}
       <AnimatePresence>
         {rewardType !== 'none' && (
           <>
             <StarParticles count={rewardType === 'final' ? 50 : 15} isFinal={rewardType === 'final'} />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.5, y: 50 }} 
-              animate={{ opacity: 1, scale: 1, y: 0 }} 
-              exit={{ opacity: 0, scale: 0.5 }} 
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[400] pointer-events-none w-full px-4"
-            >
+            <motion.div initial={{ opacity: 0, scale: 0.5, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.5 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[400] pointer-events-none w-full px-4">
               <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500 p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] flex flex-col items-center gap-4 border border-white/20 backdrop-blur-xl">
-                <div className="flex gap-2">
-                  <Star size={rewardType === 'final' ? 48 : 32} className="text-white animate-bounce" fill="currentColor" />
-                  {rewardType === 'final' && <Sparkles size={48} className="text-white animate-pulse" />}
-                </div>
-                <span className="font-black uppercase tracking-tighter text-white text-2xl md:text-4xl text-center italic drop-shadow-lg">
-                  {rewardType === 'final' ? "DASTASTIC TRIUMPH!" : currentCatchphrase}
-                </span>
+                <div className="flex gap-2"><Star size={48} className="text-white animate-bounce" fill="currentColor" />{rewardType === 'final' && <Sparkles size={48} className="text-white animate-pulse" />}</div>
+                <span className="font-black uppercase tracking-tighter text-white text-2xl md:text-4xl text-center italic drop-shadow-lg">{rewardType === 'final' ? "DASTASTIC TRIUMPH!" : currentCatchphrase}</span>
               </div>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Paywall / Limit Modal */}
+      <AnimatePresence>
+        {showPaywall && (
+          <div className="fixed inset-0 bg-[#0f172a]/95 backdrop-blur-xl z-[500] flex items-center justify-center p-6">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-md w-full bg-slate-900 border border-blue-500/30 p-10 rounded-[3rem] text-center space-y-8 shadow-2xl">
+              <div className="mx-auto w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center text-blue-400"><Crown size={40} /></div>
+              <h2 className="text-3xl font-black text-white">Bridge Limit Reached</h2>
+              <p className="text-slate-400 text-lg leading-relaxed">
+                {!user 
+                  ? "You've crossed 3 bridges today! Sign in to get 10 free bridges per day and save your history."
+                  : "You've crossed 10 bridges today! Upgrade to MindBridge Pro for unlimited focus and custom soundscapes."}
+              </p>
+              <div className="space-y-4">
+                {!user ? (
+                  <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest transition-all">Sign in with Google</button>
+                ) : (
+                  <button className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest shadow-xl transition-all hover:scale-105">Upgrade to Pro ($9/mo)</button>
+                )}
+                <button onClick={() => setShowPaywall(false)} className="w-full text-slate-500 font-bold uppercase text-xs tracking-widest hover:text-white transition-colors">Maybe Later</button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -386,7 +476,14 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="hidden sm:flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-white/10"><span className="text-xs font-black uppercase tracking-[0.2em] text-slate-300 italic">Dassah's MindBridge</span></div>
+        
+        <div className="flex items-center gap-2">
+          {user ? (
+            <button onClick={handleLogout} className="p-3 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 text-slate-400 hover:text-red-400 flex items-center gap-2 font-black text-[10px] uppercase tracking-widest"><LogOut size={14} /> Logout</button>
+          ) : (
+            <button onClick={handleLogin} className="p-3 bg-blue-600 rounded-xl text-white flex items-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-600/20"><LogIn size={14} /> Sign In</button>
+          )}
+        </div>
       </div>
 
       <AnimatePresence>
