@@ -594,7 +594,7 @@ export default function Home() {
                   {chatLoading && <div className="flex justify-start"><div className="bg-white/5 p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}
                 </div>
                 <form onSubmit={handleChat} className="p-4 border-t border-white/5 bg-white/5 flex gap-2">
-                  <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target..value)} placeholder="Type a question..." className="flex-grow bg-slate-900/50 p-4 rounded-xl text-white focus:outline-none border border-white/10" />
+                  <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-slate-900/50 p-4 rounded-xl text-white focus:outline-none border border-white/10" />
                   <button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20}/></button>
                 </form>
               </motion.div>
