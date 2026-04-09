@@ -547,7 +547,9 @@ export default function Home() {
             </div>
           </div>
         </motion.div>
-      {/* ) : (
+      ) : (
+        // Commented out the entire else block using {false && ...}
+        {false && (
         <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">
           <AnimatePresence mode="wait">
             {currentChunk === -1 ? (
@@ -619,7 +621,8 @@ export default function Home() {
             )}
           </AnimatePresence>
         </div>
-      )} */}
+        )}
+      {/* End of commented out else block */}
 
       {/* --- HIDDEN ELEMENTS --- */}
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
