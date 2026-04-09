@@ -543,7 +543,8 @@ export default function Home() {
                 <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-[var(--color-accent)] to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl hover:shadow-blue-500/50 transition-all active:scale-95 text-lg">
                   {loading ? <Loader2 className="animate-spin" /> : 'Bridge It'}
                 </button>
-              </div>            </div>
+              </div>
+            </div>
           </div>
         </motion.div>
       ) : (
