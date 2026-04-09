@@ -7,7 +7,7 @@ import {
   CheckCircle2, Upload, BarChart3, Volume2, MessageCircle, 
   X, Send, Sparkles, BookOpen, Clock, Zap, Layers, ChevronRight,
   Headphones, MousePointer2, Type, Star, LogIn, LogOut, Crown,
-  Ghost, Swords, Rocket, Music, Trophy, Sparkle, Palette
+  Ghost, Swords, Rocket, Music, Trophy, Sparkle, Palette, Fish
 } from 'lucide-react';
 import Papa from 'papaparse';
 import {
@@ -30,7 +30,7 @@ interface SimplifiedData {
   tldr: string[];
   whyCare: string;
   readingTime: string;
-  chunks: { heading: string; content: string; keyTerms: string[] }[];
+  chunks: { heading: string; content: string; keyTerms: string[]; metaphor?: string; dopamineHook?: string; }[];
   chartData: { type: 'bar' | 'line' | 'pie'; data: { name: string; value: number }[]; } | null;
   actions: { task: string; priority: 'high' | 'medium' | 'low' }[];
 }
@@ -93,23 +93,79 @@ export default function Home() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
   const [theme, setTheme] = useState<Theme>('midnight');
+  const [isScenic, setIsScenic] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
+  const [chatLoading, setChatLoading] = useState(false);
   
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const noiseNodeRef = useRef<any>(null);
-
   const catchphrases = ["DASTASTIC FOCUS!", "HADASSAH'S HERO!", "PURE DASSA-MAGIC!", "BRIDGE MASTER!", "CLARITY UNLOCKED!"];
   const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const noiseNodeRef = useRef<any>(null);
+  const musicRef = useRef<HTMLAudioElement | null>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const handleChat = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim() || chatLoading) return;
+    const userMsg = chatInput;
+    setChatInput('');
+    setChatHistory(prev => [...prev, { role: 'user', text: userMsg }]);
+    setChatLoading(true);
+    try {
+      const res = await fetch('/api/simplify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'chat', question: userMsg, context: data })
+      });
+      const result = await res.json();
+      setChatHistory(prev => [...prev, { role: 'ai', text: result.answer }]);
+    } catch (err) {
+      setChatHistory(prev => [...prev, { role: 'ai', text: "The Bridge is a bit shaky, try again!" }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const handleReadAloud = (text: string) => {
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setIsPlaying(false);
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+    setIsPlaying(true);
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session);
       setUser(session?.user ?? null);
-      if (session?.user) loadHistory(session.user.id);
+      if (session?.user) {
+        console.log("User found on initial session, loading history for:", session.user.id);
+        loadHistory(session.user.id);
+      }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed. Event:", _event, "Session:", session);
       setUser(session?.user ?? null);
-      if (session?.user) loadHistory(session.user.id);
-      else setHistory([]);
+      if (session?.user) {
+        console.log("User session active, loading history for:", session.user.id);
+        loadHistory(session.user.id);
+      }
+      else { 
+        console.log("No user session, clearing history.");
+        setHistory([]);
+      }
     });
     setUsageCount(parseInt(localStorage.getItem('mindbridge_usage') || '0'));
     
@@ -176,44 +232,124 @@ export default function Home() {
     } catch (e) {}
   };
 
+  const playSuspenseSound = () => {
+    try {
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioContextClass();
+      audioCtxRef.current = ctx;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(80, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(120, ctx.currentTime + 2);
+      
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(2, ctx.currentTime);
+      
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.setValueAtTime(10, ctx.currentTime);
+      
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+      
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 4);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.start();
+      osc.stop(ctx.currentTime + 4);
+      noiseNodeRef.current = osc; // a bit of a hack to have a reference to stop it
+    } catch (e) {}
+  };
+
+  const playActionSound = () => {
+    try {
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioContextClass();
+      audioCtxRef.current = ctx;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.5);
+      
+      const lfo = ctx.createOscillator();
+      lfo.type = 'square';
+      lfo.frequency.setValueAtTime(8, ctx.currentTime);
+      
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.setValueAtTime(0.5, ctx.currentTime);
+      
+      lfo.connect(gain.gain);
+      
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.start();
+      osc.stop(ctx.currentTime + 1);
+      noiseNodeRef.current = osc; // a bit of a hack to have a reference to stop it
+    } catch (e) {}
+  };
+
   useEffect(() => {
-    if (audioMode !== 'none') {
+    if (musicRef.current) {
+      musicRef.current.pause();
+      musicRef.current = null;
+    }
+    if (noiseNodeRef.current) {
+      noiseNodeRef.current.disconnect();
+      noiseNodeRef.current = null;
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+      audioCtxRef.current.close();
+      audioCtxRef.current = null;
+    }
+
+    if (audioMode === 'suspense') {
+      playSuspenseSound();
+    } else if (audioMode === 'action') {
+      playActionSound();
+    } else if (audioMode === 'brown') {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
       const bufferSize = 4096;
       let lastOut = 0.0;
-      let phase = 0;
 
       const node = ctx.createScriptProcessor(bufferSize, 1, 1);
       node.onaudioprocess = (e: any) => {
         const out = e.outputBuffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
           const white = Math.random() * 2 - 1;
-          if (audioMode === 'brown') {
-            out[i] = (lastOut + (0.02 * white)) / 1.02;
-            lastOut = out[i];
-            out[i] *= 3.5;
-          } else if (audioMode === 'suspense') {
-            phase += 0.005;
-            out[i] = white * 0.05 + Math.sin(phase) * 0.03; 
-          } else if (audioMode === 'action') {
-            phase += 0.15;
-            const pulse = Math.sin(phase) > 0.8 ? 1.0 : 0.2;
-            out[i] = white * 0.1 * pulse;
-          } else {
-            out[i] = white * 0.15;
-          }
+          out[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = out[i];
+          out[i] *= 3.5;
         }
       };
       node.connect(ctx.destination);
-      audioCtxRef.current = ctx; noiseNodeRef.current = node;
-    } else {
-      if (noiseNodeRef.current) noiseNodeRef.current.disconnect();
-      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') audioCtxRef.current.close();
+      audioCtxRef.current = ctx;
+      noiseNodeRef.current = node;
     }
+
     return () => {
-      if (noiseNodeRef.current) noiseNodeRef.current.disconnect();
-      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') audioCtxRef.current.close();
+      if (musicRef.current) {
+        musicRef.current.pause();
+      }
+      if (noiseNodeRef.current) {
+        noiseNodeRef.current.disconnect();
+      }
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        audioCtxRef.current.close();
+      }
     };
   }, [audioMode]);
 
@@ -221,10 +357,14 @@ export default function Home() {
     playClick();
     if (!textToSimplify.trim()) return;
     if (usageCount >= (user ? 10 : 3)) { setShowPaywall(true); return; }
-    
+
     setLoading(true);
     try {
-      const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify }) });
+      const res = await fetch('/api/simplify', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ text: textToSimplify, isScenic }) 
+      });
       const result = await res.json();
       setData(result);
       const title = result.tldr[0].slice(0, 30) + '...';
@@ -237,7 +377,6 @@ export default function Home() {
       setCurrentChunk(-1);
     } catch (err) { alert('The Bridge encountered a storm! Try again.'); } finally { setLoading(false); }
   };
-
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -246,14 +385,23 @@ export default function Home() {
       const formData = new FormData();
       formData.append('file', file);
       const res = await fetch('/api/parse', { method: 'POST', body: formData });
+      
+      if (!res.ok) {
+        // Log the server's error response for debugging
+        const errorBody = await res.text();
+        console.error("File upload API responded with an error:", res.status, errorBody);
+        throw new Error(`Server responded with status ${res.status}`);
+      }
+
       const result = await res.json();
       if (result.text) {
         setInput(result.text);
       } else {
-        throw new Error("No text extracted");
+        throw new Error("API response did not contain extracted text.");
       }
-    } catch (err) {
-      alert("Failed to read this file. Try a simple .txt or .csv!");
+    } catch (err: any) {
+      console.error("An error occurred during file upload:", err);
+      alert(`Failed to read this file. Error: ${err.message}. Please check the console for more details.`);
     } finally {
       setLoading(false);
     }
@@ -274,12 +422,22 @@ export default function Home() {
 
   const currentTheme = THEMES[theme];
 
+  const themeStyles = `
+    :root {
+      --color-bg: ${currentTheme.bg};
+      --color-text: ${currentTheme.text};
+      --color-accent: ${currentTheme.accent};
+    }
+  `;
+
   return (
-    <main 
-      onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
-      className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-colors duration-1000"
-      style={{ backgroundColor: currentTheme.bg, color: currentTheme.text }}
-    >
+    <>
+      <style>{themeStyles}</style>
+      <main 
+        onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
+        className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-colors duration-1000"
+        style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
+      >
       
       {/* --- DOPAMINE REWARDS --- */}
       <AnimatePresence>
@@ -297,8 +455,33 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* --- TUNNEL VISION --- */}
+      {/* --- FOLLOW-ME ARROW (READING GUIDE) --- */}
       <AnimatePresence>
+        {mouseFocus && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1,
+              x: mousePos.x + 20, 
+              y: mousePos.y - 20 
+            }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300, mass: 0.5 }}
+            className="fixed pointer-events-none z-[100] text-blue-500 filter drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+            style={{ color: currentTheme.accent }}
+          >
+            <motion.div
+              animate={{ x: [0, 10, 0] }}
+              transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+            >
+              <ArrowRight size={48} strokeWidth={3} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* --- TUNNEL VISION --- */}      <AnimatePresence>
         {mouseFocus && (
           <div className="fixed inset-0 pointer-events-none z-[90] hidden md:block">
             <div className="absolute inset-0 bg-black/90 backdrop-blur-[10px]" style={{ maskImage: `radial-gradient(circle 150px at ${mousePos.x}px ${mousePos.y}px, transparent 80%, black 100%)`, WebkitMaskImage: `radial-gradient(circle 150px at ${mousePos.x}px ${mousePos.y}px, transparent 80%, black 100%)` }} />
@@ -330,7 +513,7 @@ export default function Home() {
           {user ? (
             <button onClick={handleLogout} className="bg-white/5 px-4 py-3 rounded-2xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Log Out</button>
           ) : (
-            <button onClick={handleLogin} className="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-2xl text-white font-black text-[10px] uppercase tracking-widest shadow-[0_10px_25px_rgba(59,130,246,0.4)] transition-all active:scale-95">Join Hadassah</button>
+            <button onClick={handleLogin} className="bg-[var(--color-accent)] hover:opacity-80 px-6 py-3 rounded-2xl text-white font-black text-[10px] uppercase tracking-widest shadow-[0_10px_25px_rgba(59,130,246,0.4)] transition-all active:scale-95">Join Hadassah</button>
           )}
         </div>
       </nav>
@@ -343,7 +526,7 @@ export default function Home() {
               <Brain className="w-16 h-16 md:w-20 md:h-20" />
             </motion.div>
             <h1 className="text-6xl md:text-9xl font-black text-white leading-none tracking-tighter">Dassah's <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">MindBridge</span></h1>
-            <p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight">By <span className="text-white border-b-2 border-blue-500 pb-1">Hadassah</span></p>
+            <p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight flex items-center gap-2">By <span className="text-white border-b-2 border-blue-500 pb-1">DJ</span> <Fish size={24} className="text-blue-500" /></p>
           </header>
 
           <div className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-3 shadow-2xl overflow-hidden">
@@ -352,10 +535,15 @@ export default function Home() {
               <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4">
                 <Upload size={24} className="text-blue-500" /> Clean Document
               </button>
-              <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl hover:shadow-blue-500/50 transition-all active:scale-95 text-lg">
-                {loading ? <Loader2 className="animate-spin" /> : 'Bridge It'}
-              </button>
-            </div>
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-white/5 border-white/10 text-slate-500'}`}>
+                  {isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}
+                  <span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic Route' : 'Quick Bridge'}</span>
+                </button>
+                <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-[var(--color-accent)] to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl hover:shadow-blue-500/50 transition-all active:scale-95 text-lg">
+                  {loading ? <Loader2 className="animate-spin" /> : 'Bridge It'}
+                </button>
+              </div>            </div>
           </div>
         </motion.div>
       ) : (
@@ -369,13 +557,59 @@ export default function Home() {
                 </div>
                 <div className="space-y-8"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2><p className="text-4xl md:text-5xl font-black leading-[1.1] text-white tracking-tight">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div>
                 <div className="space-y-10">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white/5 text-blue-400 flex items-center justify-center font-black mr-8 border border-white/5 group-hover:border-blue-500/50 transition-all text-lg">{i + 1}</span><p className="text-xl md:text-2xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div>
-                <button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-blue-600 py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:bg-blue-500 transition-all active:scale-95">Open the Bridge <ArrowRight className="inline ml-4"/></button>
+                <button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Bridge <ArrowRight className="inline ml-4"/></button>
               </motion.div>
             ) : (
-              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-white/5 backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-white/10 min-h-[500px] flex flex-col shadow-2xl relative">
-                <div className="absolute top-10 left-10 text-[10px] font-black text-blue-500/40 uppercase tracking-[0.5em]">Module {currentChunk + 1} / {data.chunks.length}</div>
-                <h2 className="text-4xl md:text-6xl font-black mb-10 text-white tracking-tighter leading-none pt-8">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
-                <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 flex-grow text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
+              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-white/5 backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-white/10 min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
+                <div className="absolute top-10 left-10 flex items-center gap-4">
+                  <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Bridge Segment {currentChunk + 1} / {data.chunks.length}</div>
+                  <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-white/5 text-slate-500 hover:text-white border border-white/5'}`}><Volume2 size={16}/></button>
+                </div>
+                
+                <h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
+                
+                <div className="space-y-8 flex-grow">
+                  <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">
+                    {isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}
+                  </div>
+
+                  {data.chunks[currentChunk].metaphor && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9, rotate: -2 }} 
+                      animate={{ opacity: 1, scale: 1, rotate: 0 }} 
+                      className="bg-gradient-to-br from-amber-400/20 via-orange-500/10 to-transparent border-2 border-amber-500/30 p-10 rounded-[3rem] space-y-4 relative overflow-hidden group shadow-[0_20px_50px_rgba(245,158,11,0.2)]"
+                    >
+                      <div className="absolute -right-6 -bottom-6 text-amber-500/10 group-hover:text-amber-500/30 transition-all duration-700">
+                        {currentChunk % 3 === 0 ? <Rocket size={180} /> : currentChunk % 3 === 1 ? <Trophy size={180} /> : <Star size={180} />}
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-amber-500 rounded-2xl shadow-lg animate-bounce">
+                          <Palette size={20} className="text-white" />
+                        </div>
+                        <div className="text-amber-500 font-black uppercase tracking-[0.2em] text-[12px]">Dassah's Visual Journey</div>
+                      </div>
+                      
+                      <p className="text-2xl md:text-3xl text-amber-100 font-black italic leading-tight drop-shadow-md">
+                        {isBionic ? <BionicText text={`"${data.chunks[currentChunk].metaphor}"`} /> : `"${data.chunks[currentChunk].metaphor}"`}
+                      </p>
+                      
+                      <motion.div 
+                        animate={{ x: [0, 50, 0], opacity: [0.1, 0.3, 0.1] }} 
+                        transition={{ repeat: Infinity, duration: 5 }} 
+                        className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" 
+                      />
+                    </motion.div>
+                  )}
+
+                  {data.chunks[currentChunk].dopamineHook && (
+                    <div className="flex items-center gap-4 p-4 text-emerald-400 font-bold tracking-tight bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+                      <Zap size={18} className="text-emerald-500 animate-bounce" />
+                      <span>{data.chunks[currentChunk].dopamineHook}</span>
+                    </div>
+                  )}
+                </div>
+
                 <div className="pt-12 flex gap-6">
                   <button onClick={() => { playClick(); setCurrentChunk(c => c - 1); }} className={`flex-1 py-6 rounded-[2rem] font-black uppercase text-xs transition-all border border-white/5 ${currentChunk === 0 ? 'opacity-10 pointer-events-none' : 'bg-white/5 hover:bg-white/10'}`}>Back</button>
                   <button onClick={handleNext} className="flex-[3] bg-gradient-to-r from-blue-600 via-purple-600 to-blue-500 py-8 md:py-10 rounded-[2rem] md:rounded-[3.5rem] font-black uppercase shadow-2xl active:scale-95 text-lg tracking-widest">{currentChunk < data.chunks.length - 1 ? 'Next' : 'DASTASTIC FINISH!'}</button>
@@ -406,12 +640,42 @@ export default function Home() {
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-lg w-full bg-slate-900 border-2 border-blue-500/40 p-12 md:p-20 rounded-[4rem] text-center space-y-10 shadow-[0_0_100px_rgba(59,130,246,0.3)]">
               <div className="mx-auto w-32 h-32 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse"><Crown size={64} /></div>
               <h2 className="text-5xl font-black text-white tracking-tighter italic">Bridge Overload!</h2>
-              <p className="text-slate-400 text-xl leading-relaxed font-medium">{!user ? "You've crossed your 3 free guest bridges! Join Hadassah to cross 10 for free every day." : "You've used your 10 free daily bridges! Go Pro for unlimited clarity."}</p>
+              <p className="text-slate-400 text-xl leading-relaxed font-medium">{!user ? "You've crossed your 3 free guest bridges! Join DJ's Bridge to cross 10 for free every day." : "You've used your 10 free daily bridges! Go Pro for unlimited clarity."}</p>
               <div className="space-y-6">
                 {!user ? <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-8 rounded-[2.5rem] font-black uppercase tracking-widest text-xl shadow-2xl transition-all">Sign In with Google</button> : <button className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 py-8 rounded-[2.5rem] font-black uppercase tracking-widest shadow-2xl text-xl hover:scale-105 transition-all">Go Pro ($9/mo)</button>}
                 <button onClick={() => setShowPaywall(false)} className="w-full text-slate-600 font-bold uppercase text-xs tracking-[0.5em] py-4 hover:text-slate-400">Not Today</button>
               </div>
             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* --- FLOATING CHAT WIDGET --- */}
+      <AnimatePresence>
+        {data && (
+          <div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">
+            {chatOpen && (
+              <motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-slate-900/95 backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]">
+                <div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div>
+                <div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">
+                  {chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything about your data!"</p>}
+                  {chatHistory.map((msg, i) => (
+                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-white/5 text-slate-300 border border-white/5'}`}>{msg.text}</div>
+                    </div>
+                  ))}
+                  {chatLoading && <div className="flex justify-start"><div className="bg-white/5 p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}
+                </div>
+                <form onSubmit={handleChat} className="p-4 border-t border-white/5 bg-white/5 flex gap-2">
+                  <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-slate-900/50 p-4 rounded-xl text-white focus:outline-none border border-white/10" />
+                  <button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20}/></button>
+                </form>
+              </motion.div>
+            )}
+            <button onClick={() => { playClick(); setChatOpen(!chatOpen); }} className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-400 text-white rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center shadow-2xl hover:scale-105 active:scale-90 transition-all group relative border-4 border-white/10">
+              <MessageCircle className="w-8 h-8 md:w-10 md:h-10 group-hover:rotate-12 transition-transform" />
+              {chatHistory.length > 0 && <div className="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full border-2 border-slate-900" />}
+            </button>
           </div>
         )}
       </AnimatePresence>

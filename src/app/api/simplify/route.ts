@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { text, mode, question, context } = await req.json();
+    const { text, mode, question, context, isScenic } = await req.json();
 
     if (!text && mode !== 'chat') {
       return NextResponse.json(
@@ -40,27 +40,25 @@ export async function POST(req: Request) {
     }
 
     const prompt = `
-You are an expert cognitive simplifier designed to help individuals with ADHD process complex information without feeling overwhelmed. 
-Your goal is to take the provided text or data and break it down into highly scannable, structured chunks.
+You are an expert cognitive simplifier called "Dassah's MindBridge," designed to help individuals with ADHD process complex information without feeling overwhelmed or BORED. 
+Your goal is to transform the provided text into a high-stimulation, engaging "Bridge" crossing.
 
-Follow these strict rules:
-1. "tldr": Provide exactly 3 concise, punchy bullet points summarizing the core message.
-2. "whyCare": Write a single, engaging sentence explaining why the reader should care about this information.
-3. "readingTime": Estimate the reading time of the original text (e.g., "5 mins").
-4. "chunks": Break the main content into logical sections. Each section must have:
+MODE: ${isScenic ? 'SCENIC ROUTE (Entertaining, Full Detail, Visual)' : 'QUICK BRIDGE (Fast, Brief, Minimal)'}
+
+Follow these strict rules for the JSON output:
+1. "tldr": Provide exactly 3 concise, punchy bullet points summarizing the core message. If SCENIC, make them witty or fun.
+2. "whyCare": Write a single, high-energy sentence explaining why this matters.
+3. "readingTime": Estimate reading time (e.g., "3 mins").
+4. "chunks": Break the content into logical sections. 
    - "heading": A clear, bold heading.
-   - "content": 2-3 short, simple sentences explaining the core concept of this section. DO NOT write long paragraphs.
-   - "keyTerms": An array of 1-3 important keywords or concepts from this chunk.
-5. "chartData": If the input contains numerical trends, categories, or tabular data, extract a simplified dataset for a chart. 
-   - "type": Choose "bar", "line", or "pie".
-   - "data": An array of objects like {"name": "Category", "value": 100}.
-   - If no chart is appropriate, return null for this entire object.
+   - "content": 2-3 short, high-impact sentences.
+   - "keyTerms": 1-3 keywords.
+   - "metaphor": (SCENIC ONLY) A funny or vivid comparison (e.g., "This concept is like a squirrel trying to organize a library"). If not scenic, return empty string.
+   - "dopamineHook": (SCENIC ONLY) A small question or "Did you know?" to keep them reading.
+5. "chartData": Extract simplified numerical trends if present.
+6. "actions": Priority-based task list.
 
-6. "actions": If the input contains tasks, deadlines, or implied "to-dos", extract them into a prioritized, step-by-step list. 
-   - Each action should have "task" (string) and "priority" ("high" | "medium" | "low").
-   - If no actions are found, return an empty array.
-
-Respond ONLY with a valid JSON object matching the exact structure below, with no markdown formatting around it:
+Respond ONLY with a valid JSON object matching the exact structure below:
 {
   "tldr": ["string", "string", "string"],
   "whyCare": "string",
@@ -69,7 +67,9 @@ Respond ONLY with a valid JSON object matching the exact structure below, with n
     {
       "heading": "string",
       "content": "string",
-      "keyTerms": ["string", "string"]
+      "keyTerms": ["string", "string"],
+      "metaphor": "string",
+      "dopamineHook": "string"
     }
   ],
   "chartData": {
@@ -79,7 +79,7 @@ Respond ONLY with a valid JSON object matching the exact structure below, with n
   "actions": [ { "task": "string", "priority": "high" | "medium" | "low" } ]
 }
 
-INPUT TO SIMPLIFY:
+INPUT:
 ${text}
 `;
 
