@@ -22,7 +22,7 @@ type Theme = 'midnight' | 'forest' | 'cyberpunk';
 
 const THEMES = {
   midnight: { 
-    bg: 'radial-gradient(circle at 50% 50%, #0a0f1e 0%, #050810 100%)', 
+    c1: '#0a0f1e', c2: '#050810',
     accent: '#3b82f6', 
     text: '#f8fafc',
     glass: 'rgba(255, 255, 255, 0.03)',
@@ -30,7 +30,7 @@ const THEMES = {
     shadow: 'rgba(0, 0, 0, 0.8)'
   },
   forest: { 
-    bg: 'radial-gradient(circle at 50% 50%, #0a2419 0%, #04120b 100%)', 
+    c1: '#0a2419', c2: '#04120b',
     accent: '#10b981', 
     text: '#ecfdf5',
     glass: 'rgba(16, 185, 129, 0.05)',
@@ -38,7 +38,7 @@ const THEMES = {
     shadow: 'rgba(4, 18, 11, 0.9)'
   },
   cyberpunk: { 
-    bg: 'radial-gradient(circle at 50% 50%, #1a0b2e 0%, #0f051a 100%)', 
+    c1: '#1a0b2e', c2: '#0f051a',
     accent: '#d946ef', 
     text: '#fdf4ff',
     glass: 'rgba(217, 70, 239, 0.05)',
@@ -293,22 +293,21 @@ export default function Home() {
       const filter = ctx.createBiquadFilter();
       
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(80, ctx.currentTime);
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
       
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(600, ctx.currentTime);
-      filter.Q.setValueAtTime(5, ctx.currentTime);
+      filter.frequency.setValueAtTime(1200, ctx.currentTime);
       
       const lfo = ctx.createOscillator();
       lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(0.15, ctx.currentTime);
+      lfo.frequency.setValueAtTime(0.1, ctx.currentTime);
       const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(20, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(50, ctx.currentTime);
       lfo.connect(lfoGain);
       lfoGain.connect(osc.frequency);
       
       gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 2);
+      gain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 4);
       
       osc.connect(filter);
       filter.connect(gain);
@@ -327,26 +326,29 @@ export default function Home() {
       if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
 
+      const baseFreq = 80;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(110, ctx.currentTime);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
       
-      const lfo = ctx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(2, ctx.currentTime);
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(0.5, ctx.currentTime);
-      lfo.connect(gain.gain);
+      const pulse = ctx.createOscillator();
+      pulse.type = 'square';
+      pulse.frequency.setValueAtTime(2, ctx.currentTime);
+      
+      const pulseGain = ctx.createGain();
+      pulseGain.gain.setValueAtTime(0.5, ctx.currentTime);
+      pulse.connect(pulseGain);
+      pulseGain.connect(gain.gain);
       
       gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 1);
+      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 1);
       
       osc.connect(gain);
       gain.connect(ctx.destination);
       
-      lfo.start();
+      pulse.start();
       osc.start();
       noiseNodeRef.current = osc;
     } catch (e) {}
@@ -476,7 +478,8 @@ export default function Home() {
 
   const themeStyles = `
     :root {
-      --color-bg: ${currentTheme.bg};
+      --color-bg-1: ${currentTheme.c1};
+      --color-bg-2: ${currentTheme.c2};
       --color-text: ${currentTheme.text};
       --color-accent: ${currentTheme.accent};
       --color-glass: ${currentTheme.glass};
@@ -491,7 +494,7 @@ export default function Home() {
       <main 
         onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
         className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000"
-        style={{ background: 'var(--color-bg)', color: 'var(--color-text)' }}
+        style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)`, color: 'var(--color-text)' }}
       >
       
       {/* --- BACKGROUND DECO --- */}

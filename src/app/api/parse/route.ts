@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as mammoth from 'mammoth';
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
-
-GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.worker.min.mjs`;
 
 export const dynamic = 'force-dynamic';
 
@@ -19,18 +16,10 @@ export async function POST(req: NextRequest) {
     let text = '';
 
     if (file.name.endsWith('.pdf')) {
-      const loadingTask = getDocument({ data: new Uint8Array(arrayBuffer) });
-      const pdf = await loadingTask.promise;
-      const numPages = pdf.numPages;
-      const pageTexts = [];
-
-      for (let i = 1; i <= numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map(item => ('str' in item ? item.str : '')).join(' ');
-        pageTexts.push(pageText);
-      }
-      text = pageTexts.join('\n\n');
+      // Use dynamic require for pdf-parse to avoid ESM/Next.js issues
+      const pdf = require('pdf-parse');
+      const data = await pdf(Buffer.from(arrayBuffer));
+      text = data.text;
 
     } else if (file.name.endsWith('.docx')) {
       const result = await mammoth.extractRawText({ buffer: Buffer.from(arrayBuffer) });
