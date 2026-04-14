@@ -404,7 +404,27 @@ export default function Home() {
       <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-80 bg-[var(--color-shadow)] backdrop-blur-3xl z-[120] p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { playClick(); setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-[var(--color-glass)] hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
 
       <AnimatePresence>{showPaywall && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-6"><motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-lg w-full bg-slate-900 border-2 border-[var(--color-accent)] p-12 md:p-20 rounded-[4rem] text-center space-y-10 shadow-[0_0_100px_rgba(59,130,246,0.3)]"><div className="mx-auto w-32 h-32 bg-[var(--color-accent)]/10 rounded-full flex items-center justify-center text-[var(--color-accent)] animate-pulse"><Crown size={64} /></div><h2 className="text-5xl font-black text-white tracking-tighter italic text-center">Hadassah's Royal Rest</h2><p className="text-slate-400 text-xl leading-relaxed font-medium">Your mind has crossed 10 Golden Bridges today! To keep the Dassah-Magic flowing and unlock unlimited clarity, join DJ's Inner Circle.</p><div className="space-y-6">{!user ? (<button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-8 rounded-[2.5rem] font-black uppercase tracking-widest text-xl shadow-2xl transition-all">Sign In with Google</button>) : (<button onClick={() => alert("Connecting to DJ's Royal Treasury for checkout...")} className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 py-8 rounded-[2.5rem] font-black uppercase tracking-widest shadow-2xl text-xl hover:scale-105 transition-all">Join the Circle ($9/mo)</button>)}<button onClick={() => setShowPaywall(false)} className="w-full text-slate-600 font-bold uppercase text-xs tracking-[0.5em] py-4 hover:text-slate-400">Not Today</button></div></motion.div></div>
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }} 
+            animate={{ scale: 1, opacity: 1 }} 
+            className="max-w-md w-full bg-slate-900 border-2 border-[var(--color-accent)] p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] text-center space-y-6 shadow-[0_0_100px_rgba(59,130,246,0.3)] max-h-[90vh] overflow-y-auto custom-scrollbar"
+          >
+            <div className="mx-auto w-20 h-20 bg-[var(--color-accent)]/10 rounded-full flex items-center justify-center text-[var(--color-accent)] animate-pulse">
+              <Crown size={40} />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter italic">Hadassah's Royal Rest</h2>
+            <p className="text-slate-400 text-base md:text-lg leading-relaxed font-medium">Your mind has crossed 10 Golden Bridges today! To keep the Dassah-Magic flowing and unlock unlimited clarity, join DJ's Inner Circle.</p>
+            <div className="space-y-4 pt-4">
+              {!user ? (
+                <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-lg shadow-2xl transition-all active:scale-95">Sign In with Google</button>
+              ) : (
+                <button onClick={() => alert("Connecting to DJ's Royal Treasury for checkout...")} className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 py-5 rounded-[1.5rem] font-black uppercase tracking-widest shadow-2xl text-lg hover:scale-105 transition-all active:scale-95">Join the Circle ($9/mo)</button>
+              )}
+              <button onClick={() => setShowPaywall(false)} className="w-full text-slate-600 font-bold uppercase text-[10px] tracking-[0.5em] py-4 hover:text-slate-400 transition-colors">Not Today</button>
+            </div>
+          </motion.div>
+        </div>
       )}</AnimatePresence>
 
       <AnimatePresence>
