@@ -149,6 +149,8 @@ export default function Home() {
   const [chatLoading, setChatLoading] = useState(false);
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [focusShards, setFocusShards] = useState(0);
+  const [suspenseIdx, setSuspenseIdx] = useState(0);
+  const [actionIdx, setActionIdx] = useState(0);
   
   const catchphrases = ["DASTASTIC FOCUS!", "HADASSAH'S HERO!", "PURE DASSA-MAGIC!", "BRIDGE MASTER!", "CLARITY UNLOCKED!"];
   const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
@@ -282,15 +284,20 @@ export default function Home() {
     } catch (e) {}
   };
 
-  const playSuspenseSound = () => {
-    // REPLACED WITH "Mozart Focus" - Arpeggiated Classical Synth
+  const playSuspenseSound = (variant = suspenseIdx) => {
+    // REPLACED WITH 3 MOZART-INSPIRED CALMING VARIATIONS
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
       if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
 
-      const notes = [261.63, 329.63, 392.00, 523.25]; // C Major Chord
+      const progressions = [
+        [261.63, 329.63, 392.00, 523.25], // C Major
+        [293.66, 349.23, 440.00, 587.33], // D Minor (Deep)
+        [349.23, 440.00, 523.25, 698.46]  // F Major (Bright)
+      ];
+      const notes = progressions[variant % 3];
       let noteIdx = 0;
 
       const playNote = () => {
@@ -300,40 +307,79 @@ export default function Home() {
         osc.frequency.setValueAtTime(notes[noteIdx % notes.length], ctx.currentTime);
         g.gain.setValueAtTime(0, ctx.currentTime);
         g.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 0.1);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
         osc.connect(g);
         g.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 1);
+        osc.stop(ctx.currentTime + 1.5);
         noteIdx++;
       };
 
-      const interval = setInterval(playNote, 500);
+      const interval = setInterval(playNote, variant === 1 ? 800 : 500);
       noiseNodeRef.current = { disconnect: () => clearInterval(interval) };
     } catch (e) {}
   };
 
-  const playActionSound = () => {
-    // REPLACED WITH "Zen Baroque" - Harmonized String Vibe
+  const playActionSound = (variant = actionIdx) => {
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
       if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
 
-      const freqs = [130.81, 164.81, 196.00]; // Low C Major
-      freqs.forEach(f => {
+      if (variant % 3 === 0) {
+        // THE CAPTIVATING ONE YOU LOVED (from 082596c)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(50, ctx.currentTime);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(200, ctx.currentTime);
+        const lfo = ctx.createOscillator();
+        lfo.type = 'square';
+        lfo.frequency.setValueAtTime(8, ctx.currentTime);
+        const lfoGain = ctx.createGain();
+        lfoGain.gain.setValueAtTime(0.4, ctx.currentTime);
+        lfo.connect(gain.gain);
+        const sweep = ctx.createOscillator();
+        sweep.type = 'sine';
+        sweep.frequency.setValueAtTime(0.5, ctx.currentTime);
+        const sweepGain = ctx.createGain();
+        sweepGain.gain.setValueAtTime(1000, ctx.currentTime);
+        sweep.connect(sweepGain);
+        sweepGain.connect(filter.frequency);
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 2);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        lfo.start();
+        sweep.start();
+        osc.start();
+        noiseNodeRef.current = osc;
+      } else {
+        // TWO NEW HIGH-FOCUS PULSES
+        const baseFreq = variant % 3 === 1 ? 60 : 90;
         const osc = ctx.createOscillator();
         const g = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(f, ctx.currentTime);
+        osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
+        const pulse = ctx.createOscillator();
+        pulse.type = 'square';
+        pulse.frequency.setValueAtTime(variant % 3 === 1 ? 4 : 1, ctx.currentTime);
+        const pGain = ctx.createGain();
+        pGain.gain.setValueAtTime(0.5, ctx.currentTime);
+        pulse.connect(pGain);
+        pGain.connect(g.gain);
         g.gain.setValueAtTime(0, ctx.currentTime);
-        g.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 2);
+        g.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 1);
         osc.connect(g);
         g.connect(ctx.destination);
+        pulse.start();
         osc.start();
-        noiseNodeRef.current = osc; // Simple ref for now
-      });
+        noiseNodeRef.current = osc;
+      }
     } catch (e) {}
   };
 
@@ -347,7 +393,7 @@ export default function Home() {
       musicRef.current = null;
     }
     if (noiseNodeRef.current) {
-      noiseNodeRef.current.disconnect();
+      if (noiseNodeRef.current.disconnect) noiseNodeRef.current.disconnect();
       noiseNodeRef.current = null;
     }
     if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
@@ -356,9 +402,9 @@ export default function Home() {
     }
 
     if (audioMode === 'suspense') {
-      playSuspenseSound();
+      playSuspenseSound(suspenseIdx);
     } else if (audioMode === 'action') {
-      playActionSound();
+      playActionSound(actionIdx);
     } else if (audioMode === 'brown') {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
@@ -552,8 +598,32 @@ export default function Home() {
             <button onClick={() => { playClick(); setIsBionic(!isBionic); }} className={`p-2 md:p-3 rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={20}/></button>
             <button onClick={() => { playClick(); setMouseFocus(!mouseFocus); }} className={`hidden md:flex p-3 rounded-xl transition-all ${mouseFocus ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><MousePointer2 size={20}/></button>
             <div className="flex items-center gap-1 px-2 border-l border-[var(--color-border)] ml-1">
-              {[ {m:'none', i:<X size={12}/>, n:'Silent'}, {m:'brown', i:<Layers size={12}/>, n:'White Noise'}, {m:'suspense', i:<Music size={12}/>, n:'Mozart Focus'}, {m:'action', i:<Sparkle size={12}/>, n:'Zen Baroque'} ].map((s) => (
-                <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} title={s.n} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>{s.i}</button>
+              {[ 
+                {m:'none', i:<X size={12}/>, n:'Silent'}, 
+                {m:'brown', i:<Layers size={12}/>, n:'White Noise'}, 
+                {m:'suspense', i:<Ghost size={12}/>, n:'Mozart Harmony'}, 
+                {m:'action', i:<Swords size={12}/>, n:'Focus Pulse'} 
+              ].map((s) => (
+                <button 
+                  key={s.m} 
+                  onClick={() => { 
+                    playClick(); 
+                    if (audioMode === s.m) {
+                      if (s.m === 'suspense') setSuspenseIdx(i => (i + 1) % 3);
+                      if (s.m === 'action') setActionIdx(i => (i + 1) % 3);
+                    }
+                    setAudioMode(s.m as any); 
+                  }} 
+                  title={s.n} 
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all relative ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}
+                >
+                  {s.i}
+                  {audioMode === s.m && s.m !== 'none' && s.m !== 'brown' && (
+                    <span className="absolute -top-1 -right-1 text-[6px] font-black bg-white text-emerald-600 px-1 rounded-full">
+                      {(s.m === 'suspense' ? suspenseIdx : actionIdx) + 1}
+                    </span>
+                  )}
+                </button>
               ))}
             </div>
             <div className="flex items-center gap-2 px-3 border-l border-[var(--color-border)] ml-1">
