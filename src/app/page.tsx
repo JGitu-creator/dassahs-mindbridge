@@ -148,6 +148,7 @@ export default function Home() {
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
+  const [focusShards, setFocusShards] = useState(0);
   
   const catchphrases = ["DASTASTIC FOCUS!", "HADASSAH'S HERO!", "PURE DASSA-MAGIC!", "BRIDGE MASTER!", "CLARITY UNLOCKED!"];
   const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
@@ -282,77 +283,63 @@ export default function Home() {
   };
 
   const playSuspenseSound = () => {
+    // REPLACED WITH "Mozart Focus" - Arpeggiated Classical Synth
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
       if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
 
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(440, ctx.currentTime);
-      
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1200, ctx.currentTime);
-      
-      const lfo = ctx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(0.1, ctx.currentTime);
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(50, ctx.currentTime);
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
-      
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 4);
-      
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      
-      lfo.start();
-      osc.start();
-      noiseNodeRef.current = osc;
+      const notes = [261.63, 329.63, 392.00, 523.25]; // C Major Chord
+      let noteIdx = 0;
+
+      const playNote = () => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(notes[noteIdx % notes.length], ctx.currentTime);
+        g.gain.setValueAtTime(0, ctx.currentTime);
+        g.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 0.1);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 1);
+        noteIdx++;
+      };
+
+      const interval = setInterval(playNote, 500);
+      noiseNodeRef.current = { disconnect: () => clearInterval(interval) };
     } catch (e) {}
   };
 
   const playActionSound = () => {
+    // REPLACED WITH "Zen Baroque" - Harmonized String Vibe
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
       if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
 
-      const baseFreq = 80;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
-      
-      const pulse = ctx.createOscillator();
-      pulse.type = 'square';
-      pulse.frequency.setValueAtTime(2, ctx.currentTime);
-      
-      const pulseGain = ctx.createGain();
-      pulseGain.gain.setValueAtTime(0.5, ctx.currentTime);
-      pulse.connect(pulseGain);
-      pulseGain.connect(gain.gain);
-      
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 1);
-      
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      
-      pulse.start();
-      osc.start();
-      noiseNodeRef.current = osc;
+      const freqs = [130.81, 164.81, 196.00]; // Low C Major
+      freqs.forEach(f => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, ctx.currentTime);
+        g.gain.setValueAtTime(0, ctx.currentTime);
+        g.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 2);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start();
+        noiseNodeRef.current = osc; // Simple ref for now
+      });
     } catch (e) {}
   };
+
+  useEffect(() => {
+    setFocusShards(parseInt(localStorage.getItem('focus_shards') || '0'));
+  }, []);
 
   useEffect(() => {
     if (musicRef.current) {
@@ -470,6 +457,11 @@ export default function Home() {
     } else if (data && currentChunk === data.chunks.length - 1) {
       setRewardType('final');
       playRewardSound(true);
+      setFocusShards(prev => {
+        const next = prev + 10;
+        localStorage.setItem('focus_shards', next.toString());
+        return next;
+      });
       setTimeout(() => { setRewardType('none'); handleReset(); }, 5000);
     }
   };
@@ -560,19 +552,24 @@ export default function Home() {
             <button onClick={() => { playClick(); setIsBionic(!isBionic); }} className={`p-2 md:p-3 rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={20}/></button>
             <button onClick={() => { playClick(); setMouseFocus(!mouseFocus); }} className={`hidden md:flex p-3 rounded-xl transition-all ${mouseFocus ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><MousePointer2 size={20}/></button>
             <div className="flex items-center gap-1 px-2 border-l border-[var(--color-border)] ml-1">
-              {[ {m:'none', i:<X size={12}/>}, {m:'brown', i:<Layers size={12}/>}, {m:'suspense', i:<Ghost size={12}/>}, {m:'action', i:<Swords size={12}/>} ].map((s) => (
-                <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>{s.i}</button>
+              {[ {m:'none', i:<X size={12}/>, n:'Silent'}, {m:'brown', i:<Layers size={12}/>, n:'White Noise'}, {m:'suspense', i:<Music size={12}/>, n:'Mozart Focus'}, {m:'action', i:<Sparkle size={12}/>, n:'Zen Baroque'} ].map((s) => (
+                <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} title={s.n} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>{s.i}</button>
               ))}
             </div>
-            <div className="flex items-center gap-1 px-2 border-l border-[var(--color-border)] ml-1">
+            <div className="flex items-center gap-2 px-3 border-l border-[var(--color-border)] ml-1">
               {(['midnight', 'forest', 'cyberpunk'] as Theme[]).map((t) => (
-                <button key={t} onClick={() => setTheme(t)} className={`w-6 h-6 rounded-full border-2 transition-all ${theme === t ? 'border-white scale-110' : 'border-transparent opacity-50'}`} style={{ backgroundColor: THEMES[t].accent }} />
+                <button key={t} onClick={() => setTheme(t)} className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${theme === t ? 'bg-[var(--color-accent)] text-white shadow-lg' : 'bg-[var(--color-glass)] text-slate-500'}`}>
+                  {t === 'midnight' ? 'Deep Space' : t === 'forest' ? 'Eternal Forest' : 'Neon Tokyo'}
+                </button>
               ))}
-              <Palette size={14} className="ml-1 text-slate-500" />
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-amber-500/10 px-4 py-2 rounded-2xl border border-amber-500/20 shadow-inner">
+            <Sparkle size={14} className="text-amber-400 animate-pulse" />
+            <span className="text-xs font-black text-amber-200">{focusShards} SHARDS</span>
+          </div>
           {user ? (
             <button onClick={handleLogout} className="bg-[var(--color-glass)] px-4 py-3 rounded-2xl border border-[var(--color-border)] text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Log Out</button>
           ) : (
