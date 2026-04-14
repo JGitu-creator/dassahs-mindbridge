@@ -21,9 +21,30 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 type Theme = 'midnight' | 'forest' | 'cyberpunk';
 
 const THEMES = {
-  midnight: { bg: '#050810', accent: '#3b82f6', text: '#f8fafc' },
-  forest: { bg: '#061a12', accent: '#10b981', text: '#ecfdf5' },
-  cyberpunk: { bg: '#1a0b2e', accent: '#d946ef', text: '#fdf4ff' }
+  midnight: { 
+    bg: 'radial-gradient(circle at 50% 50%, #0a0f1e 0%, #050810 100%)', 
+    accent: '#3b82f6', 
+    text: '#f8fafc',
+    glass: 'rgba(255, 255, 255, 0.03)',
+    border: 'rgba(59, 130, 246, 0.2)',
+    shadow: 'rgba(0, 0, 0, 0.8)'
+  },
+  forest: { 
+    bg: 'radial-gradient(circle at 50% 50%, #0a2419 0%, #04120b 100%)', 
+    accent: '#10b981', 
+    text: '#ecfdf5',
+    glass: 'rgba(16, 185, 129, 0.05)',
+    border: 'rgba(16, 185, 129, 0.2)',
+    shadow: 'rgba(4, 18, 11, 0.9)'
+  },
+  cyberpunk: { 
+    bg: 'radial-gradient(circle at 50% 50%, #1a0b2e 0%, #0f051a 100%)', 
+    accent: '#d946ef', 
+    text: '#fdf4ff',
+    glass: 'rgba(217, 70, 239, 0.05)',
+    border: 'rgba(217, 70, 239, 0.3)',
+    shadow: 'rgba(15, 5, 26, 0.9)'
+  }
 };
 
 interface SimplifiedData {
@@ -240,27 +261,40 @@ export default function Home() {
 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
       
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(80, ctx.currentTime);
+      osc.frequency.setValueAtTime(60, ctx.currentTime);
+      
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(400, ctx.currentTime);
       
       const lfo = ctx.createOscillator();
       lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(0.5, ctx.currentTime);
-      
+      lfo.frequency.setValueAtTime(0.1, ctx.currentTime);
       const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(15, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(10, ctx.currentTime);
       
       lfo.connect(lfoGain);
       lfoGain.connect(osc.frequency);
       
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 2);
+      const resLfo = ctx.createOscillator();
+      resLfo.type = 'sine';
+      resLfo.frequency.setValueAtTime(0.2, ctx.currentTime);
+      const resLfoGain = ctx.createGain();
+      resLfoGain.gain.setValueAtTime(200, ctx.currentTime);
+      resLfo.connect(resLfoGain);
+      resLfoGain.connect(filter.frequency);
       
-      osc.connect(gain);
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 3);
+      
+      osc.connect(filter);
+      filter.connect(gain);
       gain.connect(ctx.destination);
       
       lfo.start();
+      resLfo.start();
       osc.start();
       noiseNodeRef.current = osc;
     } catch (e) {}
@@ -274,27 +308,40 @@ export default function Home() {
 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
       
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(60, ctx.currentTime);
+      osc.frequency.setValueAtTime(50, ctx.currentTime);
+      
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(200, ctx.currentTime);
       
       const lfo = ctx.createOscillator();
       lfo.type = 'square';
-      lfo.frequency.setValueAtTime(4, ctx.currentTime);
+      lfo.frequency.setValueAtTime(8, ctx.currentTime);
       
       const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(10, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(0.4, ctx.currentTime);
       
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
+      lfo.connect(gain.gain);
+      
+      const sweep = ctx.createOscillator();
+      sweep.type = 'sine';
+      sweep.frequency.setValueAtTime(0.5, ctx.currentTime);
+      const sweepGain = ctx.createGain();
+      sweepGain.gain.setValueAtTime(1000, ctx.currentTime);
+      sweep.connect(sweepGain);
+      sweepGain.connect(filter.frequency);
       
       gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 1);
+      gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 2);
       
-      osc.connect(gain);
+      osc.connect(filter);
+      filter.connect(gain);
       gain.connect(ctx.destination);
       
       lfo.start();
+      sweep.start();
       osc.start();
       noiseNodeRef.current = osc;
     } catch (e) {}
@@ -427,6 +474,9 @@ export default function Home() {
       --color-bg: ${currentTheme.bg};
       --color-text: ${currentTheme.text};
       --color-accent: ${currentTheme.accent};
+      --color-glass: ${currentTheme.glass};
+      --color-border: ${currentTheme.border};
+      --color-shadow: ${currentTheme.shadow};
     }
   `;
 
@@ -435,10 +485,15 @@ export default function Home() {
       <style>{themeStyles}</style>
       <main 
         onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
-        className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-colors duration-1000"
-        style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
+        className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000"
+        style={{ background: 'var(--color-bg)', color: 'var(--color-text)' }}
       >
       
+      {/* --- BACKGROUND DECO --- */}
+      <div className="fixed inset-0 pointer-events-none opacity-20">
+        <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" />
+      </div>
       {/* --- DOPAMINE REWARDS --- */}
       <AnimatePresence>
         {rewardType !== 'none' && (
@@ -490,18 +545,18 @@ export default function Home() {
       </AnimatePresence>
 
       {/* --- SMART DYNAMIC TOOLBAR --- */}
-      <nav className="fixed top-0 left-0 right-0 z-[110] p-4 flex justify-between items-center bg-slate-900/20 backdrop-blur-md border-b border-white/5">
+      <nav className="fixed top-0 left-0 right-0 z-[110] p-4 flex justify-between items-center bg-[var(--color-glass)] backdrop-blur-md border-b border-[var(--color-border)]">
         <div className="flex gap-2">
-          <button onClick={() => { playClick(); setShowHistory(true); }} className="p-3 md:p-4 bg-white/5 rounded-2xl border border-white/10 text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90"><Clock size={20}/></button>
-          <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 shadow-xl">
+          <button onClick={() => { playClick(); setShowHistory(true); }} className="p-3 md:p-4 bg-[var(--color-glass)] rounded-2xl border border-[var(--color-border)] text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90"><Clock size={20}/></button>
+          <div className="flex bg-[var(--color-glass)] p-1 rounded-2xl border border-[var(--color-border)] shadow-xl">
             <button onClick={() => { playClick(); setIsBionic(!isBionic); }} className={`p-2 md:p-3 rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={20}/></button>
             <button onClick={() => { playClick(); setMouseFocus(!mouseFocus); }} className={`hidden md:flex p-3 rounded-xl transition-all ${mouseFocus ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><MousePointer2 size={20}/></button>
-            <div className="flex items-center gap-1 px-2 border-l border-white/10 ml-1">
+            <div className="flex items-center gap-1 px-2 border-l border-[var(--color-border)] ml-1">
               {[ {m:'none', i:<X size={12}/>}, {m:'brown', i:<Layers size={12}/>}, {m:'suspense', i:<Ghost size={12}/>}, {m:'action', i:<Swords size={12}/>} ].map((s) => (
-                <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-white/5 text-slate-500 hover:text-slate-300'}`}>{s.i}</button>
+                <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>{s.i}</button>
               ))}
             </div>
-            <div className="flex items-center gap-1 px-2 border-l border-white/10 ml-1">
+            <div className="flex items-center gap-1 px-2 border-l border-[var(--color-border)] ml-1">
               {(['midnight', 'forest', 'cyberpunk'] as Theme[]).map((t) => (
                 <button key={t} onClick={() => setTheme(t)} className={`w-6 h-6 rounded-full border-2 transition-all ${theme === t ? 'border-white scale-110' : 'border-transparent opacity-50'}`} style={{ backgroundColor: THEMES[t].accent }} />
               ))}
@@ -511,7 +566,7 @@ export default function Home() {
         </div>
         <div className="flex items-center gap-3">
           {user ? (
-            <button onClick={handleLogout} className="bg-white/5 px-4 py-3 rounded-2xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Log Out</button>
+            <button onClick={handleLogout} className="bg-[var(--color-glass)] px-4 py-3 rounded-2xl border border-[var(--color-border)] text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Log Out</button>
           ) : (
             <button onClick={handleLogin} className="bg-[var(--color-accent)] hover:opacity-80 px-6 py-3 rounded-2xl text-white font-black text-[10px] uppercase tracking-widest shadow-[0_10px_25px_rgba(59,130,246,0.4)] transition-all active:scale-95">Join Hadassah</button>
           )}
@@ -529,14 +584,14 @@ export default function Home() {
             <p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight flex items-center gap-2">By <span className="text-white border-b-2 border-blue-500 pb-1">DJ</span> <Fish size={24} className="text-blue-500" /></p>
           </header>
 
-          <div className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-3 shadow-2xl overflow-hidden">
+          <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border border-[var(--color-border)] p-3 shadow-2xl overflow-hidden">
             <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-800 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
-            <div className="bg-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-white/5">
+            <div className="bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-[var(--color-border)]">
               <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4">
                 <Upload size={24} className="text-blue-500" /> Clean Document
               </button>
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-                <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-white/5 border-white/10 text-slate-500'}`}>
+                <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>
                   {isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}
                   <span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic Route' : 'Quick Bridge'}</span>
                 </button>
@@ -551,20 +606,20 @@ export default function Home() {
         <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">
           <AnimatePresence mode="wait">
             {currentChunk === -1 ? (
-              <motion.div key="summary" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-white/5 backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-white/10 space-y-12 shadow-2xl">
+              <motion.div key="summary" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] space-y-12 shadow-2xl">
                 <div className="flex items-center justify-between">
                   <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center gap-3"><Rocket size={18}/> Saved {data.readingTime}</div>
-                  <button onClick={handleReset} className="p-5 bg-white/5 rounded-3xl text-slate-500 hover:text-red-400 transition-all"><X size={24}/></button>
+                  <button onClick={handleReset} className="p-5 bg-[var(--color-glass)] rounded-3xl text-slate-500 hover:text-red-400 transition-all"><X size={24}/></button>
                 </div>
                 <div className="space-y-8"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2><p className="text-4xl md:text-5xl font-black leading-[1.1] text-white tracking-tight">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div>
-                <div className="space-y-10">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white/5 text-blue-400 flex items-center justify-center font-black mr-8 border border-white/5 group-hover:border-blue-500/50 transition-all text-lg">{i + 1}</span><p className="text-xl md:text-2xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div>
+                <div className="space-y-10">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-[var(--color-glass)] text-blue-400 flex items-center justify-center font-black mr-8 border border-[var(--color-border)] group-hover:border-blue-500/50 transition-all text-lg">{i + 1}</span><p className="text-xl md:text-2xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div>
                 <button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Bridge <ArrowRight className="inline ml-4"/></button>
               </motion.div>
             ) : (
-              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-white/5 backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-white/10 min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
+              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
                 <div className="absolute top-10 left-10 flex items-center gap-4">
                   <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Bridge Segment {currentChunk + 1} / {data.chunks.length}</div>
-                  <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-white/5 text-slate-500 hover:text-white border border-white/5'}`}><Volume2 size={16}/></button>
+                  <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button>
                 </div>
                 
                 <h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
@@ -576,7 +631,7 @@ export default function Home() {
 
                   {/* --- VISUAL CHARTS (DYNAMIC) --- */}
                   {data.chartData && currentChunk === 0 && (
-                    <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10 space-y-6">
+                    <div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6">
                       <div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs">
                         <BarChart3 size={20} /> Data Pulse
                       </div>
@@ -617,7 +672,7 @@ export default function Home() {
                       </div>
                       <div className="space-y-4">
                         {data.actions.map((action, i) => (
-                          <div key={i} className="flex items-center gap-6 p-6 bg-white/5 rounded-2xl border border-white/5 group hover:border-emerald-500/30 transition-all">
+                          <div key={i} className="flex items-center gap-6 p-6 bg-[var(--color-glass)] rounded-2xl border border-[var(--color-border)] group hover:border-emerald-500/30 transition-all">
                             <div className={`w-3 h-3 rounded-full ${action.priority === 'high' ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]' : action.priority === 'medium' ? 'bg-amber-500' : 'bg-blue-500'}`} />
                             <p className="flex-grow text-xl font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p>
                             <div className="text-[10px] font-black uppercase tracking-widest opacity-30">{action.priority}</div>
@@ -665,7 +720,7 @@ export default function Home() {
                 </div>
 
                 <div className="pt-12 flex gap-6">
-                  <button onClick={() => { playClick(); setCurrentChunk(c => c - 1); }} className={`flex-1 py-6 rounded-[2rem] font-black uppercase text-xs transition-all border border-white/5 ${currentChunk === 0 ? 'opacity-10 pointer-events-none' : 'bg-white/5 hover:bg-white/10'}`}>Back</button>
+                  <button onClick={() => { playClick(); setCurrentChunk(c => c - 1); }} className={`flex-1 py-6 rounded-[2rem] font-black uppercase text-xs transition-all border border-[var(--color-border)] ${currentChunk === 0 ? 'opacity-10 pointer-events-none' : 'bg-[var(--color-glass)] hover:bg-white/10'}`}>Back</button>
                   <button onClick={handleNext} className="flex-[3] bg-gradient-to-r from-blue-600 via-purple-600 to-blue-500 py-8 md:py-10 rounded-[2rem] md:rounded-[3.5rem] font-black uppercase shadow-2xl active:scale-95 text-lg tracking-widest">{currentChunk < data.chunks.length - 1 ? 'Next' : 'DASTASTIC FINISH!'}</button>
                 </div>
               </motion.div>
@@ -679,10 +734,10 @@ export default function Home() {
       
       <AnimatePresence>
         {showHistory && (
-          <motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-80 bg-slate-900/90 backdrop-blur-3xl z-[120] p-8 border-r border-white/10 shadow-2xl overflow-y-auto">
-            <div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors"><X size={20} /></button></div>
+          <motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-80 bg-[var(--color-shadow)] backdrop-blur-3xl z-[120] p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto">
+            <div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div>
             <div className="space-y-4">{history.map((item) => (
-              <button key={item.id} onClick={() => { playClick(); setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-white/5 hover:bg-white/10 border border-white/5 hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>
+              <button key={item.id} onClick={() => { playClick(); setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-[var(--color-glass)] hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>
             ))}</div>
           </motion.div>
         )}
@@ -709,24 +764,24 @@ export default function Home() {
         {data && (
           <div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">
             {chatOpen && (
-              <motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-slate-900/95 backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]">
+              <motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-[var(--color-shadow)] backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]">
                 <div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div>
                 <div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">
                   {chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything about your data!"</p>}
                   {chatHistory.map((msg, i) => (
                     <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-white/5 text-slate-300 border border-white/5'}`}>{msg.text}</div>
+                      <div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div>
                     </div>
                   ))}
-                  {chatLoading && <div className="flex justify-start"><div className="bg-white/5 p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}
+                  {chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}
                 </div>
-                <form onSubmit={handleChat} className="p-4 border-t border-white/5 bg-white/5 flex gap-2">
-                  <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-slate-900/50 p-4 rounded-xl text-white focus:outline-none border border-white/10" />
+                <form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2">
+                  <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" />
                   <button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20}/></button>
                 </form>
               </motion.div>
             )}
-            <button onClick={() => { playClick(); setChatOpen(!chatOpen); }} className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-400 text-white rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center shadow-2xl hover:scale-105 active:scale-90 transition-all group relative border-4 border-white/10">
+            <button onClick={() => { playClick(); setChatOpen(!chatOpen); }} className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-400 text-white rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center shadow-2xl hover:scale-105 active:scale-90 transition-all group relative border-4 border-[var(--color-border)]">
               <MessageCircle className="w-8 h-8 md:w-10 md:h-10 group-hover:rotate-12 transition-transform" />
               {chatHistory.length > 0 && <div className="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full border-2 border-slate-900" />}
             </button>
