@@ -395,7 +395,7 @@ export default function Home() {
       const result = await res.json();
       if (result.text) {
         setInput(result.text);
-        handleSimplify(result.text); // AUTO-BRIDGE!
+        // Removed auto-bridge to allow user selection
       } else {
         throw new Error("API response did not contain extracted text.");
       }
@@ -573,6 +573,59 @@ export default function Home() {
                   <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">
                     {isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}
                   </div>
+
+                  {/* --- VISUAL CHARTS (DYNAMIC) --- */}
+                  {data.chartData && currentChunk === 0 && (
+                    <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10 space-y-6">
+                      <div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs">
+                        <BarChart3 size={20} /> Data Pulse
+                      </div>
+                      <div className="h-[250px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          {data.chartData.type === 'bar' ? (
+                            <BarChart data={data.chartData.data}>
+                              <XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
+                              <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '1rem', color: '#fff' }} />
+                              <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                                {data.chartData.data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                              </Bar>
+                            </BarChart>
+                          ) : data.chartData.type === 'line' ? (
+                            <LineChart data={data.chartData.data}>
+                              <XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
+                              <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '1rem', color: '#fff' }} />
+                              <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6' }} />
+                            </LineChart>
+                          ) : (
+                            <PieChart>
+                              <Pie data={data.chartData.data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
+                                {data.chartData.data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                              </Pie>
+                              <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '1rem', color: '#fff' }} />
+                            </PieChart>
+                          )}
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* --- ACTION CHECKLIST --- */}
+                  {data.actions && data.actions.length > 0 && currentChunk === data.chunks.length - 1 && (
+                    <div className="bg-emerald-500/5 p-10 rounded-[3rem] border border-emerald-500/10 space-y-8">
+                      <div className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-xs">
+                        <CheckCircle2 size={20} /> Mission Checklist
+                      </div>
+                      <div className="space-y-4">
+                        {data.actions.map((action, i) => (
+                          <div key={i} className="flex items-center gap-6 p-6 bg-white/5 rounded-2xl border border-white/5 group hover:border-emerald-500/30 transition-all">
+                            <div className={`w-3 h-3 rounded-full ${action.priority === 'high' ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]' : action.priority === 'medium' ? 'bg-amber-500' : 'bg-blue-500'}`} />
+                            <p className="flex-grow text-xl font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p>
+                            <div className="text-[10px] font-black uppercase tracking-widest opacity-30">{action.priority}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {data.chunks[currentChunk].metaphor && (
                     <motion.div 
