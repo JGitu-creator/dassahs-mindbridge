@@ -108,7 +108,7 @@ export default function Home() {
   const [isSharing, setIsSharing] = useState(false);
   const [isZenLocked, setIsZenLocked] = useState(false);
   
-  const catchphrases = ["DASTASTIC FOCUS!", "HADASSAH'S HERO!", "PURE DASSA-MAGIC!", "BRIDGE MASTER!", "CLARITY UNLOCKED!"];
+  const catchphrases = ["DASTASTIC FOCUS!", "HADASSAH'S HERO!", "PURE DASSAH-MAGIC!", "BRIDGE MASTER!", "CLARITY UNLOCKED!"];
   const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
