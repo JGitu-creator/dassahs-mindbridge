@@ -106,6 +106,7 @@ export default function Home() {
   const [suspenseIdx, setSuspenseIdx] = useState(0);
   const [actionIdx, setActionIdx] = useState(0);
   const [isSharing, setIsSharing] = useState(false);
+  const [isZenLocked, setIsZenLocked] = useState(false);
   
   const catchphrases = ["DASTASTIC FOCUS!", "HADASSAH'S HERO!", "PURE DASSA-MAGIC!", "BRIDGE MASTER!", "CLARITY UNLOCKED!"];
   const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
@@ -295,10 +296,25 @@ export default function Home() {
     } catch (err: any) { alert(`Failed to read document.`); } finally { setLoading(false); }
   };
 
+  const handleToggleZenLock = () => {
+    playClick();
+    if (isZenLocked) {
+      if (confirm("Wait! Breaking Hadassah's Lock costs 5 Dassah Points. Are you sure?")) {
+        setDassahPoints(prev => { const next = Math.max(0, prev - 5); localStorage.setItem('dassah_points', next.toString()); return next; });
+        setIsZenLocked(false);
+        if (document.fullscreenElement) document.exitFullscreen();
+      }
+    } else {
+      setIsZenLocked(true);
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  };
+
   const handleNext = () => {
     if (data && currentChunk < data.chunks.length - 1) { setCurrentChunk(c => c + 1); setRewardType('step'); setTimeout(() => setRewardType('none'), 2000); } 
     else if (data && currentChunk === data.chunks.length - 1) {
-      setRewardType('final'); setDassahPoints(prev => { const next = prev + 10; localStorage.setItem('dassah_points', next.toString()); return next; });
+      setRewardType('final'); setIsZenLocked(false); if (document.fullscreenElement) document.exitFullscreen();
+      setDassahPoints(prev => { const next = prev + 10; localStorage.setItem('dassah_points', next.toString()); return next; });
       setTimeout(() => { setRewardType('none'); handleReset(); }, 5000);
     }
   };
