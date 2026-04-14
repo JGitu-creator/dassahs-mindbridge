@@ -18,34 +18,16 @@ import { supabase } from '@/lib/supabase';
 // --- THEME & CONSTANTS ---
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-type Theme = 'midnight' | 'forest' | 'cyberpunk';
-
 const THEMES = {
-  midnight: { 
-    c1: '#0a0f1e', c2: '#050810',
-    accent: '#3b82f6', 
-    text: '#f8fafc',
-    glass: 'rgba(255, 255, 255, 0.03)',
-    border: 'rgba(59, 130, 246, 0.2)',
-    shadow: 'rgba(0, 0, 0, 0.8)'
-  },
-  forest: { 
-    c1: '#0a2419', c2: '#04120b',
-    accent: '#10b981', 
-    text: '#ecfdf5',
-    glass: 'rgba(16, 185, 129, 0.05)',
-    border: 'rgba(16, 185, 129, 0.2)',
-    shadow: 'rgba(4, 18, 11, 0.9)'
-  },
-  cyberpunk: { 
-    c1: '#1a0b2e', c2: '#0f051a',
-    accent: '#d946ef', 
-    text: '#fdf4ff',
-    glass: 'rgba(217, 70, 239, 0.05)',
-    border: 'rgba(217, 70, 239, 0.3)',
-    shadow: 'rgba(15, 5, 26, 0.9)'
-  }
+  midnight: { c1: '#0a0f1e', c2: '#050810', accent: '#3b82f6', text: '#f8fafc', glass: 'rgba(255, 255, 255, 0.03)', border: 'rgba(59, 130, 246, 0.2)', shadow: 'rgba(0, 0, 0, 0.8)', name: 'Deep Space' },
+  forest: { c1: '#0a2419', c2: '#04120b', accent: '#10b981', text: '#ecfdf5', glass: 'rgba(16, 185, 129, 0.05)', border: 'rgba(16, 185, 129, 0.2)', shadow: 'rgba(4, 18, 11, 0.9)', name: 'Eternal Forest' },
+  cyberpunk: { c1: '#1a0b2e', c2: '#0f051a', accent: '#d946ef', text: '#fdf4ff', glass: 'rgba(217, 70, 239, 0.05)', border: 'rgba(217, 70, 239, 0.3)', shadow: 'rgba(15, 5, 26, 0.9)', name: 'Neon Tokyo' },
+  sunset: { c1: '#2e1a0b', c2: '#1a0f05', accent: '#f59e0b', text: '#fff7ed', glass: 'rgba(245, 158, 11, 0.05)', border: 'rgba(245, 158, 11, 0.3)', shadow: 'rgba(26, 15, 5, 0.9)', name: 'Golden Hour' },
+  lavender: { c1: '#1e1b4b', c2: '#0f0e2e', accent: '#818cf8', text: '#eef2ff', glass: 'rgba(129, 140, 248, 0.05)', border: 'rgba(129, 140, 248, 0.3)', shadow: 'rgba(15, 14, 46, 0.9)', name: 'Purple Mist' },
+  ocean: { c1: '#083344', c2: '#041d24', accent: '#06b6d4', text: '#ecfeff', glass: 'rgba(6, 182, 212, 0.05)', border: 'rgba(6, 182, 212, 0.3)', shadow: 'rgba(4, 29, 36, 0.9)', name: 'Abyssal Blue' }
 };
+
+type Theme = keyof typeof THEMES;
 
 interface SimplifiedData {
   tldr: string[];
@@ -148,7 +130,7 @@ export default function Home() {
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
-  const [focusShards, setFocusShards] = useState(0);
+  const [dassahPoints, setDassahPoints] = useState(0);
   const [suspenseIdx, setSuspenseIdx] = useState(0);
   const [actionIdx, setActionIdx] = useState(0);
   
@@ -503,9 +485,9 @@ export default function Home() {
     } else if (data && currentChunk === data.chunks.length - 1) {
       setRewardType('final');
       playRewardSound(true);
-      setFocusShards(prev => {
+      setDassahPoints(prev => {
         const next = prev + 10;
-        localStorage.setItem('focus_shards', next.toString());
+        localStorage.setItem('dassah_points', next.toString());
         return next;
       });
       setTimeout(() => { setRewardType('none'); handleReset(); }, 5000);
@@ -626,19 +608,24 @@ export default function Home() {
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2 px-3 border-l border-[var(--color-border)] ml-1">
-              {(['midnight', 'forest', 'cyberpunk'] as Theme[]).map((t) => (
-                <button key={t} onClick={() => setTheme(t)} className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${theme === t ? 'bg-[var(--color-accent)] text-white shadow-lg' : 'bg-[var(--color-glass)] text-slate-500'}`}>
-                  {t === 'midnight' ? 'Deep Space' : t === 'forest' ? 'Eternal Forest' : 'Neon Tokyo'}
-                </button>
-              ))}
+            <div className="relative group px-3 border-l border-[var(--color-border)] ml-1">
+              <button className="bg-[var(--color-glass)] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-[var(--color-border)] flex items-center gap-2 hover:bg-[var(--color-accent)]/20 transition-all">
+                <Palette size={14} /> {THEMES[theme].name}
+              </button>
+              <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--color-shadow)] backdrop-blur-3xl border border-[var(--color-border)] rounded-2xl p-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all z-[200] shadow-2xl">
+                {Object.entries(THEMES).map(([id, t]) => (
+                  <button key={id} onClick={() => setTheme(id as any)} className={`w-full text-left px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${theme === id ? 'bg-[var(--color-accent)] text-white' : 'hover:bg-white/5 text-slate-400'}`}>
+                    {t.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-amber-500/10 px-4 py-2 rounded-2xl border border-amber-500/20 shadow-inner">
             <Sparkle size={14} className="text-amber-400 animate-pulse" />
-            <span className="text-xs font-black text-amber-200">{focusShards} SHARDS</span>
+            <span className="text-xs font-black text-amber-200">{dassahPoints} DASSAH POINTS</span>
           </div>
           {user ? (
             <button onClick={handleLogout} className="bg-[var(--color-glass)] px-4 py-3 rounded-2xl border border-[var(--color-border)] text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Log Out</button>
