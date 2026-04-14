@@ -15,11 +15,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const arrayBuffer = await file.arrayBuffer();
     let text = '';
 
     if (file.name.endsWith('.pdf')) {
-      const loadingTask = getDocument({ data: buffer });
+      const loadingTask = getDocument({ data: new Uint8Array(arrayBuffer) });
       const pdf = await loadingTask.promise;
       const numPages = pdf.numPages;
       const pageTexts = [];
@@ -33,10 +33,10 @@ export async function POST(req: NextRequest) {
       text = pageTexts.join('\n\n');
 
     } else if (file.name.endsWith('.docx')) {
-      const result = await mammoth.extractRawText({ buffer });
+      const result = await mammoth.extractRawText({ buffer: Buffer.from(arrayBuffer) });
       text = result.value;
     } else {
-      text = buffer.toString('utf-8');
+      text = Buffer.from(arrayBuffer).toString('utf-8');
     }
 
     // Advanced Clean-up for ADHD focus
