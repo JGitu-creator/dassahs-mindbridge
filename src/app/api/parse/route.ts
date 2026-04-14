@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as mammoth from 'mammoth';
-import pdf from 'pdf-parse';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +17,8 @@ export async function POST(req: NextRequest) {
     let text = '';
 
     if (file.name.endsWith('.pdf')) {
+      // Use require for better compatibility with older PDF libraries in Turbopack
+      const pdf = require('pdf-parse');
       const data = await pdf(buffer);
       text = data.text;
     } else if (file.name.endsWith('.docx')) {
