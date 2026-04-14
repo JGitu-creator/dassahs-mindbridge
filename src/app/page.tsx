@@ -243,27 +243,26 @@ export default function Home() {
       
       osc.type = 'sine';
       osc.frequency.setValueAtTime(80, ctx.currentTime);
-      osc.frequency.linearRampToValueAtTime(120, ctx.currentTime + 2);
       
       const lfo = ctx.createOscillator();
       lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(2, ctx.currentTime);
+      lfo.frequency.setValueAtTime(0.5, ctx.currentTime);
       
       const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(10, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(15, ctx.currentTime);
       
       lfo.connect(lfoGain);
       lfoGain.connect(osc.frequency);
       
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 4);
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 2);
       
       osc.connect(gain);
       gain.connect(ctx.destination);
       
+      lfo.start();
       osc.start();
-      osc.stop(ctx.currentTime + 4);
-      noiseNodeRef.current = osc; // a bit of a hack to have a reference to stop it
+      noiseNodeRef.current = osc;
     } catch (e) {}
   };
 
@@ -277,27 +276,27 @@ export default function Home() {
       const gain = ctx.createGain();
       
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(200, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.5);
+      osc.frequency.setValueAtTime(60, ctx.currentTime);
       
       const lfo = ctx.createOscillator();
       lfo.type = 'square';
-      lfo.frequency.setValueAtTime(8, ctx.currentTime);
+      lfo.frequency.setValueAtTime(4, ctx.currentTime);
       
       const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(0.5, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(10, ctx.currentTime);
       
-      lfo.connect(gain.gain);
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
       
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 1);
       
       osc.connect(gain);
       gain.connect(ctx.destination);
       
+      lfo.start();
       osc.start();
-      osc.stop(ctx.currentTime + 1);
-      noiseNodeRef.current = osc; // a bit of a hack to have a reference to stop it
+      noiseNodeRef.current = osc;
     } catch (e) {}
   };
 
@@ -396,6 +395,7 @@ export default function Home() {
       const result = await res.json();
       if (result.text) {
         setInput(result.text);
+        handleSimplify(result.text); // AUTO-BRIDGE!
       } else {
         throw new Error("API response did not contain extracted text.");
       }
