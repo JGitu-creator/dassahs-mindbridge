@@ -519,33 +519,107 @@ export default function Home() {
       </nav>
 
       {/* --- MAIN UI (MAX WIDTH FIXED) --- */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24">
-        <header className="text-center space-y-6">
-          <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative">
-            <Brain className="w-16 h-16 md:w-20 md:h-20" />
-          </motion.div>
-          <h1 className="text-6xl md:text-9xl font-black text-white leading-none tracking-tighter">Dassah's <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">MindBridge</span></h1>
-          <p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight flex items-center gap-2">By <span className="text-white border-b-2 border-blue-500 pb-1">DJ</span> <Fish size={24} className="text-blue-500" /></p>
-        </header>
+      {!data ? (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24">
+          <header className="text-center space-y-6">
+            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative">
+              <Brain className="w-16 h-16 md:w-20 md:h-20" />
+            </motion.div>
+            <h1 className="text-6xl md:text-9xl font-black text-white leading-none tracking-tighter">Dassah's <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 italic">MindBridge</span></h1>
+            <p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight flex items-center gap-2">By <span className="text-white border-b-2 border-blue-500 pb-1">DJ</span> <Fish size={24} className="text-blue-500" /></p>
+          </header>
 
-        <div className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-3 shadow-2xl overflow-hidden">
-          <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-800 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
-          <div className="bg-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-white/5">
-            <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4">
-              <Upload size={24} className="text-blue-500" /> Clean Document
-            </button>
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-              <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-white/5 border-white/10 text-slate-500'}`}>
-                {isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}
-                <span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic Route' : 'Quick Bridge'}</span>
+          <div className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-3 shadow-2xl overflow-hidden">
+            <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-800 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
+            <div className="bg-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-white/5">
+              <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4">
+                <Upload size={24} className="text-blue-500" /> Clean Document
               </button>
-              <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-[var(--color-accent)] to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl hover:shadow-blue-500/50 transition-all active:scale-95 text-lg">
-                {loading ? <Loader2 className="animate-spin" /> : 'Bridge It'}
-              </button>
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-white/5 border-white/10 text-slate-500'}`}>
+                  {isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}
+                  <span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic Route' : 'Quick Bridge'}</span>
+                </button>
+                <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-[var(--color-accent)] to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl hover:shadow-blue-500/50 transition-all active:scale-95 text-lg">
+                  {loading ? <Loader2 className="animate-spin" /> : 'Bridge It'}
+                </button>
+              </div>
             </div>
           </div>
+        </motion.div>
+      ) : (
+        <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">
+          <AnimatePresence mode="wait">
+            {currentChunk === -1 ? (
+              <motion.div key="summary" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-white/5 backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-white/10 space-y-12 shadow-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center gap-3"><Rocket size={18}/> Saved {data.readingTime}</div>
+                  <button onClick={handleReset} className="p-5 bg-white/5 rounded-3xl text-slate-500 hover:text-red-400 transition-all"><X size={24}/></button>
+                </div>
+                <div className="space-y-8"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2><p className="text-4xl md:text-5xl font-black leading-[1.1] text-white tracking-tight">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div>
+                <div className="space-y-10">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white/5 text-blue-400 flex items-center justify-center font-black mr-8 border border-white/5 group-hover:border-blue-500/50 transition-all text-lg">{i + 1}</span><p className="text-xl md:text-2xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div>
+                <button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Bridge <ArrowRight className="inline ml-4"/></button>
+              </motion.div>
+            ) : (
+              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-white/5 backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-white/10 min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
+                <div className="absolute top-10 left-10 flex items-center gap-4">
+                  <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Bridge Segment {currentChunk + 1} / {data.chunks.length}</div>
+                  <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-white/5 text-slate-500 hover:text-white border border-white/5'}`}><Volume2 size={16}/></button>
+                </div>
+                
+                <h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
+                
+                <div className="space-y-8 flex-grow">
+                  <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">
+                    {isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}
+                  </div>
+
+                  {data.chunks[currentChunk].metaphor && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9, rotate: -2 }} 
+                      animate={{ opacity: 1, scale: 1, rotate: 0 }} 
+                      className="bg-gradient-to-br from-amber-400/20 via-orange-500/10 to-transparent border-2 border-amber-500/30 p-10 rounded-[3rem] space-y-4 relative overflow-hidden group shadow-[0_20px_50px_rgba(245,158,11,0.2)]"
+                    >
+                      <div className="absolute -right-6 -bottom-6 text-amber-500/10 group-hover:text-amber-500/30 transition-all duration-700">
+                        {currentChunk % 3 === 0 ? <Rocket size={180} /> : currentChunk % 3 === 1 ? <Trophy size={180} /> : <Star size={180} />}
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-amber-500 rounded-2xl shadow-lg animate-bounce">
+                          <Palette size={20} className="text-white" />
+                        </div>
+                        <div className="text-amber-500 font-black uppercase tracking-[0.2em] text-[12px]">Dassah's Visual Journey</div>
+                      </div>
+                      
+                      <p className="text-2xl md:text-3xl text-amber-100 font-black italic leading-tight drop-shadow-md">
+                        {isBionic ? <BionicText text={`"${data.chunks[currentChunk].metaphor}"`} /> : `"${data.chunks[currentChunk].metaphor}"`}
+                      </p>
+                      
+                      <motion.div 
+                        animate={{ x: [0, 50, 0], opacity: [0.1, 0.3, 0.1] }} 
+                        transition={{ repeat: Infinity, duration: 5 }} 
+                        className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" 
+                      />
+                    </motion.div>
+                  )}
+
+                  {data.chunks[currentChunk].dopamineHook && (
+                    <div className="flex items-center gap-4 p-4 text-emerald-400 font-bold tracking-tight bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+                      <Zap size={18} className="text-emerald-500 animate-bounce" />
+                      <span>{data.chunks[currentChunk].dopamineHook}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-12 flex gap-6">
+                  <button onClick={() => { playClick(); setCurrentChunk(c => c - 1); }} className={`flex-1 py-6 rounded-[2rem] font-black uppercase text-xs transition-all border border-white/5 ${currentChunk === 0 ? 'opacity-10 pointer-events-none' : 'bg-white/5 hover:bg-white/10'}`}>Back</button>
+                  <button onClick={handleNext} className="flex-[3] bg-gradient-to-r from-blue-600 via-purple-600 to-blue-500 py-8 md:py-10 rounded-[2rem] md:rounded-[3.5rem] font-black uppercase shadow-2xl active:scale-95 text-lg tracking-widest">{currentChunk < data.chunks.length - 1 ? 'Next' : 'DASTASTIC FINISH!'}</button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </motion.div>
+      )}
 
       {/* --- HIDDEN ELEMENTS --- */}
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
@@ -607,5 +681,6 @@ export default function Home() {
         )}
       </AnimatePresence>
     </main>
+    </>
   );
 }
