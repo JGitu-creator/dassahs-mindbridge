@@ -183,24 +183,13 @@ export default function Home() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Initial session check:", session);
       setUser(session?.user ?? null);
-      if (session?.user) {
-        console.log("User found on initial session, loading history for:", session.user.id);
-        loadHistory(session.user.id);
-      }
+      if (session?.user) loadHistory(session.user.id);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed. Event:", _event, "Session:", session);
       setUser(session?.user ?? null);
-      if (session?.user) {
-        console.log("User session active, loading history for:", session.user.id);
-        loadHistory(session.user.id);
-      }
-      else { 
-        console.log("No user session, clearing history.");
-        setHistory([]);
-      }
+      if (session?.user) loadHistory(session.user.id);
+      else setHistory([]);
     });
     setUsageCount(parseInt(localStorage.getItem('mindbridge_usage') || '0'));
     
@@ -268,7 +257,6 @@ export default function Home() {
   };
 
   const playSuspenseSound = (variant = suspenseIdx) => {
-    // REPLACED WITH 3 MOZART-INSPIRED CALMING VARIATIONS
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
@@ -277,8 +265,8 @@ export default function Home() {
 
       const progressions = [
         [261.63, 329.63, 392.00, 523.25], // C Major
-        [293.66, 349.23, 440.00, 587.33], // D Minor (Deep)
-        [349.23, 440.00, 523.25, 698.46]  // F Major (Bright)
+        [392.00, 493.88, 587.33, 783.99], // G Major
+        [440.00, 523.25, 659.25, 880.00]  // A Minor
       ];
       const notes = progressions[variant % 3];
       let noteIdx = 0;
@@ -289,16 +277,16 @@ export default function Home() {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(notes[noteIdx % notes.length], ctx.currentTime);
         g.gain.setValueAtTime(0, ctx.currentTime);
-        g.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 0.1);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+        g.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 0.1);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
         osc.connect(g);
         g.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 1.5);
+        osc.stop(ctx.currentTime + 1.2);
         noteIdx++;
       };
 
-      const interval = setInterval(playNote, variant === 1 ? 800 : 500);
+      const interval = setInterval(playNote, 600);
       noiseNodeRef.current = { disconnect: () => clearInterval(interval) };
     } catch (e) {}
   };
@@ -310,59 +298,33 @@ export default function Home() {
       if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
 
-      if (variant % 3 === 0) {
-        // THE CAPTIVATING ONE YOU LOVED (from 082596c)
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        const filter = ctx.createBiquadFilter();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(50, ctx.currentTime);
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(200, ctx.currentTime);
-        const lfo = ctx.createOscillator();
-        lfo.type = 'square';
-        lfo.frequency.setValueAtTime(8, ctx.currentTime);
-        const lfoGain = ctx.createGain();
-        lfoGain.gain.setValueAtTime(0.4, ctx.currentTime);
-        lfo.connect(gain.gain);
-        const sweep = ctx.createOscillator();
-        sweep.type = 'sine';
-        sweep.frequency.setValueAtTime(0.5, ctx.currentTime);
-        const sweepGain = ctx.createGain();
-        sweepGain.gain.setValueAtTime(1000, ctx.currentTime);
-        sweep.connect(sweepGain);
-        sweepGain.connect(filter.frequency);
-        gain.gain.setValueAtTime(0, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 2);
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(ctx.destination);
-        lfo.start();
-        sweep.start();
-        osc.start();
-        noiseNodeRef.current = osc;
-      } else {
-        // TWO NEW HIGH-FOCUS PULSES
-        const baseFreq = variant % 3 === 1 ? 60 : 90;
+      const chords = [
+        [130.81, 164.81, 196.00], // Zen C
+        [174.61, 220.00, 261.63], // Zen F
+        [196.00, 246.94, 293.66]  // Zen G
+      ];
+      const freqs = chords[variant % 3];
+
+      freqs.forEach(f => {
         const osc = ctx.createOscillator();
         const g = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
-        const pulse = ctx.createOscillator();
-        pulse.type = 'square';
-        pulse.frequency.setValueAtTime(variant % 3 === 1 ? 4 : 1, ctx.currentTime);
-        const pGain = ctx.createGain();
-        pGain.gain.setValueAtTime(0.5, ctx.currentTime);
-        pulse.connect(pGain);
-        pGain.connect(g.gain);
+        osc.frequency.setValueAtTime(f, ctx.currentTime);
+        const lfo = ctx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.setValueAtTime(0.5, ctx.currentTime);
+        const lfoG = ctx.createGain();
+        lfoG.gain.setValueAtTime(0.3, ctx.currentTime);
+        lfo.connect(lfoG);
+        lfoG.connect(g.gain);
         g.gain.setValueAtTime(0, ctx.currentTime);
-        g.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 1);
+        g.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 2);
         osc.connect(g);
         g.connect(ctx.destination);
-        pulse.start();
+        lfo.start();
         osc.start();
         noiseNodeRef.current = osc;
-      }
+      });
     } catch (e) {}
   };
 
@@ -414,13 +376,13 @@ export default function Home() {
         musicRef.current.pause();
       }
       if (noiseNodeRef.current) {
-        noiseNodeRef.current.disconnect();
+        if (noiseNodeRef.current.disconnect) noiseNodeRef.current.disconnect();
       }
       if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
         audioCtxRef.current.close();
       }
     };
-  }, [audioMode]);
+  }, [audioMode, suspenseIdx, actionIdx]);
 
   const handleSimplify = async (textToSimplify = input) => {
     playClick();
@@ -456,7 +418,6 @@ export default function Home() {
       const res = await fetch('/api/parse', { method: 'POST', body: formData });
       
       if (!res.ok) {
-        // Log the server's error response for debugging
         const errorBody = await res.text();
         console.error("File upload API responded with an error:", res.status, errorBody);
         throw new Error(`Server responded with status ${res.status}`);
@@ -465,7 +426,6 @@ export default function Home() {
       const result = await res.json();
       if (result.text) {
         setInput(result.text);
-        // Removed auto-bridge to allow user selection
       } else {
         throw new Error("API response did not contain extracted text.");
       }

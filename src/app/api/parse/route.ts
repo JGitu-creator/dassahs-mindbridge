@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as mammoth from 'mammoth';
-import * as pdfjs from 'pdfjs-dist';
-
-// Standard Node fix for pdfjs
-if (!pdfjs.GlobalWorkerOptions.workerSrc) {
-  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
-}
+import pdf from 'pdf-parse';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,34 +13,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    console.log(`Parsing file: ${file.name} (${file.size} bytes)`);
     const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
     let text = '';
 
     if (file.name.endsWith('.pdf')) {
-      const uint8Array = new Uint8Array(arrayBuffer);
-      const loadingTask = pdfjs.getDocument({
-        data: uint8Array,
-        useSystemFonts: true,
-        disableFontFace: true, // Crucial for serverless environments
-      });
-      
-      const pdf = await loadingTask.promise;
-      let fullText = '';
-      
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        const strings = content.items.map((item: any) => item.str);
-        fullText += strings.join(' ') + '\n\n';
-      }
-      text = fullText;
-
+      const data = await pdf(buffer);
+      text = data.text;
     } else if (file.name.endsWith('.docx')) {
-      const result = await mammoth.extractRawText({ buffer: Buffer.from(arrayBuffer) });
+      const result = await mammoth.extractRawText({ buffer });
       text = result.value;
     } else {
-      text = Buffer.from(arrayBuffer).toString('utf-8');
+      text = buffer.toString('utf-8');
     }
 
     if (!text || text.trim().length === 0) {
@@ -60,8 +39,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ text: text.slice(0, 25000) });
   } catch (error: any) {
-    console.error('Parsing error details:', error);
+    console.error('Parsing error:', error);
     return NextResponse.json({ error: `Parsing Failed: ${error.message}` }, { status: 500 });
   }
 }
-
