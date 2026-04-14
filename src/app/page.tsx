@@ -96,6 +96,33 @@ const StarParticles = ({ count = 20, isFinal = false }: { count?: number, isFina
   </div>
 );
 
+const NeuroMirrorText = ({ text }: { text: string }) => {
+  if (!text) return null;
+  return (
+    <div className="flex flex-wrap gap-x-1 overflow-hidden p-4">
+      {text.split(' ').map((word, i) => (
+        <motion.span
+          key={i}
+          animate={{ 
+            x: [0, Math.random() * 2 - 1, 0],
+            y: [0, Math.random() * 2 - 1, 0],
+            opacity: [1, 0.7, 1],
+            filter: [`blur(0px)`, `blur(${Math.random() > 0.8 ? '2px' : '0px'})`, `blur(0px)`]
+          }}
+          transition={{ 
+            duration: 2 + Math.random() * 3, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+          className="inline-block text-lg md:text-xl font-medium text-slate-400 select-none"
+        >
+          {word}
+        </motion.span>
+      ))}
+    </div>
+  );
+};
+
 // --- MAIN APPLICATION ---
 
 export default function Home() {
@@ -120,6 +147,7 @@ export default function Home() {
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
+  const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   
   const catchphrases = ["DASTASTIC FOCUS!", "HADASSAH'S HERO!", "PURE DASSA-MAGIC!", "BRIDGE MASTER!", "CLARITY UNLOCKED!"];
   const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
@@ -257,6 +285,7 @@ export default function Home() {
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
+      if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
 
       const osc = ctx.createOscillator();
@@ -264,37 +293,28 @@ export default function Home() {
       const filter = ctx.createBiquadFilter();
       
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(60, ctx.currentTime);
+      osc.frequency.setValueAtTime(80, ctx.currentTime);
       
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(400, ctx.currentTime);
+      filter.frequency.setValueAtTime(600, ctx.currentTime);
+      filter.Q.setValueAtTime(5, ctx.currentTime);
       
       const lfo = ctx.createOscillator();
       lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(0.1, ctx.currentTime);
+      lfo.frequency.setValueAtTime(0.15, ctx.currentTime);
       const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(10, ctx.currentTime);
-      
+      lfoGain.gain.setValueAtTime(20, ctx.currentTime);
       lfo.connect(lfoGain);
       lfoGain.connect(osc.frequency);
       
-      const resLfo = ctx.createOscillator();
-      resLfo.type = 'sine';
-      resLfo.frequency.setValueAtTime(0.2, ctx.currentTime);
-      const resLfoGain = ctx.createGain();
-      resLfoGain.gain.setValueAtTime(200, ctx.currentTime);
-      resLfo.connect(resLfoGain);
-      resLfoGain.connect(filter.frequency);
-      
       gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 3);
+      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 2);
       
       osc.connect(filter);
       filter.connect(gain);
       gain.connect(ctx.destination);
       
       lfo.start();
-      resLfo.start();
       osc.start();
       noiseNodeRef.current = osc;
     } catch (e) {}
@@ -304,44 +324,29 @@ export default function Home() {
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
+      if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
       
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(50, ctx.currentTime);
-      
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(200, ctx.currentTime);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(110, ctx.currentTime);
       
       const lfo = ctx.createOscillator();
-      lfo.type = 'square';
-      lfo.frequency.setValueAtTime(8, ctx.currentTime);
-      
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(2, ctx.currentTime);
       const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(0.4, ctx.currentTime);
-      
+      lfoGain.gain.setValueAtTime(0.5, ctx.currentTime);
       lfo.connect(gain.gain);
       
-      const sweep = ctx.createOscillator();
-      sweep.type = 'sine';
-      sweep.frequency.setValueAtTime(0.5, ctx.currentTime);
-      const sweepGain = ctx.createGain();
-      sweepGain.gain.setValueAtTime(1000, ctx.currentTime);
-      sweep.connect(sweepGain);
-      sweepGain.connect(filter.frequency);
-      
       gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 2);
+      gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 1);
       
-      osc.connect(filter);
-      filter.connect(gain);
+      osc.connect(gain);
       gain.connect(ctx.destination);
       
       lfo.start();
-      sweep.start();
       osc.start();
       noiseNodeRef.current = osc;
     } catch (e) {}
@@ -584,14 +589,26 @@ export default function Home() {
             <p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight flex items-center gap-2">By <span className="text-white border-b-2 border-blue-500 pb-1">DJ</span> <Fish size={24} className="text-blue-500" /></p>
           </header>
 
-          <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border border-[var(--color-border)] p-3 shadow-2xl overflow-hidden">
-            <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-800 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
+          <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border border-[var(--color-border)] p-3 shadow-2xl overflow-hidden relative">
+            {showNeuroMirror ? (
+              <div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto custom-scrollbar">
+                <NeuroMirrorText text={input || "Paste some text to see the struggle..."} />
+              </div>
+            ) : (
+              <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-800 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
+            )}
+
             <div className="bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-[var(--color-border)]">
-              <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4">
-                <Upload size={24} className="text-blue-500" /> Clean Document
-              </button>
-              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-                <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>
+              <div className="flex items-center gap-4">
+                <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4">
+                  <Upload size={24} className="text-blue-500" /> Clean Document
+                </button>
+                <button onClick={() => { playClick(); setShowNeuroMirror(!showNeuroMirror); }} className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${showNeuroMirror ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>
+                  <Ghost size={16} />
+                  <span className="text-[10px] font-black uppercase tracking-widest">{showNeuroMirror ? 'Stop the Noise' : 'Show the Noise'}</span>
+                </button>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">                <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>
                   {isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}
                   <span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic Route' : 'Quick Bridge'}</span>
                 </button>
