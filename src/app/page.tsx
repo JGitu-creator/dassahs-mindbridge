@@ -367,7 +367,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    setFocusShards(parseInt(localStorage.getItem('focus_shards') || '0'));
+    setDassahPoints(parseInt(localStorage.getItem('dassah_points') || '0'));
   }, []);
 
   useEffect(() => {
