@@ -107,43 +107,37 @@ const NeuroMirrorText = ({ text }: { text: string }) => {
   );
 };
 
-const AuraOrbs = ({ theme }: { theme: Theme }) => {
+const FrostedGlassDepth = ({ theme, mousePos }: { theme: Theme, mousePos: { x: number, y: number } }) => {
   const t = THEMES[theme];
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <motion.div 
-        animate={{ 
-          x: [0, 100, -50, 0], 
-          y: [0, -50, 100, 0],
-          scale: [1, 1.2, 0.8, 1],
-          opacity: [0.3, 0.5, 0.3]
-        }} 
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full blur-[120px]"
-        style={{ background: t.prism[0] }}
-      />
-      <motion.div 
-        animate={{ 
-          x: [0, -100, 50, 0], 
-          y: [0, 100, -50, 0],
-          scale: [1, 0.8, 1.2, 1],
-          opacity: [0.2, 0.4, 0.2]
-        }} 
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute top-[30%] -right-[10%] w-[50%] h-[50%] rounded-full blur-[100px]"
-        style={{ background: t.prism[1] }}
-      />
-      <motion.div 
-        animate={{ 
-          x: [0, 50, -100, 0], 
-          y: [0, -100, 50, 0],
-          scale: [1, 1.1, 0.9, 1],
-          opacity: [0.15, 0.3, 0.15]
-        }} 
-        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-        className="absolute -bottom-[10%] left-[20%] w-[40%] h-[40%] rounded-full blur-[80px]"
-        style={{ background: t.prism[2] }}
-      />
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          animate={{
+            x: [0, Math.random() * 100 - 50, 0],
+            y: [0, Math.random() * 100 - 50, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 20 + i * 5,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          style={{
+            position: 'absolute',
+            left: `${10 + i * 15}%`,
+            top: `${20 + (i % 3) * 20}%`,
+            width: `${150 + i * 50}px`,
+            height: `${150 + i * 50}px`,
+            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}22, transparent)`,
+            borderRadius: i % 2 === 0 ? '50%' : '30% 70% 70% 30% / 30% 30% 70% 70%',
+            filter: `blur(${40 + i * 10}px)`,
+            translateX: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth : 0) / 2) * (0.02 + i * 0.01),
+            translateY: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight : 0) / 2) * (0.02 + i * 0.01),
+          }}
+        />
+      ))}
     </div>
   );
 };
@@ -418,11 +412,13 @@ export default function Home() {
     }
   `;
 
+  useEffect(() => { setMouseFocus(true); }, []);
+
   return (
     <>
       <style>{themeStyles}</style>
       <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)`, color: 'var(--color-text)' }}>
-      <AuraOrbs theme={theme} />
+      <FrostedGlassDepth theme={theme} mousePos={mousePos} />
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <AnimatePresence>{rewardType !== 'none' && (
