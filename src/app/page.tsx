@@ -192,6 +192,7 @@ export default function Home() {
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
   const [dassahPoints, setDassahPoints] = useState(0);
   const [suspenseIdx, setSuspenseIdx] = useState(0);
   const [actionIdx, setActionIdx] = useState(0);
@@ -492,12 +493,12 @@ export default function Home() {
       <FrostedGlassDepth theme={theme} mousePos={mousePos} />
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
-      <AnimatePresence>{rewardType !== 'none' && (
+      <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
         <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.5, y: 100 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.5 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600 via-purple-600 to-amber-500 p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(59,130,246,0.8)] border-4 border-white/30 backdrop-blur-3xl flex flex-col items-center gap-6"><motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}><Trophy size={rewardType === 'final' ? 80 : 48} className="text-white" /></motion.div><h2 className="font-black italic text-4xl md:text-8xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "DIVINE VICTORY!" : currentCatchphrase}</h2>{rewardType === 'final' && <p className="text-white/80 font-bold uppercase tracking-widest md:text-xl">Focus Restored!</p>}</div></motion.div></>
       )}</AnimatePresence>
 
       <nav className={`fixed top-0 left-0 right-0 z-[110] p-2 md:p-4 flex justify-between items-center bg-[var(--color-glass)] backdrop-blur-md border-b border-[var(--color-border)] transition-all duration-500 ${isZenLocked ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'}`}>
-        <div className="flex gap-1 md:gap-2 items-center sm:max-w-none">
+        <div className="flex gap-1 md:gap-2 items-center sm:max-w-none"><button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} title={focusMode === "dastastic" ? "Sovereign Mode" : "Dastastic Mode"} className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all flex items-center gap-2 ${focusMode === "sovereign" ? "bg-amber-600 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}>{focusMode === "sovereign" ? <Crown size={18}/> : <Zap size={18}/><span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign" : "Dastastic"}</span></button><div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
           <button onClick={() => { playClick(); setShowHistory(true); }} className="p-2 md:p-4 bg-[var(--color-glass)] rounded-xl md:rounded-2xl border border-[var(--color-border)] text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90 flex-shrink-0"><Clock size={18}/></button>
           <div className="flex bg-[var(--color-glass)] p-1 rounded-xl md:rounded-2xl border border-[var(--color-border)] shadow-xl flex-shrink-0">
             <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading" className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={18}/></button>
@@ -547,7 +548,7 @@ export default function Home() {
       </nav>
 
       <AnimatePresence>{showAbout && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} 
             animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} 
@@ -569,7 +570,7 @@ export default function Home() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <motion.div style={{ x: (mousePos.x - 1000) * -0.01, y: (mousePos.y - 500) * -0.01 }} className="space-y-6 text-slate-300 text-lg leading-relaxed font-medium">
-                  <p>Dassah's Prism is not merely a tool; it is a living testimony. For those of us navigating the spectrum, heavy ADHD is not a deficiency to be 'fixed,' but a high-powered engine awaiting its rightful fuel. Guided by the grace of Christ, I have come to embrace this condition as a divine blessing—a singular, vibrant lens that allows us to perceive the world's complexity with a unique and profound depth.</p>
+                  <p>Dassah's Prism is not merely a tool; it is a living testimony. For those of us navigating the spectrum, Profound Cognitive Intensity is not a deficiency to be 'fixed,' but a high-powered engine awaiting its rightful fuel. Guided by the grace of Christ, I have come to embrace this condition as a divine blessing—a singular, vibrant lens that allows us to perceive the world's complexity with a unique and profound depth.</p>
                   <p>Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming cacophony of modern information into a purposeful stream of clarity, inviting you to step out of the noise and into the light of the gift we have been given.</p>
                 </motion.div>
                 <motion.div style={{ x: (mousePos.x - 1000) * 0.03, y: (mousePos.y - 500) * 0.03 }} className="space-y-6 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 italic">
