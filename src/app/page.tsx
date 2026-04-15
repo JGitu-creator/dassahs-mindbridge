@@ -8,7 +8,7 @@ import {
   X, Send, Sparkles, BookOpen, Clock, Zap, Layers, ChevronRight,
   Headphones, MousePointer2, Type, Star, LogIn, LogOut, Crown,
   Ghost, Swords, Rocket, Music, Trophy, Sparkle, Palette, Fish,
-  Share2, Download, ExternalLink, Heart, Lock
+  Share2, Download, ExternalLink, Heart, Lock, Sun
 } from 'lucide-react';
 import Papa from 'papaparse';
 import {
