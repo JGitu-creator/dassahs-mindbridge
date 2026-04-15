@@ -300,13 +300,19 @@ export default function Home() {
     else if (audioMode === 'action') playActionSound(actionIdx);
     else if (audioMode === 'brown') {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContextClass(); const bufferSize = 4096; let lastOut = 0.0;
+      const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
+      const bufferSize = 4096; let lastOut = 0.0;
       const node = ctx.createScriptProcessor(bufferSize, 1, 1);
+      const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(400, ctx.currentTime);
+      const lfo = ctx.createOscillator(); lfo.frequency.setValueAtTime(0.1, ctx.currentTime);
+      const lfoG = ctx.createGain(); lfoG.gain.setValueAtTime(150, ctx.currentTime);
+      lfo.connect(lfoG); lfoG.connect(filter.frequency);
       node.onaudioprocess = (e: any) => {
         const out = e.outputBuffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; out[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = out[i]; out[i] *= 3.5; }
       };
-      node.connect(ctx.destination); audioCtxRef.current = ctx; noiseNodeRef.current = node;
+      node.connect(filter); filter.connect(ctx.destination); lfo.start();
+      audioCtxRef.current = ctx; noiseNodeRef.current = { disconnect: () => { node.disconnect(); lfo.stop(); if(ctx.state !== 'closed') ctx.close(); } };
     }
     return () => { if (noiseNodeRef.current && noiseNodeRef.current.disconnect) noiseNodeRef.current.disconnect(); if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') audioCtxRef.current.close(); };
   }, [audioMode, suspenseIdx, actionIdx]);
@@ -394,7 +400,7 @@ export default function Home() {
               </button>
             )}
             <div className="flex items-center gap-0.5 md:gap-1 px-1 md:px-2 border-l border-[var(--color-border)] ml-0.5 md:ml-1">
-              {[ {m:'none', i:<X size={10}/>, n:'Silent'}, {m:'brown', i:<Layers size={10}/>, n:'White Noise'}, {m:'suspense', i:<Ghost size={10}/>, n:'Mozart Harmony'}, {m:'action', i:<Swords size={10}/>, n:'Zen Baroque'} ].map((s) => (
+              {[ {m:'none', i:<X size={10}/>, n:'Silent'}, {m:'brown', i:<Sun size={10}/>, n:'Celestial Resonance'}, {m:'suspense', i:<Ghost size={10}/>, n:'Mozart Harmony'}, {m:'action', i:<Swords size={10}/>, n:'Zen Baroque'} ].map((s) => (
                 <button key={s.m} onClick={() => { playClick(); if (audioMode === s.m) { if (s.m === 'suspense') setSuspenseIdx(i => (i + 1) % 3); if (s.m === 'action') setActionIdx(i => (i + 1) % 3); } setAudioMode(s.m as any); }} title={s.n} className={`w-7 h-7 md:w-8 md:h-8 rounded-md md:rounded-lg flex items-center justify-center transition-all relative ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>
                   {s.i}{audioMode === s.m && s.m !== 'none' && s.m !== 'brown' && (<span className="absolute -top-1 -right-1 text-[6px] font-black bg-white text-emerald-600 px-1 rounded-full">{(s.m === 'suspense' ? suspenseIdx : actionIdx) + 1}</span>)}
                 </button>
