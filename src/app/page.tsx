@@ -498,7 +498,16 @@ export default function Home() {
       )}</AnimatePresence>
 
       <nav className={`fixed top-0 left-0 right-0 z-[110] p-2 md:p-4 flex justify-between items-center bg-[var(--color-glass)] backdrop-blur-md border-b border-[var(--color-border)] transition-all duration-500 ${isZenLocked ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'}`}>
-        <div className="flex gap-1 md:gap-2 items-center sm:max-w-none"><button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} title={focusMode === "dastastic" ? "Sovereign Mode" : "Dastastic Mode"} className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all flex items-center gap-2 ${focusMode === "sovereign" ? "bg-amber-600 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}>{focusMode === "sovereign" ? <Crown size={18}/> : <Zap size={18}/><span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign" : "Dastastic"}</span></button><div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
+        <div className="flex gap-1 md:gap-2 items-center sm:max-w-none">
+          <button 
+            onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} 
+            title={focusMode === "dastastic" ? "Sovereign Mode" : "Dastastic Mode"} 
+            className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all flex items-center gap-2 ${focusMode === "sovereign" ? "bg-amber-600 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}
+          >
+            {focusMode === "sovereign" ? <Crown size={18}/> : <Zap size={18}/>}
+            <span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign" : "Dastastic"}</span>
+          </button>
+          <div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
           <button onClick={() => { playClick(); setShowHistory(true); }} className="p-2 md:p-4 bg-[var(--color-glass)] rounded-xl md:rounded-2xl border border-[var(--color-border)] text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90 flex-shrink-0"><Clock size={18}/></button>
           <div className="flex bg-[var(--color-glass)] p-1 rounded-xl md:rounded-2xl border border-[var(--color-border)] shadow-xl flex-shrink-0">
             <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading" className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={18}/></button>
