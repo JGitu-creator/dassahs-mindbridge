@@ -148,8 +148,8 @@ export default function Home() {
         setShowThemeMenu(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -370,7 +370,7 @@ export default function Home() {
               ))}
             </div>
             <div className="relative px-1 md:px-3 border-l border-[var(--color-border)] ml-0.5 md:ml-1" ref={themeMenuRef}>
-              <button onClick={() => setShowThemeMenu(!showThemeMenu)} className="bg-[var(--color-glass)] px-2 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-[var(--color-border)] flex items-center gap-1 md:gap-2 hover:bg-[var(--color-accent)]/20 transition-all"><Palette size={12} /> <span className="hidden xs:inline">{THEMES[theme].name}</span></button>
+              <button onClick={(e) => { e.stopPropagation(); setShowThemeMenu(!showThemeMenu); }} className="bg-[var(--color-glass)] px-2 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-[var(--color-border)] flex items-center gap-1 md:gap-2 hover:bg-[var(--color-accent)]/20 transition-all"><Palette size={12} /> <span className="hidden xs:inline">{THEMES[theme].name}</span></button>
               <AnimatePresence>
                 {showThemeMenu && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full left-0 mt-2 w-40 md:w-48 bg-[var(--color-shadow)] backdrop-blur-3xl border border-[var(--color-border)] rounded-xl md:rounded-2xl p-1 md:p-2 z-[200] shadow-2xl">
