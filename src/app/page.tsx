@@ -107,6 +107,47 @@ const NeuroMirrorText = ({ text }: { text: string }) => {
   );
 };
 
+const AuraOrbs = ({ theme }: { theme: Theme }) => {
+  const t = THEMES[theme];
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      <motion.div 
+        animate={{ 
+          x: [0, 100, -50, 0], 
+          y: [0, -50, 100, 0],
+          scale: [1, 1.2, 0.8, 1],
+          opacity: [0.3, 0.5, 0.3]
+        }} 
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full blur-[120px]"
+        style={{ background: t.prism[0] }}
+      />
+      <motion.div 
+        animate={{ 
+          x: [0, -100, 50, 0], 
+          y: [0, 100, -50, 0],
+          scale: [1, 0.8, 1.2, 1],
+          opacity: [0.2, 0.4, 0.2]
+        }} 
+        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        className="absolute top-[30%] -right-[10%] w-[50%] h-[50%] rounded-full blur-[100px]"
+        style={{ background: t.prism[1] }}
+      />
+      <motion.div 
+        animate={{ 
+          x: [0, 50, -100, 0], 
+          y: [0, -100, 50, 0],
+          scale: [1, 1.1, 0.9, 1],
+          opacity: [0.15, 0.3, 0.15]
+        }} 
+        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        className="absolute -bottom-[10%] left-[20%] w-[40%] h-[40%] rounded-full blur-[80px]"
+        style={{ background: t.prism[2] }}
+      />
+    </div>
+  );
+};
+
 export default function Home() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -381,7 +422,7 @@ export default function Home() {
     <>
       <style>{themeStyles}</style>
       <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)`, color: 'var(--color-text)' }}>
-      <div className="fixed inset-0 pointer-events-none opacity-40" style={{ background: 'var(--bg-mesh)' }} />
+      <AuraOrbs theme={theme} />
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <AnimatePresence>{rewardType !== 'none' && (
@@ -459,7 +500,7 @@ export default function Home() {
                 <div className="space-y-6 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 italic">
                   <p className="text-blue-400 font-black uppercase text-xs tracking-widest mb-4">The Origin</p>
                   <p className="text-slate-400">"It started as a joke during a conversation about how much I suffered trying to read or concentrate. My cousin and most loving mentor, <span className="text-white font-bold">Dr. Kizzie Shako</span>, looked at me and said: <span className="text-blue-400 uppercase font-black tracking-tight">'Then do something about it.'</span>"</p>
-                  <p className="text-slate-400 mt-4">— And so, the Magic was built.</p>
+                  <p className="text-slate-400 mt-4">— And so, the Dastastic Prism was built.</p>
                 </div>
               </div>
 
