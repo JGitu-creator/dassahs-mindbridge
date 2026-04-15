@@ -409,6 +409,36 @@ export default function Home() {
       --color-glass: ${currentTheme.glass}; --color-border: ${currentTheme.border};
       --color-shadow: ${currentTheme.shadow};
       --bg-mesh: ${currentTheme.mesh};
+      --prism-1: ${currentTheme.prism[0]};
+      --prism-2: ${currentTheme.prism[1]};
+      --prism-3: ${currentTheme.prism[2]};
+    }
+    @keyframes prism-refract {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .prism-text {
+      background: linear-gradient(
+        110deg,
+        var(--prism-1) 0%,
+        var(--prism-2) 15%,
+        #ffffff 30%,
+        var(--prism-3) 45%,
+        var(--prism-1) 60%,
+        #ffffff 75%,
+        var(--prism-2) 90%,
+        var(--prism-1) 100%
+      );
+      background-size: 250% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: prism-refract 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      display: inline-block;
+      padding-right: 0.2em;
+      position: relative;
+      filter: drop-shadow(0 0 15px var(--prism-1)44);
+      font-style: italic;
+      overflow: visible;
     }
   `;
 
