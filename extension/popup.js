@@ -13,11 +13,11 @@ document.getElementById('simplifyBtn').addEventListener('click', async () => {
 
     if (!text) throw new Error("Could not find any readable text.");
 
-    statusEl.innerText = "Building your Bridge...";
+    statusEl.innerText = "Building your Filter...";
 
     const encodedText = encodeURIComponent(text.slice(0, 3000));
     // ENSURING THE PRODUCTION URL IS USED
-    const appUrl = `https://dassahs-mindbridge.vercel.app/?text=${encodedText}`;
+    const appUrl = `https://dassahs-focusfilter.vercel.app/?text=${encodedText}`;
     
     chrome.tabs.create({ url: appUrl });
     window.close(); 
