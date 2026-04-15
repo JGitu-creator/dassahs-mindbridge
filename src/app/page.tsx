@@ -107,37 +107,62 @@ const NeuroMirrorText = ({ text }: { text: string }) => {
   );
 };
 
+const GlassShard = ({ color, mousePos, i }: { color: string, mousePos: { x: number, y: number }, i: number }) => (
+  <motion.div
+    animate={{
+      rotate: [0, 360],
+      x: [0, Math.random() * 40 - 20, 0],
+      y: [0, Math.random() * 40 - 20, 0],
+    }}
+    transition={{ duration: 10 + i * 2, repeat: Infinity, ease: "linear" }}
+    style={{
+      position: 'absolute',
+      width: '0',
+      height: '0',
+      borderLeft: '15px solid transparent',
+      borderRight: '15px solid transparent',
+      borderBottom: `30px solid ${color}22`,
+      left: `${15 + i * 15}%`,
+      top: `${20 + (i % 4) * 20}%`,
+      filter: 'blur(2px)',
+      translateX: (mousePos.x - 1000) * (0.05 + i * 0.02),
+      translateY: (mousePos.y - 500) * (0.05 + i * 0.02),
+    }}
+  />
+);
+
 const FrostedGlassDepth = ({ theme, mousePos }: { theme: Theme, mousePos: { x: number, y: number } }) => {
   const t = THEMES[theme];
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {[...Array(6)].map((_, i) => (
+      {[...Array(8)].map((_, i) => (
         <motion.div
           key={i}
           animate={{
-            x: [0, Math.random() * 100 - 50, 0],
-            y: [0, Math.random() * 100 - 50, 0],
-            rotate: [0, 360],
+            scale: [1, 1.3, 0.9, 1],
+            opacity: [0.2, 0.4, 0.2]
           }}
-          transition={{
-            duration: 20 + i * 5,
-            repeat: Infinity,
-            ease: "linear"
-          }}
+          transition={{ duration: 15 + i * 3, repeat: Infinity, ease: "easeInOut" }}
           style={{
             position: 'absolute',
-            left: `${10 + i * 15}%`,
-            top: `${20 + (i % 3) * 20}%`,
-            width: `${150 + i * 50}px`,
-            height: `${150 + i * 50}px`,
-            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}22, transparent)`,
-            borderRadius: i % 2 === 0 ? '50%' : '30% 70% 70% 30% / 30% 30% 70% 70%',
-            filter: `blur(${40 + i * 10}px)`,
-            translateX: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth : 0) / 2) * (0.02 + i * 0.01),
-            translateY: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight : 0) / 2) * (0.02 + i * 0.01),
+            left: `${(i * 17) % 100}%`,
+            top: `${(i * 23) % 100}%`,
+            width: `${200 + i * 80}px`,
+            height: `${200 + i * 80}px`,
+            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}44, transparent)`,
+            borderRadius: '45% 55% 50% 50% / 50% 50% 45% 55%',
+            filter: `blur(${60 + i * 15}px)`,
+            x: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth : 1000) / 2) * (0.15 + i * 0.05),
+            y: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight : 500) / 2) * (0.15 + i * 0.05),
           }}
         />
       ))}
+      <motion.div 
+        animate={{ x: mousePos.x, y: mousePos.y }}
+        transition={{ type: 'spring', damping: 30, stiffness: 200 }}
+        className="fixed top-0 left-0 w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-[100px]"
+        style={{ background: `radial-gradient(circle, ${t.accent}44, transparent)` }}
+      />
     </div>
   );
 };
@@ -507,16 +532,16 @@ export default function Home() {
 
       <AnimatePresence>{showAbout && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="max-w-3xl w-full bg-[var(--color-shadow)] border-2 border-[var(--color-border)] p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_100px_rgba(59,130,246,0.2)] relative my-auto">
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="max-w-3xl w-full refractive-border p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto">
             <button onClick={() => setShowAbout(false)} className="absolute top-8 right-8 p-4 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={32}/></button>
             
             <div className="space-y-12">
-              <header className="space-y-4">
+              <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs">
                   <div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH'S PRISM
                 </div>
                 <h2 className="text-5xl md:text-7xl font-black text-white leading-[1.4] tracking-tight italic pb-6">From Noise to Divine <span className="prism-text">Clarity</span></h2>
-              </header>
+              </motion.header>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <div className="space-y-6 text-slate-300 text-lg leading-relaxed font-medium">
@@ -538,7 +563,7 @@ export default function Home() {
                     { n: "02", t: "The Grace", d: "Our expert cognitive logic distills complexity into high-stimulation segments." },
                     { n: "03", t: "The Victory", d: "Experience clarity with Bionic reading, audio harmonies, and Zen focus." }
                   ].map((step, i) => (
-                    <div key={i} className="space-y-3">
+                    <motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3">
                       <span className="text-4xl font-black text-blue-500/30 tracking-tight">{step.n}</span>
                       <p className="text-white font-black uppercase text-sm tracking-widest">{step.t}</p>
                       <p className="text-slate-500 text-sm font-medium">{step.d}</p>
@@ -555,7 +580,7 @@ export default function Home() {
                   <div>
                     <p className="text-white font-black uppercase text-sm tracking-widest">Founded by DJ</p>
                     <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter flex items-center gap-2">
-                      DChan + JGitu <Fish size={14} className="text-blue-500" /> Rooted in Christ
+                      DChan + JGitu <motion.div animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block"><Fish size={14} className="text-blue-500" /></motion.div> Rooted in Christ
                     </p>
                   </div>
                 </div>
@@ -568,7 +593,7 @@ export default function Home() {
 
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24">
-          <header className="text-center space-y-6"><motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative"><Brain className="w-16 h-16 md:w-20 md:h-20" /></motion.div><h1 className="text-6xl md:text-9xl font-black text-white leading-[1.1] tracking-tight italic text-center">Dassah's <span className="prism-text">Prism</span></h1><p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight flex items-center gap-2 justify-center">By <span className="text-white border-b-2 border-blue-500 pb-1">DJ</span> <Fish size={24} className="text-blue-500" /></p></header>
+          <header className="text-center space-y-6"><motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative"><Brain className="w-16 h-16 md:w-20 md:h-20" /></motion.div><h1 className="text-6xl md:text-9xl font-black text-white leading-[1.1] tracking-tight italic text-center">Dassah's <span className="prism-text">Prism</span></h1><p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight flex items-center gap-2 justify-center">By <span className="text-white border-b-2 border-blue-500 pb-1">DJ</span> <Fish size={24} className="text-blue-500" /></p></motion.header>
           <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border border-[var(--color-border)] p-3 shadow-2xl overflow-hidden relative">
             {showNeuroMirror ? (<div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto"><NeuroMirrorText text={input || "Paste some text..."} /></div>) : (<textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-800 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />)}
             <div className="bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-[var(--color-border)]"><div className="flex items-center gap-4"><button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4"><Upload size={24} className="text-blue-500" /> Clean Document</button><button onClick={() => { playClick(); setShowNeuroMirror(!showNeuroMirror); }} className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${showNeuroMirror ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}><Ghost size={16} /><span className="text-[10px] font-black uppercase tracking-widest">{showNeuroMirror ? 'Stop the Noise' : 'Show the Noise'}</span></button></div><div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"><button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}<span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic Route' : 'Quick Discern'}</span></button><button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-[var(--color-accent)] to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl hover:shadow-blue-500/50 transition-all active:scale-95 text-lg">{loading ? <Loader2 className="animate-spin" /> : 'Discern It'}</button></div></div>
@@ -588,7 +613,7 @@ export default function Home() {
             {currentChunk === -1 ? (
               <motion.div key="summary" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] space-y-12 shadow-2xl"><div className="flex items-center justify-between"><div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center gap-3"><Rocket size={18}/> Saved {data.readingTime}</div><button onClick={handleReset} className="p-5 bg-[var(--color-glass)] rounded-3xl text-slate-500 hover:text-red-400 transition-all"><X size={24}/></button></div><div className="space-y-8"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2><p className="text-4xl md:text-5xl font-black leading-[1.1] text-white tracking-tight">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div><div className="space-y-10">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-[var(--color-glass)] text-blue-400 flex items-center justify-center font-black mr-8 border border-[var(--color-border)] group-hover:border-blue-500/50 transition-all text-lg">{i + 1}</span><p className="text-xl md:text-2xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div><button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Prism <ArrowRight className="inline ml-4"/></button></motion.div>
             ) : (
-              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden"><div className="absolute top-10 left-10 flex items-center gap-4"><div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div><button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button></div><h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2><div className="space-y-8 flex-grow"><div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>{data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '1rem', color: '#fff' }} /><Bar dataKey="value" radius={[10, 10, 0, 0]}>{data.chartData.data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Bar></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '1rem', color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>{data.chartData.data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '1rem', color: '#fff' }} /></PieChart>)}</ResponsiveContainer></div></div>)}{data.actions && data.actions.length > 0 && currentChunk === data.chunks.length - 1 && (<div className="bg-emerald-500/5 p-10 rounded-[3rem] border border-emerald-500/10 space-y-8"><div className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-xs"><CheckCircle2 size={20} /> Mission Checklist</div><div className="space-y-4">{data.actions.map((action, i) => (<div key={i} className="flex items-center gap-6 p-6 bg-[var(--color-glass)] rounded-2xl border border-[var(--color-border)] group hover:border-emerald-500/30 transition-all"><div className={`w-3 h-3 rounded-full ${action.priority === 'high' ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]' : action.priority === 'medium' ? 'bg-amber-500' : 'bg-blue-500'}`} /><p className="flex-grow text-xl font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p><div className="text-[10px] font-black uppercase tracking-widest opacity-30">{action.priority}</div></div>))}</div></div>)}{data.chunks[currentChunk].metaphor && (<motion.div initial={{ opacity: 0, scale: 0.9, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} className="bg-gradient-to-br from-amber-400/20 via-orange-500/10 to-transparent border-2 border-amber-500/30 p-10 rounded-[3rem] space-y-4 relative overflow-hidden group shadow-[0_20px_50px_rgba(245,158,11,0.2)]"><div className="absolute -right-6 -bottom-6 text-amber-500/10 group-hover:text-amber-500/30 transition-all duration-700">{currentChunk % 3 === 0 ? <Rocket size={180} /> : currentChunk % 3 === 1 ? <Trophy size={180} /> : <Star size={180} />}</div><div className="flex items-center gap-3"><div className="p-3 bg-amber-500 rounded-2xl shadow-lg animate-bounce"><Palette size={20} className="text-white" /></div><div className="text-amber-500 font-black uppercase tracking-[0.2em] text-[12px]">Dassah's Visual Journey</div></div><p className="text-2xl md:text-3xl text-amber-100 font-black italic leading-tight drop-shadow-md">{isBionic ? <BionicText text={`"${data.chunks[currentChunk].metaphor}"`} /> : `"${data.chunks[currentChunk].metaphor}"`}</p><motion.div animate={{ x: [0, 50, 0], opacity: [0.1, 0.3, 0.1] }} transition={{ repeat: Infinity, duration: 5 }} className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" /></motion.div>)}{data.chunks[currentChunk].dopamineHook && (<div className="flex items-center gap-4 p-4 text-emerald-400 font-bold tracking-tight bg-emerald-500/5 rounded-2xl border border-emerald-500/10"><Zap size={18} className="text-emerald-500 animate-bounce" /><span>{data.chunks[currentChunk].dopamineHook}</span></div>)}</div><div className="pt-12 flex gap-6"><button onClick={() => { playClick(); setCurrentChunk(c => c - 1); }} className={`flex-1 py-6 rounded-[2rem] font-black uppercase text-xs transition-all border border-[var(--color-border)] ${currentChunk === 0 ? 'opacity-10 pointer-events-none' : 'bg-[var(--color-glass)] hover:bg-white/10'}`}>Back</button><button onClick={handleNext} className="flex-[3] bg-gradient-to-r from-blue-600 via-purple-600 to-blue-500 py-8 md:py-10 rounded-[2rem] md:rounded-[3.5rem] font-black uppercase shadow-2xl active:scale-95 text-lg tracking-widest">{currentChunk < data.chunks.length - 1 ? 'Next' : 'DASTASTIC FINISH!'}</button></div></motion.div>
+              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden"><div className="absolute top-10 left-10 flex items-center gap-4"><div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div><button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button></div><h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2><div className="space-y-8 flex-grow"><div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>{data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '1rem', color: '#fff' }} /><Bar dataKey="value" radius={[10, 10, 0, 0]}>{data.chartData.data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Bar></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '1rem', color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>{data.chartData.data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '1rem', color: '#fff' }} /></PieChart>)}</ResponsiveContainer></div></div>)}{data.actions && data.actions.length > 0 && currentChunk === data.chunks.length - 1 && (<div className="bg-emerald-500/5 p-10 rounded-[3rem] border border-emerald-500/10 space-y-8"><div className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-xs"><CheckCircle2 size={20} /> Mission Checklist</div><div className="space-y-4">{data.actions.map((action, i) => (<div key={i} className="flex items-center gap-6 p-6 bg-[var(--color-glass)] rounded-2xl border border-[var(--color-border)] group hover:border-emerald-500/30 transition-all"><div className={`w-3 h-3 rounded-full ${action.priority === 'high' ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]' : action.priority === 'medium' ? 'bg-amber-500' : 'bg-blue-500'}`} /><p className="flex-grow text-xl font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p><div className="text-[10px] font-black uppercase tracking-widest opacity-30">{action.priority}</div></motion.div>))}</div></div>)}{data.chunks[currentChunk].metaphor && (<motion.div initial={{ opacity: 0, scale: 0.9, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} className="bg-gradient-to-br from-amber-400/20 via-orange-500/10 to-transparent border-2 border-amber-500/30 p-10 rounded-[3rem] space-y-4 relative overflow-hidden group shadow-[0_20px_50px_rgba(245,158,11,0.2)]"><div className="absolute -right-6 -bottom-6 text-amber-500/10 group-hover:text-amber-500/30 transition-all duration-700">{currentChunk % 3 === 0 ? <Rocket size={180} /> : currentChunk % 3 === 1 ? <Trophy size={180} /> : <Star size={180} />}</div><div className="flex items-center gap-3"><div className="p-3 bg-amber-500 rounded-2xl shadow-lg animate-bounce"><Palette size={20} className="text-white" /></div><div className="text-amber-500 font-black uppercase tracking-[0.2em] text-[12px]">Dassah's Visual Journey</div></div><p className="text-2xl md:text-3xl text-amber-100 font-black italic leading-tight drop-shadow-md">{isBionic ? <BionicText text={`"${data.chunks[currentChunk].metaphor}"`} /> : `"${data.chunks[currentChunk].metaphor}"`}</p><motion.div animate={{ x: [0, 50, 0], opacity: [0.1, 0.3, 0.1] }} transition={{ repeat: Infinity, duration: 5 }} className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" /></motion.div>)}{data.chunks[currentChunk].dopamineHook && (<div className="flex items-center gap-4 p-4 text-emerald-400 font-bold tracking-tight bg-emerald-500/5 rounded-2xl border border-emerald-500/10"><Zap size={18} className="text-emerald-500 animate-bounce" /><span>{data.chunks[currentChunk].dopamineHook}</span></div>)}</div><div className="pt-12 flex gap-6"><button onClick={() => { playClick(); setCurrentChunk(c => c - 1); }} className={`flex-1 py-6 rounded-[2rem] font-black uppercase text-xs transition-all border border-[var(--color-border)] ${currentChunk === 0 ? 'opacity-10 pointer-events-none' : 'bg-[var(--color-glass)] hover:bg-white/10'}`}>Back</button><button onClick={handleNext} className="flex-[3] bg-gradient-to-r from-blue-600 via-purple-600 to-blue-500 py-8 md:py-10 rounded-[2rem] md:rounded-[3.5rem] font-black uppercase shadow-2xl active:scale-95 text-lg tracking-widest">{currentChunk < data.chunks.length - 1 ? 'Next' : 'DASTASTIC FINISH!'}</button></div></motion.div>
             )}
           </AnimatePresence>
         </div>
