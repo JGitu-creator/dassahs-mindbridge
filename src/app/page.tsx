@@ -102,6 +102,7 @@ export default function Home() {
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [dassahPoints, setDassahPoints] = useState(0);
   const [suspenseIdx, setSuspenseIdx] = useState(0);
   const [actionIdx, setActionIdx] = useState(0);
@@ -112,6 +113,7 @@ export default function Home() {
   const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const noiseNodeRef = useRef<any>(null);
   const musicRef = useRef<HTMLAudioElement | null>(null);
@@ -139,6 +141,16 @@ export default function Home() {
     window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
+        setShowThemeMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => { setUser(session?.user ?? null); if (session?.user) loadHistory(session.user.id); });
@@ -339,35 +351,43 @@ export default function Home() {
         <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.5, y: 100 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.5 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600 via-purple-600 to-amber-500 p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(59,130,246,0.8)] border-4 border-white/30 backdrop-blur-3xl flex flex-col items-center gap-6"><motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}><Trophy size={rewardType === 'final' ? 80 : 48} className="text-white" /></motion.div><h2 className="font-black italic text-4xl md:text-8xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "HADASSAH TRIUMPH!" : currentCatchphrase}</h2>{rewardType === 'final' && <p className="text-white/80 font-bold uppercase tracking-widest md:text-xl">You conquered the noise!</p>}</div></motion.div></>
       )}</AnimatePresence>
 
-      <nav className={`fixed top-0 left-0 right-0 z-[110] p-4 flex justify-between items-center bg-[var(--color-glass)] backdrop-blur-md border-b border-[var(--color-border)] transition-all duration-500 ${isZenLocked ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'}`}>
-        <div className="flex gap-2">
-          <button onClick={() => { playClick(); setShowHistory(true); }} className="p-3 md:p-4 bg-[var(--color-glass)] rounded-2xl border border-[var(--color-border)] text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90"><Clock size={20}/></button>
-          <div className="flex bg-[var(--color-glass)] p-1 rounded-2xl border border-[var(--color-border)] shadow-xl">
-            <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading" className={`p-2 md:p-3 rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={20}/></button>
+      <nav className={`fixed top-0 left-0 right-0 z-[110] p-2 md:p-4 flex justify-between items-center bg-[var(--color-glass)] backdrop-blur-md border-b border-[var(--color-border)] transition-all duration-500 ${isZenLocked ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'}`}>
+        <div className="flex gap-1 md:gap-2 items-center overflow-x-auto no-scrollbar max-w-[60%] sm:max-w-none">
+          <button onClick={() => { playClick(); setShowHistory(true); }} className="p-2 md:p-4 bg-[var(--color-glass)] rounded-xl md:rounded-2xl border border-[var(--color-border)] text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90 flex-shrink-0"><Clock size={18}/></button>
+          <div className="flex bg-[var(--color-glass)] p-1 rounded-xl md:rounded-2xl border border-[var(--color-border)] shadow-xl flex-shrink-0">
+            <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading" className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={18}/></button>
             {data && (
-              <button onClick={handleToggleZenLock} title="Zen Lock Focus" className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 ${isZenLocked ? 'bg-red-600 text-white shadow-lg animate-pulse' : 'text-slate-400 hover:text-white'}`}>
-                {isZenLocked ? <Crown size={18}/> : <Lock size={18}/>}
-                <span className="text-[10px] font-black uppercase tracking-widest hidden lg:block">{isZenLocked ? 'Locked' : 'Zen Lock'}</span>
+              <button onClick={handleToggleZenLock} title="Zen Lock Focus" className={`px-2 md:px-4 py-2 rounded-lg md:rounded-xl transition-all flex items-center gap-1 md:gap-2 ${isZenLocked ? 'bg-red-600 text-white shadow-lg animate-pulse' : 'text-slate-400 hover:text-white'}`}>
+                {isZenLocked ? <Crown size={16}/> : <Lock size={16}/>}
+                <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest hidden lg:block">{isZenLocked ? 'Locked' : 'Zen Lock'}</span>
               </button>
             )}
-            <div className="flex items-center gap-1 px-2 border-l border-[var(--color-border)] ml-1">
-              {[ {m:'none', i:<X size={12}/>, n:'Silent'}, {m:'brown', i:<Layers size={12}/>, n:'White Noise'}, {m:'suspense', i:<Ghost size={12}/>, n:'Mozart Harmony'}, {m:'action', i:<Swords size={12}/>, n:'Zen Baroque'} ].map((s) => (
-                <button key={s.m} onClick={() => { playClick(); if (audioMode === s.m) { if (s.m === 'suspense') setSuspenseIdx(i => (i + 1) % 3); if (s.m === 'action') setActionIdx(i => (i + 1) % 3); } setAudioMode(s.m as any); }} title={s.n} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all relative ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>
+            <div className="flex items-center gap-0.5 md:gap-1 px-1 md:px-2 border-l border-[var(--color-border)] ml-0.5 md:ml-1">
+              {[ {m:'none', i:<X size={10}/>, n:'Silent'}, {m:'brown', i:<Layers size={10}/>, n:'White Noise'}, {m:'suspense', i:<Ghost size={10}/>, n:'Mozart Harmony'}, {m:'action', i:<Swords size={10}/>, n:'Zen Baroque'} ].map((s) => (
+                <button key={s.m} onClick={() => { playClick(); if (audioMode === s.m) { if (s.m === 'suspense') setSuspenseIdx(i => (i + 1) % 3); if (s.m === 'action') setActionIdx(i => (i + 1) % 3); } setAudioMode(s.m as any); }} title={s.n} className={`w-7 h-7 md:w-8 md:h-8 rounded-md md:rounded-lg flex items-center justify-center transition-all relative ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>
                   {s.i}{audioMode === s.m && s.m !== 'none' && s.m !== 'brown' && (<span className="absolute -top-1 -right-1 text-[6px] font-black bg-white text-emerald-600 px-1 rounded-full">{(s.m === 'suspense' ? suspenseIdx : actionIdx) + 1}</span>)}
                 </button>
               ))}
             </div>
-            <div className="relative group px-3 border-l border-[var(--color-border)] ml-1">
-              <button className="bg-[var(--color-glass)] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-[var(--color-border)] flex items-center gap-2 hover:bg-[var(--color-accent)]/20 transition-all"><Palette size={14} /> {THEMES[theme].name}</button>
-              <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--color-shadow)] backdrop-blur-3xl border border-[var(--color-border)] rounded-2xl p-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all z-[200] shadow-2xl">
-                {Object.entries(THEMES).map(([id, t]) => (<button key={id} onClick={() => setTheme(id as any)} className={`w-full text-left px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${theme === id ? 'bg-[var(--color-accent)] text-white' : 'hover:bg-white/5 text-slate-400'}`}>{t.name}</button>))}
-              </div>
+            <div className="relative px-1 md:px-3 border-l border-[var(--color-border)] ml-0.5 md:ml-1" ref={themeMenuRef}>
+              <button onClick={() => setShowThemeMenu(!showThemeMenu)} className="bg-[var(--color-glass)] px-2 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-[var(--color-border)] flex items-center gap-1 md:gap-2 hover:bg-[var(--color-accent)]/20 transition-all"><Palette size={12} /> <span className="hidden xs:inline">{THEMES[theme].name}</span></button>
+              <AnimatePresence>
+                {showThemeMenu && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full left-0 mt-2 w-40 md:w-48 bg-[var(--color-shadow)] backdrop-blur-3xl border border-[var(--color-border)] rounded-xl md:rounded-2xl p-1 md:p-2 z-[200] shadow-2xl">
+                    {Object.entries(THEMES).map(([id, t]) => (<button key={id} onClick={() => { playClick(); setTheme(id as any); setShowThemeMenu(false); }} className={`w-full text-left px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${theme === id ? 'bg-[var(--color-accent)] text-white' : 'hover:bg-white/5 text-slate-400'}`}>{t.name}</button>))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-amber-500/10 px-4 py-2 rounded-2xl border border-amber-500/20 shadow-inner"><Sparkle size={14} className="text-amber-400 animate-pulse" /><span className="text-xs font-black text-amber-200 uppercase tracking-tighter">{dassahPoints} Dassah Points</span></div>
-          {user ? (<button onClick={handleLogout} className="bg-[var(--color-glass)] px-4 py-3 rounded-2xl border border-[var(--color-border)] text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Log Out</button>) : (<button onClick={handleLogin} className="bg-[var(--color-accent)] hover:opacity-80 px-6 py-3 rounded-2xl text-white font-black text-[10px] uppercase tracking-widest shadow-[0_10px_25px_rgba(59,130,246,0.4)] transition-all active:scale-95">Join Hadassah</button>)}
+        <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-1.5 md:gap-2 bg-amber-500/10 px-2 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl border border-amber-500/20 shadow-inner"><Sparkle size={12} className="text-amber-400 animate-pulse" /><span className="text-[10px] md:text-xs font-black text-amber-200 uppercase tracking-tighter">{dassahPoints}<span className="hidden sm:inline"> Points</span></span></div>
+          {user ? (
+            <button onClick={handleLogout} className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] text-[9px] md:text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Out</button>
+          ) : (
+            <button onClick={handleLogin} className="bg-[var(--color-accent)] hover:opacity-80 px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl text-white font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-[0_10px_25px_rgba(59,130,246,0.4)] transition-all active:scale-95">Join</button>
+          )}
         </div>
       </nav>
 
@@ -401,7 +421,22 @@ export default function Home() {
 
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
       
-      <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-80 bg-[var(--color-shadow)] backdrop-blur-3xl z-[120] p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { playClick(); setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-[var(--color-glass)] hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
+      <AnimatePresence>{showHistory && (
+        <motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 bg-[var(--color-shadow)] backdrop-blur-3xl z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto">
+          <div className="flex justify-between items-center mb-10">
+            <h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2>
+            <button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button>
+          </div>
+          <div className="space-y-4">
+            {history.map((item) => (
+              <button key={item.id} onClick={() => { playClick(); setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-[var(--color-glass)] hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group">
+                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p>
+                <p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}</AnimatePresence>
 
       <AnimatePresence>{showPaywall && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
