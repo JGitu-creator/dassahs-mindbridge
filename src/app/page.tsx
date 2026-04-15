@@ -330,7 +330,7 @@ export default function Home() {
       } catch (err) { alert('The Filter encountered a storm!'); } finally { setLoading(false); }
   };
 
-  const handleShare = async () => { if (!data) return; setIsSharing(true); try { const shareText = `Check out this Filter I built on Dassah's Dassah's Prism!\n\n${data.whyCare}\n\nPrism Link: ${window.location.origin}/?text=${encodeURIComponent(input)}`; await navigator.clipboard.writeText(shareText); alert("Link Copied!"); } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); } };
+  const handleShare = async () => { if (!data) return; setIsSharing(true); try { const shareText = `Check out this Filter I built on Dassah's Prism!\n\n${data.whyCare}\n\nPrism Link: ${window.location.origin}/?text=${encodeURIComponent(input)}`; await navigator.clipboard.writeText(shareText); alert("Link Copied!"); } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); } };
   const handleDownloadSummary = () => { if (!data) return; const content = `DASSAH'S DASSAH'S PRISM SUMMARY\n\nTHE VISION:\n${data.whyCare}\n\nTL;DR:\n${data.tldr.map(t => `- ${t}`).join('\n')}\n\nFULL FILTER LINK: ${window.location.origin}/?text=${encodeURIComponent(input)}`; const blob = new Blob([content], { type: 'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `dassahs_prism-summary.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); };
 
   const handleFileUpload = async (e: any) => {
@@ -446,9 +446,9 @@ export default function Home() {
             <div className="space-y-12">
               <header className="space-y-4">
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs">
-                  <div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH MAGIC
+                  <div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH'S PRISM
                 </div>
-                <h2 className="text-5xl md:text-7xl font-black text-white leading-[1.3] tracking-tight italic pb-6">From Noise to Divine <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 inline-block pr-4">Clarity</span></h2>
+                <h2 className="text-5xl md:text-7xl font-black text-white leading-[1.4] tracking-tight italic pb-6">From Noise to Divine <span className="prism-text">Clarity</span></h2>
               </header>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
