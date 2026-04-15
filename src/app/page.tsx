@@ -111,58 +111,65 @@ const GlassShard = ({ color, mousePos, i }: { color: string, mousePos: { x: numb
   <motion.div
     animate={{
       rotate: [0, 360],
-      x: [0, Math.random() * 40 - 20, 0],
-      y: [0, Math.random() * 40 - 20, 0],
+      x: [0, Math.random() * 20 - 10, 0],
+      y: [0, Math.random() * 20 - 10, 0],
     }}
-    transition={{ duration: 10 + i * 2, repeat: Infinity, ease: "linear" }}
+    transition={{ duration: 15 + i * 2, repeat: Infinity, ease: "linear" }}
     style={{
       position: 'absolute',
       width: '0',
       height: '0',
-      borderLeft: '15px solid transparent',
-      borderRight: '15px solid transparent',
-      borderBottom: `30px solid ${color}22`,
+      borderLeft: '10px solid transparent',
+      borderRight: '10px solid transparent',
+      borderBottom: `20px solid ${color}11`,
       left: `${15 + i * 15}%`,
       top: `${20 + (i % 4) * 20}%`,
-      filter: 'blur(2px)',
-      x: (mousePos.x - 1000) * (0.05 + i * 0.02),
-      y: (mousePos.y - 500) * (0.05 + i * 0.02),
+      filter: 'blur(1px)',
+      x: (mousePos.x - 1000) * (0.02 + i * 0.01),
+      y: (mousePos.y - 500) * (0.02 + i * 0.01),
+      willChange: 'transform',
     }}
   />
 );
 
 const FrostedGlassDepth = ({ theme, mousePos }: { theme: Theme, mousePos: { x: number, y: number } }) => {
   const t = THEMES[theme];
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => { setIsMobile(window.innerWidth < 768); }, []);
+
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {[...Array(8)].map((_, i) => (
+      {[...Array(isMobile ? 4 : 8)].map((_, i) => (
         <motion.div
           key={i}
           animate={{
-            scale: [1, 1.3, 0.9, 1],
-            opacity: [0.2, 0.4, 0.2]
+            scale: [1, 1.1, 0.95, 1],
+            opacity: [0.15, 0.25, 0.15]
           }}
-          transition={{ duration: 15 + i * 3, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 20 + i * 3, repeat: Infinity, ease: "easeInOut" }}
           style={{
             position: 'absolute',
-            left: `${(i * 17) % 100}%`,
-            top: `${(i * 23) % 100}%`,
-            width: `${200 + i * 80}px`,
-            height: `${200 + i * 80}px`,
-            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}44, transparent)`,
-            borderRadius: '45% 55% 50% 50% / 50% 50% 45% 55%',
-            filter: `blur(${60 + i * 15}px)`,
-            x: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth : 1000) / 2) * (0.15 + i * 0.05),
-            y: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight : 500) / 2) * (0.15 + i * 0.05),
+            left: `${(i * 20) % 100}%`,
+            top: `${(i * 30) % 100}%`,
+            width: `${150 + i * 60}px`,
+            height: `${150 + i * 60}px`,
+            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}33, transparent)`,
+            borderRadius: '50%',
+            filter: `blur(${isMobile ? '40px' : '60px'})`,
+            x: isMobile ? 0 : (mousePos.x - 500) * (0.1 + i * 0.03),
+            y: isMobile ? 0 : (mousePos.y - 400) * (0.1 + i * 0.03),
+            willChange: 'transform',
           }}
         />
       ))}
-      <motion.div 
-        animate={{ x: mousePos.x, y: mousePos.y }}
-        transition={{ type: 'spring', damping: 30, stiffness: 200 }}
-        className="fixed top-0 left-0 w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-[100px]"
-        style={{ background: `radial-gradient(circle, ${t.accent}44, transparent)` }}
-      />
+      {!isMobile && (
+        <motion.div 
+          animate={{ x: mousePos.x, y: mousePos.y }}
+          transition={{ type: 'spring', damping: 40, stiffness: 150 }}
+          className="fixed top-0 left-0 w-[300px] h-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 blur-[80px]"
+          style={{ background: `radial-gradient(circle, ${t.accent}33, transparent)`, willChange: 'transform' }}
+        />
+      )}
     </div>
   );
 };
