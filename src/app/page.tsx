@@ -706,26 +706,31 @@ export default function Home() {
         <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-md w-full bg-slate-900 border-2 border-[var(--color-accent)] p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] text-center space-y-6 shadow-[0_0_100px_rgba(59,130,246,0.3)] max-h-[90vh] overflow-y-auto no-scrollbar">
             <div className="mx-auto w-20 h-20 bg-[var(--color-accent)]/10 rounded-full flex items-center justify-center text-[var(--color-accent)] animate-pulse"><Crown size={40} /></div>
-            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter italic">{user ? "Royal Bandwidth Reached" : "Neural Blueprint Fragmenting"}</h2>
-            <p className="text-slate-400 text-base md:text-lg leading-relaxed font-medium">{user ? "You have reached the edge of standard bandwidth. Your Executive Distillation has peaked. To maintain this flow without interruption, join the Royal Inner Circle. Reclaim unlimited neural capacity." : "Your Neural Blueprint is fragmenting. To prevent focus-decay and anchor your cognitive data, you must secure your session. Anchor to your Achieving Vault now."}</p>
+            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter italic">{user ? "Neural Capacity Reached" : "Neural Blueprint Fragmenting"}</h2>
+            <p className="text-slate-400 text-base md:text-lg leading-relaxed font-medium">
+              {user 
+                ? "You have reached the edge of your current neural bandwidth. Your Executive Distillation has peaked. To maintain this flow without interruption, join DJ's Inner Circle to unlock unlimited neural capacity."
+                : "Your Neural Blueprint is fragmenting. To prevent focus-decay and anchor your cognitive data, you must secure your session. Anchor to your Achieving Vault now."
+              }
+            </p>
             <div className="space-y-4 pt-4">
               {!user ? (
                 <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-lg shadow-2xl transition-all active:scale-95">Anchor to Vault (Sign In)</button>
               ) : (
                 <div className="grid grid-cols-1 gap-4">
-                  <button onClick={() => alert("Connecting to DJ's Royal Treasury...")} className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
-                    <p className="text-[10px] font-black uppercase text-blue-200">Royal Architect</p>
+                  <button onClick={() => alert("Connecting to the Sovereign Portal...")} className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
+                    <p className="text-[10px] font-black uppercase text-blue-200">Prism Architect</p>
                     <p className="text-xl font-black text-white">$9 / Monthly</p>
-                    <p className="text-xs text-blue-100 opacity-60 mt-1">Unlimited Neural Capacity & Priority Speed</p>
+                    <p className="text-xs text-blue-100 opacity-60 mt-1">Continuous Neural Support & Unlimited Capacity</p>
                   </button>
-                  <button onClick={() => alert("Connecting to DJ's Royal Treasury...")} className="bg-gradient-to-r from-amber-500 to-yellow-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
+                  <button onClick={() => alert("Connecting to the Sovereign Portal...")} className="bg-gradient-to-r from-amber-500 to-yellow-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
                     <p className="text-[10px] font-black uppercase text-amber-200">Sovereign Master</p>
                     <p className="text-xl font-black text-white">$99 / Lifetime</p>
-                    <p className="text-xs text-amber-100 opacity-60 mt-1">Lifetime Vault Access & Exclusive Audio</p>
+                    <p className="text-xs text-amber-100 opacity-60 mt-1">Permanent Focus Anchor & Exclusive Resources</p>
                   </button>
                 </div>
               )}
-              <button onClick={() => setShowPaywall(false)} className="w-full text-slate-600 font-bold uppercase text-[10px] tracking-[0.5em] py-4 hover:text-slate-400 transition-colors">Not Today</button>
+              <button onClick={() => setShowPaywall(false)} className="w-full text-slate-600 font-bold uppercase text-[10px] tracking-[0.5em] py-4 hover:text-slate-400 transition-colors">Maintain Current Link</button>
             </div>
           </motion.div>
         </div>
