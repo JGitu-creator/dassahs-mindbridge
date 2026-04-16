@@ -17,10 +17,26 @@ export async function POST(req: NextRequest) {
     let text = '';
 
     if (file.name.endsWith('.pdf')) {
-      // Use require for better compatibility with older PDF libraries in Turbopack
-      const pdf = require('pdf-parse');
-      const data = await pdf(buffer);
-      text = data.text;
+      try {
+        // Use require for better compatibility with older PDF libraries in Turbopack
+        const pdf = require('pdf-parse');
+        
+        // Disable worker to avoid loading issues in serverless environments
+        const options = {
+          pagerender: function(pageData: any) {
+            return pageData.getTextContent()
+              .then(function(textContent: any) {
+                return textContent.items.map((item: any) => item.str).join(' ');
+              });
+          }
+        };
+
+        const data = await pdf(buffer, options);
+        text = data.text;
+      } catch (pdfErr: any) {
+        console.error('PDF Parse Error:', pdfErr);
+        throw new Error(`PDF Parsing failed: ${pdfErr.message}. The file might be corrupted or in an unsupported format.`);
+      }
     } else if (file.name.endsWith('.docx')) {
       const result = await mammoth.extractRawText({ buffer });
       text = result.value;

@@ -314,25 +314,34 @@ export default function Home() {
       const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
       const progressions = [ [261.63, 329.63, 392.00, 523.25], [220.00, 261.63, 329.63, 440.00], [196.00, 246.94, 293.66, 392.00] ];
-      const notes = progressions[variant % 3]; let noteIdx = 0;
-      const playNote = () => {
-        const osc = ctx.createOscillator(); const g = ctx.createGain();
-        osc.type = variant === 1 ? 'triangle' : 'sine';
-        osc.frequency.setValueAtTime(notes[noteIdx % notes.length], ctx.currentTime);
-        if (variant === 2) { // Add FM synthesis for bells
-          const mod = ctx.createOscillator(); const modG = ctx.createGain();
-          mod.frequency.setValueAtTime(notes[noteIdx % notes.length] * 2.5, ctx.currentTime);
-          modG.gain.setValueAtTime(200, ctx.currentTime);
-          mod.connect(modG); modG.connect(osc.frequency); mod.start(); mod.stop(ctx.currentTime + 1.5);
+      const notes = progressions[variant % 3]; 
+      
+      let nextNoteTime = ctx.currentTime;
+      const scheduleNote = () => {
+        while (nextNoteTime < ctx.currentTime + 0.1) {
+          const osc = ctx.createOscillator(); const g = ctx.createGain();
+          osc.type = variant === 1 ? 'triangle' : 'sine';
+          const freq = notes[Math.floor(Math.random() * notes.length)];
+          osc.frequency.setValueAtTime(freq, nextNoteTime);
+          
+          if (variant === 2) { // Add FM synthesis for bells
+            const mod = ctx.createOscillator(); const modG = ctx.createGain();
+            mod.frequency.setValueAtTime(freq * 2.5, nextNoteTime);
+            modG.gain.setValueAtTime(200, nextNoteTime);
+            mod.connect(modG); modG.connect(osc.frequency); mod.start(nextNoteTime); mod.stop(nextNoteTime + 1.5);
+          }
+          
+          g.gain.setValueAtTime(0, nextNoteTime);
+          g.gain.linearRampToValueAtTime(variant === 2 ? 0.015 : 0.03, nextNoteTime + 0.1);
+          g.gain.exponentialRampToValueAtTime(0.001, nextNoteTime + (variant === 1 ? 2.5 : 1.5));
+          osc.connect(g); g.connect(ctx.destination);
+          osc.start(nextNoteTime); osc.stop(nextNoteTime + 3);
+          nextNoteTime += (variant === 1 ? 1.2 : 0.6);
         }
-        g.gain.setValueAtTime(0, ctx.currentTime);
-        g.gain.linearRampToValueAtTime(variant === 2 ? 0.015 : 0.03, ctx.currentTime + 0.1);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (variant === 1 ? 2.5 : 1.5));
-        osc.connect(g); g.connect(ctx.destination);
-        osc.start(); osc.stop(ctx.currentTime + 3); noteIdx++;
       };
-      const interval = setInterval(playNote, variant === 1 ? 1200 : 600);
-      noiseNodeRef.current = { disconnect: () => clearInterval(interval) };
+
+      const intervalId = setInterval(scheduleNote, 25);
+      noiseNodeRef.current = { disconnect: () => clearInterval(intervalId) };
     } catch (e) {}
   };
 
@@ -354,17 +363,21 @@ export default function Home() {
           lfo.start(); osc.start(); noiseNodeRef.current = osc;
         });
       } else if (variant === 1) { // DIGITAL RAIN
-        const playDrop = () => {
-          const osc = ctx.createOscillator(); const g = ctx.createGain();
-          osc.type = 'sine'; osc.frequency.setValueAtTime(Math.random() * 500 + 400, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
-          g.gain.setValueAtTime(0.02, ctx.currentTime);
-          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-          osc.connect(g); g.connect(ctx.destination);
-          osc.start(); osc.stop(ctx.currentTime + 0.1);
+        let nextDropTime = ctx.currentTime;
+        const scheduleDrop = () => {
+          while (nextDropTime < ctx.currentTime + 0.1) {
+            const osc = ctx.createOscillator(); const g = ctx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(Math.random() * 500 + 400, nextDropTime);
+            osc.frequency.exponentialRampToValueAtTime(100, nextDropTime + 0.1);
+            g.gain.setValueAtTime(0.02, nextDropTime);
+            g.gain.exponentialRampToValueAtTime(0.001, nextDropTime + 0.1);
+            osc.connect(g); g.connect(ctx.destination);
+            osc.start(nextDropTime); osc.stop(nextDropTime + 0.1);
+            nextDropTime += 0.15;
+          }
         };
-        const interval = setInterval(playDrop, 150);
-        noiseNodeRef.current = { disconnect: () => clearInterval(interval) };
+        const intervalId = setInterval(scheduleDrop, 25);
+        noiseNodeRef.current = { disconnect: () => clearInterval(intervalId) };
       } else { // OCEANIC BREATH
         const bufferSize = ctx.sampleRate * 2;
         const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -395,21 +408,46 @@ export default function Home() {
     else if (audioMode === 'brown') {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
-      const bufferSize = 4096; let lastOut = 0.0;
-      const node = ctx.createScriptProcessor(bufferSize, 1, 1);
-      const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(400, ctx.currentTime);
-      const lfo = ctx.createOscillator(); lfo.frequency.setValueAtTime(0.1, ctx.currentTime);
-      const lfoG = ctx.createGain(); lfoG.gain.setValueAtTime(150, ctx.currentTime);
-      lfo.connect(lfoG); lfoG.connect(filter.frequency);
-      node.onaudioprocess = (e: any) => {
-        const out = e.outputBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; out[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = out[i]; out[i] *= 3.5; }
-      };
-      node.connect(filter); filter.connect(ctx.destination); lfo.start();
-      audioCtxRef.current = ctx; noiseNodeRef.current = { disconnect: () => { node.disconnect(); lfo.stop(); if(ctx.state !== 'closed') ctx.close(); } };
+      audioCtxRef.current = ctx;
+      
+      const bufferSize = ctx.sampleRate * 2;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = buffer.getChannelData(0);
+      let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        output[i] = (lastOut + (0.02 * white)) / 1.02;
+        lastOut = output[i];
+        output[i] *= 3.5; // (roughly) compensate for gain
+      }
+      
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      
+      const filter = ctx.createBiquadFilter(); 
+      filter.type = 'lowpass'; 
+      filter.frequency.setValueAtTime(400, ctx.currentTime);
+      
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 1);
+      
+      source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+      source.start();
+      noiseNodeRef.current = source;
     }
-    return () => { if (noiseNodeRef.current && noiseNodeRef.current.disconnect) noiseNodeRef.current.disconnect(); if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') audioCtxRef.current.close(); };
   }, [audioMode, suspenseIdx, actionIdx]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => { setUser(session?.user ?? null); if (session?.user) loadHistory(session.user.id); });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setUser(session?.user ?? null); if (session?.user) loadHistory(session.user.id); else setHistory([]); });
+    setUsageCount(parseInt(localStorage.getItem('dassahs_prism_usage') || '0'));
+    const urlParams = new URLSearchParams(window.location.search);
+    const textParam = urlParams.get('text');
+    if (textParam) { setInput(decodeURIComponent(textParam)); handleSimplify(decodeURIComponent(textParam)); window.history.replaceState({}, document.title, "/"); }
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSimplify = async (textToSimplify = input) => {
     playClick(); if (!textToSimplify.trim()) return; if (usageCount >= (user ? 10 : 3)) { setShowPaywall(true); return; }
@@ -551,7 +589,7 @@ export default function Home() {
               </button>
             )}
             <div className="flex items-center gap-0.5 md:gap-1 px-1 md:px-2 border-l border-[var(--color-border)] ml-0.5 md:ml-1">
-              {[ {m:'none', i:<X size={10}/>, n:'Silent'}, {m:'brown', i:<Sun size={10}/>, n:'Celestial Resonance'}, {m:'suspense', i:<Ghost size={10}/>, n:'Mozart Harmony'}, {m:'action', i:<Swords size={10}/>, n:'Zen Baroque'} ].map((s) => (
+              {[ {m:'none', i:<X size={10}/>, n:'Silent'}, {m:'brown', i:<Sun size={10}/>, n:'Prism Resonance'}, {m:'suspense', i:<Ghost size={10}/>, n:'Mozart Harmony'}, {m:'action', i:<Swords size={10}/>, n:'Zen Baroque'} ].map((s) => (
                 <button key={s.m} onClick={() => { playClick(); if (audioMode === s.m) { if (s.m === 'suspense') setSuspenseIdx(i => (i + 1) % 3); if (s.m === 'action') setActionIdx(i => (i + 1) % 3); } setAudioMode(s.m as any); }} title={s.n} className={`w-7 h-7 md:w-8 md:h-8 rounded-md md:rounded-lg flex items-center justify-center transition-all relative ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>
                   {s.i}{audioMode === s.m && s.m !== 'none' && s.m !== 'brown' && (<span className="absolute -top-1 -right-1 text-[6px] font-black bg-white text-emerald-600 px-1 rounded-full">{(s.m === 'suspense' ? suspenseIdx : actionIdx) + 1}</span>)}
                 </button>
@@ -559,9 +597,15 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="hidden lg:flex items-center bg-[var(--color-glass)] p-1 rounded-xl border border-[var(--color-border)] shadow-xl ml-2">
+          <div className="hidden lg:flex items-center bg-[var(--color-glass)] p-1.5 rounded-2xl border border-[var(--color-border)] shadow-xl ml-2 gap-1.5">
             {Object.entries(THEMES).map(([id, t]) => (
-              <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`px-2 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-tighter transition-all ${theme === id ? 'bg-[var(--color-accent)] text-white shadow-lg' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}>{t.name}</button>
+              <button 
+                key={id} 
+                onClick={() => { playClick(); setTheme(id as any); }} 
+                className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${theme === id ? 'border-white shadow-lg scale-110' : 'border-transparent opacity-40 hover:opacity-100'}`}
+                style={{ backgroundColor: t.accent }}
+                title={t.name}
+              />
             ))}
           </div>
 
