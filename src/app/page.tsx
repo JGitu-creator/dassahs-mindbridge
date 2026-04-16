@@ -5,7 +5,7 @@ import {
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal,
-  Compass, Check, LogOut
+  Compass, Check, LogOut, Shield
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
@@ -334,6 +334,36 @@ export default function Home() {
   const [showAbout, setShowAbout] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [showCommandCenter, setShowCommandCenter] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const DEFAULT_AVATARS = [
+    { id: 'spark', icon: <Sparkles className="text-amber-400" />, label: 'The Spark' },
+    { id: 'prism', icon: <Palette className="text-blue-400" />, label: 'The Prism' },
+    { id: 'shield', icon: <Shield className="text-emerald-400" />, label: 'The Shield' },
+    { id: 'brain', icon: <Brain className="text-purple-400" />, label: 'The Core' },
+    { id: 'crown', icon: <Crown className="text-yellow-500" />, label: 'The Sovereign' },
+  ];
+
+  const handleAvatarSelect = async (url: string) => {
+    if (!user) return;
+    setAvatarUrl(url);
+    await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file);
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      handleAvatarSelect(publicUrl);
+    } catch (err) { alert("Failed to upload neural image."); } finally { setUploadingAvatar(false); }
+  };
   const [feedbackInput, setFeedbackInput] = useState('');
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
@@ -402,8 +432,11 @@ export default function Home() {
   };
 
   const loadProfile = async (userId: string) => {
-    const { data, error } = await supabase.from('profiles').select('is_paid').eq('id', userId).single();
-    if (data) setIsPaid(data.is_paid);
+    const { data, error } = await supabase.from('profiles').select('is_paid, avatar_url').eq('id', userId).single();
+    if (data) {
+      setIsPaid(data.is_paid);
+      setAvatarUrl(data.avatar_url);
+    }
     if (error && error.code !== 'PGRST116') console.error('Error loading profile:', error);
   };
 
@@ -717,12 +750,24 @@ export default function Home() {
           </button>
 
           {user ? (
-            <button onClick={() => setShowCommandCenter(true)} className="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xs font-black uppercase hover:scale-105 transition-all">
-              {user.email?.slice(0, 1)}
+            <button onClick={() => setShowCommandCenter(true)} className="w-10 h-10 rounded-2xl overflow-hidden border-2 border-blue-500/30 hover:border-blue-400 hover:scale-105 transition-all shadow-lg flex items-center justify-center bg-blue-500/10">
+              {avatarUrl ? (
+                DEFAULT_AVATARS.find(a => a.id === avatarUrl) ? (
+                  DEFAULT_AVATARS.find(a => a.id === avatarUrl)?.icon
+                ) : (
+                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                )
+              ) : user.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-blue-400 text-xs font-black uppercase">
+                  {user.email?.slice(0, 1)}
+                </div>
+              )}
             </button>
           ) : (
-            <button onClick={handleLogin} className="px-6 py-2 rounded-2xl bg-[var(--color-accent)] text-white text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all">
-              Anchor
+            <button onClick={handleLogin} className="px-6 py-2 rounded-2xl bg-[var(--color-accent)] text-white text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-lg">
+              Join
             </button>
           )}
         </nav>
@@ -748,6 +793,22 @@ export default function Home() {
                     </div>
                     <div className="bg-amber-500/10 px-4 py-2 rounded-xl border border-amber-500/20 flex items-center gap-2">
                       <Star className="text-amber-500 fill-amber-500" size={14}/><span className="font-black text-white text-xs">{dassahPoints}</span>
+                    </div>
+                  </div>
+
+                  {/* Neural Identity Section */}
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 px-2">Neural Identity</p>
+                    <div className="flex flex-wrap gap-3 px-2">
+                      {DEFAULT_AVATARS.map((av) => (
+                        <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-12 h-12 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-white/10 scale-110 shadow-lg' : 'border-transparent bg-white/5 opacity-40 hover:opacity-100'}`} title={av.label}>
+                          {av.icon}
+                        </button>
+                      ))}
+                      <label className="w-12 h-12 rounded-xl border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all">
+                        <Upload size={18} className="text-slate-400" />
+                        <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
+                      </label>
                     </div>
                   </div>
                   
