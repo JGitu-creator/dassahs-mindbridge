@@ -115,26 +115,40 @@ interface SimplifiedData {
   actions: { task: string; priority: 'high' | 'medium' | 'low' }[];
 }
 
-const StarParticles = ({ count, isFinal }: { count: number, isFinal: boolean }) => (
-  <div className="fixed inset-0 pointer-events-none z-[401]">
-    {[...Array(count)].map((_, i) => (
-      <motion.div
-        key={i}
-        initial={{ y: -20, x: Math.random() * 2000, opacity: 1, scale: Math.random() * 0.5 + 0.5 }}
-        animate={{ 
-          y: 1200, 
-          x: `calc(${Math.random() * 2000}px + ${Math.random() * 100 - 50}px)`, 
-          rotate: 360,
-          opacity: 0 
-        }}
-        transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, ease: "linear", delay: Math.random() * 5 }}
-        className="absolute"
-      >
-        {isFinal ? <Trophy className="text-amber-400" size={24} /> : <Sparkle className="text-blue-400" size={16} />}
-      </motion.div>
-    ))}
-  </div>
-);
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check(); window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+};
+
+const StarParticles = ({ count, isFinal }: { count: number, isFinal: boolean }) => {
+  const isMobile = useIsMobile();
+  const mobileCount = isMobile ? Math.min(count, 20) : count;
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[401]">
+      {[...Array(mobileCount)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ y: -20, x: Math.random() * 2000, opacity: 1, scale: Math.random() * 0.5 + 0.5 }}
+          animate={{ 
+            y: 1200, 
+            x: `calc(${Math.random() * 2000}px + ${Math.random() * 100 - 50}px)`, 
+            rotate: 360,
+            opacity: 0 
+          }}
+          transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, ease: "linear", delay: Math.random() * 5 }}
+          className="absolute"
+        >
+          {isFinal ? <Trophy className="text-amber-400" size={isMobile ? 16 : 24} /> : <Sparkle className="text-blue-400" size={isMobile ? 12 : 16} />}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
 
 const BionicText = ({ text }: { text: string }) => {
   if (!text) return null;
@@ -188,8 +202,7 @@ const GlassShard = ({ color, mousePos, i }: { color: string, mousePos: { x: numb
 
 const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked, focusMode }: { theme: Theme, mousePos: { x: number, y: number }, audioMode: string, isZenLocked: boolean, focusMode: string }) => {
   const t = THEMES[theme];
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => { setIsMobile(window.innerWidth < 768); }, []);
+  const isMobile = useIsMobile();
 
   const pulseVariants = {
     action: { scale: [1, 1.2, 0.9, 1], opacity: [0.4, 0.8, 0.4], transition: { duration: 2, repeat: Infinity } },
@@ -206,7 +219,7 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked, focusMode 
       {focusMode === 'sovereign' && (
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `linear-gradient(to right, ${t.accent} 1px, transparent 1px), linear-gradient(to bottom, ${t.accent} 1px, transparent 1px)`, backgroundSize: '100px 100px' }} />
       )}
-      {[...Array(isMobile ? 4 : 8)].map((_, i) => (
+      {[...Array(isMobile ? 3 : 8)].map((_, i) => (
         <motion.div
           key={`${i}`}
           animate={focusMode === 'sovereign' ? sovereignPulse : currentPulse}
@@ -214,11 +227,11 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked, focusMode 
             position: 'absolute',
             left: `${(i * 25) % 100}%`,
             top: `${(i * 35) % 100}%`,
-            width: `${300 + i * 100}px`,
-            height: `${300 + i * 100}px`,
+            width: `${isMobile ? 200 + i * 50 : 300 + i * 100}px`,
+            height: `${isMobile ? 200 + i * 50 : 300 + i * 100}px`,
             background: `radial-gradient(circle at center, ${t.prism[i % 3]}${focusMode === 'sovereign' ? '22' : '88'}, transparent)`,
             borderRadius: '50%',
-            filter: `blur(${isMobile ? '50px' : '90px'})`,
+            filter: `blur(${isMobile ? '30px' : '90px'})`,
             x: (mousePos.x - 500) * (isZenLocked || focusMode === 'sovereign' ? 0.01 : 0.05 + i * 0.01),
             y: (mousePos.y - 400) * (isZenLocked || focusMode === 'sovereign' ? 0.01 : 0.05 + i * 0.01),
           }}
@@ -802,7 +815,7 @@ export default function Home() {
                     <div className="flex flex-wrap gap-2">
                       {DEFAULT_AVATARS.map((av) => (
                         <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-10 h-10 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-white/10 scale-105 shadow-lg' : 'border-transparent bg-white/5 opacity-40 hover:opacity-100'}`} title={av.label}>
-                          {React.cloneElement(av.icon as React.ReactElement, { size: 16 })}
+                          <span className="scale-75">{av.icon}</span>
                         </button>
                       ))}
                       <label className="w-10 h-10 rounded-xl border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all">
