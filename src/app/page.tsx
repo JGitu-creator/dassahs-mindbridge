@@ -4,12 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
-  Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal
+  Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal,
+  Compass, Check, LogOut
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
-type Theme = 'midnight' | 'emerald' | 'sunset' | 'nebula' | 'ghost';
+type Theme = 'midnight' | 'emerald' | 'sunset' | 'nebula' | 'ghost' | 'pearl' | 'rose' | 'celestial' | 'iron' | 'eternal';
 
 interface ThemeConfig {
   name: string;
@@ -22,7 +23,7 @@ interface ThemeConfig {
 
 const THEMES: Record<Theme, ThemeConfig> = {
   midnight: {
-    name: 'Midnight',
+    name: 'Midnight Sovereign',
     c1: '#020617', c2: '#0f172a',
     text: '#f8fafc', accent: '#3b82f6',
     glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)',
@@ -54,12 +55,52 @@ const THEMES: Record<Theme, ThemeConfig> = {
     prism: ['#8b5cf6', '#a78bfa', '#7c3aed']
   },
   ghost: {
-    name: 'Ghost Flow',
+    name: 'Obsidian Grace',
     c1: '#000000', c2: '#111111',
     text: '#cccccc', accent: '#ffffff',
     glass: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.05)',
     shadow: 'rgba(0,0,0,0.8)', mesh: 'rgba(255, 255, 255, 0.05)',
     prism: ['#ffffff', '#888888', '#444444']
+  },
+  pearl: {
+    name: 'Pearl Wisdom',
+    c1: '#f8fafc', c2: '#e2e8f0',
+    text: '#0f172a', accent: '#3b82f6',
+    glass: 'rgba(255, 255, 255, 0.7)', border: 'rgba(59, 130, 246, 0.2)',
+    shadow: 'rgba(0,0,0,0.1)', mesh: 'rgba(59, 130, 246, 0.05)',
+    prism: ['#3b82f6', '#60a5fa', '#93c5fd']
+  },
+  rose: {
+    name: 'Rose Anointing',
+    c1: '#1c1917', c2: '#0c0a09',
+    text: '#fafaf9', accent: '#e11d48',
+    glass: 'rgba(28, 25, 23, 0.6)', border: 'rgba(225, 29, 72, 0.2)',
+    shadow: 'rgba(0,0,0,0.7)', mesh: 'rgba(225, 29, 72, 0.1)',
+    prism: ['#e11d48', '#fb7185', '#be123c']
+  },
+  celestial: {
+    name: 'Celestial Anchor',
+    c1: '#082f49', c2: '#0c4a6e',
+    text: '#f0f9ff', accent: '#0ea5e9',
+    glass: 'rgba(12, 74, 110, 0.5)', border: 'rgba(14, 165, 233, 0.2)',
+    shadow: 'rgba(8, 47, 73, 0.6)', mesh: 'rgba(14, 165, 233, 0.1)',
+    prism: ['#0ea5e9', '#38bdf8', '#0284c7']
+  },
+  iron: {
+    name: 'Iron Discernment',
+    c1: '#0f172a', c2: '#1e293b',
+    text: '#f8fafc', accent: '#64748b',
+    glass: 'rgba(30, 41, 59, 0.6)', border: 'rgba(100, 116, 139, 0.3)',
+    shadow: 'rgba(15, 23, 42, 0.8)', mesh: 'rgba(148, 163, 184, 0.1)',
+    prism: ['#64748b', '#94a3b8', '#475569']
+  },
+  eternal: {
+    name: 'Eternal Light',
+    c1: '#1e1b4b', c2: '#312e81',
+    text: '#eef2ff', accent: '#6366f1',
+    glass: 'rgba(49, 46, 129, 0.4)', border: 'rgba(99, 102, 241, 0.3)',
+    shadow: 'rgba(30, 27, 75, 0.7)', mesh: 'rgba(99, 102, 241, 0.15)',
+    prism: ['#6366f1', '#a5b4fc', '#4338ca']
   }
 };
 
@@ -145,7 +186,7 @@ const GlassShard = ({ color, mousePos, i }: { color: string, mousePos: { x: numb
   />
 );
 
-const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked }: { theme: Theme, mousePos: { x: number, y: number }, audioMode: string, isZenLocked: boolean }) => {
+const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked, focusMode }: { theme: Theme, mousePos: { x: number, y: number }, audioMode: string, isZenLocked: boolean, focusMode: string }) => {
   const t = THEMES[theme];
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => { setIsMobile(window.innerWidth < 768); }, []);
@@ -158,24 +199,28 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked }: { theme:
   };
 
   const currentPulse = (pulseVariants as any)[audioMode] || pulseVariants.none;
+  const sovereignPulse = { scale: [1, 1.01, 1], opacity: [0.1, 0.15, 0.1], transition: { duration: 10, repeat: Infinity } };
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      {focusMode === 'sovereign' && (
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `linear-gradient(to right, ${t.accent} 1px, transparent 1px), linear-gradient(to bottom, ${t.accent} 1px, transparent 1px)`, backgroundSize: '100px 100px' }} />
+      )}
       {[...Array(isMobile ? 4 : 8)].map((_, i) => (
         <motion.div
           key={`${i}`}
-          animate={currentPulse}
+          animate={focusMode === 'sovereign' ? sovereignPulse : currentPulse}
           style={{
             position: 'absolute',
             left: `${(i * 25) % 100}%`,
             top: `${(i * 35) % 100}%`,
             width: `${300 + i * 100}px`,
             height: `${300 + i * 100}px`,
-            background: `radial-gradient(circle at center, ${t.prism[i % 3]}88, transparent)`,
+            background: `radial-gradient(circle at center, ${t.prism[i % 3]}${focusMode === 'sovereign' ? '22' : '88'}, transparent)`,
             borderRadius: '50%',
             filter: `blur(${isMobile ? '50px' : '90px'})`,
-            x: (mousePos.x - 500) * (isZenLocked ? 0.01 : 0.05 + i * 0.01),
-            y: (mousePos.y - 400) * (isZenLocked ? 0.01 : 0.05 + i * 0.01),
+            x: (mousePos.x - 500) * (isZenLocked || focusMode === 'sovereign' ? 0.01 : 0.05 + i * 0.01),
+            y: (mousePos.y - 400) * (isZenLocked || focusMode === 'sovereign' ? 0.01 : 0.05 + i * 0.01),
           }}
         />
       ))}
@@ -213,17 +258,49 @@ const NeuralSparks = ({ active }: { active: boolean }) => {
   );
 };
 
-const LivingBrain = ({ loading, inputLength, isVictorious, user }: { loading: boolean, inputLength: number, isVictorious: boolean, user: any }) => {
+const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mousePos, focusMode }: { loading: boolean, inputLength: number, isVictorious: boolean, user: any, mousePos: {x:number, y:number}, focusMode: string }) => {
   const isTyping = inputLength > 0;
   const isLong = inputLength > 500;
   const duration = loading ? 0.3 : isTyping ? (isLong ? 0.5 : 1) : 3;
   const scale = loading ? [1, 1.3, 1] : isTyping ? [1, 1.15, 1] : [1, 1.05, 1];
-  const glowOpacity = isVictorious && user ? 0.8 : (loading || isTyping ? 0.4 : 0.1);
-  const color = isVictorious && user ? "from-amber-400 via-yellow-300 to-amber-500" : "from-blue-500 via-purple-600 to-blue-400";
+  const glowOpacity = isVictorious && user ? 0.8 : (loading || isTyping ? 0.5 : 0.2);
+  const color = isVictorious && user ? "from-amber-400 via-yellow-300 to-amber-500" : (focusMode === 'sovereign' ? "from-slate-700 via-slate-800 to-slate-900" : "from-blue-500 via-purple-600 to-blue-400");
+  
   return (
-    <motion.div animate={{ rotate: loading ? [0, 10, -10, 0] : [0, 5, -5, 0], scale: scale }} transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} className={`relative mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br ${color} text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_50px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000`}>
-      <Brain className={`w-16 h-16 md:w-20 md:h-20 ${isVictorious && user ? "text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" : ""}`} />
-      <NeuralSparks active={loading} />
+    <motion.div 
+      animate={{ 
+        rotate: loading ? [0, 10, -10, 0] : [0, 5, -5, 0], 
+        scale: scale,
+        x: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth/2 : 0)) * 0.02,
+        y: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight/2 : 0)) * 0.02
+      }} 
+      transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
+      className={`relative mx-auto w-28 h-28 md:w-44 md:h-44 bg-gradient-to-br ${color} text-white rounded-[3rem] md:rounded-[5rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_100px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000 z-10`}
+    >
+      <Brain className={`w-16 h-16 md:w-24 md:h-24 ${isVictorious && user ? "text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" : ""}`} />
+      
+      {/* Refractive Shards around the core */}
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={i}
+          animate={{
+            rotate: [i * 45, i * 45 + 360],
+            scale: loading ? [1, 1.5, 1] : [1, 1.1, 1],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-0 pointer-events-none"
+        >
+          <div 
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-8 md:w-3 md:h-12 bg-white/20 blur-[1px] rounded-full"
+            style={{ 
+              transform: `translateY(-${isTyping ? 60 : 40}px) rotate(${i * 45}deg)`,
+              opacity: focusMode === 'sovereign' ? 0.1 : 0.4
+            }}
+          />
+        </motion.div>
+      ))}
+
+      <NeuralSparks active={loading || (isTyping && focusMode === 'dastastic')} />
       {isVictorious && user && (<motion.div animate={{ opacity: [0.5, 1, 0.5], scale: [1, 1.5, 1] }} transition={{ duration: 2, repeat: Infinity }} className="absolute inset-0 bg-amber-400/20 rounded-full blur-3xl -z-10" />)}
     </motion.div>
   );
@@ -256,7 +333,7 @@ export default function Home() {
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [showPrismSettings, setShowPrismSettings] = useState(false);
+  const [showCommandCenter, setShowCommandCenter] = useState(false);
   const [feedbackInput, setFeedbackInput] = useState('');
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
@@ -322,6 +399,12 @@ export default function Home() {
   const loadHistory = async (userId: string) => {
     const { data, error } = await supabase.from('history').select('*').eq('user_id', userId).order('created_at', { ascending: false });
     if (!error && data) setHistory(data.map(h => ({ id: h.id, date: new Date(h.created_at).toLocaleDateString(), title: h.title, data: h.data })));
+  };
+
+  const loadProfile = async (userId: string) => {
+    const { data, error } = await supabase.from('profiles').select('is_paid').eq('id', userId).single();
+    if (data) setIsPaid(data.is_paid);
+    if (error && error.code !== 'PGRST116') console.error('Error loading profile:', error);
   };
 
   const handleLogin = async () => { await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); };
@@ -427,8 +510,24 @@ export default function Home() {
   }, [audioMode, suspenseIdx, actionIdx]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => { setUser(session?.user ?? null); if (session?.user) loadHistory(session.user.id); });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setUser(session?.user ?? null); if (session?.user) loadHistory(session.user.id); else setHistory([]); });
+    supabase.auth.getSession().then(({ data: { session } }) => { 
+      setUser(session?.user ?? null); 
+      if (session?.user) {
+        loadHistory(session.user.id);
+        loadProfile(session.user.id);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { 
+      setUser(session?.user ?? null); 
+      if (session?.user) {
+        loadHistory(session.user.id);
+        loadProfile(session.user.id);
+      } else { 
+        setHistory([]); 
+        setIsPaid(false);
+      } 
+    });
     setUsageCount(parseInt(localStorage.getItem('dassahs_prism_usage') || '0'));
     const urlParams = new URLSearchParams(window.location.search);
     const textParam = urlParams.get('text');
@@ -571,75 +670,136 @@ export default function Home() {
     <>
       <style>{themeStyles}</style>
       <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)`, color: 'var(--color-text)' }}>
-      <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} />
+      <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
-        <><StarParticles count={rewardType === 'final' ? 150 : 40} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.5, y: 100 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.5 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600 via-purple-600 to-amber-500 p-10 md:p-20 rounded-[3.5rem] md:rounded-[6rem] shadow-[0_0_200px_rgba(59,130,246,1)] border-4 border-white/40 backdrop-blur-3xl flex flex-col items-center gap-8"><LivingBrain loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-xs md:text-sm">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-5xl md:text-9xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="flex gap-8 pt-4"><div className="text-left border-l-2 border-white/20 pl-6"><p className="text-white/60 text-[10px] font-black uppercase">Rank</p><p className="text-white font-bold text-xl md:text-2xl italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-6"><p className="text-white/60 text-[10px] font-black uppercase">Result</p><p className="text-white font-bold text-xl md:text-2xl italic">100% Clarity</p></div></div>)}</div></motion.div></>
+        <><StarParticles count={rewardType === 'final' ? 150 : 40} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.5, y: 100 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.5 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600 via-purple-600 to-amber-500 p-10 md:p-20 rounded-[3.5rem] md:rounded-[6rem] shadow-[0_0_200px_rgba(59,130,246,1)] border-4 border-white/40 backdrop-blur-3xl flex flex-col items-center gap-8"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-xs md:text-sm">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-5xl md:text-9xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="flex gap-8 pt-4"><div className="text-left border-l-2 border-white/20 pl-6"><p className="text-white/60 text-[10px] font-black uppercase">Rank</p><p className="text-white font-bold text-xl md:text-2xl italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-6"><p className="text-white/60 text-[10px] font-black uppercase">Result</p><p className="text-white font-bold text-xl md:text-2xl italic">100% Clarity</p></div></div>)}</div></motion.div></>
       )}</AnimatePresence>
 
-      <nav className={`fixed top-0 left-0 right-0 z-[110] p-2 md:p-4 flex justify-between items-center bg-[var(--color-glass)] backdrop-blur-md border-b border-[var(--color-border)] transition-all duration-500 ${isZenLocked ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'}`}>
-        <div className="flex gap-1 md:gap-2 items-center sm:max-w-none">
-          <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} title={focusMode === "sovereign" ? "Sovereign Mode (CEO)" : "Dastastic Mode (ADHD)"} className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all flex items-center gap-2 ${focusMode === "sovereign" ? "bg-amber-600 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}><AnimatePresence mode="wait"><motion.div key={focusMode} initial={{ scale: 0.5, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0.5, rotate: 90 }}>{focusMode === "sovereign" ? <Crown size={18}/> : <Zap size={18}/>}</motion.div></AnimatePresence><span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign (CEO)" : "Dastastic (ADHD)"}</span></button>
-          
-          <div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
-          
-          {/* Main Action Group */}
-          <div className="flex bg-[var(--color-glass)] p-1 rounded-xl md:rounded-2xl border border-[var(--color-border)] shadow-xl flex-shrink-0">
-            <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading" className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={18}/></button>
-            <button onClick={() => { playClick(); setShowHistory(true); }} title="History" className="p-2 md:p-3 text-slate-400 hover:text-blue-400 transition-all"><Clock size={18}/></button>
-            {data && (<button onClick={handleToggleZenLock} title={`Zen Lock Focus (Breaking costs ${(currentChunk === data?.chunks.length ? 50 : (currentChunk + 1) * 5)} points)`} className={`px-2 md:px-4 py-2 rounded-lg md:rounded-xl transition-all flex items-center gap-1 md:gap-2 ${isZenLocked ? 'bg-red-600 text-white shadow-lg animate-pulse' : 'text-slate-400 hover:text-white'}`}>{isZenLocked ? <Crown size={16}/> : <Lock size={16}/>}<span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest hidden lg:block">{isZenLocked ? 'Locked' : 'Zen Lock'}</span></button>)}
-          </div>
-
-          {/* Prism Settings Toggle */}
-          <div className="relative">
-            <button onClick={() => { playClick(); setShowPrismSettings(!showPrismSettings); }} className={`p-2 md:p-3 rounded-xl border border-[var(--color-border)] transition-all ${showPrismSettings ? 'bg-white/10 text-white' : 'bg-[var(--color-glass)] text-slate-400 hover:text-white'}`}><Settings size={20}/></button>
-            
-            <AnimatePresence>
-              {showPrismSettings && (
-                <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute left-0 top-full mt-4 bg-[var(--color-shadow)] backdrop-blur-3xl p-6 rounded-3xl border border-[var(--color-border)] shadow-2xl min-w-[280px] z-[120] space-y-6">
-                  <div>
-                    <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4 px-2">Visual Spectrum</p>
-                    <div className="grid grid-cols-5 gap-2 px-2">
-                      {Object.entries(THEMES).map(([id, t]) => (<button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 ${theme === id ? 'border-white shadow-lg scale-110' : 'border-transparent opacity-40 hover:opacity-100'}`} style={{ backgroundColor: t.accent }} title={t.name} />))}
-                    </div>
-                  </div>
-
-                  <div className="h-[1px] bg-white/5 mx-2" />
-
-                  <div>
-                    <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4 px-2">Neural Resonance</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[ {m:'none', i:<X size={14}/>, n:'Silent'}, {m:'brown', i:<Sun size={14}/>, n:'Resonance'}, {m:'suspense', i:<Ghost size={14}/>, n:'Harmony'}, {m:'action', i:<Swords size={14}/>, n:'Zen'} ].map((s) => (
-                        <button key={s.m} onClick={() => { playClick(); if (audioMode === s.m) { if (s.m === 'suspense') setSuspenseIdx(i => (i + 1) % 3); if (s.m === 'action') setActionIdx(i => (i + 1) % 3); } setAudioMode(s.m as any); }} className={`flex items-center gap-3 p-3 rounded-2xl transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-white/5 text-slate-400 hover:text-white'}`}>{s.i}<span className="text-[10px] font-black uppercase tracking-widest">{s.n}</span></button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="h-[1px] bg-white/5 mx-2" />
-
-                  <div className="space-y-2">
-                    <button onClick={() => { setShowPrismSettings(false); setShowFeedback(true); }} className="w-full flex items-center justify-between p-4 rounded-2xl bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-all"><div className="flex items-center gap-3"><MessageSquare size={18}/><span className="text-[10px] font-black uppercase tracking-widest">Feedback Vault</span></div><ArrowRight size={14}/></button>
-                    <button onClick={() => { setShowPrismSettings(false); setShowAbout(true); }} className="w-full flex items-center justify-between p-4 rounded-2xl bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all"><div className="flex items-center gap-3"><Brain size={18}/><span className="text-[10px] font-black uppercase tracking-widest">About Prism</span></div><ArrowRight size={14}/></button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-        <div className="flex gap-2 items-center">
-          <div className="hidden sm:flex flex-col items-end mr-4">
-            <p className="text-white font-black text-[10px] uppercase tracking-widest">{callsign}</p>
-            <p className="text-blue-400 font-bold text-[8px] uppercase tracking-tighter">{syncLevel}</p>
-          </div>
-          <button onClick={() => setShowPaywall(true)} title="Royal Upgrade" className={`px-3 py-2 rounded-xl transition-all flex items-center gap-2 ${isPaid ? "text-amber-400 bg-amber-400/10 shadow-[0_0_20px_rgba(245,158,11,0.3)]" : "text-slate-400 hover:text-white bg-white/5"}`}>
-            <Crown size={18}/>
-            {!isPaid && <span className="text-[9px] font-black uppercase tracking-widest hidden lg:block">Upgrade</span>}
+      <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-6 pointer-events-none">
+        <nav className={`pointer-events-auto flex items-center gap-2 px-3 py-2 rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
+          <button onClick={() => { playClick(); setShowCommandCenter(true); }} className="p-3 rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
+            <Compass size={20} className="group-hover:rotate-90 transition-transform duration-500" />
           </button>
-          <div className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] flex items-center gap-2 shadow-xl"><Star className="text-amber-500 fill-amber-500" size={14}/><span className="font-black text-white text-[10px] md:text-xs">{dassahPoints}</span></div>
-          {user ? (<button onClick={handleLogout} className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] text-[9px] md:text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Out</button>) : (<button onClick={handleLogin} className="bg-[var(--color-accent)] hover:opacity-80 px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl text-white font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-[0_10px_25px_rgba(59,130,246,0.4)] transition-all active:scale-95">Join</button>)}
-        </div>
-      </nav>
+          
+          <div className="w-[1px] h-6 bg-white/10 mx-1" />
+          
+          <div className="flex items-center gap-4 px-4">
+            <div className="flex flex-col items-center">
+              <p className="text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Neural Sync</p>
+              <div className="flex items-center gap-2">
+                <Star className="text-amber-500 fill-amber-500" size={10} />
+                <span className="font-black text-white text-xs tabular-nums">{dassahPoints}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-[1px] h-6 bg-white/10 mx-1" />
+
+          <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-white'}`}>
+            {focusMode === 'sovereign' ? <Crown size={14} /> : <Zap size={14} />}
+            <span className="hidden sm:block">{focusMode === 'sovereign' ? 'Sovereign' : 'Dastastic'}</span>
+          </button>
+
+          {user ? (
+            <button onClick={() => setShowCommandCenter(true)} className="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xs font-black uppercase hover:scale-105 transition-all">
+              {user.email?.slice(0, 1)}
+            </button>
+          ) : (
+            <button onClick={handleLogin} className="px-6 py-2 rounded-2xl bg-[var(--color-accent)] text-white text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all">
+              Anchor
+            </button>
+          )}
+        </nav>
+      </div>
+
+      {/* Prism Link (Feedback) */}
+      <button onClick={() => setShowFeedback(true)} className="fixed bottom-8 left-8 z-[200] p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 text-slate-500 hover:text-white hover:bg-white/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl">
+        <div className="absolute inset-0 bg-blue-500/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+        <MessageSquare size={20} className="relative z-10 group-hover:scale-110 transition-transform" />
+      </button>
+
+      <AnimatePresence>
+        {showCommandCenter && (
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[600] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="max-w-4xl w-full grid md:grid-cols-2 gap-8">
+              {/* Left Side: Stats & Actions */}
+              <div className="space-y-8">
+                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10 space-y-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h2 className="text-3xl font-black text-white italic">Neural Profile</h2>
+                      <p className="text-blue-400 font-bold text-xs uppercase tracking-widest mt-1">{callsign}</p>
+                    </div>
+                    <div className="bg-amber-500/10 px-4 py-2 rounded-xl border border-amber-500/20 flex items-center gap-2">
+                      <Star className="text-amber-500 fill-amber-500" size={14}/><span className="font-black text-white text-xs">{dassahPoints}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <button onClick={() => { setShowCommandCenter(false); setShowHistory(true); }} className="p-6 rounded-[2rem] bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all text-left group">
+                      <Clock className="text-blue-400 mb-3" size={24} />
+                      <p className="text-[10px] font-black uppercase text-slate-500">Vault</p>
+                      <p className="text-sm font-bold text-white">History</p>
+                    </button>
+                    <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`p-6 rounded-[2rem] border transition-all text-left ${focusMode === 'sovereign' ? 'bg-amber-600/20 border-amber-500/50' : 'bg-white/5 border-white/10'}`}>
+                      {focusMode === 'sovereign' ? <Crown className="text-amber-400 mb-3" size={24} /> : <Zap className="text-blue-400 mb-3" size={24} />}
+                      <p className="text-[10px] font-black uppercase text-slate-500">Mode</p>
+                      <p className="text-sm font-bold text-white">{focusMode === 'sovereign' ? 'Sovereign' : 'Dastastic'}</p>
+                    </button>
+                  </div>
+
+                  {!isPaid && (
+                    <button onClick={() => { setShowCommandCenter(false); setShowPaywall(true); }} className="w-full p-8 rounded-[2.5rem] bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between group overflow-hidden relative shadow-2xl">
+                      <div className="relative z-10 text-left">
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60">Architect Access</p>
+                        <p className="text-xl font-black italic">Upgrade Neural Link</p>
+                      </div>
+                      <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform relative z-10" />
+                      <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex justify-center">
+                  <button onClick={() => setShowCommandCenter(false)} className="px-12 py-4 rounded-full bg-white text-black font-black uppercase tracking-[0.5em] text-[10px] hover:scale-105 transition-all">Close</button>
+                </div>
+              </div>
+
+              {/* Right Side: Settings */}
+              <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10 space-y-10">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-6">Visual Spectrum</p>
+                  <div className="grid grid-cols-4 gap-4">
+                    {Object.entries(THEMES).map(([id, t]) => (
+                      <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`aspect-square rounded-2xl border-4 transition-all hover:scale-110 flex items-center justify-center ${theme === id ? 'border-white shadow-lg scale-110' : 'border-transparent opacity-40'}`} style={{ backgroundColor: t.accent }}>
+                        {theme === id && <Check className="text-white" size={20} />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-6">Neural Resonance</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    {[ {m:'none', i:<X size={18}/>, n:'Silent'}, {m:'brown', i:<Sun size={18}/>, n:'Deep Brown'}, {m:'suspense', i:<Ghost size={18}/>, n:'Atmosphere'}, {m:'action', i:<Swords size={18}/>, n:'Focus Flow'} ].map((s) => (
+                      <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex items-center gap-4 p-5 rounded-[1.5rem] transition-all ${audioMode === s.m ? 'bg-blue-600 text-white' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
+                        {s.i}<span className="text-xs font-black uppercase">{s.n}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 space-y-4">
+                  <button onClick={() => { setShowCommandCenter(false); setShowAbout(true); }} className="w-full p-6 rounded-2xl bg-white/5 border border-white/10 text-slate-400 hover:text-white flex items-center gap-4 text-xs font-black uppercase tracking-widest transition-all"><Brain size={18}/> About the Prism</button>
+                  {user && <button onClick={handleLogout} className="w-full p-6 rounded-2xl bg-red-600/10 border border-red-600/30 text-red-400 hover:bg-red-600 hover:text-white flex items-center gap-4 text-xs font-black uppercase tracking-widest transition-all"><LogOut size={18}/> Disconnect neural link</button>}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>{showAbout && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
@@ -668,7 +828,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {[
                     { n: "01", t: "Neural Refraction", d: "Capture noise via 'Dastastic' (Dopamine-First) or 'Sovereign' (Executive-Sleek) modes. Our engine maps your chosen cognitive path instantly." },
-                    { n: "02", t: "Executive Distillation", d: "The Magic: We strip the fluff, boiling down complex noise into high-impact maps for rapid, sovereign decision-making." },
+                    { n: "02", t: "Executive Distillation", d: "The Grace: We strip the fluff, boiling down complex noise into high-impact maps for rapid, sovereign decision-making." },
                     { n: "03", t: "Cognitive Resonance", d: "The Flow: Integrated audio-visual synchronization and Zen-locked focus lock your brain into a state of divine clarity." }
                   ].map((step, i) => (<motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3"><span className="text-4xl font-black text-blue-500/30 tracking-tight">{step.n}</span><p className="text-white font-black uppercase text-sm tracking-widest">{step.t}</p><p className="text-slate-500 text-sm font-medium">{step.d}</p></motion.div>))}
                 </div>
@@ -693,7 +853,7 @@ export default function Home() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="py-12 text-center space-y-4"><div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400"><CheckCircle2 size={32} /></div><p className="text-white font-bold">Feedback Vaulted!</p></motion.div>
               ) : (
                 <form onSubmit={handleFeedbackSubmit} className="space-y-6">
-                  <textarea value={feedbackInput} onChange={(e) => setFeedbackInput(e.target.value)} placeholder="Share your thoughts, bugs, or magic moments..." className="w-full h-40 p-6 bg-black/20 rounded-2xl border border-[var(--color-border)] text-white focus:outline-none focus:border-amber-500/50 resize-none font-medium" />
+                  <textarea value={feedbackInput} onChange={(e) => setFeedbackInput(e.target.value)} placeholder="Share your thoughts, bugs, or Grace moments..." className="w-full h-40 p-6 bg-black/20 rounded-2xl border border-[var(--color-border)] text-white focus:outline-none focus:border-amber-500/50 resize-none font-medium" />
                   <button type="submit" disabled={!feedbackInput.trim()} className="w-full bg-amber-600 hover:bg-amber-500 py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl transition-all active:scale-95 disabled:opacity-50">Submit to DJ</button>
                 </form>
               )}
@@ -713,7 +873,7 @@ export default function Home() {
             <div className="bg-blue-500/5 p-6 rounded-[2rem] border border-blue-500/10 space-y-3 relative overflow-hidden"><div className="absolute top-2 right-4 animate-pulse"><Sparkle size={10} className="text-blue-400" /></div><p className="text-[8px] uppercase tracking-widest text-blue-400 font-black">The Clarity</p><p className="text-xs text-slate-300 leading-relaxed font-bold"><span className="text-white font-black">Thi</span>s <span className="text-white font-black">i</span>s <span className="text-white font-black">a</span> <span className="text-white font-black">shor</span>t, <span className="text-white font-black">Bioni</span>c <span className="text-white font-black">pat</span>h. <span className="text-white font-black">You</span>r <span className="text-white font-black">brai</span>n <span className="text-white font-black">lock</span>s <span className="text-white font-black">i</span>n <span className="text-white font-black">instan</span>tly.</p></div>
           </div>
           <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/10 p-3 shadow-2xl overflow-hidden relative group focus-within:border-blue-500/50 transition-all flex flex-col items-center">
-            <div className="pt-6 pb-2"><LivingBrain loading={loading} inputLength={input.length} isVictorious={false} user={user} /></div>
+            <div className="pt-6 pb-2"><RefractiveNeuralCore loading={loading} inputLength={input.length} isVictorious={false} user={user} mousePos={mousePos} focusMode={focusMode} /></div>
             <div className="w-full relative group">
               {showNeuroMirror ? (
                 <div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto"><NeuroMirrorText text={input || "Paste some text..."} /></div>

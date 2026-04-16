@@ -25,7 +25,8 @@ export async function POST(req: Request) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
-    const planType = session.metadata?.planType === 'architect_monthly' ? 'architect' : 'sovereign';
+    const lookupKey = session.metadata?.planType;
+    const planType = lookupKey === 'architect_monthly' ? 'architect' : 'sovereign';
 
     if (userId) {
       // 1. Update the user's profile in Supabase to mark them as Paid

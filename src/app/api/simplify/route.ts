@@ -22,26 +22,8 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: { responseMimeType: "application/json" }
-    });
-
-    if (mode === 'chat') {
-      const chatPrompt = `
-        You are an ADHD-friendly assistant. Based on the following context, answer the user's question in 1-2 very simple, encouraging sentences. 
-        Use bullet points if listing things. 
-        
-        CONTEXT:
-        ${JSON.stringify(context)}
-        
-        USER QUESTION:
-        ${question}
-      `;
-      const result = await model.generateContent(chatPrompt);
-      return NextResponse.json({ answer: result.response.text() });
-    }
-
+    const modelsToTry = ['gemini-3.1-pro-preview', 'gemini-2.0-flash', 'gemini-flash-latest'];
+    
     const prompt = `
 You are an expert cognitive simplifier called "Dassah's Prism," designed to help individuals process complex information without feeling overwhelmed. 
 
@@ -50,7 +32,7 @@ TARGET AUDIENCE: ${cognitiveMode === 'ceo' ? 'CEO/Executive (Prioritize "Executi
 PROCESSING MODE: ${isScenic ? 'SCENIC ROUTE (Full immersive journey: Use wild, creative metaphors, fascinating "Did you know?" hooks, and break the text into many small, vibrant segments. Be witty and expansive.)' : 'QUICK FILTER (Ultra-fast extraction: Get the absolute core facts in the shortest time possible. Use minimal segments and extreme brevity.)'}
 
 Follow these strict rules for the JSON output:
-1. "tldr": Provide exactly 3 concise, punchy bullet points. If CEO, focus on ROI/Action. If ADHD, focus on "The Magic".
+1. "tldr": Provide exactly 3 concise, punchy bullet points. If CEO, focus on ROI/Action. If ADHD, focus on "The Grace".
 2. "whyCare": A compelling reason why this matters to the ${cognitiveMode === 'ceo' ? 'organization and success' : 'individual and their curiosity'}.
 3. "readingTime": Estimate reading time.
 4. "chunks": Break the content into logical sections. 
@@ -87,10 +69,51 @@ INPUT:
 ${text}
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let responseText = response.text();
-    
+    let responseText = '';
+    let lastError: any = null;
+
+    const generationPrompt = mode === 'chat' ? `
+        You are an ADHD-friendly assistant. Based on the following context, answer the user's question in 1-2 very simple, encouraging sentences. 
+        Use bullet points if listing things. 
+        
+        CONTEXT:
+        ${JSON.stringify(context)}
+        
+        USER QUESTION:
+        ${question}
+      ` : prompt;
+
+    for (const modelName of modelsToTry) {
+      try {
+        const model = genAI.getGenerativeModel({ 
+          model: modelName,
+          generationConfig: { responseMimeType: "application/json" }
+        });
+        
+        const result = await model.generateContent(generationPrompt);
+        const response = await result.response;
+        responseText = response.text();
+        
+        if (responseText) {
+          console.log(`Neural Refraction successful using ${modelName}`);
+          break;
+        }
+      } catch (err: any) {
+        console.warn(`Model ${modelName} failed or saturated. Shifting focus...`);
+        lastError = err;
+        continue;
+      }
+    }
+
+    if (!responseText) {
+      throw new Error(`The Neural Prism is currently saturated. Please try again in a few moments. (Details: ${lastError?.message})`);
+    }
+
+    // Chat mode has simple text response
+    if (mode === 'chat') {
+      return NextResponse.json({ answer: responseText });
+    }
+
     // Better cleaning: remove markdown blocks and any leading/trailing whitespace
     responseText = responseText.replace(/```json|```/gi, '').trim();
     
@@ -109,17 +132,18 @@ ${text}
       
       return NextResponse.json(validatedData);
     } catch (parseError) {
-      console.error("Failed to parse Gemini output:", responseText);
+      console.error("Failed to parse Gemini output. Raw response:", responseText);
       return NextResponse.json(
-        { error: 'AI returned non-JSON data. Try a shorter text.' },
+        { error: 'Prism Refraction failed. AI output was not in the correct format.' },
         { status: 500 }
       );
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Simplification API Error:', error);
+    const errorMessage = error.message || 'An unexpected error occurred during processing.';
     return NextResponse.json(
-      { error: 'An unexpected error occurred during processing.' },
+      { error: `Neural Prism Error: ${errorMessage}` },
       { status: 500 }
     );
   }
