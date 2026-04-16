@@ -679,13 +679,27 @@ export default function Home() {
 
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-6 pointer-events-none">
         <nav className={`pointer-events-auto flex items-center gap-2 px-3 py-2 rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
-          <button onClick={() => { playClick(); setShowCommandCenter(true); }} className="p-3 rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
+          <button onClick={() => { playClick(); setShowCommandCenter(true); }} title="Neural Command" className="p-3 rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
             <Compass size={20} className="group-hover:rotate-90 transition-transform duration-500" />
           </button>
           
           <div className="w-[1px] h-6 bg-white/10 mx-1" />
           
-          <div className="flex items-center gap-4 px-4">
+          {/* Quick Toggles */}
+          <div className="flex items-center gap-1">
+            <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading (T)" className={`p-3 rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+              <Type size={18} />
+            </button>
+            {data && (
+              <button onClick={handleToggleZenLock} title="Anchor Focus (Lock)" className={`p-3 rounded-xl transition-all ${isZenLocked ? 'bg-red-600 text-white animate-pulse' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                <Lock size={18} />
+              </button>
+            )}
+          </div>
+
+          <div className="w-[1px] h-6 bg-white/10 mx-1" />
+          
+          <div className="flex items-center gap-4 px-2">
             <div className="flex flex-col items-center">
               <p className="text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Neural Sync</p>
               <div className="flex items-center gap-2">
@@ -768,13 +782,15 @@ export default function Home() {
               </div>
 
               {/* Right Side: Settings */}
-              <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10 space-y-10">
+              <div className="bg-white/5 p-8 md:p-10 rounded-[3rem] border border-white/10 space-y-8 max-h-[80vh] overflow-y-auto no-scrollbar">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-6">Visual Spectrum</p>
-                  <div className="grid grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     {Object.entries(THEMES).map(([id, t]) => (
-                      <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`aspect-square rounded-2xl border-4 transition-all hover:scale-110 flex items-center justify-center ${theme === id ? 'border-white shadow-lg scale-110' : 'border-transparent opacity-40'}`} style={{ backgroundColor: t.accent }}>
-                        {theme === id && <Check className="text-white" size={20} />}
+                      <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`p-3 rounded-2xl border-2 transition-all flex items-center gap-3 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
+                        <div className="w-8 h-8 rounded-lg shadow-lg flex-shrink-0" style={{ backgroundColor: t.accent }} />
+                        <span className="text-[10px] font-bold text-white truncate">{t.name}</span>
+                        {theme === id && <Check className="text-white ml-auto" size={14} />}
                       </button>
                     ))}
                   </div>
@@ -782,18 +798,27 @@ export default function Home() {
 
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-6">Neural Resonance</p>
-                  <div className="grid grid-cols-2 gap-4">
-                    {[ {m:'none', i:<X size={18}/>, n:'Silent'}, {m:'brown', i:<Sun size={18}/>, n:'Deep Brown'}, {m:'suspense', i:<Ghost size={18}/>, n:'Atmosphere'}, {m:'action', i:<Swords size={18}/>, n:'Focus Flow'} ].map((s) => (
-                      <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex items-center gap-4 p-5 rounded-[1.5rem] transition-all ${audioMode === s.m ? 'bg-blue-600 text-white' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
-                        {s.i}<span className="text-xs font-black uppercase">{s.n}</span>
+                  <div className="grid grid-cols-1 gap-3">
+                    {[ 
+                      {m:'none', i:<X size={18}/>, n:'Silent', d:'Pure focus without sound'}, 
+                      {m:'brown', i:<Sun size={18}/>, n:'Neural Resonance', d:'Steady brown noise for deep work'}, 
+                      {m:'suspense', i:<Ghost size={18}/>, n:'Atmospheric Harmony', d:'Dynamic soundscape that evolves'}, 
+                      {m:'action', i:<Swords size={18}/>, n:'Zen Flow', d:'High-energy focus rhythm'} 
+                    ].map((s) => (
+                      <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex items-center gap-4 p-4 rounded-2xl transition-all text-left ${audioMode === s.m ? 'bg-blue-600 text-white shadow-lg' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
+                        <div className={`p-3 rounded-xl ${audioMode === s.m ? 'bg-white/20' : 'bg-white/5'}`}>{s.i}</div>
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-widest">{s.n}</p>
+                          <p className={`text-[10px] opacity-60 font-medium ${audioMode === s.m ? 'text-white' : 'text-slate-500'}`}>{s.d}</p>
+                        </div>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-4 space-y-4">
-                  <button onClick={() => { setShowCommandCenter(false); setShowAbout(true); }} className="w-full p-6 rounded-2xl bg-white/5 border border-white/10 text-slate-400 hover:text-white flex items-center gap-4 text-xs font-black uppercase tracking-widest transition-all"><Brain size={18}/> About the Prism</button>
-                  {user && <button onClick={handleLogout} className="w-full p-6 rounded-2xl bg-red-600/10 border border-red-600/30 text-red-400 hover:bg-red-600 hover:text-white flex items-center gap-4 text-xs font-black uppercase tracking-widest transition-all"><LogOut size={18}/> Disconnect neural link</button>}
+                <div className="pt-4 space-y-3">
+                  <button onClick={() => { setShowCommandCenter(false); setShowAbout(true); }} className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-slate-400 hover:text-white flex items-center gap-4 text-[10px] font-black uppercase tracking-widest transition-all"><Brain size={18}/> About the Prism</button>
+                  {user && <button onClick={handleLogout} className="w-full p-5 rounded-2xl bg-red-600/5 border border-red-600/20 text-red-400 hover:bg-red-600 hover:text-white flex items-center gap-4 text-[10px] font-black uppercase tracking-widest transition-all"><LogOut size={18}/> Disconnect Neural Link</button>}
                 </div>
               </div>
             </motion.div>
