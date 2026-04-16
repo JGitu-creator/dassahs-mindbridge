@@ -155,8 +155,6 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode }: { theme: Theme, mouse
           animate={{
             scale: pulse.scale,
             opacity: pulse.opacity,
-            x: (mousePos.x - 1000) * (0.01 + i * 0.005),
-            y: (mousePos.y - 500) * (0.01 + i * 0.005),
           }}
           transition={{ duration: pulse.duration + i * 2, repeat: Infinity, ease: "easeInOut" }}
           style={{
@@ -165,11 +163,11 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode }: { theme: Theme, mouse
             top: `${(i * 30) % 100}%`,
             width: `${150 + i * 60}px`,
             height: `${150 + i * 60}px`,
-            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}33, transparent)`,
+            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}44, transparent)`,
             borderRadius: '50%',
-            filter: `blur(${isMobile ? '40px' : '60px'})`,
-            x: isMobile ? 0 : (mousePos.x - 500) * (0.1 + i * 0.03),
-            y: isMobile ? 0 : (mousePos.y - 400) * (0.1 + i * 0.03),
+            filter: `blur(${isMobile ? '40px' : '80px'})`,
+            x: isMobile ? 0 : (mousePos.x - 500) * (0.05 + i * 0.02),
+            y: isMobile ? 0 : (mousePos.y - 400) * (0.05 + i * 0.02),
             willChange: 'transform',
           }}
         />
