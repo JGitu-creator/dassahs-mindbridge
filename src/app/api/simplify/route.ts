@@ -86,15 +86,29 @@ ${text}
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const responseText = response.text().replace(/^```json/g, '').replace(/```$/g, '').trim();
+    let responseText = response.text();
+    
+    // Better cleaning: remove markdown blocks and any leading/trailing whitespace
+    responseText = responseText.replace(/```json|```/gi, '').trim();
     
     try {
       const parsedData = JSON.parse(responseText);
-      return NextResponse.json(parsedData);
+      
+      // Ensure essential fields exist to prevent client crashes
+      const validatedData = {
+        tldr: parsedData.tldr || ["No summary generated"],
+        whyCare: parsedData.whyCare || "Focus was interrupted.",
+        readingTime: parsedData.readingTime || "1m",
+        chunks: parsedData.chunks || [{ heading: "Neural Hiccup", content: "AI failed to segment.", keyTerms: [], metaphor: "", dopamineHook: "" }],
+        chartData: parsedData.chartData || null,
+        actions: parsedData.actions || []
+      };
+      
+      return NextResponse.json(validatedData);
     } catch (parseError) {
       console.error("Failed to parse Gemini output:", responseText);
       return NextResponse.json(
-        { error: 'Failed to generate structured data from AI.' },
+        { error: 'AI returned non-JSON data. Try a shorter text.' },
         { status: 500 }
       );
     }

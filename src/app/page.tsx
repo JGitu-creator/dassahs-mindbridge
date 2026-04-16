@@ -309,7 +309,14 @@ export default function Home() {
     utteranceRef.current = utterance; setIsPlaying(true); window.speechSynthesis.speak(utterance);
   };
 
-  const playClick = () => { try { const audio = new Audio('/audio/click.mp3'); audio.volume = 0.2; audio.play(); } catch(e) {} };
+  const playClick = () => { 
+    try { 
+      const audio = new Audio('/audio/click.mp3'); 
+      audio.volume = 0.2; 
+      audio.onerror = () => {};
+      audio.play().catch(() => {});
+    } catch(e) {} 
+  };
 
   const loadHistory = async (userId: string) => {
     const { data, error } = await supabase.from('history').select('*').eq('user_id', userId).order('created_at', { ascending: false });
@@ -436,12 +443,13 @@ export default function Home() {
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
       const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify, isScenic, cognitiveMode }) });
+      if (!res.ok) { const errData = await res.json(); throw new Error(errData.error || "The Prism is blurry. Try again."); }
       const result = await res.json(); setData(result);
       const title = result.tldr[0].slice(0, 30) + '...';
       if (user) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
       setUsageCount(prev => { const next = prev + 1; localStorage.setItem('dassahs_prism_usage', next.toString()); return next; });
       setCurrentChunk(-1);
-    } catch (err) { alert('The Prism encountered a storm!'); } finally { setLoading(false); }
+    } catch (err: any) { alert(err.message || 'The Prism encountered a storm!'); } finally { setLoading(false); }
   };
 
   const handleShare = async () => { 
