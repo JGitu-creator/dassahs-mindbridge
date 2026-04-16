@@ -43,5 +43,22 @@ export async function POST(req: Request) {
     }
   }
 
+  // Also handle subscription cancellation
+  if (event.type === 'customer.subscription.deleted') {
+    const subscription = event.data.object as Stripe.Subscription;
+    // We need to find the user by their Stripe Customer ID since metadata isn't always on the sub object
+    // Or if you passed userId as metadata to the subscription, you can use it here
+    const userId = subscription.metadata?.userId;
+
+    if (userId) {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_paid: false, plan_type: null })
+        .eq('id', userId);
+
+      if (error) console.error('Error marking user as unpaid:', error);
+    }
+  }
+
   return NextResponse.json({ received: true });
 }

@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     const price = prices.data[0];
 
     // 2. Create the secure Stripe Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       billing_address_collection: 'auto',
       line_items: [
         {
@@ -41,7 +41,19 @@ export async function POST(req: Request) {
         userId: userId, // Very important: We attach the user ID so we know WHO paid
         planType: lookup_key,
       },
-    });
+    };
+
+    // If it's a subscription, we MUST also pass the userId to the subscription object itself
+    // otherwise we won't have it when the subscription is canceled or updated later
+    if (price.type === 'recurring') {
+      sessionConfig.subscription_data = {
+        metadata: {
+          userId: userId,
+        },
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
-  Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star
+  Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
@@ -256,6 +256,7 @@ export default function Home() {
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showPrismSettings, setShowPrismSettings] = useState(false);
   const [feedbackInput, setFeedbackInput] = useState('');
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
@@ -580,23 +581,50 @@ export default function Home() {
       <nav className={`fixed top-0 left-0 right-0 z-[110] p-2 md:p-4 flex justify-between items-center bg-[var(--color-glass)] backdrop-blur-md border-b border-[var(--color-border)] transition-all duration-500 ${isZenLocked ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'}`}>
         <div className="flex gap-1 md:gap-2 items-center sm:max-w-none">
           <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} title={focusMode === "sovereign" ? "Sovereign Mode (CEO)" : "Dastastic Mode (ADHD)"} className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all flex items-center gap-2 ${focusMode === "sovereign" ? "bg-amber-600 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}><AnimatePresence mode="wait"><motion.div key={focusMode} initial={{ scale: 0.5, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0.5, rotate: 90 }}>{focusMode === "sovereign" ? <Crown size={18}/> : <Zap size={18}/>}</motion.div></AnimatePresence><span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign (CEO)" : "Dastastic (ADHD)"}</span></button>
+          
           <div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
-          <button onClick={() => { playClick(); setShowHistory(true); }} className="p-2 md:p-4 bg-[var(--color-glass)] rounded-xl md:rounded-2xl border border-[var(--color-border)] text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90 flex-shrink-0"><Clock size={18}/></button>
+          
+          {/* Main Action Group */}
           <div className="flex bg-[var(--color-glass)] p-1 rounded-xl md:rounded-2xl border border-[var(--color-border)] shadow-xl flex-shrink-0">
             <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading" className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={18}/></button>
+            <button onClick={() => { playClick(); setShowHistory(true); }} title="History" className="p-2 md:p-3 text-slate-400 hover:text-blue-400 transition-all"><Clock size={18}/></button>
             {data && (<button onClick={handleToggleZenLock} title={`Zen Lock Focus (Breaking costs ${(currentChunk === data?.chunks.length ? 50 : (currentChunk + 1) * 5)} points)`} className={`px-2 md:px-4 py-2 rounded-lg md:rounded-xl transition-all flex items-center gap-1 md:gap-2 ${isZenLocked ? 'bg-red-600 text-white shadow-lg animate-pulse' : 'text-slate-400 hover:text-white'}`}>{isZenLocked ? <Crown size={16}/> : <Lock size={16}/>}<span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest hidden lg:block">{isZenLocked ? 'Locked' : 'Zen Lock'}</span></button>)}
-            <div className="flex items-center gap-0.5 md:gap-1 px-1 md:px-2 border-l border-[var(--color-border)] ml-0.5 md:ml-1">
-              {[ {m:'none', i:<X size={10}/>, n:'Silent'}, {m:'brown', i:<Sun size={10}/>, n:'Prism Resonance'}, {m:'suspense', i:<Ghost size={10}/>, n:'Mozart Harmony'}, {m:'action', i:<Swords size={10}/>, n:'Zen Baroque'} ].map((s) => (
-                <button key={s.m} onClick={() => { playClick(); if (audioMode === s.m) { if (s.m === 'suspense') setSuspenseIdx(i => (i + 1) % 3); if (s.m === 'action') setActionIdx(i => (i + 1) % 3); } setAudioMode(s.m as any); }} title={s.n} className={`w-7 h-7 md:w-8 md:h-8 rounded-md md:rounded-lg flex items-center justify-center transition-all relative ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>{s.i}{audioMode === s.m && s.m !== 'none' && s.m !== 'brown' && (<span className="absolute -top-1 -right-1 text-[6px] font-black bg-white text-emerald-600 px-1 rounded-full">{(s.m === 'suspense' ? suspenseIdx : actionIdx) + 1}</span>)}</button>
-              ))}
-            </div>
           </div>
-          <div className="hidden lg:flex items-center bg-[var(--color-glass)] p-1.5 rounded-2xl border border-[var(--color-border)] shadow-xl ml-2 gap-1.5">
-            {Object.entries(THEMES).map(([id, t]) => (<button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${theme === id ? 'border-white shadow-lg scale-110' : 'border-transparent opacity-40 hover:opacity-100'}`} style={{ backgroundColor: t.accent }} title={t.name} />))}
-          </div>
-          <div className="lg:hidden relative ml-1" ref={themeMenuRef}>
-            <button onClick={(e) => { e.stopPropagation(); setShowThemeMenu(!showThemeMenu); }} className="bg-[var(--color-glass)] p-2.5 rounded-xl text-slate-400 border border-[var(--color-border)] shadow-xl hover:text-blue-400 transition-all"><Palette size={18} /></button>
-            <AnimatePresence>{showThemeMenu && (<motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute right-0 top-full mt-4 bg-[var(--color-shadow)] backdrop-blur-3xl p-4 rounded-3xl border border-[var(--color-border)] shadow-2xl min-w-[200px] z-[120] grid grid-cols-2 gap-3"><div className="col-span-2 text-[8px] font-black uppercase tracking-widest text-slate-500 mb-2 px-2">Select Theme</div>{Object.entries(THEMES).map(([id, t]) => (<button key={id} onClick={() => { playClick(); setTheme(id as any); setShowThemeMenu(false); }} className={`flex items-center gap-3 p-3 rounded-2xl transition-all ${theme === id ? 'bg-white/10' : 'hover:bg-white/5'}`}><div className="w-4 h-4 rounded-full" style={{ backgroundColor: t.accent }} /><span className="text-[10px] font-black uppercase text-slate-300">{t.name}</span></button>))}</motion.div>)}</AnimatePresence>
+
+          {/* Prism Settings Toggle */}
+          <div className="relative">
+            <button onClick={() => { playClick(); setShowPrismSettings(!showPrismSettings); }} className={`p-2 md:p-3 rounded-xl border border-[var(--color-border)] transition-all ${showPrismSettings ? 'bg-white/10 text-white' : 'bg-[var(--color-glass)] text-slate-400 hover:text-white'}`}><Settings size={20}/></button>
+            
+            <AnimatePresence>
+              {showPrismSettings && (
+                <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute left-0 top-full mt-4 bg-[var(--color-shadow)] backdrop-blur-3xl p-6 rounded-3xl border border-[var(--color-border)] shadow-2xl min-w-[280px] z-[120] space-y-6">
+                  <div>
+                    <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4 px-2">Visual Spectrum</p>
+                    <div className="grid grid-cols-5 gap-2 px-2">
+                      {Object.entries(THEMES).map(([id, t]) => (<button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 ${theme === id ? 'border-white shadow-lg scale-110' : 'border-transparent opacity-40 hover:opacity-100'}`} style={{ backgroundColor: t.accent }} title={t.name} />))}
+                    </div>
+                  </div>
+
+                  <div className="h-[1px] bg-white/5 mx-2" />
+
+                  <div>
+                    <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4 px-2">Neural Resonance</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[ {m:'none', i:<X size={14}/>, n:'Silent'}, {m:'brown', i:<Sun size={14}/>, n:'Resonance'}, {m:'suspense', i:<Ghost size={14}/>, n:'Harmony'}, {m:'action', i:<Swords size={14}/>, n:'Zen'} ].map((s) => (
+                        <button key={s.m} onClick={() => { playClick(); if (audioMode === s.m) { if (s.m === 'suspense') setSuspenseIdx(i => (i + 1) % 3); if (s.m === 'action') setActionIdx(i => (i + 1) % 3); } setAudioMode(s.m as any); }} className={`flex items-center gap-3 p-3 rounded-2xl transition-all ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-white/5 text-slate-400 hover:text-white'}`}>{s.i}<span className="text-[10px] font-black uppercase tracking-widest">{s.n}</span></button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="h-[1px] bg-white/5 mx-2" />
+
+                  <div className="space-y-2">
+                    <button onClick={() => { setShowPrismSettings(false); setShowFeedback(true); }} className="w-full flex items-center justify-between p-4 rounded-2xl bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-all"><div className="flex items-center gap-3"><MessageSquare size={18}/><span className="text-[10px] font-black uppercase tracking-widest">Feedback Vault</span></div><ArrowRight size={14}/></button>
+                    <button onClick={() => { setShowPrismSettings(false); setShowAbout(true); }} className="w-full flex items-center justify-between p-4 rounded-2xl bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all"><div className="flex items-center gap-3"><Brain size={18}/><span className="text-[10px] font-black uppercase tracking-widest">About Prism</span></div><ArrowRight size={14}/></button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
         <div className="flex gap-2 items-center">
