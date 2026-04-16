@@ -131,10 +131,21 @@ const GlassShard = ({ color, mousePos, i }: { color: string, mousePos: { x: numb
   />
 );
 
-const FrostedGlassDepth = ({ theme, mousePos }: { theme: Theme, mousePos: { x: number, y: number } }) => {
+const FrostedGlassDepth = ({ theme, mousePos, audioMode }: { theme: Theme, mousePos: { x: number, y: number }, audioMode: string }) => {
   const t = THEMES[theme];
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => { setIsMobile(window.innerWidth < 768); }, []);
+
+  const getPulseProps = () => {
+    switch(audioMode) {
+      case 'action': return { scale: [1, 1.4, 0.8, 1], opacity: [0.2, 0.5, 0.2], duration: 10 };
+      case 'suspense': return { scale: [1, 1.2, 0.9, 1], opacity: [0.15, 0.35, 0.15], duration: 15 };
+      case 'brown': return { scale: [1, 1.05, 0.98, 1], opacity: [0.1, 0.2, 0.1], duration: 25 };
+      default: return { scale: [1, 1.1, 0.95, 1], opacity: [0.1, 0.2, 0.1], duration: 30 };
+    }
+  };
+
+  const pulse = getPulseProps();
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -142,10 +153,12 @@ const FrostedGlassDepth = ({ theme, mousePos }: { theme: Theme, mousePos: { x: n
         <motion.div
           key={i}
           animate={{
-            scale: [1, 1.1, 0.95, 1],
-            opacity: [0.15, 0.25, 0.15]
+            scale: pulse.scale,
+            opacity: pulse.opacity,
+            x: (mousePos.x - 1000) * (0.01 + i * 0.005),
+            y: (mousePos.y - 500) * (0.01 + i * 0.005),
           }}
-          transition={{ duration: 20 + i * 3, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: pulse.duration + i * 2, repeat: Infinity, ease: "easeInOut" }}
           style={{
             position: 'absolute',
             left: `${(i * 20) % 100}%`,
@@ -453,7 +466,8 @@ export default function Home() {
     playClick(); if (!textToSimplify.trim()) return; if (usageCount >= (user ? 10 : 3)) { setShowPaywall(true); return; }
     setLoading(true);
     try {
-      const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify, isScenic }) });
+      const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
+      const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify, isScenic, cognitiveMode }) });
       const result = await res.json(); setData(result);
       const title = result.tldr[0].slice(0, 30) + '...';
       if (user) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
@@ -561,7 +575,7 @@ export default function Home() {
     <>
       <style>{themeStyles}</style>
       <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)`, color: 'var(--color-text)' }}>
-      <FrostedGlassDepth theme={theme} mousePos={mousePos} />
+      <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} />
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
@@ -570,15 +584,14 @@ export default function Home() {
 
       <nav className={`fixed top-0 left-0 right-0 z-[110] p-2 md:p-4 flex justify-between items-center bg-[var(--color-glass)] backdrop-blur-md border-b border-[var(--color-border)] transition-all duration-500 ${isZenLocked ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'}`}>
         <div className="flex gap-1 md:gap-2 items-center sm:max-w-none">
-          <button 
-            onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} 
-            title={focusMode === "dastastic" ? "Sovereign Mode" : "Dastastic Mode"} 
+          <button
+            onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }}
+            title={focusMode === "sovereign" ? "Sovereign Mode" : "Dastastic Mode"}
             className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all flex items-center gap-2 ${focusMode === "sovereign" ? "bg-amber-600 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}
           >
             {focusMode === "sovereign" ? <Crown size={18}/> : <Zap size={18}/>}
             <span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign" : "Dastastic"}</span>
-          </button>
-          <div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
+          </button>          <div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
           <button onClick={() => { playClick(); setShowHistory(true); }} className="p-2 md:p-4 bg-[var(--color-glass)] rounded-xl md:rounded-2xl border border-[var(--color-border)] text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90 flex-shrink-0"><Clock size={18}/></button>
           <div className="flex bg-[var(--color-glass)] p-1 rounded-xl md:rounded-2xl border border-[var(--color-border)] shadow-xl flex-shrink-0">
             <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading" className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={18}/></button>
@@ -671,9 +684,9 @@ export default function Home() {
                 <h3 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-4"><Zap size={24} className="text-amber-500" /> The Methodology</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {[
-                    { n: "01", t: "The Dastastic Intake", d: "Paste any overwhelming text or noise into the Prism to ignite the Dastastic cognitive engine." },
-                    { n: "02", t: "The Sovereign Process", d: "Our expert logic transmutes complexity into purposeful segments, reclaiming the sovereignty of your focus." },
-                    { n: "03", t: "The Divine Victory", d: "Experience absolute clarity with Bionic reading, celestial harmonies, and Zen-locked focus." }
+                    { n: "01", t: "Neural Refraction", d: "Capture overwhelming noise via 'Dastastic Mode'. Our engine instantly maps cognitive load for immediate dopamine alignment." },
+                    { n: "02", t: "Executive Distillation", d: "Sovereign-Streamlined logic. We strip the fluff, delivering high-impact executive summaries for rapid, sovereign decision-making." },
+                    { n: "03", t: "Cognitive Resonance", d: "The final flow state. Integrated audio-visual synchronization that locks your focus into a state of divine clarity." }
                   ].map((step, i) => (                    <motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3">
                       <span className="text-4xl font-black text-blue-500/30 tracking-tight">{step.n}</span>
                       <p className="text-white font-black uppercase text-sm tracking-widest">{step.t}</p>

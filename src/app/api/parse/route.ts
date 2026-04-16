@@ -18,24 +18,13 @@ export async function POST(req: NextRequest) {
 
     if (file.name.endsWith('.pdf')) {
       try {
-        // Use require for better compatibility with older PDF libraries in Turbopack
-        const pdf = require('pdf-parse');
-        
-        // Disable worker to avoid loading issues in serverless environments
-        const options = {
-          pagerender: function(pageData: any) {
-            return pageData.getTextContent()
-              .then(function(textContent: any) {
-                return textContent.items.map((item: any) => item.str).join(' ');
-              });
-          }
-        };
-
-        const data = await pdf(buffer, options);
+        // Use the direct library path to bypass potential worker loading issues in serverless environments
+        const pdf = require('pdf-parse/lib/pdf-parse.js');
+        const data = await pdf(buffer);
         text = data.text;
       } catch (pdfErr: any) {
         console.error('PDF Parse Error:', pdfErr);
-        throw new Error(`PDF Parsing failed: ${pdfErr.message}. The file might be corrupted or in an unsupported format.`);
+        throw new Error(`PDF Parsing failed: ${pdfErr.message}. This is often due to worker loading issues on Vercel.`);
       }
     } else if (file.name.endsWith('.docx')) {
       const result = await mammoth.extractRawText({ buffer });

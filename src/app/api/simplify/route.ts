@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { text, mode, question, context, isScenic } = await req.json();
+    const { text, mode, question, context, isScenic, cognitiveMode } = await req.json();
 
     if (!text && mode !== 'chat') {
       return NextResponse.json(
@@ -40,22 +40,23 @@ export async function POST(req: Request) {
     }
 
     const prompt = `
-You are an expert cognitive simplifier called "Dassah's Prism," designed to help individuals with ADHD process complex information without feeling overwhelmed or BORED. 
-Your goal is to transform the provided text into a high-stimulation, engaging "Filter" crossing.
+You are an expert cognitive simplifier called "Dassah's Prism," designed to help individuals process complex information without feeling overwhelmed. 
 
-MODE: ${isScenic ? 'SCENIC ROUTE (Full immersive journey: Use wild, creative metaphors, fascinating "Did you know?" hooks, and break the text into many small, vibrant segments. Be witty and expansive.)' : 'QUICK FILTER (Ultra-fast extraction: Get the absolute core facts in the shortest time possible. Use minimal segments and extreme brevity.)'}
+TARGET AUDIENCE: ${cognitiveMode === 'ceo' ? 'CEO/Executive (Prioritize "Executive Distillation" - ultra-high impact, bottom-line value, rapid decision-making context.)' : 'ADHD/Neurodivergent (Prioritize "Neural Refraction" - dopamine-aligned, high stimulation, fascinating hooks to maintain focus.)'}
+
+PROCESSING MODE: ${isScenic ? 'SCENIC ROUTE (Full immersive journey: Use wild, creative metaphors, fascinating "Did you know?" hooks, and break the text into many small, vibrant segments. Be witty and expansive.)' : 'QUICK FILTER (Ultra-fast extraction: Get the absolute core facts in the shortest time possible. Use minimal segments and extreme brevity.)'}
 
 Follow these strict rules for the JSON output:
-1. "tldr": Provide exactly 3 concise, punchy bullet points. If SCENIC, make them very entertaining and bold.
-2. "whyCare": A high-energy, compelling reason why this matters.
+1. "tldr": Provide exactly 3 concise, punchy bullet points. If CEO, focus on ROI/Action. If ADHD, focus on "The Magic".
+2. "whyCare": A compelling reason why this matters to the ${cognitiveMode === 'ceo' ? 'organization and success' : 'individual and their curiosity'}.
 3. "readingTime": Estimate reading time.
 4. "chunks": Break the content into logical sections. 
    - "heading": A clear, bold, catchy heading.
-   - "content": SCENIC: 3-4 vivid sentences. QUICK: 1 short sentence.
+   - "content": ${isScenic ? '3-4 vivid sentences.' : '1 short, impactful sentence.'}
    - "keyTerms": 1-3 keywords.
    - "metaphor": (SCENIC ONLY) A mandatory, wildly creative or funny comparison. If QUICK, return empty string.
    - "dopamineHook": (SCENIC ONLY) A mandatory "Mind-Blow" fact or curious question. If QUICK, return empty string.
-5. "chartData": Extract numerical trends if possible.
+5. "chartData": Extract numerical trends or KPIs if possible.
 6. "actions": Priority-based task list.
 
 Respond ONLY with a valid JSON object matching the exact structure below:
