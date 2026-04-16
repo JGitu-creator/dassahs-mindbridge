@@ -609,11 +609,11 @@ export default function Home() {
         <div className="flex gap-1 md:gap-2 items-center sm:max-w-none">
           <button
             onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }}
-            title={focusMode === "sovereign" ? "Sovereign Mode" : "Dastastic Mode"}
+            title={focusMode === "sovereign" ? "Sovereign Mode (CEO)" : "Dastastic Mode (ADHD)"}
             className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all flex items-center gap-2 ${focusMode === "sovereign" ? "bg-amber-600 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}
           >
             {focusMode === "sovereign" ? <Crown size={18}/> : <Zap size={18}/>}
-            <span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign" : "Dastastic"}</span>
+            <span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign (CEO)" : "Dastastic (ADHD)"}</span>
           </button>          <div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
           <button onClick={() => { playClick(); setShowHistory(true); }} className="p-2 md:p-4 bg-[var(--color-glass)] rounded-xl md:rounded-2xl border border-[var(--color-border)] text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90 flex-shrink-0"><Clock size={18}/></button>
           <div className="flex bg-[var(--color-glass)] p-1 rounded-xl md:rounded-2xl border border-[var(--color-border)] shadow-xl flex-shrink-0">
@@ -819,6 +819,7 @@ export default function Home() {
             </div>
           </div>
         </motion.div>
+      ) : (
         <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">
           <div className="mb-8 flex justify-end gap-4">
             <button onClick={handleShare} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest">
