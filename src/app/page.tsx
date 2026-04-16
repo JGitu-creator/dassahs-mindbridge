@@ -165,9 +165,6 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked }: { theme:
           }}
         />
       ))}
-    </div>
-  );
-};
       {!isMobile && (
         <motion.div 
           animate={{ x: mousePos.x, y: mousePos.y }}
