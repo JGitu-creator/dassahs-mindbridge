@@ -534,6 +534,13 @@ export default function Home() {
       content: ''; position: absolute; top: -2px; bottom: -2px; left: -2px; right: -2px;
       background: linear-gradient(135deg, var(--prism-1), transparent, var(--prism-3)); z-index: -1; border-radius: inherit; opacity: 0.3;
     }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { 
+      background: linear-gradient(to bottom, var(--prism-1), var(--prism-2)); 
+      border-radius: 10px; 
+      box-shadow: 0 0 10px var(--prism-1);
+    }
   `;
 
   useEffect(() => { setMouseFocus(true); }, []);
@@ -702,7 +709,22 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter italic">{user ? "Royal Bandwidth Reached" : "Neural Blueprint Fragmenting"}</h2>
             <p className="text-slate-400 text-base md:text-lg leading-relaxed font-medium">{user ? "You have reached the edge of standard bandwidth. Your Executive Distillation has peaked. To maintain this flow without interruption, join the Royal Inner Circle. Reclaim unlimited neural capacity." : "Your Neural Blueprint is fragmenting. To prevent focus-decay and anchor your cognitive data, you must secure your session. Anchor to your Achieving Vault now."}</p>
             <div className="space-y-4 pt-4">
-              {!user ? (<button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-lg shadow-2xl transition-all active:scale-95">Anchor to Vault (Sign In)</button>) : (<button onClick={() => alert("Connecting to DJ's Royal Treasury for checkout...")} className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 py-5 rounded-[1.5rem] font-black uppercase tracking-widest shadow-2xl text-lg hover:scale-105 transition-all active:scale-95">Reclaim Unlimited Neural Capacity ($9/mo)</button>)}
+              {!user ? (
+                <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-lg shadow-2xl transition-all active:scale-95">Anchor to Vault (Sign In)</button>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  <button onClick={() => alert("Connecting to DJ's Royal Treasury...")} className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
+                    <p className="text-[10px] font-black uppercase text-blue-200">Royal Architect</p>
+                    <p className="text-xl font-black text-white">$9 / Monthly</p>
+                    <p className="text-xs text-blue-100 opacity-60 mt-1">Unlimited Neural Capacity & Priority Speed</p>
+                  </button>
+                  <button onClick={() => alert("Connecting to DJ's Royal Treasury...")} className="bg-gradient-to-r from-amber-500 to-yellow-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
+                    <p className="text-[10px] font-black uppercase text-amber-200">Sovereign Master</p>
+                    <p className="text-xl font-black text-white">$99 / Lifetime</p>
+                    <p className="text-xs text-amber-100 opacity-60 mt-1">Lifetime Vault Access & Exclusive Audio</p>
+                  </button>
+                </div>
+              )}
               <button onClick={() => setShowPaywall(false)} className="w-full text-slate-600 font-bold uppercase text-[10px] tracking-[0.5em] py-4 hover:text-slate-400 transition-colors">Not Today</button>
             </div>
           </motion.div>
