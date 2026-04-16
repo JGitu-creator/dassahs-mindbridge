@@ -479,12 +479,44 @@ export default function Home() {
 
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0]; if (!file) return; setLoading(true);
+    
     try {
-      const formData = new FormData(); formData.append('file', file);
-      const res = await fetch('/api/parse', { method: 'POST', body: formData });
-      if (!res.ok) throw new Error("Server error");
-      const result = await res.json(); if (result.text) setInput(result.text);
-    } catch (err: any) { alert(`Failed to read document.`); } finally { setLoading(false); }
+      if (file.name.endsWith('.pdf')) {
+        // CLIENT-SIDE PDF PARSING (Option 1: The Unbreakable Fix)
+        const pdfjs = await import('pdfjs-dist');
+        pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+        
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+        let fullText = '';
+        
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const strings = textContent.items.map((item: any) => (item as any).str);
+          fullText += strings.join(' ') + '\n';
+        }
+        
+        if (fullText.trim()) {
+          setInput(fullText);
+        } else {
+          throw new Error("Could not extract text from PDF.");
+        }
+      } else {
+        // Use server-side parsing for DOCX/other files (already fixed and stable)
+        const formData = new FormData(); formData.append('file', file);
+        const res = await fetch('/api/parse', { method: 'POST', body: formData });
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || "Server error");
+        }
+        const result = await res.json(); if (result.text) setInput(result.text);
+      }
+    } catch (err: any) { 
+      console.error("Upload error:", err);
+      alert(`Upload Failed: ${err.message}`); 
+    } finally { setLoading(false); }
   };
 
   const handleToggleZenLock = () => {
