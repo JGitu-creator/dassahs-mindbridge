@@ -4,9 +4,8 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowRight, Brain, Loader2, RefreshCcw, FileText, 
-  CheckCircle2, Upload, BarChart3, Volume2, MessageCircle, 
-  X, Send, Sparkles, BookOpen, Clock, Zap, Layers, ChevronRight,
-  Headphones, MousePointer2, Type, Star, LogIn, LogOut, Crown,
+  CheckCircle2, Upload, BarChart3, Volume2, MessageCircle, MessageSquare,
+  X, Send, Sparkles, BookOpen, Clock, Zap, Layers, ChevronRight,  Headphones, MousePointer2, Type, Star, LogIn, LogOut, Crown,
   Ghost, Swords, Rocket, Music, Trophy, Sparkle, Palette, Fish,
   Share2, Download, ExternalLink, Heart, Lock, Sun
 } from 'lucide-react';
@@ -199,6 +198,9 @@ export default function Home() {
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackInput, setFeedbackInput] = useState('');
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
   const [dassahPoints, setDassahPoints] = useState(0);
   const [suspenseIdx, setSuspenseIdx] = useState(0);
@@ -227,7 +229,31 @@ export default function Home() {
       const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'chat', question: userMsg, context: data }) });
       const result = await res.json();
       setChatHistory(prev => [...prev, { role: 'ai', text: result.answer }]);
+      
+      if (user) {
+        await supabase.from('feedback_vault').insert({
+          user_id: user.id,
+          type: 'chat',
+          content: { question: userMsg, answer: result.answer, contextTitle: data?.tldr?.[0] || 'General Prism' }
+        });
+      }
     } catch (err) { setChatHistory(prev => [...prev, { role: 'ai', text: "The Filter is shaky, try again!" }]); } finally { setChatLoading(false); }
+  };
+
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedbackInput.trim()) return;
+    try {
+      const { error } = await supabase.from('feedback_vault').insert({
+        user_id: user?.id || null,
+        type: 'feedback',
+        content: { feedback: feedbackInput, timestamp: new Date().toISOString() }
+      });
+      if (error) throw error;
+      setFeedbackInput('');
+      setFeedbackSuccess(true);
+      setTimeout(() => { setFeedbackSuccess(false); setShowFeedback(false); }, 2000);
+    } catch (err) { alert("Feedback failed to cross the Prism."); }
   };
 
   const handleReadAloud = (text: string) => {
@@ -553,6 +579,7 @@ export default function Home() {
           </div>
         </div>
         <div className="flex items-center gap-2 md:gap-4">
+          <button onClick={() => { playClick(); setShowFeedback(true); }} className="p-2 md:p-3 bg-amber-500/10 hover:bg-amber-500/20 rounded-xl md:rounded-2xl border border-amber-500/20 text-amber-400 transition-all active:scale-90" title="Feedback"><MessageSquare size={18} /></button>
           <button onClick={() => { playClick(); setShowAbout(true); }} className="p-2 md:p-3 bg-red-500/10 hover:bg-red-500/20 rounded-xl md:rounded-2xl border border-red-500/20 text-red-400 transition-all active:scale-90" title="Our Story"><Heart size={18} fill={showAbout ? "currentColor" : "none"} /></button>
           <div className="flex items-center gap-1.5 md:gap-2 bg-amber-500/10 px-2 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl border border-amber-500/20 shadow-inner"><Sparkle size={12} className="text-amber-400 animate-pulse" /><span className="text-[10px] md:text-xs font-black text-amber-200 uppercase tracking-tighter">{dassahPoints}<span className="hidden sm:inline"> Points</span></span></div>
           {user ? (
@@ -600,11 +627,10 @@ export default function Home() {
                 <h3 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-4"><Zap size={24} className="text-amber-500" /> The Methodology</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {[
-                    { n: "01", t: "The Noise", d: "Paste any overwhelming text, article, or document into the Prism." },
-                    { n: "02", t: "The Grace", d: "Our expert cognitive logic distills complexity into high-stimulation segments." },
-                    { n: "03", t: "The Victory", d: "Experience clarity with Bionic reading, audio harmonies, and Zen focus." }
-                  ].map((step, i) => (
-                    <motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3">
+                    { n: "01", t: "The Dastastic Intake", d: "Paste any overwhelming text or noise into the Prism to ignite the Dastastic cognitive engine." },
+                    { n: "02", t: "The Sovereign Process", d: "Our expert logic transmutes complexity into purposeful segments, reclaiming the sovereignty of your focus." },
+                    { n: "03", t: "The Divine Victory", d: "Experience absolute clarity with Bionic reading, celestial harmonies, and Zen-locked focus." }
+                  ].map((step, i) => (                    <motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3">
                       <span className="text-4xl font-black text-blue-500/30 tracking-tight">{step.n}</span>
                       <p className="text-white font-black uppercase text-sm tracking-widest">{step.t}</p>
                       <p className="text-slate-500 text-sm font-medium">{step.d}</p>
@@ -627,6 +653,31 @@ export default function Home() {
                 </div>
                 <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.5em] text-center sm:text-right">Dedicated to my forever partner and best friend, DChan.</p>
               </footer>
+            </div>
+          </motion.div>
+        </div>
+      )}</AnimatePresence>
+
+      <AnimatePresence>{showFeedback && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="max-w-md w-full bg-[var(--color-shadow)] border-2 border-amber-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] relative overflow-hidden">
+            <button onClick={() => setShowFeedback(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors"><X size={24}/></button>
+            <div className="space-y-6">
+              <div className="flex items-center gap-4 text-amber-400 font-black uppercase tracking-widest text-xs">
+                <MessageSquare size={20} /> Feedback Vault
+              </div>
+              <h2 className="text-3xl font-black text-white italic">How's the Prism?</h2>
+              {feedbackSuccess ? (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="py-12 text-center space-y-4">
+                  <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400"><CheckCircle2 size={32} /></div>
+                  <p className="text-white font-bold">Feedback Vaulted!</p>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleFeedbackSubmit} className="space-y-6">
+                  <textarea value={feedbackInput} onChange={(e) => setFeedbackInput(e.target.value)} placeholder="Share your thoughts, bugs, or magic moments..." className="w-full h-40 p-6 bg-black/20 rounded-2xl border border-[var(--color-border)] text-white focus:outline-none focus:border-amber-500/50 resize-none font-medium" />
+                  <button type="submit" disabled={!feedbackInput.trim()} className="w-full bg-amber-600 hover:bg-amber-500 py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl transition-all active:scale-95 disabled:opacity-50">Submit to DJ</button>
+                </form>
+              )}
             </div>
           </motion.div>
         </div>
