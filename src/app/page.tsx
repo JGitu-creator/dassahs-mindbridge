@@ -467,7 +467,19 @@ export default function Home() {
       } catch (err) { alert('The Prism encountered a storm!'); } finally { setLoading(false); }
   };
 
-  const handleShare = async () => { if (!data) return; setIsSharing(true); try { const shareText = `Check out this Prism I built on Dassah's Prism!\n\n${data.whyCare}\n\nPrism Link: ${window.location.origin}/?text=${encodeURIComponent(input)}`; await navigator.clipboard.writeText(shareText); alert("Link Copied!"); } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); } };
+  const handleShare = async () => { 
+    if (!data) return; 
+    setIsSharing(true); 
+    try { 
+      const shareText = `I just crushed a massive document in ${data.readingTime} using Dassah's Prism. ⚡️ Sovereignty reclaimed.\n\nCheck out the Prism: ${window.location.origin}/?text=${encodeURIComponent(input.slice(0, 500))}`; 
+      await navigator.clipboard.writeText(shareText); 
+      alert("Viral share text copied! Go brag on TikTok or X! 🚀"); 
+    } catch (err) { 
+      alert("Could not create share link."); 
+    } finally { 
+      setIsSharing(false); 
+    } 
+  };
   const handleDownloadSummary = () => { if (!data) return; const content = `DASSAH'S PRISM SUMMARY\n\nTHE VISION:\n${data.whyCare}\n\nTL;DR:\n${data.tldr.map(t => `- ${t}`).join('\n')}\n\nFULL PRISM LINK: ${window.location.origin}/?text=${encodeURIComponent(input)}`; const blob = new Blob([content], { type: 'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `dassahs_prism-summary.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); };
 
   const handleFileUpload = async (e: any) => {
@@ -862,12 +874,20 @@ export default function Home() {
                   ))}
                 </div>
 
-                <button 
-                  onClick={() => { playClick(); handleNext(); }} 
-                  className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white"
-                >
-                  Seal the Prism <CheckCircle2 className="inline ml-4" size={28}/>
-                </button>
+                <div className="flex flex-col sm:flex-row gap-4 mt-12">
+                  <button 
+                    onClick={handleShare}
+                    className="flex-1 p-6 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-[2rem] text-slate-400 hover:text-white transition-all flex items-center justify-center gap-3 font-black uppercase text-sm tracking-widest"
+                  >
+                    <Share2 size={24}/> {isSharing ? 'Copying...' : 'Share the Prism'}
+                  </button>
+                  <button 
+                    onClick={() => { playClick(); handleNext(); }} 
+                    className="flex-[2] bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4"
+                  >
+                    Seal the Prism <CheckCircle2 size={28}/>
+                  </button>
+                </div>
               </motion.div>
             ) : (
               <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden"><div className="absolute top-10 left-10 flex items-center gap-4"><div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div><button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button></div><h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2><div className="space-y-8 flex-grow"><div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>{data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}<div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="bg-amber-500/5 p-6 rounded-[2rem] border border-amber-500/10 space-y-3"><div className="flex items-center gap-2 text-amber-500 font-black uppercase tracking-widest text-[10px]"><Zap size={14}/> Dopamine Hook</div><p className="text-lg font-bold text-amber-200/80 italic">"{data.chunks[currentChunk].dopamineHook}"</p></div><div className="bg-purple-500/5 p-6 rounded-[2rem] border border-purple-500/10 space-y-3"><div className="flex items-center gap-2 text-purple-400 font-black uppercase tracking-widest text-[10px]"><Sparkle size={14}/> Metaphor</div><p className="text-lg font-bold text-purple-200/80 italic">"{data.chunks[currentChunk].metaphor}"</p></div></div></div><div className="mt-12 flex justify-between items-center"><button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all">Back</button><button onClick={handleNext} className="bg-white text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Seal the Prism' : 'Next Segment'}</button></div></motion.div>
