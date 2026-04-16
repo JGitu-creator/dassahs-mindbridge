@@ -131,17 +131,18 @@ const GlassShard = ({ color, mousePos, i }: { color: string, mousePos: { x: numb
   />
 );
 
-const FrostedGlassDepth = ({ theme, mousePos, audioMode }: { theme: Theme, mousePos: { x: number, y: number }, audioMode: string }) => {
+const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked }: { theme: Theme, mousePos: { x: number, y: number }, audioMode: string, isZenLocked: boolean }) => {
   const t = THEMES[theme];
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => { setIsMobile(window.innerWidth < 768); }, []);
 
   const getPulseProps = () => {
+    const zenMultiplier = isZenLocked ? 0.5 : 1;
     switch(audioMode) {
-      case 'action': return { scale: [1, 1.6, 0.7, 1], opacity: [0.3, 0.7, 0.3], duration: 8 };
-      case 'suspense': return { scale: [1, 1.3, 0.8, 1], opacity: [0.25, 0.5, 0.25], duration: 12 };
-      case 'brown': return { scale: [1, 1.1, 0.95, 1], opacity: [0.2, 0.4, 0.2], duration: 20 };
-      default: return { scale: [1, 1.05, 0.98, 1], opacity: [0.15, 0.3, 0.15], duration: 25 };
+      case 'action': return { scale: [1, 1.8, 0.6, 1], opacity: [0.3, 0.8, 0.3], duration: 5 * zenMultiplier };
+      case 'suspense': return { scale: [1, 1.4, 0.8, 1], opacity: [0.25, 0.6, 0.25], duration: 10 * zenMultiplier };
+      case 'brown': return { scale: [1, 1.1, 0.95, 1], opacity: [0.2, 0.4, 0.2], duration: 15 * zenMultiplier };
+      default: return { scale: [1, 1.05, 0.98, 1], opacity: [0.15, 0.3, 0.15], duration: 20 * zenMultiplier };
     }
   };
 
@@ -151,23 +152,24 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode }: { theme: Theme, mouse
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
       {[...Array(isMobile ? 4 : 8)].map((_, i) => (
         <motion.div
-          key={i}
+          key={`${audioMode}-${i}-${isZenLocked}`}
+          initial={{ opacity: 0 }}
           animate={{
             scale: pulse.scale,
             opacity: pulse.opacity,
           }}
-          transition={{ duration: pulse.duration + i * 2, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: pulse.duration + i, repeat: Infinity, ease: "easeInOut" }}
           style={{
             position: 'absolute',
             left: `${(i * 25) % 100}%`,
             top: `${(i * 35) % 100}%`,
-            width: `${200 + i * 80}px`,
-            height: `${200 + i * 80}px`,
-            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}66, transparent)`,
+            width: `${250 + i * 100}px`,
+            height: `${250 + i * 100}px`,
+            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}77, transparent)`,
             borderRadius: '50%',
-            filter: `blur(${isMobile ? '30px' : '50px'})`,
-            x: isMobile ? 0 : (mousePos.x - 500) * (0.05 + i * 0.02),
-            y: isMobile ? 0 : (mousePos.y - 400) * (0.05 + i * 0.02),
+            filter: `blur(${isMobile ? '40px' : '70px'})`,
+            x: isMobile ? 0 : (mousePos.x - 500) * (isZenLocked ? 0.02 : 0.08 + i * 0.02),
+            y: isMobile ? 0 : (mousePos.y - 400) * (isZenLocked ? 0.02 : 0.08 + i * 0.02),
             willChange: 'transform',
           }}
         />
@@ -605,7 +607,7 @@ export default function Home() {
     <>
       <style>{themeStyles}</style>
       <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)`, color: 'var(--color-text)' }}>
-      <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} />
+      <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} />
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
