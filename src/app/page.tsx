@@ -138,10 +138,10 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode }: { theme: Theme, mouse
 
   const getPulseProps = () => {
     switch(audioMode) {
-      case 'action': return { scale: [1, 1.4, 0.8, 1], opacity: [0.2, 0.5, 0.2], duration: 10 };
-      case 'suspense': return { scale: [1, 1.2, 0.9, 1], opacity: [0.15, 0.35, 0.15], duration: 15 };
-      case 'brown': return { scale: [1, 1.05, 0.98, 1], opacity: [0.1, 0.2, 0.1], duration: 25 };
-      default: return { scale: [1, 1.1, 0.95, 1], opacity: [0.1, 0.2, 0.1], duration: 30 };
+      case 'action': return { scale: [1, 1.6, 0.7, 1], opacity: [0.3, 0.7, 0.3], duration: 8 };
+      case 'suspense': return { scale: [1, 1.3, 0.8, 1], opacity: [0.25, 0.5, 0.25], duration: 12 };
+      case 'brown': return { scale: [1, 1.1, 0.95, 1], opacity: [0.2, 0.4, 0.2], duration: 20 };
+      default: return { scale: [1, 1.05, 0.98, 1], opacity: [0.15, 0.3, 0.15], duration: 25 };
     }
   };
 
@@ -159,13 +159,13 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode }: { theme: Theme, mouse
           transition={{ duration: pulse.duration + i * 2, repeat: Infinity, ease: "easeInOut" }}
           style={{
             position: 'absolute',
-            left: `${(i * 20) % 100}%`,
-            top: `${(i * 30) % 100}%`,
-            width: `${150 + i * 60}px`,
-            height: `${150 + i * 60}px`,
-            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}44, transparent)`,
+            left: `${(i * 25) % 100}%`,
+            top: `${(i * 35) % 100}%`,
+            width: `${200 + i * 80}px`,
+            height: `${200 + i * 80}px`,
+            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}66, transparent)`,
             borderRadius: '50%',
-            filter: `blur(${isMobile ? '40px' : '80px'})`,
+            filter: `blur(${isMobile ? '30px' : '50px'})`,
             x: isMobile ? 0 : (mousePos.x - 500) * (0.05 + i * 0.02),
             y: isMobile ? 0 : (mousePos.y - 400) * (0.05 + i * 0.02),
             willChange: 'transform',
