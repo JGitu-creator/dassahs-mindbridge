@@ -837,9 +837,6 @@ export default function Home() {
             </motion.div>
             ) : (
             <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">          <div className="mb-8 flex justify-end gap-4">
-            <button onClick={handleShare} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest">
-              <Share2 size={18}/> {isSharing ? 'Copying...' : 'Share the Prism'}
-            </button>
             <button onClick={handleDownloadSummary} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest">
               <Download size={18}/> Save Summary
             </button>
