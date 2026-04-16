@@ -707,7 +707,7 @@ export default function Home() {
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
-        <><StarParticles count={rewardType === 'final' ? 150 : 40} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.5, y: 100 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.5 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600 via-purple-600 to-amber-500 p-10 md:p-20 rounded-[3.5rem] md:rounded-[6rem] shadow-[0_0_200px_rgba(59,130,246,1)] border-4 border-white/40 backdrop-blur-3xl flex flex-col items-center gap-8"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-xs md:text-sm">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-5xl md:text-9xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="flex gap-8 pt-4"><div className="text-left border-l-2 border-white/20 pl-6"><p className="text-white/60 text-[10px] font-black uppercase">Rank</p><p className="text-white font-bold text-xl md:text-2xl italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-6"><p className="text-white/60 text-[10px] font-black uppercase">Result</p><p className="text-white font-bold text-xl md:text-2xl italic">100% Clarity</p></div></div>)}</div></motion.div></>
+        <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="flex gap-6 pt-2"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Rank</p><p className="text-white font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Result</p><p className="text-white font-bold text-base italic">100% Clarity</p></div></div>)}</div></motion.div></>
       )}</AnimatePresence>
 
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-6 pointer-events-none">
@@ -783,62 +783,62 @@ export default function Home() {
         {showCommandCenter && (
           <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[600] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="max-w-4xl w-full grid md:grid-cols-2 gap-8">
-              {/* Left Side: Stats & Actions */}
-              <div className="space-y-8">
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10 space-y-6">
+              {/* Left Side: Stats & Identity */}
+              <div className="space-y-4 md:space-y-6">
+                <div className="bg-white/5 p-6 md:p-8 rounded-[2.5rem] border border-white/10 space-y-6">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h2 className="text-3xl font-black text-white italic">Neural Profile</h2>
-                      <p className="text-blue-400 font-bold text-xs uppercase tracking-widest mt-1">{callsign}</p>
+                      <h2 className="text-xl md:text-2xl font-black text-white italic">Neural Profile</h2>
+                      <p className="text-blue-400 font-bold text-[9px] uppercase tracking-widest mt-1">{callsign}</p>
                     </div>
-                    <div className="bg-amber-500/10 px-4 py-2 rounded-xl border border-amber-500/20 flex items-center gap-2">
-                      <Star className="text-amber-500 fill-amber-500" size={14}/><span className="font-black text-white text-xs">{dassahPoints}</span>
+                    <div className="bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 flex items-center gap-2">
+                      <Star className="text-amber-500 fill-amber-500" size={12}/><span className="font-black text-white text-[10px]">{dassahPoints}</span>
                     </div>
                   </div>
 
-                  {/* Neural Identity Section */}
-                  <div className="space-y-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 px-2">Neural Identity</p>
-                    <div className="flex flex-wrap gap-3 px-2">
+                  {/* Neural Identity Section - Compact */}
+                  <div className="space-y-3">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Identity</p>
+                    <div className="flex flex-wrap gap-2">
                       {DEFAULT_AVATARS.map((av) => (
-                        <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-12 h-12 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-white/10 scale-110 shadow-lg' : 'border-transparent bg-white/5 opacity-40 hover:opacity-100'}`} title={av.label}>
-                          {av.icon}
+                        <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-10 h-10 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-white/10 scale-105 shadow-lg' : 'border-transparent bg-white/5 opacity-40 hover:opacity-100'}`} title={av.label}>
+                          {React.cloneElement(av.icon as React.ReactElement, { size: 16 })}
                         </button>
                       ))}
-                      <label className="w-12 h-12 rounded-xl border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all">
-                        <Upload size={18} className="text-slate-400" />
+                      <label className="w-10 h-10 rounded-xl border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all">
+                        <Upload size={14} className="text-slate-400" />
                         <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
                       </label>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
-                    <button onClick={() => { setShowCommandCenter(false); setShowHistory(true); }} className="p-6 rounded-[2rem] bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all text-left group">
-                      <Clock className="text-blue-400 mb-3" size={24} />
-                      <p className="text-[10px] font-black uppercase text-slate-500">Vault</p>
-                      <p className="text-sm font-bold text-white">History</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button onClick={() => { setShowCommandCenter(false); setShowHistory(true); }} className="p-4 rounded-[1.5rem] bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all text-left group">
+                      <Clock className="text-blue-400 mb-2" size={20} />
+                      <p className="text-[9px] font-black uppercase text-slate-500 leading-none">Vault</p>
+                      <p className="text-xs font-bold text-white">History</p>
                     </button>
-                    <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`p-6 rounded-[2rem] border transition-all text-left ${focusMode === 'sovereign' ? 'bg-amber-600/20 border-amber-500/50' : 'bg-white/5 border-white/10'}`}>
-                      {focusMode === 'sovereign' ? <Crown className="text-amber-400 mb-3" size={24} /> : <Zap className="text-blue-400 mb-3" size={24} />}
-                      <p className="text-[10px] font-black uppercase text-slate-500">Mode</p>
-                      <p className="text-sm font-bold text-white">{focusMode === 'sovereign' ? 'Sovereign' : 'Dastastic'}</p>
+                    <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`p-4 rounded-[1.5rem] border transition-all text-left ${focusMode === 'sovereign' ? 'bg-amber-600/20 border-amber-500/50' : 'bg-white/5 border-white/10'}`}>
+                      {focusMode === 'sovereign' ? <Crown className="text-amber-400 mb-2" size={20} /> : <Zap className="text-blue-400 mb-2" size={20} />}
+                      <p className="text-[9px] font-black uppercase text-slate-500 leading-none">Mode</p>
+                      <p className="text-xs font-bold text-white">{focusMode === 'sovereign' ? 'Sovereign' : 'Dastastic'}</p>
                     </button>
                   </div>
 
                   {!isPaid && (
-                    <button onClick={() => { setShowCommandCenter(false); setShowPaywall(true); }} className="w-full p-8 rounded-[2.5rem] bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between group overflow-hidden relative shadow-2xl">
+                    <button onClick={() => { setShowCommandCenter(false); setShowPaywall(true); }} className="w-full p-5 md:p-6 rounded-[2rem] bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between group overflow-hidden relative shadow-xl">
                       <div className="relative z-10 text-left">
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60">Architect Access</p>
-                        <p className="text-xl font-black italic">Upgrade Neural Link</p>
+                        <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-60">Architect Access</p>
+                        <p className="text-lg font-black italic leading-none">Upgrade Link</p>
                       </div>
-                      <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform relative z-10" />
+                      <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform relative z-10" />
                       <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                     </button>
                   )}
                 </div>
 
-                <div className="flex justify-center">
-                  <button onClick={() => setShowCommandCenter(false)} className="px-12 py-4 rounded-full bg-white text-black font-black uppercase tracking-[0.5em] text-[10px] hover:scale-105 transition-all">Close</button>
+                <div className="flex justify-center pt-2">
+                  <button onClick={() => setShowCommandCenter(false)} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Close</button>
                 </div>
               </div>
 
