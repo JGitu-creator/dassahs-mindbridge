@@ -507,6 +507,27 @@ export default function Home() {
     }
   };
 
+  const handleCheckout = async (lookupKey: string) => {
+    if (!user) { handleLogin(); return; }
+    playClick();
+    alert("Initiating Neural Handshake... Synchronizing with Dassah’s Prism. Prepare for unlimited bandwidth.");
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lookup_key: lookupKey, userId: user.id }),
+      });
+      const result = await res.json();
+      if (result.url) {
+        window.location.href = result.url; // Redirect to Stripe
+      } else {
+        throw new Error(result.error || "Neural link failed.");
+      }
+    } catch (err: any) {
+      alert(`Handshake Failed: ${err.message}`);
+    }
+  };
+
   const currentTheme = THEMES[theme];
   const themeStyles = `
     :root {
@@ -718,12 +739,12 @@ export default function Home() {
                 <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-lg shadow-2xl transition-all active:scale-95">Anchor to Vault (Sign In)</button>
               ) : (
                 <div className="grid grid-cols-1 gap-4">
-                  <button onClick={() => alert("Initiating Neural Handshake... Synchronizing with Dassah’s Prism. Prepare for unlimited bandwidth.")} className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
+                  <button onClick={() => handleCheckout("architect_monthly")} className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
                     <p className="text-[10px] font-black uppercase text-blue-200">Prism Architect</p>
                     <p className="text-xl font-black text-white">$9 / Monthly</p>
                     <p className="text-xs text-blue-100 opacity-60 mt-1">Continuous Neural Support & Unlimited Capacity</p>
                   </button>
-                  <button onClick={() => alert("Initiating Neural Handshake... Synchronizing with Dassah’s Prism. Prepare for unlimited bandwidth.")} className="bg-gradient-to-r from-amber-500 to-yellow-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
+                  <button onClick={() => handleCheckout("sovereign_lifetime")} className="bg-gradient-to-r from-amber-500 to-yellow-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
                     <p className="text-[10px] font-black uppercase text-amber-200">Sovereign Master</p>
                     <p className="text-xl font-black text-white">$99 / Lifetime</p>
                     <p className="text-xs text-amber-100 opacity-60 mt-1">Permanent Focus Anchor & Exclusive Resources</p>
