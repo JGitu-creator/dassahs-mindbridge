@@ -136,44 +136,38 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked }: { theme:
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => { setIsMobile(window.innerWidth < 768); }, []);
 
-  const getPulseProps = () => {
-    const zenMultiplier = isZenLocked ? 0.5 : 1;
-    switch(audioMode) {
-      case 'action': return { scale: [1, 1.8, 0.6, 1], opacity: [0.3, 0.8, 0.3], duration: 5 * zenMultiplier };
-      case 'suspense': return { scale: [1, 1.4, 0.8, 1], opacity: [0.25, 0.6, 0.25], duration: 10 * zenMultiplier };
-      case 'brown': return { scale: [1, 1.1, 0.95, 1], opacity: [0.2, 0.4, 0.2], duration: 15 * zenMultiplier };
-      default: return { scale: [1, 1.05, 0.98, 1], opacity: [0.15, 0.3, 0.15], duration: 20 * zenMultiplier };
-    }
+  const pulseVariants = {
+    action: { scale: [1, 1.2, 0.9, 1], opacity: [0.4, 0.8, 0.4], transition: { duration: 2, repeat: Infinity } },
+    suspense: { scale: [1, 1.1, 0.95, 1], opacity: [0.3, 0.6, 0.3], transition: { duration: 4, repeat: Infinity } },
+    brown: { scale: [1, 1.05, 0.98, 1], opacity: [0.2, 0.4, 0.2], transition: { duration: 8, repeat: Infinity } },
+    none: { scale: [1, 1.02, 0.99, 1], opacity: [0.15, 0.3, 0.15], transition: { duration: 12, repeat: Infinity } }
   };
 
-  const pulse = getPulseProps();
+  const currentPulse = (pulseVariants as any)[audioMode] || pulseVariants.none;
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
       {[...Array(isMobile ? 4 : 8)].map((_, i) => (
         <motion.div
-          key={`${audioMode}-${i}-${isZenLocked}`}
-          initial={{ opacity: 0 }}
-          animate={{
-            scale: pulse.scale,
-            opacity: pulse.opacity,
-          }}
-          transition={{ duration: pulse.duration + i, repeat: Infinity, ease: "easeInOut" }}
+          key={`${i}`}
+          animate={currentPulse}
           style={{
             position: 'absolute',
             left: `${(i * 25) % 100}%`,
             top: `${(i * 35) % 100}%`,
-            width: `${250 + i * 100}px`,
-            height: `${250 + i * 100}px`,
-            background: `radial-gradient(circle at 30% 30%, ${t.prism[i % 3]}77, transparent)`,
+            width: `${300 + i * 100}px`,
+            height: `${300 + i * 100}px`,
+            background: `radial-gradient(circle at center, ${t.prism[i % 3]}88, transparent)`,
             borderRadius: '50%',
-            filter: `blur(${isMobile ? '40px' : '70px'})`,
-            x: isMobile ? 0 : (mousePos.x - 500) * (isZenLocked ? 0.02 : 0.08 + i * 0.02),
-            y: isMobile ? 0 : (mousePos.y - 400) * (isZenLocked ? 0.02 : 0.08 + i * 0.02),
-            willChange: 'transform',
+            filter: `blur(${isMobile ? '50px' : '90px'})`,
+            x: (mousePos.x - 500) * (isZenLocked ? 0.01 : 0.05 + i * 0.01),
+            y: (mousePos.y - 400) * (isZenLocked ? 0.01 : 0.05 + i * 0.01),
           }}
         />
       ))}
+    </div>
+  );
+};
       {!isMobile && (
         <motion.div 
           animate={{ x: mousePos.x, y: mousePos.y }}
@@ -774,13 +768,45 @@ export default function Home() {
 
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24">
-          <header className="text-center space-y-6"><motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative"><Brain className="w-16 h-16 md:w-20 md:h-20" /></motion.div><h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tighter italic text-center">Dassah's <span className="prism-text">Prism</span></h1><p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight flex items-center gap-2 justify-center">By <span className="text-white border-b-2 border-blue-500 pb-1">DJ</span> <Fish size={24} className="text-blue-500" /></p></header>
-          <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border border-[var(--color-border)] p-3 shadow-2xl overflow-hidden relative">
-            {showNeuroMirror ? (<div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto"><NeuroMirrorText text={input || "Paste some text..."} /></div>) : (<textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-800 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />)}
-            <div className="bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-[var(--color-border)]"><div className="flex items-center gap-4"><button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-xs text-slate-500 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-4"><Upload size={24} className="text-blue-500" /> Clean Document</button><button onClick={() => { playClick(); setShowNeuroMirror(!showNeuroMirror); }} className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${showNeuroMirror ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}><Ghost size={16} /><span className="text-[10px] font-black uppercase tracking-widest">{showNeuroMirror ? 'Stop the Noise' : 'Show the Noise'}</span></button></div><div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"><button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}<span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic Route' : 'Quick Discern'}</span></button><button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-[var(--color-accent)] to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl hover:shadow-blue-500/50 transition-all active:scale-95 text-lg">{loading ? <Loader2 className="animate-spin" /> : 'Discern It'}</button></div></div>
+          <header className="text-center space-y-6">
+            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative">
+              <Brain className="w-16 h-16 md:w-20 md:h-20" />
+            </motion.div>
+            <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tighter italic text-center">Dassah's <span className="prism-text">Prism</span></h1>
+            <div className="space-y-2">
+              <p className="text-xl md:text-3xl text-slate-400 font-medium tracking-tight flex items-center gap-2 justify-center">By <span className="text-white border-b-2 border-blue-500 pb-1">DJ</span> <Fish size={24} className="text-blue-500" /></p>
+              <p className="text-lg md:text-xl text-blue-400/80 font-bold italic tracking-tight">"Turn overwhelming noise into clear focus in seconds."</p>
+            </div>
+          </header>
+          <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/10 p-3 shadow-2xl overflow-hidden relative group focus-within:border-blue-500/50 transition-all">
+            {showNeuroMirror ? (
+              <div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto"><NeuroMirrorText text={input || "Paste some text..."} /></div>
+            ) : (
+              <textarea 
+                className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-black/10 rounded-[2.5rem] resize-none focus:outline-none placeholder:text-slate-700 text-slate-200 leading-relaxed font-medium" 
+                placeholder="Paste the noise here..." 
+                value={input} 
+                onChange={(e) => setInput(e.target.value)} 
+              />
+            )}
+            <div className="bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-[var(--color-border)]">
+              <div className="flex items-center gap-4">
+                <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-3"><Upload size={20} className="text-blue-500" /> Clean Document</button>
+                <button onClick={() => { playClick(); setShowNeuroMirror(!showNeuroMirror); }} className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${showNeuroMirror ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}><Ghost size={16} /><span className="text-[10px] font-black uppercase tracking-widest">{showNeuroMirror ? 'Stop' : 'Show Noise'}</span></button>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}<span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic' : 'Quick'}</span></button>
+                <button 
+                  onClick={() => handleSimplify()} 
+                  disabled={loading || !input.trim()} 
+                  className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:shadow-[0_0_60px_rgba(147,51,234,0.5)] transition-all active:scale-95 text-lg"
+                >
+                  {loading ? <Loader2 className="animate-spin" /> : 'Discern It'}
+                </button>
+              </div>
+            </div>
           </div>
         </motion.div>
-      ) : (
         <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">
           <div className="mb-8 flex justify-end gap-4">
             <button onClick={handleShare} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest">
