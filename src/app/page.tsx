@@ -216,28 +216,15 @@ const NeuralSparks = ({ active }: { active: boolean }) => {
 const LivingBrain = ({ loading, inputLength, isVictorious, user }: { loading: boolean, inputLength: number, isVictorious: boolean, user: any }) => {
   const isTyping = inputLength > 0;
   const isLong = inputLength > 500;
-  
-  // Heartbeat speeds
   const duration = loading ? 0.3 : isTyping ? (isLong ? 0.5 : 1) : 3;
   const scale = loading ? [1, 1.3, 1] : isTyping ? [1, 1.15, 1] : [1, 1.05, 1];
   const glowOpacity = isVictorious && user ? 0.8 : (loading || isTyping ? 0.4 : 0.1);
   const color = isVictorious && user ? "from-amber-400 via-yellow-300 to-amber-500" : "from-blue-500 via-purple-600 to-blue-400";
-
   return (
-    <motion.div 
-      animate={{ rotate: loading ? [0, 10, -10, 0] : [0, 5, -5, 0], scale: scale }} 
-      transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
-      className={`relative mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br ${color} text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_50px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000`}
-    >
+    <motion.div animate={{ rotate: loading ? [0, 10, -10, 0] : [0, 5, -5, 0], scale: scale }} transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} className={`relative mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br ${color} text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_50px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000`}>
       <Brain className={`w-16 h-16 md:w-20 md:h-20 ${isVictorious && user ? "text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" : ""}`} />
       <NeuralSparks active={loading} />
-      {isVictorious && user && (
-        <motion.div 
-          animate={{ opacity: [0.5, 1, 0.5], scale: [1, 1.5, 1] }} 
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute inset-0 bg-amber-400/20 rounded-full blur-3xl -z-10"
-        />
-      )}
+      {isVictorious && user && (<motion.div animate={{ opacity: [0.5, 1, 0.5], scale: [1, 1.5, 1] }} transition={{ duration: 2, repeat: Infinity }} className="absolute inset-0 bg-amber-400/20 rounded-full blur-3xl -z-10" />)}
     </motion.div>
   );
 };
@@ -281,6 +268,11 @@ export default function Home() {
   
   const callsign = !user ? "Neural Seeker" : isPaid ? "Prism Architect" : "Sovereign Discernor";
   const syncLevel = !user ? "Seeking Neural Anchor..." : isPaid ? "Sync: Absolute" : "Sync Level: Processing";
+
+  const catchphrases = ["INTEL SECURED!", "OBJECTIVE CAPTURED!", "NEURAL SYNC: 100%", "DATA STREAM PURIFIED!", "FOCUS ANCHORED!"];
+  const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
+
+  const brainPulseDuration = input.length > 500 ? 0.5 : input.length > 100 ? 1 : 3;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const themeMenuRef = useRef<HTMLDivElement>(null);
@@ -538,7 +530,7 @@ export default function Home() {
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
-        <><StarParticles count={rewardType === 'final' ? 150 : 40} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.5, y: 100 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.5 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600 via-purple-600 to-amber-500 p-10 md:p-20 rounded-[3.5rem] md:rounded-[6rem] shadow-[0_0_200px_rgba(59,130,246,1)] border-4 border-white/40 backdrop-blur-3xl flex flex-col items-center gap-8"><motion.div animate={{ rotate: 360, scale: [1, 1.2, 1] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}><Trophy size={rewardType === 'final' ? 100 : 60} className="text-white" /></motion.div><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-xs md:text-sm">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-5xl md:text-9xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="flex gap-8 pt-4"><div className="text-left border-l-2 border-white/20 pl-6"><p className="text-white/60 text-[10px] font-black uppercase">Rank</p><p className="text-white font-bold text-xl md:text-2xl italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-6"><p className="text-white/60 text-[10px] font-black uppercase">Result</p><p className="text-white font-bold text-xl md:text-2xl italic">100% Clarity</p></div></div>)}</div></motion.div></>
+        <><StarParticles count={rewardType === 'final' ? 150 : 40} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.5, y: 100 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.5 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600 via-purple-600 to-amber-500 p-10 md:p-20 rounded-[3.5rem] md:rounded-[6rem] shadow-[0_0_200px_rgba(59,130,246,1)] border-4 border-white/40 backdrop-blur-3xl flex flex-col items-center gap-8"><LivingBrain loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-xs md:text-sm">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-5xl md:text-9xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="flex gap-8 pt-4"><div className="text-left border-l-2 border-white/20 pl-6"><p className="text-white/60 text-[10px] font-black uppercase">Rank</p><p className="text-white font-bold text-xl md:text-2xl italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-6"><p className="text-white/60 text-[10px] font-black uppercase">Result</p><p className="text-white font-bold text-xl md:text-2xl italic">100% Clarity</p></div></div>)}</div></motion.div></>
       )}</AnimatePresence>
 
       <nav className={`fixed top-0 left-0 right-0 z-[110] p-2 md:p-4 flex justify-between items-center bg-[var(--color-glass)] backdrop-blur-md border-b border-[var(--color-border)] transition-all duration-500 ${isZenLocked ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'}`}>
@@ -568,7 +560,7 @@ export default function Home() {
             <p className="text-white font-black text-[10px] uppercase tracking-widest">{callsign}</p>
             <p className="text-blue-400 font-bold text-[8px] uppercase tracking-tighter">{syncLevel}</p>
           </div>
-          <button onClick={() => setShowPaywall(true)} className={`p-2 rounded-xl transition-all ${isPaid ? "text-amber-400 bg-amber-400/10" : "text-slate-400 hover:text-white"}`}><Crown size={20}/></button>
+          <button onClick={() => setShowPaywall(true)} title="Royal Upgrade" className={`p-2 rounded-xl transition-all ${isPaid ? "text-amber-400 bg-amber-400/10 shadow-[0_0_20px_rgba(245,158,11,0.3)]" : "text-slate-400 hover:text-white"}`}><Crown size={20}/></button>
           <div className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] flex items-center gap-2 shadow-xl"><Star className="text-amber-500 fill-amber-500" size={14}/><span className="font-black text-white text-[10px] md:text-xs">{dassahPoints}</span></div>
           {user ? (<button onClick={handleLogout} className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] text-[9px] md:text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Out</button>) : (<button onClick={handleLogin} className="bg-[var(--color-accent)] hover:opacity-80 px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl text-white font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-[0_10px_25px_rgba(59,130,246,0.4)] transition-all active:scale-95">Join</button>)}
         </div>
@@ -638,21 +630,23 @@ export default function Home() {
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24 pb-20">
           <header className="text-center space-y-8 relative">
-            <LivingBrain loading={loading} inputLength={input.length} isVictorious={false} user={user} />
             <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tighter italic">Dassah's <span className="prism-text">Prism</span></h1>
-            <p className="text-lg md:text-xl text-blue-400/80 font-bold italic tracking-tight">"Turn overwhelming noise into clear focus in seconds."</p>
+            <p className="text-lg md:text-xl text-blue-400/80 font-bold italic tracking-tight text-center">"Turn overwhelming noise into clear focus in seconds."</p>
           </header>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto opacity-60 hover:opacity-100 transition-opacity">
             <div className="bg-black/20 p-6 rounded-[2rem] border border-white/5 space-y-3"><p className="text-[8px] uppercase tracking-widest text-slate-500 font-black">The Noise</p><p className="text-xs text-slate-500 leading-relaxed">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text.</p></div>
             <div className="bg-blue-500/5 p-6 rounded-[2rem] border border-blue-500/10 space-y-3 relative overflow-hidden"><div className="absolute top-2 right-4 animate-pulse"><Sparkle size={10} className="text-blue-400" /></div><p className="text-[8px] uppercase tracking-widest text-blue-400 font-black">The Clarity</p><p className="text-xs text-slate-300 leading-relaxed font-bold"><span className="text-white font-black">Thi</span>s <span className="text-white font-black">i</span>s <span className="text-white font-black">a</span> <span className="text-white font-black">shor</span>t, <span className="text-white font-black">Bioni</span>c <span className="text-white font-black">pat</span>h. <span className="text-white font-black">You</span>r <span className="text-white font-black">brai</span>n <span className="text-white font-black">lock</span>s <span className="text-white font-black">i</span>n <span className="text-white font-black">instan</span>tly.</p></div>
           </div>
-          <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/10 p-3 shadow-2xl overflow-hidden relative group focus-within:border-blue-500/50 transition-all">
-            {showNeuroMirror ? (
-              <div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto"><NeuroMirrorText text={input || "Paste some text..."} /></div>
-            ) : (
-              <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-black/10 rounded-[2.5rem] resize-none focus:outline-none placeholder:text-slate-700 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
-            )}
-            <div className="bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-[var(--color-border)]">
+          <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/10 p-3 shadow-2xl overflow-hidden relative group focus-within:border-blue-500/50 transition-all flex flex-col items-center">
+            <div className="pt-6 pb-2"><LivingBrain loading={loading} inputLength={input.length} isVictorious={false} user={user} /></div>
+            <div className="w-full relative group">
+              {showNeuroMirror ? (
+                <div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto"><NeuroMirrorText text={input || "Paste some text..."} /></div>
+              ) : (
+                <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-700 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
+              )}
+            </div>
+            <div className="w-full bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border-t border-white/5">
               <div className="flex items-center gap-4">
                 <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-3"><Upload size={20} className="text-blue-500" /> Clean Document</button>
                 <button onClick={() => { playClick(); setShowNeuroMirror(!showNeuroMirror); }} className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${showNeuroMirror ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}><Ghost size={16} /><span className="text-[10px] font-black uppercase tracking-widest">{showNeuroMirror ? 'Stop' : 'Show Noise'}</span></button>
