@@ -1,99 +1,113 @@
-'use client';
-
-import { useState, useRef, useEffect, useMemo } from 'react';
+"use client";
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ArrowRight, Brain, Loader2, RefreshCcw, FileText, 
-  CheckCircle2, Upload, BarChart3, Volume2, MessageCircle, MessageSquare,
-  X, Send, Sparkles, BookOpen, Clock, Zap, Layers, ChevronRight,  Headphones, MousePointer2, Type, Star, LogIn, LogOut, Crown,
-  Ghost, Swords, Rocket, Music, Trophy, Sparkle, Palette, Fish,
-  Share2, Download, ExternalLink, Heart, Lock, Sun
+  Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
+  Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
+  Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type
 } from 'lucide-react';
-import Papa from 'papaparse';
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Line, PieChart, Pie,
-} from 'recharts';
 import { supabase } from '@/lib/supabase';
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
-// --- THEME & CONSTANTS ---
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+type Theme = 'midnight' | 'emerald' | 'sunset' | 'nebula' | 'ghost';
 
-const THEMES = {
-  midnight: { 
-    c1: '#0a0f1e', c2: '#050810', accent: '#3b82f6', text: '#f8fafc', glass: 'rgba(255, 255, 255, 0.03)', border: 'rgba(59, 130, 246, 0.2)', shadow: 'rgba(0, 0, 0, 0.8)', name: 'Deep Space',
-    mesh: 'radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%)',
-    prism: ['#3b82f6', '#8b5cf6', '#2dd4bf']
+interface ThemeConfig {
+  name: string;
+  c1: string; c2: string;
+  text: string; accent: string;
+  glass: string; border: string;
+  shadow: string; mesh: string;
+  prism: string[];
+}
+
+const THEMES: Record<Theme, ThemeConfig> = {
+  midnight: {
+    name: 'Midnight',
+    c1: '#020617', c2: '#0f172a',
+    text: '#f8fafc', accent: '#3b82f6',
+    glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)',
+    shadow: 'rgba(0,0,0,0.5)', mesh: 'rgba(59, 130, 246, 0.1)',
+    prism: ['#3b82f6', '#8b5cf6', '#06b6d4']
   },
-  forest: { 
-    c1: '#0a2419', c2: '#04120b', accent: '#10b981', text: '#ecfdf5', glass: 'rgba(16, 185, 129, 0.05)', border: 'rgba(16, 185, 129, 0.2)', shadow: 'rgba(4, 18, 11, 0.9)', name: 'Eternal Forest',
-    mesh: 'radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.2) 0px, transparent 40%), radial-gradient(at 90% 90%, rgba(20, 184, 166, 0.1) 0px, transparent 40%)',
-    prism: ['#10b981', '#bef264', '#fbbf24']
+  emerald: {
+    name: 'Hadassah Silk',
+    c1: '#064e3b', c2: '#022c22',
+    text: '#ecfdf5', accent: '#10b981',
+    glass: 'rgba(6, 78, 59, 0.4)', border: 'rgba(16, 185, 129, 0.2)',
+    shadow: 'rgba(2, 44, 34, 0.6)', mesh: 'rgba(16, 185, 129, 0.15)',
+    prism: ['#10b981', '#34d399', '#059669']
   },
-  cyberpunk: { 
-    c1: '#1a0b2e', c2: '#0f051a', accent: '#d946ef', text: '#fdf4ff', glass: 'rgba(217, 70, 239, 0.05)', border: 'rgba(217, 70, 239, 0.3)', shadow: 'rgba(15, 5, 26, 0.9)', name: 'Neon Tokyo',
-    mesh: 'radial-gradient(at 0% 100%, rgba(217, 70, 239, 0.2) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%)',
-    prism: ['#d946ef', '#22d3ee', '#8b5cf6']
+  sunset: {
+    name: 'Divine Glow',
+    c1: '#451a03', c2: '#78350f',
+    text: '#fff7ed', accent: '#f59e0b',
+    glass: 'rgba(120, 53, 15, 0.4)', border: 'rgba(245, 158, 11, 0.2)',
+    shadow: 'rgba(69, 26, 3, 0.6)', mesh: 'rgba(245, 158, 11, 0.15)',
+    prism: ['#f59e0b', '#fb923c', '#d97706']
   },
-  sunset: { 
-    c1: '#2e1a0b', c2: '#1a0f05', accent: '#f59e0b', text: '#fff7ed', glass: 'rgba(245, 158, 11, 0.05)', border: 'rgba(245, 158, 11, 0.3)', shadow: 'rgba(26, 15, 5, 0.9)', name: 'Golden Hour',
-    mesh: 'radial-gradient(at 50% 0%, rgba(245, 158, 11, 0.2) 0px, transparent 50%), radial-gradient(at 50% 100%, rgba(239, 68, 68, 0.1) 0px, transparent 50%)',
-    prism: ['#fbbf24', '#fb923c', '#ef4444']
+  nebula: {
+    name: 'Sovereign Pulse',
+    c1: '#2e1065', c2: '#4c1d95',
+    text: '#f5f3ff', accent: '#8b5cf6',
+    glass: 'rgba(76, 29, 149, 0.4)', border: 'rgba(139, 92, 246, 0.2)',
+    shadow: 'rgba(46, 16, 101, 0.6)', mesh: 'rgba(139, 92, 246, 0.15)',
+    prism: ['#8b5cf6', '#a78bfa', '#7c3aed']
   },
-  lavender: { 
-    c1: '#1e1b4b', c2: '#0f0e2e', accent: '#818cf8', text: '#eef2ff', glass: 'rgba(129, 140, 248, 0.05)', border: 'rgba(129, 140, 248, 0.3)', shadow: 'rgba(15, 14, 46, 0.9)', name: 'Purple Mist',
-    mesh: 'radial-gradient(at 20% 20%, rgba(129, 140, 248, 0.2) 0px, transparent 50%), radial-gradient(at 80% 80%, rgba(167, 139, 250, 0.15) 0px, transparent 50%)',
-    prism: ['#a5b4fc', '#6366f1', '#f472b6']
-  },
-  ocean: { 
-    c1: '#083344', c2: '#041d24', accent: '#06b6d4', text: '#ecfeff', glass: 'rgba(6, 182, 212, 0.05)', border: 'rgba(6, 182, 212, 0.3)', shadow: 'rgba(4, 29, 36, 0.9)', name: 'Abyssal Blue',
-    mesh: 'radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.2) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(8, 145, 178, 0.1) 0px, transparent 50%)',
-    prism: ['#22d3ee', '#5eead4', '#3b82f6']
-  },
-  mars: { 
-    c1: '#450a0a', c2: '#1a0505', accent: '#ef4444', text: '#fef2f2', glass: 'rgba(239, 68, 68, 0.05)', border: 'rgba(239, 68, 68, 0.3)', shadow: 'rgba(28, 5, 5, 0.9)', name: 'Crimson Mars',
-    mesh: 'radial-gradient(at 50% 50%, rgba(239, 68, 68, 0.15) 0px, transparent 60%), radial-gradient(at 0% 0%, rgba(153, 27, 27, 0.2) 0px, transparent 50%)',
-    prism: ['#ef4444', '#f97316', '#7f1d1d']
+  ghost: {
+    name: 'Ghost Flow',
+    c1: '#000000', c2: '#111111',
+    text: '#cccccc', accent: '#ffffff',
+    glass: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.05)',
+    shadow: 'rgba(0,0,0,0.8)', mesh: 'rgba(255, 255, 255, 0.05)',
+    prism: ['#ffffff', '#888888', '#444444']
   }
 };
 
-type Theme = keyof typeof THEMES;
+const COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899'];
 
 interface SimplifiedData {
   tldr: string[];
   whyCare: string;
   readingTime: string;
-  chunks: { heading: string; content: string; keyTerms: string[]; metaphor?: string; dopamineHook?: string; }[];
-  chartData: { type: 'bar' | 'line' | 'pie'; data: { name: string; value: number }[]; } | null;
+  chunks: { heading: string; content: string; keyTerms: string[]; metaphor: string; dopamineHook: string; }[];
+  chartData: { type: 'bar' | 'line' | 'pie'; data: { name: string; value: number }[] } | null;
   actions: { task: string; priority: 'high' | 'medium' | 'low' }[];
 }
+
+const StarParticles = ({ count, isFinal }: { count: number, isFinal: boolean }) => (
+  <div className="fixed inset-0 pointer-events-none z-[401]">
+    {[...Array(count)].map((_, i) => (
+      <motion.div
+        key={i}
+        initial={{ y: -20, x: Math.random() * 2000, opacity: 1, scale: Math.random() * 0.5 + 0.5 }}
+        animate={{ 
+          y: 1200, 
+          x: `calc(${Math.random() * 2000}px + ${Math.random() * 100 - 50}px)`, 
+          rotate: 360,
+          opacity: 0 
+        }}
+        transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, ease: "linear", delay: Math.random() * 5 }}
+        className="absolute"
+      >
+        {isFinal ? <Trophy className="text-amber-400" size={24} /> : <Sparkle className="text-blue-400" size={16} />}
+      </motion.div>
+    ))}
+  </div>
+);
 
 const BionicText = ({ text }: { text: string }) => {
   if (!text) return null;
   return (
     <>
       {text.split(' ').map((word, i) => {
-        if (word.length <= 1) return <span key={i} className="mr-1">{word}</span>;
-        const half = Math.ceil(word.length / 2);
-        return (
-          <span key={i} className="inline-block mr-1">
-            <span className="font-black text-white">{word.slice(0, half)}</span>
-            <span className="opacity-70">{word.slice(half)}</span>
-          </span>
-        );
+        const mid = Math.ceil(word.length / 2);
+        const bold = word.slice(0, mid);
+        const rest = word.slice(mid);
+        return <span key={i} className="inline-block mr-1"><span className="font-black text-white">{bold}</span><span className="opacity-70">{rest}</span></span>;
       })}
     </>
   );
 };
-
-const StarParticles = ({ count = 20, isFinal = false }: { count?: number, isFinal?: boolean }) => (
-  <div className="fixed inset-0 pointer-events-none z-[300]">
-    {[...Array(count)].map((_, i) => (
-      <motion.div key={i} initial={{ opacity: 1, scale: 0, x: '50vw', y: '50vh' }} animate={{ opacity: 0, scale: Math.random() * 2 + 0.5, x: `${Math.random() * 100}vw`, y: `${Math.random() * 100}vh`, rotate: Math.random() * 720 }} transition={{ duration: isFinal ? 4 : 2, ease: "easeOut" }} className="absolute text-amber-400">
-        {i % 2 === 0 ? <Star fill="currentColor" size={isFinal ? 32 : 16} /> : <Sparkle fill="currentColor" size={isFinal ? 24 : 12} />}
-      </motion.div>
-    ))}
-  </div>
-);
 
 const NeuroMirrorText = ({ text }: { text: string }) => {
   if (!text) return null;
@@ -177,6 +191,28 @@ const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked }: { theme:
   );
 };
 
+const NeuralSparks = ({ active }: { active: boolean }) => {
+  if (!active) return null;
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+          animate={{ 
+            x: (Math.random() - 0.5) * 600, 
+            y: (Math.random() - 0.5) * 600, 
+            opacity: 0,
+            scale: 0
+          }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut", delay: i * 0.05 }}
+          className="absolute left-1/2 top-1/2 w-1.5 h-1.5 bg-blue-400 rounded-full shadow-[0_0_10px_#60a5fa]"
+        />
+      ))}
+    </div>
+  );
+};
+
 export default function Home() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -185,6 +221,7 @@ export default function Home() {
   const [history, setHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isPaid, setIsPaid] = useState(false); 
   const [usageCount, setUsageCount] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);
   const [isBionic, setIsBionic] = useState(true);
@@ -211,9 +248,15 @@ export default function Home() {
   const [actionIdx, setActionIdx] = useState(0);
   const [isSharing, setIsSharing] = useState(false);
   const [isZenLocked, setIsZenLocked] = useState(false);
+  const [isGreyedOut, setIsGreyedOut] = useState(false);
   
+  const callsign = !user ? "Neural Seeker" : isPaid ? "Prism Architect" : "Sovereign Discernor";
+  const syncLevel = !user ? "Seeking Neural Anchor..." : isPaid ? "Sync: Absolute" : "Sync Level: Processing";
+
   const catchphrases = ["INTEL SECURED!", "OBJECTIVE CAPTURED!", "NEURAL SYNC: 100%", "DATA STREAM PURIFIED!", "FOCUS ANCHORED!"];
   const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
+
+  const brainPulseDuration = input.length > 500 ? 0.5 : input.length > 100 ? 1 : 3;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const themeMenuRef = useRef<HTMLDivElement>(null);
@@ -265,52 +308,21 @@ export default function Home() {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.onend = () => setIsPlaying(false);
     utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
+    window.speechSynthesis.speak(utterance);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
-        setShowThemeMenu(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => { setUser(session?.user ?? null); if (session?.user) loadHistory(session.user.id); });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setUser(session?.user ?? null); if (session?.user) loadHistory(session.user.id); else setHistory([]); });
-    setUsageCount(parseInt(localStorage.getItem('dassahs_prism_usage') || '0'));
-    const urlParams = new URLSearchParams(window.location.search);
-    const textParam = urlParams.get('text');
-    if (textParam) { setInput(decodeURIComponent(textParam)); handleSimplify(decodeURIComponent(textParam)); window.history.replaceState({}, document.title, "/"); }
-    return () => subscription.unsubscribe();
-  }, []);
+  const playClick = () => { try { const audio = new Audio('/audio/click.mp3'); audio.volume = 0.2; audio.play(); } catch(e) {} };
 
   const loadHistory = async (userId: string) => {
-    const { data: dbH } = await supabase.from('history').select('*').eq('user_id', userId).order('created_at', { ascending: false });
-    if (dbH) setHistory(dbH.map(h => ({ id: h.id, date: new Date(h.created_at).toLocaleString(), title: h.title, data: h.data })));
+    const { data, error } = await supabase.from('history').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+    if (!error && data) setHistory(data.map(h => ({ id: h.id, date: new Date(h.created_at).toLocaleDateString(), title: h.title, data: h.data })));
   };
 
   const handleLogin = async () => { await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); };
   const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); setHistory([]); };
-  const handleReset = () => { playClick(); setData(null); setInput(''); setCurrentChunk(-1); };
 
-  const playClick = () => {
-    try {
-      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContextClass();
-      const osc = ctx.createOscillator(); const gain = ctx.createGain();
-      osc.type = 'sine'; osc.frequency.setValueAtTime(440, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.05, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(); osc.stop(ctx.currentTime + 0.1);
-    } catch (e) {}
-  };
+  const handleReset = () => { setData(null); setCurrentChunk(-1); setInput(''); setChatHistory([]); };
 
   const playSuspenseSound = (variant = suspenseIdx) => {
     try {
@@ -328,7 +340,7 @@ export default function Home() {
           const freq = notes[Math.floor(Math.random() * notes.length)];
           osc.frequency.setValueAtTime(freq, nextNoteTime);
           
-          if (variant === 2) { // Add FM synthesis for bells
+          if (variant === 2) { 
             const mod = ctx.createOscillator(); const modG = ctx.createGain();
             mod.frequency.setValueAtTime(freq * 2.5, nextNoteTime);
             modG.gain.setValueAtTime(200, nextNoteTime);
@@ -354,7 +366,7 @@ export default function Home() {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
-      if (variant === 0) { // ZEN CHORD
+      if (variant === 0) {
         const freqs = [130.81, 164.81, 196.00];
         freqs.forEach(f => {
           const osc = ctx.createOscillator(); const g = ctx.createGain();
@@ -366,7 +378,7 @@ export default function Home() {
           osc.connect(g); g.connect(ctx.destination);
           lfo.start(); osc.start(); noiseNodeRef.current = osc;
         });
-      } else if (variant === 1) { // DIGITAL RAIN
+      } else if (variant === 1) { 
         let nextDropTime = ctx.currentTime;
         const scheduleDrop = () => {
           while (nextDropTime < ctx.currentTime + 0.1) {
@@ -382,7 +394,7 @@ export default function Home() {
         };
         const intervalId = setInterval(scheduleDrop, 25);
         noiseNodeRef.current = { disconnect: () => clearInterval(intervalId) };
-      } else { // OCEANIC BREATH
+      } else { 
         const bufferSize = ctx.sampleRate * 2;
         const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
         const data = buffer.getChannelData(0);
@@ -413,7 +425,6 @@ export default function Home() {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
-      
       const bufferSize = ctx.sampleRate * 2;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const output = buffer.getChannelData(0);
@@ -422,24 +433,14 @@ export default function Home() {
         const white = Math.random() * 2 - 1;
         output[i] = (lastOut + (0.02 * white)) / 1.02;
         lastOut = output[i];
-        output[i] *= 3.5; // (roughly) compensate for gain
+        output[i] *= 3.5;
       }
-      
       const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.loop = true;
-      
-      const filter = ctx.createBiquadFilter(); 
-      filter.type = 'lowpass'; 
-      filter.frequency.setValueAtTime(400, ctx.currentTime);
-      
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 1);
-      
+      source.buffer = buffer; source.loop = true;
+      const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(400, ctx.currentTime);
+      const gain = ctx.createGain(); gain.gain.setValueAtTime(0, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 1);
       source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
-      source.start();
-      noiseNodeRef.current = source;
+      source.start(); noiseNodeRef.current = source;
     }
   }, [audioMode, suspenseIdx, actionIdx]);
 
@@ -454,7 +455,10 @@ export default function Home() {
   }, []);
 
   const handleSimplify = async (textToSimplify = input) => {
-    playClick(); if (!textToSimplify.trim()) return; if (usageCount >= (user ? 10 : 3)) { setShowPaywall(true); return; }
+    playClick(); if (!textToSimplify.trim()) return; 
+    const limit = user ? 15 : 5;
+    if (usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
+    
     setLoading(true);
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
@@ -476,60 +480,46 @@ export default function Home() {
       alert("Viral share text copied! Go brag on TikTok or X! 🚀"); 
     } catch (err) { 
       alert("Could not create share link."); 
-    } finally { 
-      setIsSharing(false); 
-    } 
+    } finally { setIsSharing(false); } 
   };
   const handleDownloadSummary = () => { if (!data) return; const content = `DASSAH'S PRISM SUMMARY\n\nTHE VISION:\n${data.whyCare}\n\nTL;DR:\n${data.tldr.map(t => `- ${t}`).join('\n')}\n\nFULL PRISM LINK: ${window.location.origin}/?text=${encodeURIComponent(input)}`; const blob = new Blob([content], { type: 'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `dassahs_prism-summary.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); };
 
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0]; if (!file) return; setLoading(true);
-    
     try {
       if (file.name.endsWith('.pdf')) {
-        // CLIENT-SIDE PDF PARSING (Option 1: The Unbreakable Fix)
         const pdfjs = await import('pdfjs-dist');
         pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-        
         const arrayBuffer = await file.arrayBuffer();
         const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
         let fullText = '';
-        
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
           const strings = textContent.items.map((item: any) => (item as any).str);
           fullText += strings.join(' ') + '\n';
         }
-        
-        if (fullText.trim()) {
-          setInput(fullText);
-        } else {
-          throw new Error("Could not extract text from PDF.");
-        }
+        if (fullText.trim()) setInput(fullText);
+        else throw new Error("Could not extract text from PDF.");
       } else {
-        // Use server-side parsing for DOCX/other files (already fixed and stable)
         const formData = new FormData(); formData.append('file', file);
         const res = await fetch('/api/parse', { method: 'POST', body: formData });
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.error || "Server error");
-        }
+        if (!res.ok) { const errData = await res.json(); throw new Error(errData.error || "Server error"); }
         const result = await res.json(); if (result.text) setInput(result.text);
       }
-    } catch (err: any) { 
-      console.error("Upload error:", err);
-      alert(`Upload Failed: ${err.message}`); 
-    } finally { setLoading(false); }
+    } catch (err: any) { alert(`Upload Failed: ${err.message}`); } finally { setLoading(false); }
   };
 
   const handleToggleZenLock = () => {
     playClick();
     if (isZenLocked) {
-      if (confirm("Wait! Breaking Hadassah's Lock costs 5 Dassah Points. Are you sure?")) {
-        setDassahPoints(prev => { const next = Math.max(0, prev - 5); localStorage.setItem('dassah_points', next.toString()); return next; });
+      const penalty = currentChunk === data?.chunks.length ? 50 : (currentChunk + 1) * 5;
+      if (confirm(`Wait! Breaking Hadassah's Lock now costs ${penalty} Dassah Points. Are you sure?`)) {
+        setDassahPoints(prev => { const next = Math.max(0, prev - penalty); localStorage.setItem('dassah_points', next.toString()); return next; });
         setIsZenLocked(false);
+        setIsGreyedOut(true);
+        setTimeout(() => setIsGreyedOut(false), 10000);
         if (document.fullscreenElement) document.exitFullscreen();
       }
     } else {
@@ -568,43 +558,15 @@ export default function Home() {
       100% { background-position: 200% center; }
     }
     .prism-text {
-      background: linear-gradient(
-        110deg,
-        var(--prism-1) 0%,
-        var(--prism-2) 15%,
-        #ffffff 30%,
-        var(--prism-3) 45%,
-        var(--prism-1) 60%,
-        #ffffff 75%,
-        var(--prism-2) 90%,
-        var(--prism-1) 100%
-      );
-      background-size: 250% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: prism-refract 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-      display: inline-block;
-      padding-right: 0.2em;
-      position: relative;
-      filter: drop-shadow(0 0 15px var(--prism-1)44);
-      font-style: italic;
-      overflow: visible;
+      background: linear-gradient(110deg, var(--prism-1) 0%, var(--prism-2) 25%, #fff 50%, var(--prism-2) 75%, var(--prism-3) 100%);
+      background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: prism-refract 4s linear infinite;
     }
     .refractive-border {
-      position: relative;
-      background: var(--color-shadow);
-      border: 2px solid transparent;
-      background-clip: padding-box;
+      background: var(--color-shadow); border: 2px solid transparent; background-clip: padding-box; position: relative;
     }
-    .refractive-border::before {
-      content: '';
-      position: absolute;
-      inset: -2px;
-      z-index: -1;
-      background: linear-gradient(90deg, var(--prism-1), var(--prism-2), var(--prism-3), var(--prism-1));
-      background-size: 200% auto;
-      animation: prism-refract 3s linear infinite;
-      border-radius: inherit;
+    .refractive-border::after {
+      content: ''; position: absolute; top: -2px; bottom: -2px; left: -2px; right: -2px;
+      background: linear-gradient(135deg, var(--prism-1), transparent, var(--prism-3)); z-index: -1; border-radius: inherit; opacity: 0.3;
     }
   `;
 
@@ -613,7 +575,7 @@ export default function Home() {
   return (
     <>
       <style>{themeStyles}</style>
-      <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className="min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)`, color: 'var(--color-text)' }}>
+      <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)`, color: 'var(--color-text)' }}>
       <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} />
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
@@ -630,12 +592,13 @@ export default function Home() {
           >
             {focusMode === "sovereign" ? <Crown size={18}/> : <Zap size={18}/>}
             <span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign (CEO)" : "Dastastic (ADHD)"}</span>
-          </button>          <div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
+          </button>
+          <div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
           <button onClick={() => { playClick(); setShowHistory(true); }} className="p-2 md:p-4 bg-[var(--color-glass)] rounded-xl md:rounded-2xl border border-[var(--color-border)] text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90 flex-shrink-0"><Clock size={18}/></button>
           <div className="flex bg-[var(--color-glass)] p-1 rounded-xl md:rounded-2xl border border-[var(--color-border)] shadow-xl flex-shrink-0">
             <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading" className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={18}/></button>
             {data && (
-              <button onClick={handleToggleZenLock} title="Zen Lock Focus" className={`px-2 md:px-4 py-2 rounded-lg md:rounded-xl transition-all flex items-center gap-1 md:gap-2 ${isZenLocked ? 'bg-red-600 text-white shadow-lg animate-pulse' : 'text-slate-400 hover:text-white'}`}>
+              <button onClick={handleToggleZenLock} title={`Zen Lock Focus (Breaking costs ${(currentChunk === data?.chunks.length ? 50 : (currentChunk + 1) * 5)} points)`} className={`px-2 md:px-4 py-2 rounded-lg md:rounded-xl transition-all flex items-center gap-1 md:gap-2 ${isZenLocked ? 'bg-red-600 text-white shadow-lg animate-pulse' : 'text-slate-400 hover:text-white'}`}>
                 {isZenLocked ? <Crown size={16}/> : <Lock size={16}/>}
                 <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest hidden lg:block">{isZenLocked ? 'Locked' : 'Zen Lock'}</span>
               </button>
@@ -663,21 +626,19 @@ export default function Home() {
 
           <div className="lg:hidden relative ml-1" ref={themeMenuRef}>
             <button onClick={(e) => { e.stopPropagation(); setShowThemeMenu(!showThemeMenu); }} className="bg-[var(--color-glass)] p-2.5 rounded-xl text-slate-400 border border-[var(--color-border)] shadow-xl hover:text-blue-400 transition-all"><Palette size={18} /></button>
-            <AnimatePresence>
-              {showThemeMenu && (
-                <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 10 }} className="absolute top-full right-0 mt-2 w-16 bg-[var(--color-shadow)] backdrop-blur-3xl border border-[var(--color-border)] rounded-2xl p-2 z-[200] shadow-2xl flex flex-col gap-2 items-center">
-                  {Object.entries(THEMES).map(([id, t]) => (
-                    <button key={id} onClick={() => { playClick(); setTheme(id as any); setShowThemeMenu(false); }} className={`w-10 h-10 rounded-full border-2 transition-all flex-shrink-0 ${theme === id ? 'border-white scale-110 shadow-lg' : 'border-transparent opacity-50 hover:opacity-100'}`} style={{ backgroundColor: t.accent }} title={t.name} />
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <AnimatePresence>{showThemeMenu && (<motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute right-0 top-full mt-4 bg-[var(--color-shadow)] backdrop-blur-3xl p-4 rounded-3xl border border-[var(--color-border)] shadow-2xl min-w-[200px] z-[120] grid grid-cols-2 gap-3"><div className="col-span-2 text-[8px] font-black uppercase tracking-widest text-slate-500 mb-2 px-2">Select Theme</div>{Object.entries(THEMES).map(([id, t]) => (<button key={id} onClick={() => { playClick(); setTheme(id as any); setShowThemeMenu(false); }} className={`flex items-center gap-3 p-3 rounded-2xl transition-all ${theme === id ? 'bg-white/10' : 'hover:bg-white/5'}`}><div className="w-4 h-4 rounded-full" style={{ backgroundColor: t.accent }} /><span className="text-[10px] font-black uppercase text-slate-300">{t.name}</span></button>))}</motion.div>)}</AnimatePresence>
           </div>
         </div>
-        <div className="flex items-center gap-2 md:gap-4">
-          <button onClick={() => { playClick(); setShowFeedback(true); }} className="p-2 md:p-3 bg-amber-500/10 hover:bg-amber-500/20 rounded-xl md:rounded-2xl border border-amber-500/20 text-amber-400 transition-all active:scale-90" title="Feedback"><MessageSquare size={18} /></button>
-          <button onClick={() => { playClick(); setShowAbout(true); }} className="p-2 md:p-3 bg-red-500/10 hover:bg-red-500/20 rounded-xl md:rounded-2xl border border-red-500/20 text-red-400 transition-all active:scale-90" title="Our Story"><Heart size={18} fill={showAbout ? "currentColor" : "none"} /></button>
-          <div className="flex items-center gap-1.5 md:gap-2 bg-amber-500/10 px-2 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl border border-amber-500/20 shadow-inner"><Sparkle size={12} className="text-amber-400 animate-pulse" /><span className="text-[10px] md:text-xs font-black text-amber-200 uppercase tracking-tighter">{dassahPoints}<span className="hidden sm:inline"> Points</span></span></div>
+
+        <div className="flex gap-2 items-center">
+          <div className="hidden sm:flex flex-col items-end mr-4">
+            <p className="text-white font-black text-[10px] uppercase tracking-widest">{callsign}</p>
+            <p className="text-blue-400 font-bold text-[8px] uppercase tracking-tighter">{syncLevel}</p>
+          </div>
+          <div className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] flex items-center gap-2 shadow-xl">
+            <Star className="text-amber-500 fill-amber-500" size={14}/>
+            <span className="font-black text-white text-[10px] md:text-xs">{dassahPoints}</span>
+          </div>
           {user ? (
             <button onClick={handleLogout} className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] text-[9px] md:text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Out</button>
           ) : (
@@ -688,25 +649,15 @@ export default function Home() {
 
       <AnimatePresence>{showAbout && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} 
-            animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} 
-            exit={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} 
-            className="max-w-3xl w-full refractive-border p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto overflow-hidden"
-          >
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} className="max-w-3xl w-full refractive-border p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto overflow-hidden">
             {[...Array(12)].map((_, i) => <GlassShard key={i} i={i} color={currentTheme.prism[i % 3]} mousePos={mousePos} />)}
             <motion.div initial={{ x: '-100%', skewX: -20 }} animate={{ x: '200%' }} transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }} className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-10" />
-            
             <button onClick={() => setShowAbout(false)} className="absolute top-8 right-8 p-4 hover:bg-white/10 rounded-full text-slate-400 transition-colors z-20"><X size={32}/></button>
-            
             <div className="space-y-12 relative z-10">
               <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
-                <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs">
-                  <div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH'S PRISM
-                </div>
+                <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH'S PRISM</div>
                 <h2 className="text-5xl md:text-7xl font-black text-white leading-[1.4] tracking-tight italic pb-6">From Noise to Divine <span className="prism-text">Clarity</span></h2>
               </motion.header>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <motion.div style={{ x: (mousePos.x - 1000) * -0.01, y: (mousePos.y - 500) * -0.01 }} className="space-y-6 text-slate-300 text-lg leading-relaxed font-medium">
                   <p>Dassah's Prism is not merely a tool; it is a living testimony. For those of us navigating the spectrum, Profound Cognitive Intensity is not a deficiency to be 'fixed,' but a high-powered engine awaiting its rightful fuel. Guided by the grace of Christ, I have come to embrace this condition as a divine blessing—a singular, vibrant lens that allows us to perceive the world's complexity with a unique and profound depth.</p>
@@ -718,7 +669,6 @@ export default function Home() {
                   <p className="text-slate-400 mt-4">— And so, the Dastastic Prism was built.</p>
                 </motion.div>
               </div>
-
               <div className="space-y-8 pt-8 border-t border-white/10">
                 <h3 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-4"><Zap size={24} className="text-amber-500" /> The Methodology</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -726,7 +676,8 @@ export default function Home() {
                     { n: "01", t: "Neural Refraction", d: "Capture noise via 'Dastastic' (Dopamine-First) or 'Sovereign' (Executive-Sleek) modes. Our engine maps your chosen cognitive path instantly." },
                     { n: "02", t: "Executive Distillation", d: "The Magic: We strip the fluff, boiling down complex noise into high-impact maps for rapid, sovereign decision-making." },
                     { n: "03", t: "Cognitive Resonance", d: "The Flow: Integrated audio-visual synchronization and Zen-locked focus lock your brain into a state of divine clarity." }
-                  ].map((step, i) => (                    <motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3">
+                  ].map((step, i) => (
+                    <motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3">
                       <span className="text-4xl font-black text-blue-500/30 tracking-tight">{step.n}</span>
                       <p className="text-white font-black uppercase text-sm tracking-widest">{step.t}</p>
                       <p className="text-slate-500 text-sm font-medium">{step.d}</p>
@@ -734,20 +685,15 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-
               <footer className="pt-12 flex flex-col sm:flex-row items-center justify-between gap-8 border-t border-white/10">
                 <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
-                    <span className="text-3xl font-black text-white italic">DJ</span>
-                  </div>
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl"><span className="text-3xl font-black text-white italic">DJ</span></div>
                   <div>
                     <p className="text-white font-black uppercase text-sm tracking-widest">Founded by DJ</p>
-                    <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter flex items-center gap-2">
-                      DChan + JGitu <motion.div animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block"><Fish size={14} className="text-blue-500" /></motion.div> Rooted in Christ
-                    </p>
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter flex items-center gap-2">DChan + JGitu <motion.div animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block"><Fish size={14} className="text-blue-500" /></motion.div> Rooted in Christ</p>
                   </div>
                 </div>
-                <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.5em] text-center sm:text-right">Dedicated to my forever partner and best friend, DChan.</p>
+                <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.5em] text-center sm:text-right">Dedicated to my forever partner and best friend, Dchan.</p>
               </footer>
             </div>
           </motion.div>
@@ -759,15 +705,10 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="max-w-md w-full bg-[var(--color-shadow)] border-2 border-amber-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] relative overflow-hidden">
             <button onClick={() => setShowFeedback(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors"><X size={24}/></button>
             <div className="space-y-6">
-              <div className="flex items-center gap-4 text-amber-400 font-black uppercase tracking-widest text-xs">
-                <MessageSquare size={20} /> Feedback Vault
-              </div>
+              <div className="flex items-center gap-4 text-amber-400 font-black uppercase tracking-widest text-xs"><MessageSquare size={20} /> Feedback Vault</div>
               <h2 className="text-3xl font-black text-white italic">How's the Prism?</h2>
               {feedbackSuccess ? (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="py-12 text-center space-y-4">
-                  <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400"><CheckCircle2 size={32} /></div>
-                  <p className="text-white font-bold">Feedback Vaulted!</p>
-                </motion.div>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="py-12 text-center space-y-4"><div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400"><CheckCircle2 size={32} /></div><p className="text-white font-bold">Feedback Vaulted!</p></motion.div>
               ) : (
                 <form onSubmit={handleFeedbackSubmit} className="space-y-6">
                   <textarea value={feedbackInput} onChange={(e) => setFeedbackInput(e.target.value)} placeholder="Share your thoughts, bugs, or magic moments..." className="w-full h-40 p-6 bg-black/20 rounded-2xl border border-[var(--color-border)] text-white focus:outline-none focus:border-amber-500/50 resize-none font-medium" />
@@ -782,8 +723,9 @@ export default function Home() {
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24">
           <header className="text-center space-y-6">
-            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative">
+            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: brainPulseDuration, ease: "easeInOut" }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative">
               <Brain className="w-16 h-16 md:w-20 md:h-20" />
+              <NeuralSparks active={loading} />
             </motion.div>
             <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tighter italic text-center">Dassah's <span className="prism-text">Prism</span></h1>
             <div className="space-y-2">
@@ -791,31 +733,15 @@ export default function Home() {
               <p className="text-lg md:text-xl text-blue-400/80 font-bold italic tracking-tight">"Turn overwhelming noise into clear focus in seconds."</p>
             </div>
           </header>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto opacity-60 hover:opacity-100 transition-opacity">
-            <div className="bg-black/20 p-6 rounded-[2rem] border border-white/5 space-y-3">
-              <p className="text-[8px] uppercase tracking-widest text-slate-500 font-black">The Noise</p>
-              <p className="text-xs text-slate-500 leading-relaxed">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text.</p>
-            </div>
-            <div className="bg-blue-500/5 p-6 rounded-[2rem] border border-blue-500/10 space-y-3 relative overflow-hidden">
-              <div className="absolute top-2 right-4 animate-pulse"><Sparkle size={10} className="text-blue-400" /></div>
-              <p className="text-[8px] uppercase tracking-widest text-blue-400 font-black">The Clarity</p>
-              <p className="text-xs text-slate-300 leading-relaxed font-bold">
-                <span className="text-white font-black">Thi</span>s <span className="text-white font-black">i</span>s <span className="text-white font-black">a</span> <span className="text-white font-black">shor</span>t, <span className="text-white font-black">Bioni</span>c <span className="text-white font-black">pat</span>h. <span className="text-white font-black">You</span>r <span className="text-white font-black">brai</span>n <span className="text-white font-black">lock</span>s <span className="text-white font-black">i</span>n <span className="text-white font-black">instan</span>tly.
-              </p>
-            </div>
+            <div className="bg-black/20 p-6 rounded-[2rem] border border-white/5 space-y-3"><p className="text-[8px] uppercase tracking-widest text-slate-500 font-black">The Noise</p><p className="text-xs text-slate-500 leading-relaxed">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text.</p></div>
+            <div className="bg-blue-500/5 p-6 rounded-[2rem] border border-blue-500/10 space-y-3 relative overflow-hidden"><div className="absolute top-2 right-4 animate-pulse"><Sparkle size={10} className="text-blue-400" /></div><p className="text-[8px] uppercase tracking-widest text-blue-400 font-black">The Clarity</p><p className="text-xs text-slate-300 leading-relaxed font-bold"><span className="text-white font-black">Thi</span>s <span className="text-white font-black">i</span>s <span className="text-white font-black">a</span> <span className="text-white font-black">shor</span>t, <span className="text-white font-black">Bioni</span>c <span className="text-white font-black">pat</span>h. <span className="text-white font-black">You</span>r <span className="text-white font-black">brai</span>n <span className="text-white font-black">lock</span>s <span className="text-white font-black">i</span>n <span className="text-white font-black">instan</span>tly.</p></div>
           </div>
-
           <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/10 p-3 shadow-2xl overflow-hidden relative group focus-within:border-blue-500/50 transition-all">
             {showNeuroMirror ? (
               <div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto"><NeuroMirrorText text={input || "Paste some text..."} /></div>
             ) : (
-              <textarea 
-                className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-black/10 rounded-[2.5rem] resize-none focus:outline-none placeholder:text-slate-700 text-slate-200 leading-relaxed font-medium" 
-                placeholder="Paste the noise here..." 
-                value={input} 
-                onChange={(e) => setInput(e.target.value)} 
-              />
+              <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-black/10 rounded-[2.5rem] resize-none focus:outline-none placeholder:text-slate-700 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
             )}
             <div className="bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border border-[var(--color-border)]">
               <div className="flex items-center gap-4">
@@ -824,132 +750,45 @@ export default function Home() {
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                 <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}<span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic' : 'Quick'}</span></button>
-                <button 
-                  onClick={() => handleSimplify()} 
-                  disabled={loading || !input.trim()} 
-                  className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:shadow-[0_0_60px_rgba(147,51,234,0.5)] transition-all active:scale-95 text-lg"
-                >
-                  {loading ? <Loader2 className="animate-spin" /> : 'Discern It'}
-                </button>
+                <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:shadow-[0_0_60px_rgba(147,51,234,0.5)] transition-all active:scale-95 text-lg">{loading ? <Loader2 className="animate-spin" /> : 'Discern It'}</button>
               </div>
             </div>
-            </div>
-            </motion.div>
-            ) : (
-            <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">          <div className="mb-8 flex justify-end gap-4">
-            <button onClick={handleDownloadSummary} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest">
-              <Download size={18}/> Save Summary
-            </button>
           </div>
+        </motion.div>
+      ) : (
+        <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">
+          <div className="mb-8 flex justify-end gap-4"><button onClick={handleDownloadSummary} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest"><Download size={18}/> Save Summary</button></div>
           <AnimatePresence mode="wait">
             {currentChunk === -1 ? (
               <motion.div key="summary" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] space-y-12 shadow-2xl"><div className="flex items-center justify-between"><div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center gap-3"><Rocket size={18}/> Saved {data.readingTime}</div><button onClick={handleReset} className="p-5 bg-[var(--color-glass)] rounded-3xl text-slate-500 hover:text-red-400 transition-all"><X size={24}/></button></div><div className="space-y-8"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2><p className="text-4xl md:text-5xl font-black leading-[1.1] text-white tracking-tight">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div><div className="space-y-10">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-[var(--color-glass)] text-blue-400 flex items-center justify-center font-black mr-8 border border-[var(--color-border)] group-hover:border-blue-500/50 transition-all text-lg">{i + 1}</span><p className="text-xl md:text-2xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div><button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Prism <ArrowRight className="inline ml-4"/></button></motion.div>
             ) : currentChunk === data.chunks.length ? (
-              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden">
-                <div className="space-y-4">
-                  <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2>
-                  <h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3>
-                </div>
-                
-                <div className="space-y-6">
-                  {data.actions.map((action, i) => (
-                    <motion.div 
-                      key={i} 
-                      initial={{ x: -20, opacity: 0 }} 
-                      animate={{ x: 0, opacity: 1 }} 
-                      transition={{ delay: i * 0.1 }}
-                      className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"
-                    >
-                      <div className="flex items-center gap-6">
-                        <div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} />
-                        <p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p>
-                      </div>
-                      <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>
-                        {action.priority}
-                      </span>
-                    </motion.div>
-                  ))}
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4 mt-12">
-                  <button 
-                    onClick={handleShare}
-                    className="flex-1 p-6 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-[2rem] text-slate-400 hover:text-white transition-all flex items-center justify-center gap-3 font-black uppercase text-sm tracking-widest"
-                  >
-                    <Share2 size={24}/> {isSharing ? 'Copying...' : 'Share the Prism'}
-                  </button>
-                  <button 
-                    onClick={() => { playClick(); handleNext(); }} 
-                    className="flex-[2] bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4"
-                  >
-                    Seal the Prism <CheckCircle2 size={28}/>
-                  </button>
-                </div>
-              </motion.div>
+              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={handleShare} className="flex-1 p-6 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-[2rem] text-slate-400 hover:text-white transition-all flex items-center justify-center gap-3 font-black uppercase text-sm tracking-widest"><Share2 size={24}/> {isSharing ? 'Copying...' : 'Share the Prism'}</button><button onClick={() => { playClick(); handleNext(); }} className="flex-[2] bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button></div></motion.div>
             ) : (
-              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden"><div className="absolute top-10 left-10 flex items-center gap-4"><div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div><button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button></div><h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2><div className="space-y-8 flex-grow"><div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>{data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}<div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="bg-amber-500/5 p-6 rounded-[2rem] border border-amber-500/10 space-y-3"><div className="flex items-center gap-2 text-amber-500 font-black uppercase tracking-widest text-[10px]"><Zap size={14}/> Dopamine Hook</div><p className="text-lg font-bold text-amber-200/80 italic">"{data.chunks[currentChunk].dopamineHook}"</p></div><div className="bg-purple-500/5 p-6 rounded-[2rem] border border-purple-500/10 space-y-3"><div className="flex items-center gap-2 text-purple-400 font-black uppercase tracking-widest text-[10px]"><Sparkle size={14}/> Metaphor</div><p className="text-lg font-bold text-purple-200/80 italic">"{data.chunks[currentChunk].metaphor}"</p></div></div></div><div className="mt-12 flex justify-between items-center"><button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all">Back</button><button onClick={handleNext} className="bg-white text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Seal the Prism' : 'Next Segment'}</button></div></motion.div>
+              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden"><div className="absolute top-10 left-10 flex items-center gap-4"><div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div><button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button></div><h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2><div className="space-y-8 flex-grow"><div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>{data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}<div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="bg-amber-500/5 p-6 rounded-[2rem] border border-amber-500/10 space-y-3"><div className="flex items-center gap-2 text-amber-500 font-black uppercase tracking-widest text-[10px]"><Zap size={14}/> Dopamine Hook</div><p className="text-lg font-bold text-amber-200/80 italic">"{data.chunks[currentChunk].dopamineHook}"</p></div><div className="bg-purple-500/5 p-6 rounded-[2rem] border border-purple-500/10 space-y-3"><div className="flex items-center gap-2 text-purple-400 font-black uppercase tracking-widest text-[10px]"><Sparkle size={14}/> Metaphor</div><p className="text-lg font-bold text-purple-200/80 italic">"{data.chunks[currentChunk].metaphor}"</p></div></div></div><div className="mt-12 flex justify-between items-center"><button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all">Back</button><button onClick={handleNext} className="bg-white text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Next Step' : 'Next Segment'}</button></div></div>{data.chunks[currentChunk].metaphor && (<div className="bg-white/5 border-t border-white/10 p-10 md:p-16 flex flex-col md:flex-row gap-10"><div className="flex-1 space-y-4"><div className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-xs"><Brain size={18} /> The Metaphor</div><p className="text-xl text-slate-400 italic font-medium leading-relaxed">"{data.chunks[currentChunk].metaphor}"</p></div><div className="flex-1 space-y-4"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><Sparkles size={18} /> Dopamine Hook</div><p className="text-xl text-slate-300 font-black tracking-tight">{data.chunks[currentChunk].dopamineHook}</p></div></div>)}</motion.div>
             )}
           </AnimatePresence>
         </div>
       )}
 
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
-      
-      <AnimatePresence>{showHistory && (
-        <motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 bg-[var(--color-shadow)] backdrop-blur-3xl z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto">
-          <div className="flex justify-between items-center mb-10">
-            <h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2>
-            <button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button>
-          </div>
-          <div className="space-y-4">
-            {history.map((item) => (
-              <button key={item.id} onClick={() => { playClick(); setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-[var(--color-glass)] hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p>
-                <p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p>
-              </button>
-            ))}
-          </div>
-        </motion.div>
-      )}</AnimatePresence>
+      <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 bg-[var(--color-shadow)] backdrop-blur-3xl z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { playClick(); setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-[var(--color-glass)] hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
 
       <AnimatePresence>{showPaywall && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }} 
-            animate={{ scale: 1, opacity: 1 }} 
-            className="max-w-md w-full bg-slate-900 border-2 border-[var(--color-accent)] p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] text-center space-y-6 shadow-[0_0_100px_rgba(59,130,246,0.3)] max-h-[90vh] overflow-y-auto no-scrollbar"
-          >
-            <div className="mx-auto w-20 h-20 bg-[var(--color-accent)]/10 rounded-full flex items-center justify-center text-[var(--color-accent)] animate-pulse">
-              <Crown size={40} />
-            </div>
-            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter italic">Hadassah's Royal Rest</h2>
-            <p className="text-slate-400 text-base md:text-lg leading-relaxed font-medium">Your mind has crossed 10 Golden Prisms today! To keep the Dassah-Magic flowing and unlock unlimited clarity, join DJ's Inner Circle.</p>
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-md w-full bg-slate-900 border-2 border-[var(--color-accent)] p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] text-center space-y-6 shadow-[0_0_100px_rgba(59,130,246,0.3)] max-h-[90vh] overflow-y-auto no-scrollbar">
+            <div className="mx-auto w-20 h-20 bg-[var(--color-accent)]/10 rounded-full flex items-center justify-center text-[var(--color-accent)] animate-pulse"><Crown size={40} /></div>
+            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter italic">{user ? "Royal Bandwidth Reached" : "Neural Blueprint Fragmenting"}</h2>
+            <p className="text-slate-400 text-base md:text-lg leading-relaxed font-medium">{user ? "You have reached the edge of standard bandwidth. Your Executive Distillation has peaked. To maintain this flow without interruption, join the Royal Inner Circle. Reclaim unlimited neural capacity." : "Your Neural Blueprint is fragmenting. To prevent focus-decay and anchor your cognitive data, you must secure your session. Anchor to your Achieving Vault now."}</p>
             <div className="space-y-4 pt-4">
-              {!user ? (
-                <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-lg shadow-2xl transition-all active:scale-95">Sign In with Google</button>
-              ) : (
-                <button onClick={() => alert("Connecting to DJ's Royal Treasury for checkout...")} className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 py-5 rounded-[1.5rem] font-black uppercase tracking-widest shadow-2xl text-lg hover:scale-105 transition-all active:scale-95">Join the Circle ($9/mo)</button>
-              )}
+              {!user ? (<button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-lg shadow-2xl transition-all active:scale-95">Anchor to Vault (Sign In)</button>) : (<button onClick={() => alert("Connecting to DJ's Royal Treasury for checkout...")} className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 py-5 rounded-[1.5rem] font-black uppercase tracking-widest shadow-2xl text-lg hover:scale-105 transition-all active:scale-95">Reclaim Unlimited Neural Capacity ($9/mo)</button>)}
               <button onClick={() => setShowPaywall(false)} className="w-full text-slate-600 font-bold uppercase text-[10px] tracking-[0.5em] py-4 hover:text-slate-400 transition-colors">Not Today</button>
             </div>
           </motion.div>
         </div>
       )}</AnimatePresence>
 
-      <AnimatePresence>
-        {isZenLocked && (
-          <motion.button 
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            onClick={handleToggleZenLock}
-            className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"
-          >
-            <X size={32} className="group-hover:rotate-90 transition-transform" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      <AnimatePresence>{isZenLocked && (<motion.button initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} onClick={handleToggleZenLock} className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"><X size={32} className="group-hover:rotate-90 transition-transform" /></motion.button>)}</AnimatePresence>
 
-      <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-[var(--color-shadow)] backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20}/></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="w-20 h-20 bg-blue-600 text-white rounded-full shadow-[0_20px_50px_rgba(37,99,235,0.4)] flex items-center justify-center hover:scale-110 active:scale-90 transition-all"><MessageCircle size={32}/></button></div>)}</AnimatePresence>
+      <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-[var(--color-shadow)] backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={18}/></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all active:scale-90 border-2 border-white/20"><MessageCircle size={28}/></button></div>)}</AnimatePresence>
     </main></>);
 }
