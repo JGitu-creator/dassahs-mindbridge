@@ -213,6 +213,35 @@ const NeuralSparks = ({ active }: { active: boolean }) => {
   );
 };
 
+const LivingBrain = ({ loading, inputLength, isVictorious, user }: { loading: boolean, inputLength: number, isVictorious: boolean, user: any }) => {
+  const isTyping = inputLength > 0;
+  const isLong = inputLength > 500;
+  
+  // Heartbeat speeds
+  const duration = loading ? 0.3 : isTyping ? (isLong ? 0.5 : 1) : 3;
+  const scale = loading ? [1, 1.3, 1] : isTyping ? [1, 1.15, 1] : [1, 1.05, 1];
+  const glowOpacity = isVictorious && user ? 0.8 : (loading || isTyping ? 0.4 : 0.1);
+  const color = isVictorious && user ? "from-amber-400 via-yellow-300 to-amber-500" : "from-blue-500 via-purple-600 to-blue-400";
+
+  return (
+    <motion.div 
+      animate={{ rotate: loading ? [0, 10, -10, 0] : [0, 5, -5, 0], scale: scale }} 
+      transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
+      className={`relative mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br ${color} text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_50px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000`}
+    >
+      <Brain className={`w-16 h-16 md:w-20 md:h-20 ${isVictorious && user ? "text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" : ""}`} />
+      <NeuralSparks active={loading} />
+      {isVictorious && user && (
+        <motion.div 
+          animate={{ opacity: [0.5, 1, 0.5], scale: [1, 1.5, 1] }} 
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute inset-0 bg-amber-400/20 rounded-full blur-3xl -z-10"
+        />
+      )}
+    </motion.div>
+  );
+};
+
 export default function Home() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -253,11 +282,6 @@ export default function Home() {
   const callsign = !user ? "Neural Seeker" : isPaid ? "Prism Architect" : "Sovereign Discernor";
   const syncLevel = !user ? "Seeking Neural Anchor..." : isPaid ? "Sync: Absolute" : "Sync Level: Processing";
 
-  const catchphrases = ["INTEL SECURED!", "OBJECTIVE CAPTURED!", "NEURAL SYNC: 100%", "DATA STREAM PURIFIED!", "FOCUS ANCHORED!"];
-  const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
-
-  const brainPulseDuration = input.length > 500 ? 0.5 : input.length > 100 ? 1 : 3;
-
   const fileInputRef = useRef<HTMLInputElement>(null);
   const themeMenuRef = useRef<HTMLDivElement>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -268,48 +292,29 @@ export default function Home() {
   const handleChat = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || chatLoading) return;
-    const userMsg = chatInput;
-    setChatInput('');
-    setChatHistory(prev => [...prev, { role: 'user', text: userMsg }]);
+    const userMsg = chatInput; setChatInput(''); setChatHistory(prev => [...prev, { role: 'user', text: userMsg }]);
     setChatLoading(true);
     try {
       const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'chat', question: userMsg, context: data }) });
       const result = await res.json();
       setChatHistory(prev => [...prev, { role: 'ai', text: result.answer }]);
-      
-      if (user) {
-        await supabase.from('feedback_vault').insert({
-          user_id: user.id,
-          type: 'chat',
-          content: { question: userMsg, answer: result.answer, contextTitle: data?.tldr?.[0] || 'General Prism' }
-        });
-      }
+      if (user) { await supabase.from('feedback_vault').insert({ user_id: user.id, type: 'chat', content: { question: userMsg, answer: result.answer, contextTitle: data?.tldr?.[0] || 'General Prism' } }); }
     } catch (err) { setChatHistory(prev => [...prev, { role: 'ai', text: "The Filter is shaky, try again!" }]); } finally { setChatLoading(false); }
   };
 
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!feedbackInput.trim()) return;
+    e.preventDefault(); if (!feedbackInput.trim()) return;
     try {
-      const { error } = await supabase.from('feedback_vault').insert({
-        user_id: user?.id || null,
-        type: 'feedback',
-        content: { feedback: feedbackInput, timestamp: new Date().toISOString() }
-      });
-      if (error) throw error;
-      setFeedbackInput('');
-      setFeedbackSuccess(true);
+      const { error } = await supabase.from('feedback_vault').insert({ user_id: user?.id || null, type: 'feedback', content: { feedback: feedbackInput, timestamp: new Date().toISOString() } });
+      if (error) throw error; setFeedbackInput(''); setFeedbackSuccess(true);
       setTimeout(() => { setFeedbackSuccess(false); setShowFeedback(false); }, 2000);
     } catch (err) { alert("Feedback failed to cross the Prism."); }
   };
 
   const handleReadAloud = (text: string) => {
     if (isPlaying) { window.speechSynthesis.cancel(); setIsPlaying(false); return; }
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.onend = () => setIsPlaying(false);
-    utteranceRef.current = utterance;
-    setIsPlaying(true);
-    window.speechSynthesis.speak(utterance);
+    const utterance = new SpeechSynthesisUtterance(text); utterance.onend = () => setIsPlaying(false);
+    utteranceRef.current = utterance; setIsPlaying(true); window.speechSynthesis.speak(utterance);
   };
 
   const playClick = () => { try { const audio = new Audio('/audio/click.mp3'); audio.volume = 0.2; audio.play(); } catch(e) {} };
@@ -322,7 +327,7 @@ export default function Home() {
   const handleLogin = async () => { await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); };
   const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); setHistory([]); };
 
-  const handleReset = () => { setData(null); setCurrentChunk(-1); setInput(''); setChatHistory([]); };
+  const handleReset = () => { setData(null); setCurrentChunk(-1); setInput(''); setChatHistory([]); setRewardType('none'); };
 
   const playSuspenseSound = (variant = suspenseIdx) => {
     try {
@@ -330,32 +335,24 @@ export default function Home() {
       const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
       const progressions = [ [261.63, 329.63, 392.00, 523.25], [220.00, 261.63, 329.63, 440.00], [196.00, 246.94, 293.66, 392.00] ];
-      const notes = progressions[variant % 3]; 
-      
-      let nextNoteTime = ctx.currentTime;
+      const notes = progressions[variant % 3]; let nextNoteTime = ctx.currentTime;
       const scheduleNote = () => {
         while (nextNoteTime < ctx.currentTime + 0.1) {
           const osc = ctx.createOscillator(); const g = ctx.createGain();
           osc.type = variant === 1 ? 'triangle' : 'sine';
-          const freq = notes[Math.floor(Math.random() * notes.length)];
-          osc.frequency.setValueAtTime(freq, nextNoteTime);
-          
+          osc.frequency.setValueAtTime(notes[Math.floor(Math.random() * notes.length)], nextNoteTime);
           if (variant === 2) { 
             const mod = ctx.createOscillator(); const modG = ctx.createGain();
-            mod.frequency.setValueAtTime(freq * 2.5, nextNoteTime);
+            mod.frequency.setValueAtTime(osc.frequency.value * 2.5, nextNoteTime);
             modG.gain.setValueAtTime(200, nextNoteTime);
             mod.connect(modG); modG.connect(osc.frequency); mod.start(nextNoteTime); mod.stop(nextNoteTime + 1.5);
           }
-          
-          g.gain.setValueAtTime(0, nextNoteTime);
-          g.gain.linearRampToValueAtTime(variant === 2 ? 0.015 : 0.03, nextNoteTime + 0.1);
+          g.gain.setValueAtTime(0, nextNoteTime); g.gain.linearRampToValueAtTime(variant === 2 ? 0.015 : 0.03, nextNoteTime + 0.1);
           g.gain.exponentialRampToValueAtTime(0.001, nextNoteTime + (variant === 1 ? 2.5 : 1.5));
-          osc.connect(g); g.connect(ctx.destination);
-          osc.start(nextNoteTime); osc.stop(nextNoteTime + 3);
+          osc.connect(g); g.connect(ctx.destination); osc.start(nextNoteTime); osc.stop(nextNoteTime + 3);
           nextNoteTime += (variant === 1 ? 1.2 : 0.6);
         }
       };
-
       const intervalId = setInterval(scheduleNote, 25);
       noiseNodeRef.current = { disconnect: () => clearInterval(intervalId) };
     } catch (e) {}
@@ -373,10 +370,9 @@ export default function Home() {
           osc.type = 'sine'; osc.frequency.setValueAtTime(f, ctx.currentTime);
           const lfo = ctx.createOscillator(); lfo.frequency.setValueAtTime(0.5, ctx.currentTime);
           const lfoG = ctx.createGain(); lfoG.gain.setValueAtTime(0.3, ctx.currentTime);
-          lfo.connect(lfoG); lfoG.connect(g.gain);
-          g.gain.setValueAtTime(0, ctx.currentTime); g.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 2);
-          osc.connect(g); g.connect(ctx.destination);
-          lfo.start(); osc.start(); noiseNodeRef.current = osc;
+          lfo.connect(lfoG); lfoG.connect(g.gain); g.gain.setValueAtTime(0, ctx.currentTime);
+          g.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 2);
+          osc.connect(g); g.connect(ctx.destination); lfo.start(); osc.start(); noiseNodeRef.current = osc;
         });
       } else if (variant === 1) { 
         let nextDropTime = ctx.currentTime;
@@ -385,28 +381,22 @@ export default function Home() {
             const osc = ctx.createOscillator(); const g = ctx.createGain();
             osc.type = 'sine'; osc.frequency.setValueAtTime(Math.random() * 500 + 400, nextDropTime);
             osc.frequency.exponentialRampToValueAtTime(100, nextDropTime + 0.1);
-            g.gain.setValueAtTime(0.02, nextDropTime);
-            g.gain.exponentialRampToValueAtTime(0.001, nextDropTime + 0.1);
-            osc.connect(g); g.connect(ctx.destination);
-            osc.start(nextDropTime); osc.stop(nextDropTime + 0.1);
+            g.gain.setValueAtTime(0.02, nextDropTime); g.gain.exponentialRampToValueAtTime(0.001, nextDropTime + 0.1);
+            osc.connect(g); g.connect(ctx.destination); osc.start(nextDropTime); osc.stop(nextDropTime + 0.1);
             nextDropTime += 0.15;
           }
         };
         const intervalId = setInterval(scheduleDrop, 25);
         noiseNodeRef.current = { disconnect: () => clearInterval(intervalId) };
       } else { 
-        const bufferSize = ctx.sampleRate * 2;
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-        const noise = ctx.createBufferSource();
-        noise.buffer = buffer; noise.loop = true;
-        const filter = ctx.createBiquadFilter(); filter.type = 'lowpass';
+        const bufferSize = ctx.sampleRate * 2; const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const noise = ctx.createBufferSource(); noise.buffer = buffer; noise.loop = true;
+        const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(400, ctx.currentTime);
         const lfo = ctx.createOscillator(); lfo.frequency.setValueAtTime(0.3, ctx.currentTime);
         const lfoG = ctx.createGain(); lfoG.gain.setValueAtTime(300, ctx.currentTime);
         lfo.connect(lfoG); lfoG.connect(filter.frequency);
-        const gain = ctx.createGain();
-        gain.gain.setValueAtTime(0, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 2);
+        const gain = ctx.createGain(); gain.gain.setValueAtTime(0, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 2);
         noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
         lfo.start(); noise.start(); noiseNodeRef.current = noise;
       }
@@ -425,18 +415,10 @@ export default function Home() {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
       audioCtxRef.current = ctx;
-      const bufferSize = ctx.sampleRate * 2;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const output = buffer.getChannelData(0);
-      let lastOut = 0.0;
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        output[i] = (lastOut + (0.02 * white)) / 1.02;
-        lastOut = output[i];
-        output[i] *= 3.5;
-      }
-      const source = ctx.createBufferSource();
-      source.buffer = buffer; source.loop = true;
+      const bufferSize = ctx.sampleRate * 2; const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = buffer.getChannelData(0); let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; output[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = output[i]; output[i] *= 3.5; }
+      const source = ctx.createBufferSource(); source.buffer = buffer; source.loop = true;
       const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(400, ctx.currentTime);
       const gain = ctx.createGain(); gain.gain.setValueAtTime(0, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 1);
       source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
@@ -458,7 +440,6 @@ export default function Home() {
     playClick(); if (!textToSimplify.trim()) return; 
     const limit = user ? 15 : 5;
     if (usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
-    
     setLoading(true);
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
@@ -468,20 +449,17 @@ export default function Home() {
       if (user) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
       setUsageCount(prev => { const next = prev + 1; localStorage.setItem('dassahs_prism_usage', next.toString()); return next; });
       setCurrentChunk(-1);
-      } catch (err) { alert('The Prism encountered a storm!'); } finally { setLoading(false); }
+    } catch (err) { alert('The Prism encountered a storm!'); } finally { setLoading(false); }
   };
 
   const handleShare = async () => { 
-    if (!data) return; 
-    setIsSharing(true); 
+    if (!data) return; setIsSharing(true); 
     try { 
       const shareText = `I just crushed a massive document in ${data.readingTime} using Dassah's Prism. ⚡️ Sovereignty reclaimed.\n\nCheck out the Prism: ${window.location.origin}/?text=${encodeURIComponent(input.slice(0, 500))}`; 
-      await navigator.clipboard.writeText(shareText); 
-      alert("Viral share text copied! Go brag on TikTok or X! 🚀"); 
-    } catch (err) { 
-      alert("Could not create share link."); 
-    } finally { setIsSharing(false); } 
+      await navigator.clipboard.writeText(shareText); alert("Viral share text copied! Go brag on TikTok or X! 🚀"); 
+    } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); } 
   };
+
   const handleDownloadSummary = () => { if (!data) return; const content = `DASSAH'S PRISM SUMMARY\n\nTHE VISION:\n${data.whyCare}\n\nTL;DR:\n${data.tldr.map(t => `- ${t}`).join('\n')}\n\nFULL PRISM LINK: ${window.location.origin}/?text=${encodeURIComponent(input)}`; const blob = new Blob([content], { type: 'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `dassahs_prism-summary.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); };
 
   const handleFileUpload = async (e: any) => {
@@ -490,18 +468,13 @@ export default function Home() {
       if (file.name.endsWith('.pdf')) {
         const pdfjs = await import('pdfjs-dist');
         pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-        const arrayBuffer = await file.arrayBuffer();
-        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
-        const pdf = await loadingTask.promise;
-        let fullText = '';
+        const arrayBuffer = await file.arrayBuffer(); const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise; let fullText = '';
         for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const textContent = await page.getTextContent();
-          const strings = textContent.items.map((item: any) => (item as any).str);
-          fullText += strings.join(' ') + '\n';
+          const page = await pdf.getPage(i); const textContent = await page.getTextContent();
+          const strings = textContent.items.map((item: any) => (item as any).str); fullText += strings.join(' ') + '\n';
         }
-        if (fullText.trim()) setInput(fullText);
-        else throw new Error("Could not extract text from PDF.");
+        if (fullText.trim()) setInput(fullText); else throw new Error("Could not extract text from PDF.");
       } else {
         const formData = new FormData(); formData.append('file', file);
         const res = await fetch('/api/parse', { method: 'POST', body: formData });
@@ -517,23 +490,14 @@ export default function Home() {
       const penalty = currentChunk === data?.chunks.length ? 50 : (currentChunk + 1) * 5;
       if (confirm(`Wait! Breaking Hadassah's Lock now costs ${penalty} Dassah Points. Are you sure?`)) {
         setDassahPoints(prev => { const next = Math.max(0, prev - penalty); localStorage.setItem('dassah_points', next.toString()); return next; });
-        setIsZenLocked(false);
-        setIsGreyedOut(true);
-        setTimeout(() => setIsGreyedOut(false), 10000);
+        setIsZenLocked(false); setIsGreyedOut(true); setTimeout(() => setIsGreyedOut(false), 10000);
         if (document.fullscreenElement) document.exitFullscreen();
       }
-    } else {
-      setIsZenLocked(true);
-      document.documentElement.requestFullscreen().catch(() => {});
-    }
+    } else { setIsZenLocked(true); document.documentElement.requestFullscreen().catch(() => {}); }
   };
 
   const handleNext = () => {
-    if (data && currentChunk < data.chunks.length) { 
-      setCurrentChunk(c => c + 1); 
-      setRewardType('step'); 
-      setTimeout(() => setRewardType('none'), 2000); 
-    } 
+    if (data && currentChunk < data.chunks.length) { setCurrentChunk(c => c + 1); setRewardType('step'); setTimeout(() => setRewardType('none'), 2000); } 
     else if (data && currentChunk === data.chunks.length) {
       setRewardType('final'); setIsZenLocked(false); if (document.fullscreenElement) document.exitFullscreen();
       setDassahPoints(prev => { const next = prev + 10; localStorage.setItem('dassah_points', next.toString()); return next; });
@@ -548,15 +512,9 @@ export default function Home() {
       --color-text: ${currentTheme.text}; --color-accent: ${currentTheme.accent};
       --color-glass: ${currentTheme.glass}; --color-border: ${currentTheme.border};
       --color-shadow: ${currentTheme.shadow};
-      --bg-mesh: ${currentTheme.mesh};
-      --prism-1: ${currentTheme.prism[0]};
-      --prism-2: ${currentTheme.prism[1]};
-      --prism-3: ${currentTheme.prism[2]};
+      --prism-1: ${currentTheme.prism[0]}; --prism-2: ${currentTheme.prism[1]}; --prism-3: ${currentTheme.prism[2]};
     }
-    @keyframes prism-refract {
-      0% { background-position: -200% center; }
-      100% { background-position: 200% center; }
-    }
+    @keyframes prism-refract { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
     .prism-text {
       background: linear-gradient(110deg, var(--prism-1) 0%, var(--prism-2) 25%, #fff 50%, var(--prism-2) 75%, var(--prism-3) 100%);
       background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: prism-refract 4s linear infinite;
@@ -585,65 +543,34 @@ export default function Home() {
 
       <nav className={`fixed top-0 left-0 right-0 z-[110] p-2 md:p-4 flex justify-between items-center bg-[var(--color-glass)] backdrop-blur-md border-b border-[var(--color-border)] transition-all duration-500 ${isZenLocked ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'}`}>
         <div className="flex gap-1 md:gap-2 items-center sm:max-w-none">
-          <button
-            onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }}
-            title={focusMode === "sovereign" ? "Sovereign Mode (CEO)" : "Dastastic Mode (ADHD)"}
-            className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all flex items-center gap-2 ${focusMode === "sovereign" ? "bg-amber-600 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}
-          >
-            {focusMode === "sovereign" ? <Crown size={18}/> : <Zap size={18}/>}
-            <span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign (CEO)" : "Dastastic (ADHD)"}</span>
-          </button>
+          <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} title={focusMode === "sovereign" ? "Sovereign Mode (CEO)" : "Dastastic Mode (ADHD)"} className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all flex items-center gap-2 ${focusMode === "sovereign" ? "bg-amber-600 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}><AnimatePresence mode="wait"><motion.div key={focusMode} initial={{ scale: 0.5, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0.5, rotate: 90 }}>{focusMode === "sovereign" ? <Crown size={18}/> : <Zap size={18}/>}</motion.div></AnimatePresence><span className="hidden lg:block text-[9px] font-black uppercase tracking-widest">{focusMode === "sovereign" ? "Sovereign (CEO)" : "Dastastic (ADHD)"}</span></button>
           <div className="w-[1px] h-6 bg-[var(--color-border)] mx-1 self-center" />
           <button onClick={() => { playClick(); setShowHistory(true); }} className="p-2 md:p-4 bg-[var(--color-glass)] rounded-xl md:rounded-2xl border border-[var(--color-border)] text-slate-400 hover:text-blue-400 shadow-xl transition-all active:scale-90 flex-shrink-0"><Clock size={18}/></button>
           <div className="flex bg-[var(--color-glass)] p-1 rounded-xl md:rounded-2xl border border-[var(--color-border)] shadow-xl flex-shrink-0">
             <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading" className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><Type size={18}/></button>
-            {data && (
-              <button onClick={handleToggleZenLock} title={`Zen Lock Focus (Breaking costs ${(currentChunk === data?.chunks.length ? 50 : (currentChunk + 1) * 5)} points)`} className={`px-2 md:px-4 py-2 rounded-lg md:rounded-xl transition-all flex items-center gap-1 md:gap-2 ${isZenLocked ? 'bg-red-600 text-white shadow-lg animate-pulse' : 'text-slate-400 hover:text-white'}`}>
-                {isZenLocked ? <Crown size={16}/> : <Lock size={16}/>}
-                <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest hidden lg:block">{isZenLocked ? 'Locked' : 'Zen Lock'}</span>
-              </button>
-            )}
+            {data && (<button onClick={handleToggleZenLock} title={`Zen Lock Focus (Breaking costs ${(currentChunk === data?.chunks.length ? 50 : (currentChunk + 1) * 5)} points)`} className={`px-2 md:px-4 py-2 rounded-lg md:rounded-xl transition-all flex items-center gap-1 md:gap-2 ${isZenLocked ? 'bg-red-600 text-white shadow-lg animate-pulse' : 'text-slate-400 hover:text-white'}`}>{isZenLocked ? <Crown size={16}/> : <Lock size={16}/>}<span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest hidden lg:block">{isZenLocked ? 'Locked' : 'Zen Lock'}</span></button>)}
             <div className="flex items-center gap-0.5 md:gap-1 px-1 md:px-2 border-l border-[var(--color-border)] ml-0.5 md:ml-1">
               {[ {m:'none', i:<X size={10}/>, n:'Silent'}, {m:'brown', i:<Sun size={10}/>, n:'Prism Resonance'}, {m:'suspense', i:<Ghost size={10}/>, n:'Mozart Harmony'}, {m:'action', i:<Swords size={10}/>, n:'Zen Baroque'} ].map((s) => (
-                <button key={s.m} onClick={() => { playClick(); if (audioMode === s.m) { if (s.m === 'suspense') setSuspenseIdx(i => (i + 1) % 3); if (s.m === 'action') setActionIdx(i => (i + 1) % 3); } setAudioMode(s.m as any); }} title={s.n} className={`w-7 h-7 md:w-8 md:h-8 rounded-md md:rounded-lg flex items-center justify-center transition-all relative ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>
-                  {s.i}{audioMode === s.m && s.m !== 'none' && s.m !== 'brown' && (<span className="absolute -top-1 -right-1 text-[6px] font-black bg-white text-emerald-600 px-1 rounded-full">{(s.m === 'suspense' ? suspenseIdx : actionIdx) + 1}</span>)}
-                </button>
+                <button key={s.m} onClick={() => { playClick(); if (audioMode === s.m) { if (s.m === 'suspense') setSuspenseIdx(i => (i + 1) % 3); if (s.m === 'action') setActionIdx(i => (i + 1) % 3); } setAudioMode(s.m as any); }} title={s.n} className={`w-7 h-7 md:w-8 md:h-8 rounded-md md:rounded-lg flex items-center justify-center transition-all relative ${audioMode === s.m ? 'bg-emerald-600 text-white shadow-md' : 'bg-[var(--color-glass)] text-slate-500 hover:text-slate-300'}`}>{s.i}{audioMode === s.m && s.m !== 'none' && s.m !== 'brown' && (<span className="absolute -top-1 -right-1 text-[6px] font-black bg-white text-emerald-600 px-1 rounded-full">{(s.m === 'suspense' ? suspenseIdx : actionIdx) + 1}</span>)}</button>
               ))}
             </div>
           </div>
-          
           <div className="hidden lg:flex items-center bg-[var(--color-glass)] p-1.5 rounded-2xl border border-[var(--color-border)] shadow-xl ml-2 gap-1.5">
-            {Object.entries(THEMES).map(([id, t]) => (
-              <button 
-                key={id} 
-                onClick={() => { playClick(); setTheme(id as any); }} 
-                className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${theme === id ? 'border-white shadow-lg scale-110' : 'border-transparent opacity-40 hover:opacity-100'}`}
-                style={{ backgroundColor: t.accent }}
-                title={t.name}
-              />
-            ))}
+            {Object.entries(THEMES).map(([id, t]) => (<button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${theme === id ? 'border-white shadow-lg scale-110' : 'border-transparent opacity-40 hover:opacity-100'}`} style={{ backgroundColor: t.accent }} title={t.name} />))}
           </div>
-
           <div className="lg:hidden relative ml-1" ref={themeMenuRef}>
             <button onClick={(e) => { e.stopPropagation(); setShowThemeMenu(!showThemeMenu); }} className="bg-[var(--color-glass)] p-2.5 rounded-xl text-slate-400 border border-[var(--color-border)] shadow-xl hover:text-blue-400 transition-all"><Palette size={18} /></button>
             <AnimatePresence>{showThemeMenu && (<motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute right-0 top-full mt-4 bg-[var(--color-shadow)] backdrop-blur-3xl p-4 rounded-3xl border border-[var(--color-border)] shadow-2xl min-w-[200px] z-[120] grid grid-cols-2 gap-3"><div className="col-span-2 text-[8px] font-black uppercase tracking-widest text-slate-500 mb-2 px-2">Select Theme</div>{Object.entries(THEMES).map(([id, t]) => (<button key={id} onClick={() => { playClick(); setTheme(id as any); setShowThemeMenu(false); }} className={`flex items-center gap-3 p-3 rounded-2xl transition-all ${theme === id ? 'bg-white/10' : 'hover:bg-white/5'}`}><div className="w-4 h-4 rounded-full" style={{ backgroundColor: t.accent }} /><span className="text-[10px] font-black uppercase text-slate-300">{t.name}</span></button>))}</motion.div>)}</AnimatePresence>
           </div>
         </div>
-
         <div className="flex gap-2 items-center">
           <div className="hidden sm:flex flex-col items-end mr-4">
             <p className="text-white font-black text-[10px] uppercase tracking-widest">{callsign}</p>
             <p className="text-blue-400 font-bold text-[8px] uppercase tracking-tighter">{syncLevel}</p>
           </div>
-          <div className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] flex items-center gap-2 shadow-xl">
-            <Star className="text-amber-500 fill-amber-500" size={14}/>
-            <span className="font-black text-white text-[10px] md:text-xs">{dassahPoints}</span>
-          </div>
-          {user ? (
-            <button onClick={handleLogout} className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] text-[9px] md:text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Out</button>
-          ) : (
-            <button onClick={handleLogin} className="bg-[var(--color-accent)] hover:opacity-80 px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl text-white font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-[0_10px_25px_rgba(59,130,246,0.4)] transition-all active:scale-95">Join</button>
-          )}
+          <button onClick={() => setShowPaywall(true)} className={`p-2 rounded-xl transition-all ${isPaid ? "text-amber-400 bg-amber-400/10" : "text-slate-400 hover:text-white"}`}><Crown size={20}/></button>
+          <div className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] flex items-center gap-2 shadow-xl"><Star className="text-amber-500 fill-amber-500" size={14}/><span className="font-black text-white text-[10px] md:text-xs">{dassahPoints}</span></div>
+          {user ? (<button onClick={handleLogout} className="bg-[var(--color-glass)] px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl border border-[var(--color-border)] text-[9px] md:text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all">Out</button>) : (<button onClick={handleLogin} className="bg-[var(--color-accent)] hover:opacity-80 px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl text-white font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-[0_10px_25px_rgba(59,130,246,0.4)] transition-all active:scale-95">Join</button>)}
         </div>
       </nav>
 
@@ -676,23 +603,11 @@ export default function Home() {
                     { n: "01", t: "Neural Refraction", d: "Capture noise via 'Dastastic' (Dopamine-First) or 'Sovereign' (Executive-Sleek) modes. Our engine maps your chosen cognitive path instantly." },
                     { n: "02", t: "Executive Distillation", d: "The Magic: We strip the fluff, boiling down complex noise into high-impact maps for rapid, sovereign decision-making." },
                     { n: "03", t: "Cognitive Resonance", d: "The Flow: Integrated audio-visual synchronization and Zen-locked focus lock your brain into a state of divine clarity." }
-                  ].map((step, i) => (
-                    <motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3">
-                      <span className="text-4xl font-black text-blue-500/30 tracking-tight">{step.n}</span>
-                      <p className="text-white font-black uppercase text-sm tracking-widest">{step.t}</p>
-                      <p className="text-slate-500 text-sm font-medium">{step.d}</p>
-                    </motion.div>
-                  ))}
+                  ].map((step, i) => (<motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3"><span className="text-4xl font-black text-blue-500/30 tracking-tight">{step.n}</span><p className="text-white font-black uppercase text-sm tracking-widest">{step.t}</p><p className="text-slate-500 text-sm font-medium">{step.d}</p></motion.div>))}
                 </div>
               </div>
               <footer className="pt-12 flex flex-col sm:flex-row items-center justify-between gap-8 border-t border-white/10">
-                <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl"><span className="text-3xl font-black text-white italic">DJ</span></div>
-                  <div>
-                    <p className="text-white font-black uppercase text-sm tracking-widest">Founded by DJ</p>
-                    <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter flex items-center gap-2">DChan + JGitu <motion.div animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block"><Fish size={14} className="text-blue-500" /></motion.div> Rooted in Christ</p>
-                  </div>
-                </div>
+                <div className="flex items-center gap-6"><div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl"><span className="text-3xl font-black text-white italic">DJ</span></div><div><p className="text-white font-black uppercase text-sm tracking-widest">Founded by DJ</p><p className="text-slate-500 text-xs font-bold uppercase tracking-tighter flex items-center gap-2">DChan + JGitu <motion.div animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block"><Fish size={14} className="text-blue-500" /></motion.div> Rooted in Christ</p></div></div>
                 <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.5em] text-center sm:text-right">Dedicated to my forever partner and best friend, Dchan.</p>
               </footer>
             </div>
@@ -721,14 +636,11 @@ export default function Home() {
       )}</AnimatePresence>
 
       {!data ? (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24">
-          <header className="text-center space-y-6">
-            <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: brainPulseDuration, ease: "easeInOut" }} className="mx-auto w-28 h-28 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-400 text-white rounded-[2.5rem] md:rounded-[4rem] flex items-center justify-center shadow-[0_25px_60px_rgba(59,130,246,0.4)] border-2 border-white/20 relative">
-              <Brain className="w-16 h-16 md:w-20 md:h-20" />
-              <NeuralSparks active={loading} />
-            </motion.div>
-            <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tighter italic text-center">Dassah's <span className="prism-text">Prism</span></h1>
-            <p className="text-lg md:text-xl text-blue-400/80 font-bold italic tracking-tight text-center">"Turn overwhelming noise into clear focus in seconds."</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24 pb-20">
+          <header className="text-center space-y-8 relative">
+            <LivingBrain loading={loading} inputLength={input.length} isVictorious={false} user={user} />
+            <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tighter italic">Dassah's <span className="prism-text">Prism</span></h1>
+            <p className="text-lg md:text-xl text-blue-400/80 font-bold italic tracking-tight">"Turn overwhelming noise into clear focus in seconds."</p>
           </header>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto opacity-60 hover:opacity-100 transition-opacity">
             <div className="bg-black/20 p-6 rounded-[2rem] border border-white/5 space-y-3"><p className="text-[8px] uppercase tracking-widest text-slate-500 font-black">The Noise</p><p className="text-xs text-slate-500 leading-relaxed">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text.</p></div>
@@ -759,7 +671,7 @@ export default function Home() {
             {currentChunk === -1 ? (
               <motion.div key="summary" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] space-y-12 shadow-2xl"><div className="flex items-center justify-between"><div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center gap-3"><Rocket size={18}/> Saved {data.readingTime}</div><button onClick={handleReset} className="p-5 bg-[var(--color-glass)] rounded-3xl text-slate-500 hover:text-red-400 transition-all"><X size={24}/></button></div><div className="space-y-8"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2><p className="text-4xl md:text-5xl font-black leading-[1.1] text-white tracking-tight">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div><div className="space-y-10">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-[var(--color-glass)] text-blue-400 flex items-center justify-center font-black mr-8 border border-[var(--color-border)] group-hover:border-blue-500/50 transition-all text-lg">{i + 1}</span><p className="text-xl md:text-2xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div><button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Prism <ArrowRight className="inline ml-4"/></button></motion.div>
             ) : currentChunk === data.chunks.length ? (
-              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={handleShare} className="flex-1 p-6 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-[2rem] text-slate-400 hover:text-white transition-all flex items-center justify-center gap-3 font-black uppercase text-sm tracking-widest"><Share2 size={24}/> {isSharing ? 'Copying...' : 'Share the Prism'}</button><button onClick={() => { playClick(); handleNext(); }} className="flex-[2] bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button></div></motion.div>
+              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={handleShare} className="flex-1 p-6 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-[2rem] text-slate-400 hover:text-white transition-all flex items-center justify-center gap-3 font-black uppercase text-sm tracking-widest"><Share2 size={24}/> {isSharing ? 'Copying...' : 'Share the Prism'}</button><button onClick={() => { playClick(); handleNext(); }} className="flex-[2] bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button></div></motion.div>
             ) : (
               <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden"><div className="absolute top-10 left-10 flex items-center gap-4"><div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div><button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button></div><h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2><div className="space-y-8 flex-grow"><div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>{data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}<div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="bg-amber-500/5 p-6 rounded-[2rem] border border-amber-500/10 space-y-3"><div className="flex items-center gap-2 text-amber-500 font-black uppercase tracking-widest text-[10px]"><Zap size={14}/> Dopamine Hook</div><p className="text-lg font-bold text-amber-200/80 italic">"{data.chunks[currentChunk].dopamineHook}"</p></div><div className="bg-purple-500/5 p-6 rounded-[2rem] border border-purple-500/10 space-y-3"><div className="flex items-center gap-2 text-purple-400 font-black uppercase tracking-widest text-[10px]"><Sparkle size={14}/> Metaphor</div><p className="text-lg font-bold text-purple-200/80 italic">"{data.chunks[currentChunk].metaphor}"</p></div></div></div><div className="mt-12 flex justify-between items-center"><button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all">Back</button><button onClick={handleNext} className="bg-white text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Next Step' : 'Next Segment'}</button></div>{data.chunks[currentChunk].metaphor && (<div className="bg-white/5 border-t border-white/10 p-10 md:p-16 flex flex-col md:flex-row gap-10"><div className="flex-1 space-y-4"><div className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-xs"><Brain size={18} /> The Metaphor</div><p className="text-xl text-slate-400 italic font-medium leading-relaxed">"{data.chunks[currentChunk].metaphor}"</p></div><div className="flex-1 space-y-4"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><Sparkles size={18} /> Dopamine Hook</div><p className="text-xl text-slate-300 font-black tracking-tight">{data.chunks[currentChunk].dopamineHook}</p></div></div>)}</motion.div>
             )}
@@ -789,11 +701,9 @@ export default function Home() {
       <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-[var(--color-shadow)] backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={18}/></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all active:scale-90 border-2 border-white/20"><MessageCircle size={28}/></button></div>)}</AnimatePresence>
       
       <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
-        <p className="text-white font-black uppercase text-[10px] tracking-[0.4em]">Founded by DJ</p>
-        <p className="text-slate-500 text-[8px] font-bold uppercase tracking-[0.2em] flex items-center gap-3 justify-center">
-          DChan + JGitu <Fish size={12} className="text-blue-500" /> Rooted in Christ
-        </p>
+        <div className="flex items-center gap-6"><div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl"><span className="text-xl font-black text-white italic">DJ</span></div><div><p className="text-white font-black uppercase text-[10px] tracking-[0.4em]">Founded by DJ</p><p className="text-slate-500 text-[8px] font-bold uppercase tracking-[0.2em] flex items-center gap-3 justify-center">DChan + JGitu <Fish size={12} className="text-blue-500" /> Rooted in Christ</p></div></div>
         <p className="text-slate-600 text-[8px] font-black uppercase tracking-[0.5em]">Dedicated to Dchan.</p>
+        <button onClick={() => setShowAbout(true)} className="mt-4 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
       </footer>
     </main></>);
 }
