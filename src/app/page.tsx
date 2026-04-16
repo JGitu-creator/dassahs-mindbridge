@@ -439,7 +439,9 @@ export default function Home() {
     playClick(); if (!textToSimplify.trim()) return; 
     const limit = user ? 15 : 5;
     if (usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
+    
     setLoading(true);
+    setData(null); // CLEAR PREVIOUS DATA TO FORCE NEW DISCERNMENT UI
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
       const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify, isScenic, cognitiveMode }) });
@@ -517,7 +519,13 @@ export default function Home() {
     @keyframes prism-refract { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
     .prism-text {
       background: linear-gradient(110deg, var(--prism-1) 0%, var(--prism-2) 25%, #fff 50%, var(--prism-2) 75%, var(--prism-3) 100%);
-      background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: prism-refract 4s linear infinite;
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: prism-refract 4s linear infinite;
+      display: inline-block;
+      padding-right: 0.05em;
     }
     .refractive-border {
       background: var(--color-shadow); border: 2px solid transparent; background-clip: padding-box; position: relative;
