@@ -665,7 +665,7 @@ export default function Home() {
                 </motion.div>
                 <motion.div style={{ x: (mousePos.x - 1000) * 0.03, y: (mousePos.y - 500) * 0.03 }} className="space-y-6 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 italic">
                   <p className="text-blue-400 font-black uppercase text-xs tracking-widest mb-4">The Origin</p>
-                  <p className="text-slate-400">"It started as a joke during a conversation about how much I suffered trying to read or concentrate. My cousin and most loving mentor, <span className="text-white font-bold">Dr. Kizzie Shako</span>, looked at me and said: <span className="text-blue-400 uppercase font-black tracking-tight">'Then do something about it.'</span>"</p>
+                  <p className="text-slate-400">"It started after a long, transformative talk with my brother, longest friend, and ultimate support system, <span className="text-white font-bold">Eng. Jimmy Njuguna</span>, who challenged me to use my tech knowledge for a greater purpose. That spark was ignited when my cousin and mentor, <span className="text-white font-bold">Dr. Kizzie Shako</span>, looked at my struggle and said: <span className="text-blue-400 uppercase font-black tracking-tight">'Then do something about it.'</span>"</p>
                   <p className="text-slate-400 mt-4">— And so, the Dastastic Prism was built.</p>
                 </motion.div>
               </div>
