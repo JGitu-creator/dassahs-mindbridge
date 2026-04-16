@@ -707,9 +707,9 @@ export default function Home() {
                 <h3 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-4"><Zap size={24} className="text-amber-500" /> The Methodology</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {[
-                    { n: "01", t: "Neural Refraction", d: "Capture overwhelming noise via 'Dastastic Mode'. Our engine instantly maps cognitive load for immediate dopamine alignment." },
-                    { n: "02", t: "Executive Distillation", d: "Sovereign-Streamlined logic. We strip the fluff, delivering high-impact executive summaries for rapid, sovereign decision-making." },
-                    { n: "03", t: "Cognitive Resonance", d: "The final flow state. Integrated audio-visual synchronization that locks your focus into a state of divine clarity." }
+                    { n: "01", t: "Neural Refraction", d: "Capture noise via 'Dastastic' (Dopamine-First) or 'Sovereign' (Executive-Sleek) modes. Our engine maps your chosen cognitive path instantly." },
+                    { n: "02", t: "Executive Distillation", d: "The Magic: We strip the fluff, boiling down complex noise into high-impact maps for rapid, sovereign decision-making." },
+                    { n: "03", t: "Cognitive Resonance", d: "The Flow: Integrated audio-visual synchronization and Zen-locked focus lock your brain into a state of divine clarity." }
                   ].map((step, i) => (                    <motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3">
                       <span className="text-4xl font-black text-blue-500/30 tracking-tight">{step.n}</span>
                       <p className="text-white font-black uppercase text-sm tracking-widest">{step.t}</p>
@@ -775,6 +775,21 @@ export default function Home() {
               <p className="text-lg md:text-xl text-blue-400/80 font-bold italic tracking-tight">"Turn overwhelming noise into clear focus in seconds."</p>
             </div>
           </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto opacity-60 hover:opacity-100 transition-opacity">
+            <div className="bg-black/20 p-6 rounded-[2rem] border border-white/5 space-y-3">
+              <p className="text-[8px] uppercase tracking-widest text-slate-500 font-black">The Noise</p>
+              <p className="text-xs text-slate-500 leading-relaxed">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text.</p>
+            </div>
+            <div className="bg-blue-500/5 p-6 rounded-[2rem] border border-blue-500/10 space-y-3 relative overflow-hidden">
+              <div className="absolute top-2 right-4 animate-pulse"><Sparkle size={10} className="text-blue-400" /></div>
+              <p className="text-[8px] uppercase tracking-widest text-blue-400 font-black">The Clarity</p>
+              <p className="text-xs text-slate-300 leading-relaxed font-bold">
+                <span className="text-white font-black">Thi</span>s <span className="text-white font-black">i</span>s <span className="text-white font-black">a</span> <span className="text-white font-black">shor</span>t, <span className="text-white font-black">Bioni</span>c <span className="text-white font-black">pat</span>h. <span className="text-white font-black">You</span>r <span className="text-white font-black">brai</span>n <span className="text-white font-black">lock</span>s <span className="text-white font-black">i</span>n <span className="text-white font-black">instan</span>tly.
+              </p>
+            </div>
+          </div>
+
           <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/10 p-3 shadow-2xl overflow-hidden relative group focus-within:border-blue-500/50 transition-all">
             {showNeuroMirror ? (
               <div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto"><NeuroMirrorText text={input || "Paste some text..."} /></div>
