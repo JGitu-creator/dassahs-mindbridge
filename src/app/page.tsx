@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
-  Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun
+  Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
