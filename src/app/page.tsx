@@ -10,7 +10,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
-type Theme = 'midnight' | 'emerald' | 'sunset' | 'nebula' | 'ghost' | 'pearl' | 'rose' | 'celestial' | 'iron' | 'eternal';
+type Theme = 'midnight' | 'emerald' | 'sunset' | 'nebula' | 'ghost' | 'ruby' | 'rose' | 'celestial' | 'iron' | 'eternal';
 
 interface ThemeConfig {
   name: string;
@@ -62,13 +62,13 @@ const THEMES: Record<Theme, ThemeConfig> = {
     shadow: 'rgba(0,0,0,0.8)', mesh: 'rgba(255, 255, 255, 0.05)',
     prism: ['#ffffff', '#888888', '#444444']
   },
-  pearl: {
-    name: 'Pearl Wisdom',
-    c1: '#f8fafc', c2: '#e2e8f0',
-    text: '#0f172a', accent: '#3b82f6',
-    glass: 'rgba(255, 255, 255, 0.7)', border: 'rgba(59, 130, 246, 0.2)',
-    shadow: 'rgba(0,0,0,0.1)', mesh: 'rgba(59, 130, 246, 0.05)',
-    prism: ['#3b82f6', '#60a5fa', '#93c5fd']
+  ruby: {
+    name: 'Crimson Grace',
+    c1: '#450a0a', c2: '#1a0505',
+    text: '#fef2f2', accent: '#ef4444',
+    glass: 'rgba(153, 27, 27, 0.4)', border: 'rgba(239, 68, 68, 0.2)',
+    shadow: 'rgba(69, 10, 10, 0.6)', mesh: 'rgba(239, 68, 68, 0.15)',
+    prism: ['#ef4444', '#f87171', '#991b1b']
   },
   rose: {
     name: 'Rose Anointing',
