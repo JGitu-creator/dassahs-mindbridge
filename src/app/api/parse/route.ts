@@ -13,40 +13,23 @@ export async function POST(req: NextRequest) {
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
+    const buffer = Buffer.from(arrayBuffer);
     let text = '';
 
     if (file.name.endsWith('.pdf')) {
       try {
-        // Use pdfjs-dist which is already in package.json and better for ESM/Vercel
-        const pdfjs = require('pdfjs-dist/legacy/build/pdf.js');
-        
-        const loadingTask = pdfjs.getDocument({
-          data: uint8Array,
-          disableWorker: true,
-          verbosity: 0
-        });
-        
-        const pdf = await loadingTask.promise;
-        let fullText = '';
-        
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const textContent = await page.getTextContent();
-          const strings = textContent.items.map((item: any) => item.str);
-          fullText += strings.join(' ') + '\n';
-        }
-        
-        text = fullText;
+        // Use standard pdf-parse with direct buffer to avoid worker issues
+        const pdf = require('pdf-parse');
+        const data = await pdf(buffer);
+        text = data.text;
       } catch (pdfErr: any) {
         console.error('PDF Parse Error:', pdfErr);
-        throw new Error(`PDF Parsing failed: ${pdfErr.message}.`);
+        throw new Error(`PDF Parsing failed: ${pdfErr.message}`);
       }
     } else if (file.name.endsWith('.docx')) {
-      const result = await mammoth.extractRawText({ arrayBuffer });
+      const result = await mammoth.extractRawText({ buffer });
       text = result.value;
     } else {
-      const buffer = Buffer.from(arrayBuffer);
       text = buffer.toString('utf-8');
     }
 
