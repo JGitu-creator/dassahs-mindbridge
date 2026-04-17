@@ -175,7 +175,7 @@ const NeuroMirrorText = ({ text }: { text: string }) => {
   );
 };
 
-const ContextAnchor = ({ whyCare, isZenLocked }: { whyCare: string, isZenLocked: boolean }) => {
+const ContextAnchor = ({ whyCare, isZenLocked, segmentIdx }: { whyCare: string, isZenLocked: boolean, segmentIdx: number }) => {
   return (
     <motion.div 
       initial={{ y: -20, opacity: 0 }}
@@ -183,13 +183,23 @@ const ContextAnchor = ({ whyCare, isZenLocked }: { whyCare: string, isZenLocked:
       exit={{ y: -20, opacity: 0 }}
       className={`fixed ${isZenLocked ? 'top-8' : 'top-24'} left-1/2 -translate-x-1/2 z-[105] w-full max-w-lg px-4 pointer-events-none transition-all duration-700`}
     >
-      <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-3 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto flex items-center gap-4">
-        <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
-          <Anchor size={14} />
+      <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto flex items-center gap-6">
+        <div className="relative">
+          <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
+          <div className="relative p-3 rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-500/20 shadow-lg">
+            <Anchor size={16} />
+          </div>
         </div>
         <div className="flex-grow">
-          <p className="text-[7px] font-black uppercase tracking-[0.4em] text-blue-400/60 leading-none mb-1">Mission Anchor</p>
-          <p className="text-[10px] font-bold text-slate-300 leading-tight line-clamp-1">{whyCare}</p>
+          <div className="flex justify-between items-center mb-1">
+            <p className="text-[7px] font-black uppercase tracking-[0.4em] text-blue-400/60 leading-none">Mission Anchor {segmentIdx + 1}</p>
+            <div className="flex gap-1">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className={`w-1 h-1 rounded-full ${i === segmentIdx % 3 ? 'bg-blue-400 animate-pulse' : 'bg-white/10'}`} />
+              ))}
+            </div>
+          </div>
+          <p className="text-[11px] font-bold text-slate-100 leading-tight italic line-clamp-2">"{whyCare}"</p>
         </div>
       </div>
     </motion.div>
@@ -488,6 +498,61 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
   );
 };
 
+const SovereignAgreement = ({ onAccept, onCancel }: { onAccept: () => void, onCancel: () => void }) => {
+  return (
+    <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1000] flex items-center justify-center p-4 overflow-y-auto">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="max-w-2xl w-full bg-slate-900 border-2 border-blue-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.2)] space-y-8 my-auto"
+      >
+        <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-widest text-xs">
+          <Shield size={20} /> Sovereign Agreement
+        </div>
+        
+        <h2 className="text-3xl md:text-4xl font-black text-white italic leading-tight">Neural Guardrails & Legal Handshake</h2>
+        
+        <div className="space-y-6 text-slate-300 overflow-y-auto max-h-[50vh] pr-4 no-scrollbar">
+          <div className="space-y-2">
+            <h3 className="text-white font-black uppercase text-[10px] tracking-widest">1. The "Sensitive Data" Shield</h3>
+            <p className="text-sm leading-relaxed text-blue-100">Neural Guardrails: Do not input highly sensitive data (e.g., SSNs, passwords, or private health records). We are not liable for the exposure of data you choose to provide.</p>
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="text-white font-black uppercase text-[10px] tracking-widest">2. Third-Party Handshake</h3>
+            <p className="text-sm leading-relaxed text-blue-100">Data Processing: Your inputs are processed via Google's Gemini models to provide clarity. By using the Prism, you agree to their standard data handling protocols.</p>
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="text-white font-black uppercase text-[10px] tracking-widest">3. "As-Is" Liability</h3>
+            <p className="text-sm leading-relaxed text-blue-100">Limitation of Liability: Dassah's Prism is provided "as is" without warranties. The creators shall not be liable for any direct or indirect damages resulting from your use of this tool.</p>
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="text-white font-black uppercase text-[10px] tracking-widest">4. GDPR/CCPA Compliance</h3>
+            <p className="text-sm leading-relaxed text-blue-100">Users have the "Right to Erasure" (to have their data deleted) and we never sell your neural profile to third parties.</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <button 
+            onClick={onAccept}
+            className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-2xl font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-blue-500/20"
+          >
+            I Accept the Handshake
+          </button>
+          <button 
+            onClick={onCancel}
+            className="px-8 py-5 text-slate-500 font-black uppercase tracking-widest hover:text-white transition-colors"
+          >
+            Decline
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 export default function Home() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -517,6 +582,8 @@ export default function Home() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [showNeuralCommand, setShowNeuralCommand] = useState(false);
   const [showNeuralIdentity, setShowNeuralIdentity] = useState(false);
+  const [showTOS, setShowTOS] = useState(false);
+  const [acceptedTOS, setAcceptedTOS] = useState(false);
   const [starredItems, setStarredItems] = useState<{heading: string, content: string, type: 'metaphor' | 'hook'}[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -929,13 +996,22 @@ export default function Home() {
       
       <AnimatePresence>
         {data && currentChunk >= 0 && currentChunk < data.chunks.length && (
-          <ContextAnchor whyCare={data.whyCare} isZenLocked={isZenLocked} />
+          <ContextAnchor whyCare={data.whyCare} isZenLocked={isZenLocked} segmentIdx={currentChunk} />
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showBreak && (
           <NeuralReset onComplete={() => { playClick(); setShowBreak(false); }} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showTOS && (
+          <SovereignAgreement 
+            onAccept={() => { playClick(); setAcceptedTOS(true); setShowTOS(false); handleLogin(); }}
+            onCancel={() => { playClick(); setShowTOS(false); }}
+          />
         )}
       </AnimatePresence>
 
@@ -1274,7 +1350,45 @@ export default function Home() {
                   <div className="pt-8">
                     <ProgressPrism current={currentChunk} total={data.chunks.length} />
                   </div>
-                  {data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}<div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="bg-amber-500/5 p-6 rounded-[2rem] border border-amber-500/10 space-y-3"><div className="flex items-center gap-2 text-amber-500 font-black uppercase tracking-widest text-[10px]"><Zap size={14}/> Dopamine Hook</div><p className="text-lg font-bold text-amber-200/80 italic">"{data.chunks[currentChunk].dopamineHook}"</p></div><div className="bg-purple-500/5 p-6 rounded-[2rem] border border-purple-500/10 space-y-3"><div className="flex items-center gap-2 text-purple-400 font-black uppercase tracking-widest text-[10px]"><Sparkle size={14}/> Metaphor</div><p className="text-lg font-bold text-purple-200/80 italic">"{data.chunks[currentChunk].metaphor}"</p></div></div></div><div className="mt-12 flex justify-between items-center"><button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all">Back</button><button onClick={handleNext} className="bg-white text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Next Step' : 'Next Segment'}</button></div>{data.chunks[currentChunk].metaphor && (<div className="bg-white/5 border-t border-white/10 p-10 md:p-16 flex flex-col md:flex-row gap-10"><div className="flex-1 space-y-4"><div className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-xs"><Brain size={18} /> The Metaphor</div><p className="text-xl text-slate-400 italic font-medium leading-relaxed">"{data.chunks[currentChunk].metaphor}"</p></div><div className="flex-1 space-y-4"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><Sparkles size={18} /> Dopamine Hook</div><p className="text-xl text-slate-300 font-black tracking-tight">{data.chunks[currentChunk].dopamineHook}</p></div></div>)}</motion.div>
+                  {data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-amber-500/5 p-8 rounded-[2.5rem] border-2 border-amber-500/10 space-y-4 relative group/card overflow-hidden">
+                      <div className="absolute -right-4 -top-4 opacity-5 group-hover/card:scale-110 group-hover/card:rotate-12 transition-transform duration-700 text-amber-500">
+                        <Rocket size={120} />
+                      </div>
+                      <div className="flex justify-between items-center relative z-10">
+                        <div className="flex items-center gap-3 text-amber-500 font-black uppercase tracking-[0.2em] text-[10px]"><Rocket size={16} className="animate-pulse" /> Dopamine Hook</div>
+                        <button 
+                          onClick={() => handleToggleStar({ heading: 'Dopamine Hook', content: data.chunks[currentChunk].dopamineHook, type: 'hook' })}
+                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook) ? 'bg-amber-500 text-white scale-110 shadow-amber-500/40' : 'bg-white/5 text-slate-500 hover:text-amber-400 hover:bg-white/10'}`}
+                        >
+                          <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook) ? "currentColor" : "none"} />
+                        </button>
+                      </div>
+                      <p className="text-xl md:text-2xl font-black text-amber-100 italic leading-tight relative z-10">"{data.chunks[currentChunk].dopamineHook}"</p>
+                    </div>
+                    
+                    <div className="bg-purple-500/5 p-8 rounded-[2.5rem] border-2 border-purple-500/10 space-y-4 relative group/card overflow-hidden">
+                      <div className="absolute -right-4 -top-4 opacity-5 group-hover/card:scale-110 group-hover/card:rotate-[-12deg] transition-transform duration-700 text-purple-500">
+                        <Brain size={120} />
+                      </div>
+                      <div className="flex justify-between items-center relative z-10">
+                        <div className="flex items-center gap-3 text-purple-400 font-black uppercase tracking-[0.2em] text-[10px]"><Brain size={16} /> The Metaphor</div>
+                        <button 
+                          onClick={() => handleToggleStar({ heading: 'The Metaphor', content: data.chunks[currentChunk].metaphor, type: 'metaphor' })}
+                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].metaphor) ? 'bg-purple-600 text-white scale-110 shadow-purple-500/40' : 'bg-white/5 text-slate-500 hover:text-purple-400 hover:bg-white/10'}`}
+                        >
+                          <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].metaphor) ? "currentColor" : "none"} />
+                        </button>
+                      </div>
+                      <p className="text-xl md:text-2xl font-black text-purple-100 italic leading-tight relative z-10">"{data.chunks[currentChunk].metaphor}"</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-12 flex justify-between items-center">
+                  <button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all">Back</button>
+                  <button onClick={handleNext} className="bg-white text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Next Step' : 'Next Segment'}</button>
+                </div>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -1330,3 +1444,4 @@ export default function Home() {
     </main></>
   );
 }
+
