@@ -677,7 +677,7 @@ export default function Home() {
   const [showNeuralIdentity, setShowNeuralIdentity] = useState(false);
   const [showTOS, setShowTOS] = useState(false);
   const [acceptedTOS, setAcceptedTOS] = useState(false);
-  const [linkState, setLinkState] = useState<'pending' | 'syncing' | 'established' | 'severed'>('pending');
+  const [linkState, setLinkState] = useState<'pending' | 'syncing' | 'revealing' | 'established' | 'severed'>('pending');
   const [syncProgress, setSyncProgress] = useState(0);
   const [starredItems, setStarredItems] = useState<{heading: string, content: string, type: 'metaphor' | 'hook'}[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
