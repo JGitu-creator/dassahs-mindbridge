@@ -619,11 +619,25 @@ export default function Home() {
   const handleToggleStar = (item: {heading: string, content: string, type: 'metaphor' | 'hook'}) => {
     playClick();
     setStarredItems(prev => {
-      const exists = prev.find(i => i.content === item.content);
-      if (exists) return prev.filter(i => i.content !== item.content);
+      const exists = prev.find(i => i.content === item.content && i.type === item.type);
+      if (exists) return prev.filter(i => !(i.content === item.content && i.type === item.type));
       return [...prev, item];
     });
   };
+
+  useEffect(() => {
+    const checkTOS = async () => {
+      const accepted = localStorage.getItem('dassahs_prism_tos_accepted') === 'true';
+      setAcceptedTOS(accepted);
+      
+      if (!accepted) {
+        setShowTOS(true);
+        // Force logout if they haven't accepted the new terms yet
+        await supabase.auth.signOut();
+      }
+    };
+    checkTOS();
+  }, []);
 
   const [feedbackInput, setFeedbackInput] = useState('');
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
@@ -713,6 +727,10 @@ export default function Home() {
   };
 
   const handleLogin = async () => { 
+    if (!acceptedTOS) {
+      setShowTOS(true);
+      return;
+    }
     await supabase.auth.signInWithOAuth({ 
       provider: 'google', 
       options: { 
@@ -991,7 +1009,8 @@ export default function Home() {
   return (
     <>
       <style>{themeStyles}</style>
-      <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)`, color: 'var(--color-text)' }}>
+      <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
+      <div className="fixed inset-0 -z-10 transition-colors duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
       <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
       
       <AnimatePresence>
@@ -1009,7 +1028,13 @@ export default function Home() {
       <AnimatePresence>
         {showTOS && (
           <SovereignAgreement 
-            onAccept={() => { playClick(); setAcceptedTOS(true); setShowTOS(false); handleLogin(); }}
+            onAccept={() => { 
+              playClick(); 
+              localStorage.setItem('dassahs_prism_tos_accepted', 'true');
+              setAcceptedTOS(true); 
+              setShowTOS(false); 
+              handleLogin(); 
+            }}
             onCancel={() => { playClick(); setShowTOS(false); }}
           />
         )}
@@ -1359,9 +1384,9 @@ export default function Home() {
                         <div className="flex items-center gap-3 text-amber-500 font-black uppercase tracking-[0.2em] text-[10px]"><Rocket size={16} className="animate-pulse" /> Dopamine Hook</div>
                         <button 
                           onClick={() => handleToggleStar({ heading: 'Dopamine Hook', content: data.chunks[currentChunk].dopamineHook, type: 'hook' })}
-                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook) ? 'bg-amber-500 text-white scale-110 shadow-amber-500/40' : 'bg-white/5 text-slate-500 hover:text-amber-400 hover:bg-white/10'}`}
+                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook && i.type === 'hook') ? 'bg-amber-500 text-white scale-110 shadow-amber-500/40' : 'bg-white/5 text-slate-500 hover:text-amber-400 hover:bg-white/10'}`}
                         >
-                          <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook) ? "currentColor" : "none"} />
+                          <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook && i.type === 'hook') ? "currentColor" : "none"} />
                         </button>
                       </div>
                       <p className="text-xl md:text-2xl font-black text-amber-100 italic leading-tight relative z-10">"{data.chunks[currentChunk].dopamineHook}"</p>
@@ -1375,9 +1400,9 @@ export default function Home() {
                         <div className="flex items-center gap-3 text-purple-400 font-black uppercase tracking-[0.2em] text-[10px]"><Brain size={16} /> The Metaphor</div>
                         <button 
                           onClick={() => handleToggleStar({ heading: 'The Metaphor', content: data.chunks[currentChunk].metaphor, type: 'metaphor' })}
-                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].metaphor) ? 'bg-purple-600 text-white scale-110 shadow-purple-500/40' : 'bg-white/5 text-slate-500 hover:text-purple-400 hover:bg-white/10'}`}
+                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? 'bg-purple-600 text-white scale-110 shadow-purple-500/40' : 'bg-white/5 text-slate-500 hover:text-purple-400 hover:bg-white/10'}`}
                         >
-                          <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].metaphor) ? "currentColor" : "none"} />
+                          <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? "currentColor" : "none"} />
                         </button>
                       </div>
                       <p className="text-xl md:text-2xl font-black text-purple-100 italic leading-tight relative z-10">"{data.chunks[currentChunk].metaphor}"</p>
