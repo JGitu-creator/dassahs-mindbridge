@@ -31,19 +31,23 @@ DEEP DISCERNMENT PROTOCOL:
 First, analyze the nature of the INPUT. Categorize it as one of the following and adjust the refraction style accordingly:
 
 1. LEGAL/CONTRACTUAL: If the input is an agreement, lease, or legal document:
-   - DO NOT over-simplify vital clauses.
-   - Maintain precision of specific terms.
-   - Use the "content" sections to explain the clause in plain English while keeping the vital legal details intact.
-   - Target: 100% Protection/No missed details.
+   - DO NOT over-simplify vital clauses. Maintain precision of specific terms.
+   - Target: 100% Protection.
 
 2. EDUCATIONAL/TECHNICAL: If the input is a school project, concept, or technical guide:
-   - Prioritize "Concept Anchoring."
-   - Ensure the "content" explains the *mechanism* and *why* it works.
-   - Use segments to build knowledge from simple to complex.
+   - Prioritize "Concept Anchoring" and explaining the *mechanism* (the "How").
    - Target: Total Mastery.
 
-3. LITERARY/CASUAL: If the input is a book, article, or story:
-   - Use "Dastastic Mode."
+3. BUSINESS/CORPORATE: If the input is an email, memo, Slack thread, or report:
+   - Prioritize "The Bottom Line" and "Primary Request."
+   - Identify implicit deadlines and stakeholders.
+   - Target: Professional Sovereignty.
+
+4. MEDICAL/HEALTH: If the input is a lab result, doctor's note, or health guide:
+   - Prioritize "Next Steps," "Symptom Context," and "Deciphering Jargon."
+   - Target: Health Agency.
+
+5. LITERARY/CASUAL: If the input is a book, article, or story:
    - Focus on high-speed clarity, emotional "Aha!" moments, and plot momentum.
    - Target: Instant Insight.
 
@@ -53,11 +57,16 @@ PROCESSING MODE: ${isScenic ? 'SCENIC ROUTE (Full immersive journey: Use wild, c
 
 Follow these strict rules for the JSON output:
 1. "tldr": Provide exactly 3 concise, punchy bullet points based on the categorized Nature of the text.
-2. "whyCare": A compelling "Mission Anchor" reason why this matters to the user's specific context (Safety, Success, or Curiosity).
+2. "whyCare": A compelling "Mission Anchor" reason why this matters to the user (Safety, Success, or Sovereignty).
 3. "readingTime": Estimate total concentration time.
 4. "chunks": Break the content into logical, manageable segments. 
    - "heading": A clear, bold, high-impact heading.
-   - "content": Based on the category: (Legal: Exact Clause + Plain Explanation | Educational: Deep Concept Breakdown | Literary: 2-3 vivid sentences).
+   - "content": Based on category: 
+     - Legal: Exact Clause + Plain Explanation
+     - Educational: Deep Concept Breakdown
+     - Business: The Bottom Line + Who/What/When
+     - Medical: Results + What this means for your body
+     - Literary: Vivid, fast-paced summary
    - "keyTerms": 1-3 critical keywords to anchor the segment.
    - "metaphor": A mandatory, wildly creative or funny comparison to make the concept stick.
    - "dopamineHook": A mandatory "Mind-Blow" fact, curious question, or high-stakes realization.
