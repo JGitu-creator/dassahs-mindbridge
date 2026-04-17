@@ -498,17 +498,22 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
   );
 };
 
-const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAccept: () => void, onCancel: () => void, linkState: 'pending' | 'syncing' | 'established' | 'severed', syncProgress: number }) => {
+const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAccept: () => void, onCancel: () => void, linkState: 'pending' | 'syncing' | 'revealing' | 'established' | 'severed', syncProgress: number }) => {
   return (
     <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1000] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
+        animate={linkState === 'revealing' ? { scale: 1.5, opacity: 0, filter: 'blur(20px)' } : { opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeInOut" }}
         className="max-w-2xl w-full bg-slate-900 border-2 border-blue-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.2)] space-y-8 my-auto relative overflow-hidden"
       >
         {linkState === 'syncing' && (
           <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-sm z-50 flex flex-col items-center justify-center space-y-6">
-            <RefractiveNeuralCore loading={true} inputLength={0} isVictorious={false} user={null} mousePos={{x:0, y:0}} focusMode="dastastic" />
+            <div className="relative">
+              <div className="absolute inset-[-40px] border-4 border-dashed border-blue-500/30 rounded-full animate-[neural-gear_10s_linear_infinite]" />
+              <div className="absolute inset-[-20px] border-2 border-blue-400/20 rounded-full animate-[neural-gear_15s_linear_infinite_reverse]" />
+              <RefractiveNeuralCore loading={true} inputLength={0} isVictorious={false} user={null} mousePos={{x:0, y:0}} focusMode="dastastic" />
+            </div>
             <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
@@ -530,6 +535,11 @@ const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAcc
         </div>
         
         <div className="space-y-6 text-slate-300 overflow-y-auto max-h-[40vh] pr-4 custom-scrollbar">
+          <div className="p-4 bg-blue-500/5 rounded-2xl border border-blue-500/20 mb-4">
+             <p className="text-[10px] text-blue-300 font-black uppercase tracking-widest mb-1 italic">Parental Directive</p>
+             <p className="text-xs font-bold leading-relaxed text-blue-100 italic">"By establishing this link for a minor, you as a parent or guardian provide neural consent for their access to the Prism."</p>
+          </div>
+
           <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
             <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Lock size={12} className="text-blue-400" /> 1. The "Sensitive Data" Shield</h3>
             <p className="text-sm leading-relaxed text-blue-100">Neural Guardrails: Do not input highly sensitive data (e.g., SSNs, passwords, or private health records). We are not liable for the exposure of data you choose to provide.</p>
@@ -579,6 +589,34 @@ const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAcc
         </div>
       </motion.div>
     </div>
+  );
+};
+
+const PortalReveal = () => {
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[1500] flex flex-col items-center justify-center bg-black"
+    >
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.5, duration: 1 }}
+        className="text-center space-y-1"
+      >
+        <p className="text-[8px] font-black uppercase tracking-[1em] text-blue-400/40 ml-[1em]">entering</p>
+        <h2 className="text-5xl md:text-8xl font-black italic prism-text drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">Dassah's Prism</h2>
+      </motion.div>
+      
+      <motion.div 
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ delay: 1, duration: 1.5, ease: "circOut" }}
+        className="mt-12 w-48 h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent"
+      />
+    </motion.div>
   );
 };
 
@@ -694,13 +732,17 @@ export default function Home() {
         progress = 100;
         clearInterval(interval);
         setTimeout(() => {
-          localStorage.setItem('dassahs_prism_tos_accepted', 'true');
-          setAcceptedTOS(true);
-          setLinkState('established');
-          setShowTOS(false);
-          // High speed celebrate particles
-          setRewardType('final');
-          setTimeout(() => setRewardType('none'), 3000);
+          setLinkState('revealing');
+          // Wait for PortalReveal animation to play
+          setTimeout(() => {
+            localStorage.setItem('dassahs_prism_tos_accepted', 'true');
+            setAcceptedTOS(true);
+            setLinkState('established');
+            setShowTOS(false);
+            // High speed celebrate particles
+            setRewardType('final');
+            setTimeout(() => setRewardType('none'), 3000);
+          }, 4000); // Wait for the reveal to complete
         }, 800);
       }
       setSyncProgress(progress);
@@ -1063,6 +1105,7 @@ export default function Home() {
       --prism-1: ${currentTheme.prism[0]}; --prism-2: ${currentTheme.prism[1]}; --prism-3: ${currentTheme.prism[2]};
     }
     @keyframes prism-refract { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+    @keyframes neural-gear { 0% { rotate: 0deg; } 100% { rotate: 360deg; } }
     .prism-text {
       background: linear-gradient(110deg, var(--prism-1) 0%, var(--prism-2) 25%, #fff 50%, var(--prism-2) 75%, var(--prism-3) 100%);
       background-size: 200% auto;
@@ -1100,7 +1143,11 @@ export default function Home() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {(linkState === 'pending' || linkState === 'syncing') && (
+        {linkState === 'revealing' && <PortalReveal />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {(linkState === 'pending' || linkState === 'syncing' || linkState === 'revealing') && (
           <MissionMandate 
             linkState={linkState}
             syncProgress={syncProgress}
