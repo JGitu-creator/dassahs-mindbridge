@@ -692,7 +692,7 @@ export default function Home() {
       -webkit-text-fill-color: transparent;
       animation: prism-refract 4s linear infinite;
       display: inline-block;
-      padding-right: 0.05em;
+      padding-right: 0.3em;
     }
     .refractive-border {
       background: var(--color-shadow); border: 2px solid transparent; background-clip: padding-box; position: relative;
@@ -892,7 +892,7 @@ export default function Home() {
                   </div>
 
                   <div className="pt-2 space-y-2">
-                    <button onClick={() => { playClick(); const a = document.createElement('a'); a.href = '/extension.zip'; a.download = 'dassahs-prism-extension.zip'; a.click(); }} className="w-full p-3 md:p-4 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all shadow-lg group"><Rocket size={14} className="group-hover:translate-y-[-2px] transition-transform"/> Download Extension</button>
+                    <button onClick={() => { playClick(); const a = document.createElement('a'); a.href = '/dassahs-prism-extension.zip'; a.download = 'dassahs-prism-extension.zip'; a.click(); }} className="w-full p-3 md:p-4 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all shadow-lg group"><Rocket size={14} className="group-hover:translate-y-[-2px] transition-transform"/> Download Extension</button>
                     <button onClick={() => { setShowCommandCenter(false); setShowAbout(true); }} className="w-full p-3 md:p-4 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all"><Brain size={14}/> About Prism</button>
                     {user && <button onClick={handleLogout} className="w-full p-3 md:p-4 rounded-xl bg-red-600/5 border border-red-600/20 text-red-400 hover:bg-red-600 hover:text-white flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all"><LogOut size={14}/> Disconnect</button>}
                   </div>
@@ -972,7 +972,7 @@ export default function Home() {
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24 pb-20">
           <header className="text-center space-y-8 relative">
-            <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tighter italic">Dassah's <span className="prism-text">Prism</span></h1>
+            <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tight italic">Dassah's <span className="prism-text">Prism</span></h1>
             <p className="text-lg md:text-xl text-blue-400/80 font-bold italic tracking-tight text-center">"Turn overwhelming noise into clear focus in seconds."</p>
           </header>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto opacity-60 hover:opacity-100 transition-opacity">
