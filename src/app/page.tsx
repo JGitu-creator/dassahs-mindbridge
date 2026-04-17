@@ -498,56 +498,111 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
   );
 };
 
-const SovereignAgreement = ({ onAccept, onCancel }: { onAccept: () => void, onCancel: () => void }) => {
+const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAccept: () => void, onCancel: () => void, linkState: 'pending' | 'syncing' | 'established' | 'severed', syncProgress: number }) => {
   return (
-    <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1000] flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1000] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="max-w-2xl w-full bg-slate-900 border-2 border-blue-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.2)] space-y-8 my-auto"
+        className="max-w-2xl w-full bg-slate-900 border-2 border-blue-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.2)] space-y-8 my-auto relative overflow-hidden"
       >
+        {linkState === 'syncing' && (
+          <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-sm z-50 flex flex-col items-center justify-center space-y-6">
+            <RefractiveNeuralCore loading={true} inputLength={0} isVictorious={false} user={null} mousePos={{x:0, y:0}} focusMode="dastastic" />
+            <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${syncProgress}%` }}
+                className="h-full bg-blue-500 shadow-[0_0_20px_#3b82f6]"
+              />
+            </div>
+            <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-xs animate-pulse">Syncing Neural Link: {syncProgress}%</p>
+          </div>
+        )}
+
         <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-widest text-xs">
-          <Shield size={20} /> Sovereign Agreement
+          <Shield size={20} className="animate-pulse" /> Mission Mandate: Sovereign Directive
         </div>
         
-        <h2 className="text-3xl md:text-4xl font-black text-white italic leading-tight">Neural Guardrails & Legal Handshake</h2>
+        <div className="space-y-2">
+          <h2 className="text-3xl md:text-5xl font-black text-white italic leading-tight">Enter Dassah's <span className="prism-text">Neural Prism</span></h2>
+          <p className="text-slate-400 font-medium italic">Establishing a secure connection for your neurodivergent journey.</p>
+        </div>
         
-        <div className="space-y-6 text-slate-300 overflow-y-auto max-h-[50vh] pr-4 no-scrollbar">
-          <div className="space-y-2">
-            <h3 className="text-white font-black uppercase text-[10px] tracking-widest">1. The "Sensitive Data" Shield</h3>
+        <div className="space-y-6 text-slate-300 overflow-y-auto max-h-[40vh] pr-4 custom-scrollbar">
+          <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
+            <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Lock size={12} className="text-blue-400" /> 1. The "Sensitive Data" Shield</h3>
             <p className="text-sm leading-relaxed text-blue-100">Neural Guardrails: Do not input highly sensitive data (e.g., SSNs, passwords, or private health records). We are not liable for the exposure of data you choose to provide.</p>
+            <p className="text-[10px] text-slate-500 italic font-bold">[What this means: Keep your private secrets like passwords and IDs out of the Prism for your safety!]</p>
           </div>
           
-          <div className="space-y-2">
-            <h3 className="text-white font-black uppercase text-[10px] tracking-widest">2. Third-Party Handshake</h3>
-            <p className="text-sm leading-relaxed text-blue-100">Data Processing: Your inputs are processed via Google's Gemini models to provide clarity. By using the Prism, you agree to their standard data handling protocols.</p>
+          <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
+            <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Zap size={12} className="text-amber-400" /> 2. Neural Resonance (Data Processing)</h3>
+            <p className="text-sm leading-relaxed text-blue-100">Your inputs are processed via Google's Gemini models to provide clarity. By using the Prism, you agree to their standard data handling protocols.</p>
+            <p className="text-[10px] text-slate-500 italic font-bold">[What this means: Google's smart robots help us clean the noise, and they follow strict rules to keep things safe.]</p>
           </div>
           
-          <div className="space-y-2">
-            <h3 className="text-white font-black uppercase text-[10px] tracking-widest">3. "As-Is" Liability</h3>
-            <p className="text-sm leading-relaxed text-blue-100">Limitation of Liability: Dassah's Prism is provided "as is" without warranties. The creators shall not be liable for any direct or indirect damages resulting from your use of this tool.</p>
+          <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
+            <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Shield size={12} className="text-emerald-400" /> 3. "As-Is" Liability</h3>
+            <p className="text-sm leading-relaxed text-blue-100">Dassah's Prism is provided "as is" without warranties. The creators shall not be liable for any direct or indirect damages resulting from your use of this tool.</p>
+            <p className="text-[10px] text-slate-500 italic font-bold">[What this means: We built this tool with love to help you, but we aren't responsible if things aren't perfect or if the noise is too loud today.]</p>
           </div>
           
-          <div className="space-y-2">
-            <h3 className="text-white font-black uppercase text-[10px] tracking-widest">4. GDPR/CCPA Compliance</h3>
-            <p className="text-sm leading-relaxed text-blue-100">Users have the "Right to Erasure" (to have their data deleted) and we never sell your neural profile to third parties.</p>
+          <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
+            <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Brain size={12} className="text-purple-400" /> 4. Cerebral Guardianship (GDPR/CCPA)</h3>
+            <p className="text-sm leading-relaxed text-blue-100">You have the "Right to Erasure" (to have your data deleted) and we never sell your neural profile to third parties.</p>
+            <p className="text-[10px] text-slate-500 italic font-bold">[What this means: You own your brain data. You can ask us to delete it whenever you want! We never sell your thoughts.]</p>
+          </div>
+
+          <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
+            <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Anchor size={12} className="text-blue-400" /> 5. Functional Neural Anchors (Cookies)</h3>
+            <p className="text-sm leading-relaxed text-blue-100">We use essential cookies to keep your neural link active and save your preferences.</p>
+            <p className="text-[10px] text-slate-500 italic font-bold">[What this means: Small digital anchors help the Prism remember who you are so you don't have to sign in every time!]</p>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+        <div className="flex flex-col sm:flex-row gap-4 pt-4 relative z-10">
           <button 
             onClick={onAccept}
-            className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-2xl font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-blue-500/20"
+            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-xl shadow-blue-500/20 group"
           >
-            I Accept the Handshake
+            <span className="flex items-center justify-center gap-3">
+              Establish Neural Link <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+            </span>
           </button>
           <button 
             onClick={onCancel}
-            className="px-8 py-5 text-slate-500 font-black uppercase tracking-widest hover:text-white transition-colors"
+            className="px-8 py-6 text-slate-500 font-black uppercase tracking-widest hover:text-red-400 transition-colors"
           >
-            Decline
+            Sever Link
           </button>
         </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const NeuralLinkSevered = () => {
+  return (
+    <div className="fixed inset-0 bg-black z-[2000] flex flex-col items-center justify-center p-8 text-center space-y-8">
+      <div className="absolute inset-0 opacity-20 pointer-events-none grayscale brightness-50" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
+      
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="space-y-6"
+      >
+        <div className="w-24 h-24 bg-red-600/10 rounded-full flex items-center justify-center mx-auto text-red-500 border-2 border-red-500/20 shadow-[0_0_50px_rgba(239,68,68,0.2)]">
+          <X size={48} />
+        </div>
+        <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic">Link Severed</h2>
+        <p className="text-slate-500 max-w-md mx-auto font-medium">Access to Dassah's Neural Prism requires acceptance of the Sovereign Directive. The connection has been terminated to protect your neural sovereignty.</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="mt-8 px-12 py-4 bg-white text-black font-black uppercase tracking-widest rounded-full hover:scale-105 transition-all"
+        >
+          Retry Authentication
+        </button>
       </motion.div>
     </div>
   );
@@ -584,6 +639,8 @@ export default function Home() {
   const [showNeuralIdentity, setShowNeuralIdentity] = useState(false);
   const [showTOS, setShowTOS] = useState(false);
   const [acceptedTOS, setAcceptedTOS] = useState(false);
+  const [linkState, setLinkState] = useState<'pending' | 'syncing' | 'established' | 'severed'>('pending');
+  const [syncProgress, setSyncProgress] = useState(0);
   const [starredItems, setStarredItems] = useState<{heading: string, content: string, type: 'metaphor' | 'hook'}[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -625,6 +682,31 @@ export default function Home() {
     });
   };
 
+  const handleEstablishLink = async () => {
+    playClick();
+    setLinkState('syncing');
+    
+    // Animate sync progress
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.floor(Math.random() * 15) + 5;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setTimeout(() => {
+          localStorage.setItem('dassahs_prism_tos_accepted', 'true');
+          setAcceptedTOS(true);
+          setLinkState('established');
+          setShowTOS(false);
+          // High speed celebrate particles
+          setRewardType('final');
+          setTimeout(() => setRewardType('none'), 3000);
+        }, 800);
+      }
+      setSyncProgress(progress);
+    }, 200);
+  };
+
   useEffect(() => {
     const checkTOS = async () => {
       const accepted = localStorage.getItem('dassahs_prism_tos_accepted') === 'true';
@@ -632,8 +714,11 @@ export default function Home() {
       
       if (!accepted) {
         setShowTOS(true);
+        setLinkState('pending');
         // Force logout if they haven't accepted the new terms yet
         await supabase.auth.signOut();
+      } else {
+        setLinkState('established');
       }
     };
     checkTOS();
@@ -1009,36 +1094,40 @@ export default function Home() {
   return (
     <>
       <style>{themeStyles}</style>
-      <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
-      <div className="fixed inset-0 -z-10 transition-colors duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
-      <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
       
       <AnimatePresence>
-        {data && currentChunk >= 0 && currentChunk < data.chunks.length && (
-          <ContextAnchor whyCare={data.whyCare} isZenLocked={isZenLocked} segmentIdx={currentChunk} />
-        )}
+        {linkState === 'severed' && <NeuralLinkSevered />}
       </AnimatePresence>
 
       <AnimatePresence>
-        {showBreak && (
-          <NeuralReset onComplete={() => { playClick(); setShowBreak(false); }} />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showTOS && (
-          <SovereignAgreement 
-            onAccept={() => { 
-              playClick(); 
-              localStorage.setItem('dassahs_prism_tos_accepted', 'true');
-              setAcceptedTOS(true); 
-              setShowTOS(false); 
-              handleLogin(); 
-            }}
-            onCancel={() => { playClick(); setShowTOS(false); }}
+        {(linkState === 'pending' || linkState === 'syncing') && (
+          <MissionMandate 
+            linkState={linkState}
+            syncProgress={syncProgress}
+            onAccept={handleEstablishLink}
+            onCancel={() => { playClick(); setLinkState('severed'); }}
           />
         )}
       </AnimatePresence>
+
+      {linkState === 'established' && (
+        <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
+        <div className="fixed inset-0 -z-10 transition-colors duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
+        <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
+        
+        <AnimatePresence>
+          {data && currentChunk >= 0 && currentChunk < data.chunks.length && (
+            <ContextAnchor whyCare={data.whyCare} isZenLocked={isZenLocked} segmentIdx={currentChunk} />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showBreak && (
+            <NeuralReset onComplete={() => { playClick(); setShowBreak(false); }} />
+          )}
+        </AnimatePresence>
+
+        <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
