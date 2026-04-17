@@ -764,7 +764,17 @@ export default function Home() {
       }
     };
     checkTOS();
+
+    // Load starred items from vault
+    const savedStars = localStorage.getItem('dassahs_neural_vault');
+    if (savedStars) setStarredItems(JSON.parse(savedStars));
   }, []);
+
+  useEffect(() => {
+    if (starredItems.length > 0 || localStorage.getItem('dassahs_neural_vault')) {
+      localStorage.setItem('dassahs_neural_vault', JSON.stringify(starredItems));
+    }
+  }, [starredItems]);
 
   const [feedbackInput, setFeedbackInput] = useState('');
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
@@ -969,6 +979,13 @@ export default function Home() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => { 
+      if (session?.user && localStorage.getItem('dassahs_prism_tos_accepted') !== 'true') {
+        supabase.auth.signOut();
+        setAcceptedTOS(false);
+        setShowTOS(true);
+        setLinkState('pending');
+        return;
+      }
       setUser(session?.user ?? null); 
       if (session?.user) {
         loadHistory(session.user.id);
@@ -976,16 +993,24 @@ export default function Home() {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { 
-      setUser(session?.user ?? null); 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user && localStorage.getItem('dassahs_prism_tos_accepted') !== 'true') {
+        supabase.auth.signOut();
+        setAcceptedTOS(false);
+        setShowTOS(true);
+        setLinkState('pending');
+        return;
+      }
+      setUser(session?.user ?? null);
       if (session?.user) {
         loadHistory(session.user.id);
         loadProfile(session.user.id);
-      } else { 
-        setHistory([]); 
+      } else {
+        setHistory([]);
         setIsPaid(false);
-      } 
+      }
     });
+
     setUsageCount(parseInt(localStorage.getItem('dassahs_prism_usage') || '0'));
     const urlParams = new URLSearchParams(window.location.search);
     const textParam = urlParams.get('text');
