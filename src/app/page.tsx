@@ -731,11 +731,19 @@ export default function Home() {
       if (progress >= 100) {
         progress = 100;
         clearInterval(interval);
-        setTimeout(() => {
+        setTimeout(async () => {
           setLinkState('revealing');
           // Wait for PortalReveal animation to play
-          setTimeout(() => {
+          setTimeout(async () => {
             localStorage.setItem('dassahs_prism_tos_accepted', 'true');
+            
+            // Server-side proof of acceptance for authenticated users
+            if (user) {
+              await supabase.from('profiles').update({ 
+                terms_accepted_at: new Date().toISOString() 
+              }).eq('id', user.id);
+            }
+
             setAcceptedTOS(true);
             setLinkState('established');
             setShowTOS(false);
@@ -855,10 +863,17 @@ export default function Home() {
   };
 
   const loadProfile = async (userId: string) => {
-    const { data, error } = await supabase.from('profiles').select('is_paid, avatar_url').eq('id', userId).single();
+    const { data, error } = await supabase.from('profiles').select('is_paid, avatar_url, terms_accepted_at').eq('id', userId).single();
     if (data) {
       setIsPaid(data.is_paid);
       setAvatarUrl(data.avatar_url);
+      
+      // If server has proof of acceptance, sync local state
+      if (data.terms_accepted_at) {
+        localStorage.setItem('dassahs_prism_tos_accepted', 'true');
+        setAcceptedTOS(true);
+        if (linkState === 'pending') setLinkState('established');
+      }
     }
     if (error && error.code !== 'PGRST116') console.error('Error loading profile:', error);
   };
