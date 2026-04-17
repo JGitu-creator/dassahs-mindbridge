@@ -637,7 +637,7 @@ export default function Home() {
   };
 
   const loadProfile = async (userId: string) => {
-    const { data, error } = await supabase.from('profiles').select('is_paid, avatar_url').eq(userId).single();
+    const { data, error } = await supabase.from('profiles').select('is_paid, avatar_url').eq('id', userId).single();
     if (data) {
       setIsPaid(data.is_paid);
       setAvatarUrl(data.avatar_url);
