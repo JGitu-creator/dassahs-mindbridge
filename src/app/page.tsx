@@ -1627,7 +1627,9 @@ export default function Home() {
         </p>
         <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
       </footer>
-    </main></>
+    </main>
+      )}
+    </>
   );
 }
 
