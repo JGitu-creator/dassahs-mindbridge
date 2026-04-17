@@ -794,11 +794,11 @@ export default function Home() {
 
       <AnimatePresence>
         {showCommandCenter && (
-          <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[600] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="max-w-4xl w-full grid md:grid-cols-2 gap-8">
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-2 md:p-8">
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-4xl w-full max-h-[95vh] md:max-h-[90vh] overflow-y-auto no-scrollbar bg-[var(--color-glass)] p-4 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8">
               {/* Left Side: Stats & Identity */}
               <div className="space-y-4 md:space-y-6">
-                <div className="bg-white/5 p-6 md:p-8 rounded-[2.5rem] border border-white/10 space-y-6">
+                <div className="bg-white/5 p-5 md:p-8 rounded-[2rem] border border-white/10 space-y-5 md:space-y-6">
                   <div className="flex justify-between items-start">
                     <div>
                       <h2 className="text-xl md:text-2xl font-black text-white italic">Neural Profile</h2>
@@ -814,85 +814,93 @@ export default function Home() {
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Identity</p>
                     <div className="flex flex-wrap gap-2">
                       {DEFAULT_AVATARS.map((av) => (
-                        <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-10 h-10 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-white/10 scale-105 shadow-lg' : 'border-transparent bg-white/5 opacity-40 hover:opacity-100'}`} title={av.label}>
+                        <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-9 h-9 md:w-10 md:h-10 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-white/10 scale-105 shadow-lg' : 'border-transparent bg-white/5 opacity-40 hover:opacity-100'}`} title={av.label}>
                           <span className="scale-75">{av.icon}</span>
                         </button>
                       ))}
-                      <label className="w-10 h-10 rounded-xl border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all">
+                      <label className="w-9 h-9 md:w-10 md:h-10 rounded-xl border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all">
                         <Upload size={14} className="text-slate-400" />
                         <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
                       </label>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-3">
-                    <button onClick={() => { setShowCommandCenter(false); setShowHistory(true); }} className="p-4 rounded-[1.5rem] bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all text-left group">
-                      <Clock className="text-blue-400 mb-2" size={20} />
-                      <p className="text-[9px] font-black uppercase text-slate-500 leading-none">Vault</p>
-                      <p className="text-xs font-bold text-white">History</p>
+                  <div className="grid grid-cols-2 gap-2 md:gap-3">
+                    <button onClick={() => { setShowCommandCenter(false); setShowHistory(true); }} className="p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all text-left group">
+                      <Clock className="text-blue-400 mb-2" size={18} />
+                      <p className="text-[8px] md:text-[9px] font-black uppercase text-slate-500 leading-none">Vault</p>
+                      <p className="text-[10px] md:text-xs font-bold text-white">History</p>
                     </button>
-                    <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`p-4 rounded-[1.5rem] border transition-all text-left ${focusMode === 'sovereign' ? 'bg-amber-600/20 border-amber-500/50' : 'bg-white/5 border-white/10'}`}>
-                      {focusMode === 'sovereign' ? <Crown className="text-amber-400 mb-2" size={20} /> : <Zap className="text-blue-400 mb-2" size={20} />}
-                      <p className="text-[9px] font-black uppercase text-slate-500 leading-none">Mode</p>
-                      <p className="text-xs font-bold text-white">{focusMode === 'sovereign' ? 'Sovereign' : 'Dastastic'}</p>
+                    <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] border transition-all text-left ${focusMode === 'sovereign' ? 'bg-amber-600/20 border-amber-500/50' : 'bg-white/5 border-white/10'}`}>
+                      {focusMode === 'sovereign' ? <Crown className="text-amber-400 mb-2" size={18} /> : <Zap className="text-blue-400 mb-2" size={18} />}
+                      <p className="text-[8px] md:text-[9px] font-black uppercase text-slate-500 leading-none">Mode</p>
+                      <p className="text-[10px] md:text-xs font-bold text-white">{focusMode === 'sovereign' ? 'Sovereign' : 'Dastastic'}</p>
                     </button>
                   </div>
 
                   {!isPaid && (
-                    <button onClick={() => { setShowCommandCenter(false); setShowPaywall(true); }} className="w-full p-5 md:p-6 rounded-[2rem] bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between group overflow-hidden relative shadow-xl">
+                    <button onClick={() => { setShowCommandCenter(false); setShowPaywall(true); }} className="w-full p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between group overflow-hidden relative shadow-xl">
                       <div className="relative z-10 text-left">
-                        <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-60">Architect Access</p>
-                        <p className="text-lg font-black italic leading-none">Upgrade Link</p>
+                        <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] opacity-60">Architect Access</p>
+                        <p className="text-base md:text-lg font-black italic leading-none">Upgrade Link</p>
                       </div>
-                      <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform relative z-10" />
+                      <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform relative z-10" />
                       <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                     </button>
                   )}
                 </div>
 
-                <div className="flex justify-center pt-2">
+                <div className="hidden md:flex justify-center pt-2">
                   <button onClick={() => setShowCommandCenter(false)} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Close</button>
                 </div>
               </div>
 
               {/* Right Side: Settings */}
-              <div className="bg-white/5 p-8 md:p-10 rounded-[3rem] border border-white/10 space-y-8 max-h-[80vh] overflow-y-auto no-scrollbar">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-6">Visual Spectrum</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {Object.entries(THEMES).map(([id, t]) => (
-                      <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`p-3 rounded-2xl border-2 transition-all flex items-center gap-3 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
-                        <div className="w-8 h-8 rounded-lg shadow-lg flex-shrink-0" style={{ backgroundColor: t.accent }} />
-                        <span className="text-[10px] font-bold text-white truncate">{t.name}</span>
-                        {theme === id && <Check className="text-white ml-auto" size={14} />}
-                      </button>
-                    ))}
+              <div className="space-y-4 md:space-y-6">
+                <div className="bg-white/5 p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-white/10 space-y-5 md:space-y-6">
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Visual Spectrum</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
+                      {Object.entries(THEMES).map(([id, t]) => (
+                        <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
+                          <div className="w-5 h-5 md:w-6 md:h-6 rounded-md shadow-md flex-shrink-0" style={{ backgroundColor: t.accent }} />
+                          <span className="text-[8px] md:text-[9px] font-bold text-white truncate">{t.name}</span>
+                          {theme === id && <Check className="text-white ml-auto" size={10} />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Neural Resonance</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      {[ 
+                        {m:'none', i:<X size={14}/>, n:'Silent', d:'Pure focus'}, 
+                        {m:'brown', i:<Sun size={14}/>, n:'Resonance', d:'Brown noise'}, 
+                        {m:'suspense', i:<Ghost size={14}/>, n:'Harmony', d:'Soundscape'}, 
+                        {m:'action', i:<Swords size={14}/>, n:'Zen Flow', d:'Focus rhythm'} 
+                      ].map((s) => (
+                        <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex items-center gap-3 p-2.5 md:p-3 rounded-xl transition-all text-left ${audioMode === s.m ? 'bg-blue-600 text-white shadow-lg' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
+                          <div className={`p-2 rounded-lg ${audioMode === s.m ? 'bg-white/20' : 'bg-white/5'}`}>{s.i}</div>
+                          <div>
+                            <p className="text-[9px] font-black uppercase tracking-widest leading-tight">{s.n}</p>
+                            <p className={`text-[7px] md:text-[8px] opacity-60 font-medium leading-tight ${audioMode === s.m ? 'text-white' : 'text-slate-500'}`}>{s.d}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 space-y-2">
+                    <button onClick={() => { playClick(); const a = document.createElement('a'); a.href = '/extension.zip'; a.download = 'dassahs-prism-extension.zip'; a.click(); }} className="w-full p-3 md:p-4 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all shadow-lg group"><Rocket size={14} className="group-hover:translate-y-[-2px] transition-transform"/> Download Extension</button>
+                    <button onClick={() => { setShowCommandCenter(false); setShowAbout(true); }} className="w-full p-3 md:p-4 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all"><Brain size={14}/> About Prism</button>
+                    {user && <button onClick={handleLogout} className="w-full p-3 md:p-4 rounded-xl bg-red-600/5 border border-red-600/20 text-red-400 hover:bg-red-600 hover:text-white flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all"><LogOut size={14}/> Disconnect</button>}
                   </div>
                 </div>
-
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-6">Neural Resonance</p>
-                  <div className="grid grid-cols-1 gap-3">
-                    {[ 
-                      {m:'none', i:<X size={18}/>, n:'Silent', d:'Pure focus without sound'}, 
-                      {m:'brown', i:<Sun size={18}/>, n:'Neural Resonance', d:'Steady brown noise for deep work'}, 
-                      {m:'suspense', i:<Ghost size={18}/>, n:'Atmospheric Harmony', d:'Dynamic soundscape that evolves'}, 
-                      {m:'action', i:<Swords size={18}/>, n:'Zen Flow', d:'High-energy focus rhythm'} 
-                    ].map((s) => (
-                      <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex items-center gap-4 p-4 rounded-2xl transition-all text-left ${audioMode === s.m ? 'bg-blue-600 text-white shadow-lg' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
-                        <div className={`p-3 rounded-xl ${audioMode === s.m ? 'bg-white/20' : 'bg-white/5'}`}>{s.i}</div>
-                        <div>
-                          <p className="text-xs font-black uppercase tracking-widest">{s.n}</p>
-                          <p className={`text-[10px] opacity-60 font-medium ${audioMode === s.m ? 'text-white' : 'text-slate-500'}`}>{s.d}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-4 space-y-3">
-                  <button onClick={() => { setShowCommandCenter(false); setShowAbout(true); }} className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-slate-400 hover:text-white flex items-center gap-4 text-[10px] font-black uppercase tracking-widest transition-all"><Brain size={18}/> About the Prism</button>
-                  {user && <button onClick={handleLogout} className="w-full p-5 rounded-2xl bg-red-600/5 border border-red-600/20 text-red-400 hover:bg-red-600 hover:text-white flex items-center gap-4 text-[10px] font-black uppercase tracking-widest transition-all"><LogOut size={18}/> Disconnect Neural Link</button>}
+                
+                {/* Mobile Close Button */}
+                <div className="flex md:hidden justify-center pb-4">
+                  <button onClick={() => setShowCommandCenter(false)} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Close</button>
                 </div>
               </div>
             </motion.div>
