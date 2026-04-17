@@ -1043,16 +1043,27 @@ export default function Home() {
                       {[ 
                         {m:'none', i:<X size={14}/>, n:'Silent', d:'Pure focus'}, 
                         {m:'brown', i:<Sun size={14}/>, n:'Resonance', d:'Brown noise'}, 
-                        {m:'suspense', i:<Ghost size={14}/>, n:'Harmony', d:'Soundscape'}, 
-                        {m:'action', i:<Swords size={14}/>, n:'Zen Flow', d:'Focus rhythm'} 
+                        {m:'suspense', i:<Ghost size={14}/>, n:'Harmony', d:'Soundscape', v: suspenseIdx, set: setSuspenseIdx}, 
+                        {m:'action', i:<Swords size={14}/>, n:'Zen Flow', d:'Focus rhythm', v: actionIdx, set: setActionIdx} 
                       ].map((s) => (
-                        <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex items-center gap-3 p-3 rounded-xl transition-all text-left ${audioMode === s.m ? 'bg-blue-600 text-white shadow-lg' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
-                          <div className={`p-2 rounded-lg ${audioMode === s.m ? 'bg-white/20' : 'bg-white/5'}`}>{s.i}</div>
-                          <div>
-                            <p className="text-[9px] font-black uppercase tracking-widest leading-tight">{s.n}</p>
-                            <p className="text-[7px] opacity-60 font-medium leading-tight">{s.d}</p>
-                          </div>
-                        </button>
+                        <div key={s.m} className="flex gap-2">
+                          <button onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex-grow flex items-center gap-3 p-3 rounded-xl transition-all text-left ${audioMode === s.m ? 'bg-blue-600 text-white shadow-lg' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
+                            <div className={`p-2 rounded-lg ${audioMode === s.m ? 'bg-white/20' : 'bg-white/5'}`}>{s.i}</div>
+                            <div>
+                              <p className="text-[9px] font-black uppercase tracking-widest leading-tight">{s.n} {s.v !== undefined ? `v${s.v + 1}` : ''}</p>
+                              <p className="text-[7px] opacity-60 font-medium leading-tight">{s.d}</p>
+                            </div>
+                          </button>
+                          {s.set && (
+                            <button 
+                              onClick={() => { playClick(); s.set((v: number) => (v + 1) % 3); if (audioMode === s.m) setAudioMode('none'); setTimeout(() => setAudioMode(s.m as any), 10); }}
+                              className="p-3 rounded-xl bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                              title="Cycle Variation"
+                            >
+                              <MoreHorizontal size={14} />
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -1309,17 +1320,6 @@ export default function Home() {
       <AnimatePresence>{isZenLocked && (<motion.button initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} onClick={handleToggleZenLock} className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"><X size={32} className="group-hover:rotate-90 transition-transform" /></motion.button>)}</AnimatePresence>
 
       <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-[var(--color-shadow)] backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-white rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
-      
-      <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
-        <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
-          DJ <Fish size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
-        </p>
-        <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
-      </footer>
-    </main></>
-  );
-}
-m onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-white rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
       
       <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
         <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
