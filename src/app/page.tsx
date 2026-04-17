@@ -5,7 +5,7 @@ import {
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal,
-  Compass, Check, LogOut, Shield
+  Compass, Check, LogOut, Shield, Anchor
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
@@ -170,6 +170,175 @@ const NeuroMirrorText = ({ text }: { text: string }) => {
     <div className="flex flex-wrap gap-x-1 overflow-hidden p-4">
       {text.split(' ').map((word, i) => (
         <motion.span key={i} animate={{ x: [0, Math.random() * 2 - 1, 0], y: [0, Math.random() * 2 - 1, 0], opacity: [1, 0.7, 1], filter: [`blur(0px)`, `blur(${Math.random() > 0.8 ? '2px' : '0px'})`, `blur(0px)`] }} transition={{ duration: 2 + Math.random() * 3, repeat: Infinity, ease: "easeInOut" }} className="inline-block text-lg md:text-xl font-medium text-slate-400 select-none">{word}</motion.span>
+      ))}
+    </div>
+  );
+};
+
+const ContextAnchor = ({ whyCare, isZenLocked }: { whyCare: string, isZenLocked: boolean }) => {
+  return (
+    <motion.div 
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -20, opacity: 0 }}
+      className={`fixed ${isZenLocked ? 'top-8' : 'top-24'} left-1/2 -translate-x-1/2 z-[105] w-full max-w-lg px-4 pointer-events-none transition-all duration-700`}
+    >
+      <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-3 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto flex items-center gap-4">
+        <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
+          <Anchor size={14} />
+        </div>
+        <div className="flex-grow">
+          <p className="text-[7px] font-black uppercase tracking-[0.4em] text-blue-400/60 leading-none mb-1">Mission Anchor</p>
+          <p className="text-[10px] font-bold text-slate-300 leading-tight line-clamp-1">{whyCare}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const NeuralReset = ({ onComplete }: { onComplete: () => void }) => {
+  const [seconds, setSeconds] = useState(15);
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSeconds(s => {
+        if (s <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 1.1 }}
+      className="fixed inset-0 z-[550] flex items-center justify-center p-4 bg-black/60 backdrop-blur-3xl"
+    >
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ y: 400, x: Math.random() * 400 - 200, opacity: 0, scale: 0 }}
+            animate={{ 
+              y: -400, 
+              opacity: [0, 0.5, 0],
+              scale: [0, 1.5, 0],
+              x: (Math.random() * 400 - 200)
+            }}
+            transition={{ duration: 6, repeat: Infinity, delay: Math.random() * 5, ease: "easeInOut" }}
+            className="absolute left-1/2 top-1/2 w-1 h-1 bg-blue-400 rounded-full blur-[1px]"
+          />
+        ))}
+      </div>
+
+      <div className="max-w-md w-full text-center space-y-12 relative z-10">
+        <div className="relative flex flex-col items-center justify-center gap-8">
+          {/* Neural Eye Animation for "Look Away" */}
+          {seconds > 10 && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex gap-4">
+              {[0, 1].map(i => (
+                <div key={i} className="w-10 h-6 bg-white/5 rounded-full relative overflow-hidden flex items-center justify-center border border-white/10">
+                  <motion.div 
+                    animate={{ x: [0, 6, -6, 0], y: [0, -2, 2, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                    className="w-3 h-3 bg-blue-400 rounded-full shadow-[0_0_10px_#60a5fa]" 
+                  />
+                </div>
+              ))}
+            </motion.div>
+          )}
+
+          <div className="relative flex items-center justify-center">
+            <motion.div 
+              animate={{ scale: [1, 2, 1], opacity: [0.1, 0.4, 0.1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute w-40 h-40 bg-blue-500/20 rounded-full blur-3xl"
+            />
+            <motion.div 
+              animate={{ 
+                scale: seconds > 0 && seconds <= 10 ? [1, 1.4, 1] : 1,
+                rotate: seconds === 0 ? 360 : 0
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className={`relative w-32 h-32 rounded-full border-4 ${seconds === 0 ? 'border-emerald-500 shadow-[0_0_20px_#10b981]' : 'border-blue-500/30'} flex items-center justify-center transition-colors duration-1000`}
+            >
+              {seconds === 0 ? (
+                <CheckCircle2 className="text-emerald-500 w-16 h-16" />
+              ) : (
+                <span className="text-4xl font-black text-white tabular-nums">{seconds}</span>
+              )}
+            </motion.div>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <motion.div 
+            key={seconds > 10 ? 'look' : seconds > 0 ? 'breathe' : 'done'}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-2"
+          >
+            <h2 className="text-3xl font-black italic text-white tracking-tight uppercase">
+              {seconds > 10 ? "Look Away" : seconds > 0 ? "Neural Reset" : "Systems Clear"}
+            </h2>
+            <p className="text-blue-400 font-bold uppercase tracking-[0.4em] text-[10px]">
+              {seconds > 10 ? "Find a distant horizon" : seconds > 0 ? "Deep focus breathing" : "Mission Ready"}
+            </p>
+          </motion.div>
+          
+          <p className="text-slate-400 font-medium text-lg h-8">
+            {seconds > 10 ? "Rest your eyes for a moment." : seconds > 5 ? "Inhale clarity..." : seconds > 0 ? "Exhale the noise..." : "Reclaiming sovereignty."}
+          </p>
+        </div>
+
+        {seconds === 0 && (
+          <motion.button 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onComplete}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(37,99,235,0.4)] transition-all text-white"
+          >
+            Resume Mission
+          </motion.button>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+const ProgressPrism = ({ current, total }: { current: number, total: number }) => {
+  const percentage = ((current + 1) / total) * 100;
+  
+  return (
+    <div className="w-full h-4 bg-white/5 rounded-full relative overflow-hidden border border-white/10 shadow-inner">
+      {/* 3D Prism Glow effect */}
+      <motion.div 
+        initial={{ width: 0 }}
+        animate={{ width: `${percentage}%` }}
+        transition={{ type: "spring", damping: 20, stiffness: 60 }}
+        className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-600 via-purple-500 to-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.5)] flex items-center"
+      >
+        <motion.div 
+          animate={{ x: ['-100%', '200%'] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]"
+        />
+      </motion.div>
+      
+      {/* Segment Markers */}
+      {[...Array(total)].map((_, i) => (
+        <div 
+          key={i} 
+          className="absolute top-0 h-full w-[1px] bg-white/10"
+          style={{ left: `${(i / total) * 100}%` }}
+        />
       ))}
     </div>
   );
@@ -346,7 +515,9 @@ export default function Home() {
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [showCommandCenter, setShowCommandCenter] = useState(false);
+  const [showNeuralCommand, setShowNeuralCommand] = useState(false);
+  const [showNeuralIdentity, setShowNeuralIdentity] = useState(false);
+  const [starredItems, setStarredItems] = useState<{heading: string, content: string, type: 'metaphor' | 'hook'}[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -377,8 +548,19 @@ export default function Home() {
       handleAvatarSelect(publicUrl);
     } catch (err) { alert("Failed to upload neural image."); } finally { setUploadingAvatar(false); }
   };
+
+  const handleToggleStar = (item: {heading: string, content: string, type: 'metaphor' | 'hook'}) => {
+    playClick();
+    setStarredItems(prev => {
+      const exists = prev.find(i => i.content === item.content);
+      if (exists) return prev.filter(i => i.content !== item.content);
+      return [...prev, item];
+    });
+  };
+
   const [feedbackInput, setFeedbackInput] = useState('');
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+  const [showBreak, setShowBreak] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
   const [dassahPoints, setDassahPoints] = useState(0);
   const [suspenseIdx, setSuspenseIdx] = useState(0);
@@ -386,6 +568,16 @@ export default function Home() {
   const [isSharing, setIsSharing] = useState(false);
   const [isZenLocked, setIsZenLocked] = useState(false);
   const [isGreyedOut, setIsGreyedOut] = useState(false);
+  
+  const resonanceFactor = useMemo(() => {
+    if (!data || currentChunk < 0 || currentChunk >= data.chunks.length) return 1.0;
+    const chunk = data.chunks[currentChunk];
+    const isAction = /do|act|go|now|build|create|start|finish|crush|win/i.test(chunk.content);
+    const isReflective = chunk.metaphor.length > 20;
+    if (isAction) return 1.4; // Faster, more intense
+    if (isReflective) return 0.7; // Slower, more spacious
+    return 1.0;
+  }, [data, currentChunk]);
   
   const callsign = !user ? "Neural Seeker" : isPaid ? "Prism Architect" : "Sovereign Discernor";
   const syncLevel = !user ? "Seeking Neural Anchor..." : isPaid ? "Sync: Absolute" : "Sync Level: Processing";
@@ -445,7 +637,7 @@ export default function Home() {
   };
 
   const loadProfile = async (userId: string) => {
-    const { data, error } = await supabase.from('profiles').select('is_paid, avatar_url').eq('id', userId).single();
+    const { data, error } = await supabase.from('profiles').select('is_paid, avatar_url').eq(userId).single();
     if (data) {
       setIsPaid(data.is_paid);
       setAvatarUrl(data.avatar_url);
@@ -453,12 +645,20 @@ export default function Home() {
     if (error && error.code !== 'PGRST116') console.error('Error loading profile:', error);
   };
 
-  const handleLogin = async () => { await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); };
+  const handleLogin = async () => { 
+    await supabase.auth.signInWithOAuth({ 
+      provider: 'google', 
+      options: { 
+        redirectTo: window.location.origin,
+        queryParams: { prompt: 'select_account' }
+      } 
+    }); 
+  };
   const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); setHistory([]); };
 
   const handleReset = () => { setData(null); setCurrentChunk(-1); setInput(''); setChatHistory([]); setRewardType('none'); };
 
-  const playSuspenseSound = (variant = suspenseIdx) => {
+  const playSuspenseSound = (variant = suspenseIdx, factor = resonanceFactor) => {
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
@@ -477,9 +677,9 @@ export default function Home() {
             mod.connect(modG); modG.connect(osc.frequency); mod.start(nextNoteTime); mod.stop(nextNoteTime + 1.5);
           }
           g.gain.setValueAtTime(0, nextNoteTime); g.gain.linearRampToValueAtTime(variant === 2 ? 0.015 : 0.03, nextNoteTime + 0.1);
-          g.gain.exponentialRampToValueAtTime(0.001, nextNoteTime + (variant === 1 ? 2.5 : 1.5));
+          g.gain.exponentialRampToValueAtTime(0.001, nextNoteTime + (variant === 1 ? 2.5 / factor : 1.5 / factor));
           osc.connect(g); g.connect(ctx.destination); osc.start(nextNoteTime); osc.stop(nextNoteTime + 3);
-          nextNoteTime += (variant === 1 ? 1.2 : 0.6);
+          nextNoteTime += (variant === 1 ? 1.2 / factor : 0.6 / factor);
         }
       };
       const intervalId = setInterval(scheduleNote, 25);
@@ -487,7 +687,7 @@ export default function Home() {
     } catch (e) {}
   };
 
-  const playActionSound = (variant = actionIdx) => {
+  const playActionSound = (variant = actionIdx, factor = resonanceFactor) => {
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
@@ -497,7 +697,7 @@ export default function Home() {
         freqs.forEach(f => {
           const osc = ctx.createOscillator(); const g = ctx.createGain();
           osc.type = 'sine'; osc.frequency.setValueAtTime(f, ctx.currentTime);
-          const lfo = ctx.createOscillator(); lfo.frequency.setValueAtTime(0.5, ctx.currentTime);
+          const lfo = ctx.createOscillator(); lfo.frequency.setValueAtTime(0.5 * factor, ctx.currentTime);
           const lfoG = ctx.createGain(); lfoG.gain.setValueAtTime(0.3, ctx.currentTime);
           lfo.connect(lfoG); lfoG.connect(g.gain); g.gain.setValueAtTime(0, ctx.currentTime);
           g.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 2);
@@ -512,7 +712,7 @@ export default function Home() {
             osc.frequency.exponentialRampToValueAtTime(100, nextDropTime + 0.1);
             g.gain.setValueAtTime(0.02, nextDropTime); g.gain.exponentialRampToValueAtTime(0.001, nextDropTime + 0.1);
             osc.connect(g); g.connect(ctx.destination); osc.start(nextDropTime); osc.stop(nextDropTime + 0.1);
-            nextDropTime += 0.15;
+            nextDropTime += 0.15 / factor;
           }
         };
         const intervalId = setInterval(scheduleDrop, 25);
@@ -522,7 +722,7 @@ export default function Home() {
         const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
         const noise = ctx.createBufferSource(); noise.buffer = buffer; noise.loop = true;
         const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(400, ctx.currentTime);
-        const lfo = ctx.createOscillator(); lfo.frequency.setValueAtTime(0.3, ctx.currentTime);
+        const lfo = ctx.createOscillator(); lfo.frequency.setValueAtTime(0.3 * factor, ctx.currentTime);
         const lfoG = ctx.createGain(); lfoG.gain.setValueAtTime(300, ctx.currentTime);
         lfo.connect(lfoG); lfoG.connect(filter.frequency);
         const gain = ctx.createGain(); gain.gain.setValueAtTime(0, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 2);
@@ -553,7 +753,7 @@ export default function Home() {
       source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
       source.start(); noiseNodeRef.current = source;
     }
-  }, [audioMode, suspenseIdx, actionIdx]);
+  }, [audioMode, suspenseIdx, actionIdx, resonanceFactor, currentChunk]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => { 
@@ -645,7 +845,16 @@ export default function Home() {
   };
 
   const handleNext = () => {
-    if (data && currentChunk < data.chunks.length) { setCurrentChunk(c => c + 1); setRewardType('step'); setTimeout(() => setRewardType('none'), 2000); } 
+    if (data && currentChunk < data.chunks.length) { 
+      const nextChunk = currentChunk + 1;
+      // Trigger break every 3 segments (at index 2, 5, 8...)
+      if (nextChunk > 0 && nextChunk % 3 === 0 && nextChunk < data.chunks.length) {
+        setShowBreak(true);
+      }
+      setCurrentChunk(nextChunk); 
+      setRewardType('step'); 
+      setTimeout(() => setRewardType('none'), 2000); 
+    } 
     else if (data && currentChunk === data.chunks.length) {
       setRewardType('final'); setIsZenLocked(false); if (document.fullscreenElement) document.exitFullscreen();
       setDassahPoints(prev => { const next = prev + 10; localStorage.setItem('dassah_points', next.toString()); return next; });
@@ -717,6 +926,19 @@ export default function Home() {
       <style>{themeStyles}</style>
       <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)`, color: 'var(--color-text)' }}>
       <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
+      
+      <AnimatePresence>
+        {data && currentChunk >= 0 && currentChunk < data.chunks.length && (
+          <ContextAnchor whyCare={data.whyCare} isZenLocked={isZenLocked} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showBreak && (
+          <NeuralReset onComplete={() => { playClick(); setShowBreak(false); }} />
+        )}
+      </AnimatePresence>
+
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
@@ -725,7 +947,7 @@ export default function Home() {
 
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-6 pointer-events-none">
         <nav className={`pointer-events-auto flex items-center gap-2 px-3 py-2 rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
-          <button onClick={() => { playClick(); setShowCommandCenter(true); }} title="Neural Command" className="p-3 rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
+          <button onClick={() => { playClick(); setShowNeuralCommand(true); }} title="Neural Command" className="p-3 rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
             <Compass size={20} className="group-hover:rotate-90 transition-transform duration-500" />
           </button>
           
@@ -763,7 +985,7 @@ export default function Home() {
           </button>
 
           {user ? (
-            <button onClick={() => setShowCommandCenter(true)} className="w-10 h-10 rounded-2xl overflow-hidden border-2 border-blue-500/30 hover:border-blue-400 hover:scale-105 transition-all shadow-lg flex items-center justify-center bg-blue-500/10">
+            <button onClick={() => setShowNeuralIdentity(true)} className="w-10 h-10 rounded-2xl overflow-hidden border-2 border-blue-500/30 hover:border-blue-400 hover:scale-105 transition-all shadow-lg flex items-center justify-center bg-blue-500/10">
               {avatarUrl ? (
                 DEFAULT_AVATARS.find(a => a.id === avatarUrl) ? (
                   DEFAULT_AVATARS.find(a => a.id === avatarUrl)?.icon
@@ -793,84 +1015,28 @@ export default function Home() {
       </button>
 
       <AnimatePresence>
-        {showCommandCenter && (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-2 md:p-8">
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-4xl w-full max-h-[95vh] md:max-h-[90vh] overflow-y-auto no-scrollbar bg-[var(--color-glass)] p-4 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8">
-              {/* Left Side: Stats & Identity */}
-              <div className="space-y-4 md:space-y-6">
-                <div className="bg-white/5 p-5 md:p-8 rounded-[2rem] border border-white/10 space-y-5 md:space-y-6">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h2 className="text-xl md:text-2xl font-black text-white italic">Neural Profile</h2>
-                      <p className="text-blue-400 font-bold text-[9px] uppercase tracking-widest mt-1">{callsign}</p>
-                    </div>
-                    <div className="bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 flex items-center gap-2">
-                      <Star className="text-amber-500 fill-amber-500" size={12}/><span className="font-black text-white text-[10px]">{dassahPoints}</span>
-                    </div>
-                  </div>
-
-                  {/* Neural Identity Section - Compact */}
-                  <div className="space-y-3">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Identity</p>
-                    <div className="flex flex-wrap gap-2">
-                      {DEFAULT_AVATARS.map((av) => (
-                        <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-9 h-9 md:w-10 md:h-10 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-white/10 scale-105 shadow-lg' : 'border-transparent bg-white/5 opacity-40 hover:opacity-100'}`} title={av.label}>
-                          <span className="scale-75">{av.icon}</span>
-                        </button>
-                      ))}
-                      <label className="w-9 h-9 md:w-10 md:h-10 rounded-xl border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all">
-                        <Upload size={14} className="text-slate-400" />
-                        <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
-                      </label>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2 md:gap-3">
-                    <button onClick={() => { setShowCommandCenter(false); setShowHistory(true); }} className="p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all text-left group">
-                      <Clock className="text-blue-400 mb-2" size={18} />
-                      <p className="text-[8px] md:text-[9px] font-black uppercase text-slate-500 leading-none">Vault</p>
-                      <p className="text-[10px] md:text-xs font-bold text-white">History</p>
-                    </button>
-                    <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] border transition-all text-left ${focusMode === 'sovereign' ? 'bg-amber-600/20 border-amber-500/50' : 'bg-white/5 border-white/10'}`}>
-                      {focusMode === 'sovereign' ? <Crown className="text-amber-400 mb-2" size={18} /> : <Zap className="text-blue-400 mb-2" size={18} />}
-                      <p className="text-[8px] md:text-[9px] font-black uppercase text-slate-500 leading-none">Mode</p>
-                      <p className="text-[10px] md:text-xs font-bold text-white">{focusMode === 'sovereign' ? 'Sovereign' : 'Dastastic'}</p>
-                    </button>
-                  </div>
-
-                  {!isPaid && (
-                    <button onClick={() => { setShowCommandCenter(false); setShowPaywall(true); }} className="w-full p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between group overflow-hidden relative shadow-xl">
-                      <div className="relative z-10 text-left">
-                        <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] opacity-60">Architect Access</p>
-                        <p className="text-base md:text-lg font-black italic leading-none">Upgrade Link</p>
-                      </div>
-                      <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform relative z-10" />
-                      <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                    </button>
-                  )}
-                </div>
-
-                <div className="hidden md:flex justify-center pt-2">
-                  <button onClick={() => setShowCommandCenter(false)} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Close</button>
-                </div>
+        {showNeuralCommand && (
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-2xl w-full bg-[var(--color-glass)] p-8 md:p-12 rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-8">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-black text-white italic flex items-center gap-4"><Compass className="text-blue-400" /> Neural Command</h2>
+                <button onClick={() => setShowNeuralCommand(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
               </div>
 
-              {/* Right Side: Settings */}
-              <div className="space-y-4 md:space-y-6">
-                <div className="bg-white/5 p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-white/10 space-y-5 md:space-y-6">
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Visual Spectrum</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
-                      {Object.entries(THEMES).map(([id, t]) => (
-                        <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
-                          <div className="w-5 h-5 md:w-6 md:h-6 rounded-md shadow-md flex-shrink-0" style={{ backgroundColor: t.accent }} />
-                          <span className="text-[8px] md:text-[9px] font-bold text-white truncate">{t.name}</span>
-                          {theme === id && <Check className="text-white ml-auto" size={10} />}
-                        </button>
-                      ))}
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Visual Spectrum</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(THEMES).map(([id, t]) => (
+                      <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
+                        <div className="w-5 h-5 rounded-md" style={{ backgroundColor: t.accent }} />
+                        <span className="text-[9px] font-bold text-white truncate">{t.name}</span>
+                      </button>
+                    ))}
                   </div>
+                </div>
 
+                <div className="space-y-6">
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Neural Resonance</p>
                     <div className="grid grid-cols-1 gap-2">
@@ -880,29 +1046,104 @@ export default function Home() {
                         {m:'suspense', i:<Ghost size={14}/>, n:'Harmony', d:'Soundscape'}, 
                         {m:'action', i:<Swords size={14}/>, n:'Zen Flow', d:'Focus rhythm'} 
                       ].map((s) => (
-                        <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex items-center gap-3 p-2.5 md:p-3 rounded-xl transition-all text-left ${audioMode === s.m ? 'bg-blue-600 text-white shadow-lg' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
+                        <button key={s.m} onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex items-center gap-3 p-3 rounded-xl transition-all text-left ${audioMode === s.m ? 'bg-blue-600 text-white shadow-lg' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
                           <div className={`p-2 rounded-lg ${audioMode === s.m ? 'bg-white/20' : 'bg-white/5'}`}>{s.i}</div>
                           <div>
                             <p className="text-[9px] font-black uppercase tracking-widest leading-tight">{s.n}</p>
-                            <p className={`text-[7px] md:text-[8px] opacity-60 font-medium leading-tight ${audioMode === s.m ? 'text-white' : 'text-slate-500'}`}>{s.d}</p>
+                            <p className="text-[7px] opacity-60 font-medium leading-tight">{s.d}</p>
                           </div>
                         </button>
                       ))}
                     </div>
                   </div>
-
-                  <div className="pt-2 space-y-2">
-                    <button onClick={() => { playClick(); const a = document.createElement('a'); a.href = '/dassahs-prism-extension.zip'; a.download = 'dassahs-prism-extension.zip'; a.click(); }} className="w-full p-3 md:p-4 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all shadow-lg group"><Rocket size={14} className="group-hover:translate-y-[-2px] transition-transform"/> Download Extension</button>
-                    <button onClick={() => { setShowCommandCenter(false); setShowAbout(true); }} className="w-full p-3 md:p-4 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all"><Brain size={14}/> About Prism</button>
-                    {user && <button onClick={handleLogout} className="w-full p-3 md:p-4 rounded-xl bg-red-600/5 border border-red-600/20 text-red-400 hover:bg-red-600 hover:text-white flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all"><LogOut size={14}/> Disconnect</button>}
-                  </div>
-                </div>
-                
-                {/* Mobile Close Button */}
-                <div className="flex md:hidden justify-center pb-4">
-                  <button onClick={() => setShowCommandCenter(false)} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Close</button>
                 </div>
               </div>
+              
+              <div className="flex justify-center">
+                <button onClick={() => setShowNeuralCommand(false)} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showNeuralIdentity && (
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-4xl w-full max-h-[90vh] overflow-y-auto no-scrollbar bg-[var(--color-glass)] p-8 md:p-12 rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-10">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-black text-white italic flex items-center gap-4"><Crown className="text-amber-400" /> Neural Identity</h2>
+                <div className="bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 flex items-center gap-2">
+                  <Star className="text-amber-500 fill-amber-500" size={12}/><span className="font-black text-white text-[10px]">{dassahPoints}</span>
+                </div>
+                <button onClick={() => setShowNeuralIdentity(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-8">
+                  <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Image</p>
+                    <div className="flex flex-wrap gap-3">
+                      {DEFAULT_AVATARS.map((av) => (
+                        <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-12 h-12 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-white/10 scale-110' : 'border-transparent bg-white/5 opacity-40 hover:opacity-100'}`}>
+                          {av.icon}
+                        </button>
+                      ))}
+                      <label className="w-12 h-12 rounded-xl border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all">
+                        <Upload size={16} className="text-slate-400" />
+                        <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Vault</p>
+                    <button onClick={() => { setShowNeuralIdentity(false); setShowHistory(true); }} className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all text-left flex items-center gap-4 group">
+                      <Clock className="text-blue-400 group-hover:rotate-[-20deg] transition-transform" size={20} />
+                      <div>
+                        <p className="text-xs font-bold text-white">Achieving Vault</p>
+                        <p className="text-[8px] font-black uppercase text-slate-500">Reading History</p>
+                      </div>
+                    </button>
+                  </div>
+
+                  {!isPaid && (
+                    <button onClick={() => { setShowNeuralIdentity(false); setShowPaywall(true); }} className="w-full p-6 rounded-[2rem] bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between group overflow-hidden relative shadow-xl">
+                      <div className="relative z-10 text-left">
+                        <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-60">Architect Access</p>
+                        <p className="text-lg font-black italic leading-none">Upgrade Link</p>
+                      </div>
+                      <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform relative z-10" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-6">
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Dopamine Vault</p>
+                  <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 min-h-[300px] flex flex-col gap-4">
+                    {starredItems.length === 0 ? (
+                      <div className="flex-grow flex flex-col items-center justify-center text-center p-8 opacity-40">
+                        <Star size={40} className="mb-4 text-amber-500" />
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Star metaphors during reading to anchor them in your vault.</p>
+                      </div>
+                    ) : (
+                      starredItems.map((item, i) => (
+                        <div key={i} className="p-4 rounded-2xl bg-black/20 border border-white/5 space-y-2 relative group">
+                          <p className="text-[8px] font-black uppercase text-blue-400 tracking-tighter">{item.heading}</p>
+                          <p className="text-sm font-bold text-slate-300 italic">"{item.content}"</p>
+                          <button onClick={() => handleToggleStar(item)} className="absolute top-2 right-2 text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"><X size={14}/></button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {user && (
+                <div className="pt-4 border-t border-white/5">
+                  <button onClick={handleLogout} className="text-red-400 text-[10px] font-black uppercase tracking-widest hover:text-red-300 flex items-center gap-2"><LogOut size={14}/> Disconnect Neural Link</button>
+                </div>
+              )}
             </motion.div>
           </div>
         )}
@@ -1009,7 +1250,20 @@ export default function Home() {
             ) : currentChunk === data.chunks.length ? (
               <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={handleShare} className="flex-1 p-6 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-[2rem] text-slate-400 hover:text-white transition-all flex items-center justify-center gap-3 font-black uppercase text-sm tracking-widest"><Share2 size={24}/> {isSharing ? 'Copying...' : 'Share the Prism'}</button><button onClick={() => { playClick(); handleNext(); }} className="flex-[2] bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button></div></motion.div>
             ) : (
-              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden"><div className="absolute top-10 left-10 flex items-center gap-4"><div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div><button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button></div><h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2><div className="space-y-8 flex-grow"><div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>{data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}<div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="bg-amber-500/5 p-6 rounded-[2rem] border border-amber-500/10 space-y-3"><div className="flex items-center gap-2 text-amber-500 font-black uppercase tracking-widest text-[10px]"><Zap size={14}/> Dopamine Hook</div><p className="text-lg font-bold text-amber-200/80 italic">"{data.chunks[currentChunk].dopamineHook}"</p></div><div className="bg-purple-500/5 p-6 rounded-[2rem] border border-purple-500/10 space-y-3"><div className="flex items-center gap-2 text-purple-400 font-black uppercase tracking-widest text-[10px]"><Sparkle size={14}/> Metaphor</div><p className="text-lg font-bold text-purple-200/80 italic">"{data.chunks[currentChunk].metaphor}"</p></div></div></div><div className="mt-12 flex justify-between items-center"><button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all">Back</button><button onClick={handleNext} className="bg-white text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Next Step' : 'Next Segment'}</button></div>{data.chunks[currentChunk].metaphor && (<div className="bg-white/5 border-t border-white/10 p-10 md:p-16 flex flex-col md:flex-row gap-10"><div className="flex-1 space-y-4"><div className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-xs"><Brain size={18} /> The Metaphor</div><p className="text-xl text-slate-400 italic font-medium leading-relaxed">"{data.chunks[currentChunk].metaphor}"</p></div><div className="flex-1 space-y-4"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><Sparkles size={18} /> Dopamine Hook</div><p className="text-xl text-slate-300 font-black tracking-tight">{data.chunks[currentChunk].dopamineHook}</p></div></div>)}</motion.div>
+              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
+                <div className="absolute top-10 left-10 flex items-center gap-4">
+                  <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div>
+                  <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button>
+                </div>
+                
+                <h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
+                <div className="space-y-8 flex-grow">
+                  <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
+                  {/* Progress Prism at the bottom of content */}
+                  <div className="pt-8">
+                    <ProgressPrism current={currentChunk} total={data.chunks.length} />
+                  </div>
+                  {data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}<div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="bg-amber-500/5 p-6 rounded-[2rem] border border-amber-500/10 space-y-3"><div className="flex items-center gap-2 text-amber-500 font-black uppercase tracking-widest text-[10px]"><Zap size={14}/> Dopamine Hook</div><p className="text-lg font-bold text-amber-200/80 italic">"{data.chunks[currentChunk].dopamineHook}"</p></div><div className="bg-purple-500/5 p-6 rounded-[2rem] border border-purple-500/10 space-y-3"><div className="flex items-center gap-2 text-purple-400 font-black uppercase tracking-widest text-[10px]"><Sparkle size={14}/> Metaphor</div><p className="text-lg font-bold text-purple-200/80 italic">"{data.chunks[currentChunk].metaphor}"</p></div></div></div><div className="mt-12 flex justify-between items-center"><button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all">Back</button><button onClick={handleNext} className="bg-white text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Next Step' : 'Next Segment'}</button></div>{data.chunks[currentChunk].metaphor && (<div className="bg-white/5 border-t border-white/10 p-10 md:p-16 flex flex-col md:flex-row gap-10"><div className="flex-1 space-y-4"><div className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-xs"><Brain size={18} /> The Metaphor</div><p className="text-xl text-slate-400 italic font-medium leading-relaxed">"{data.chunks[currentChunk].metaphor}"</p></div><div className="flex-1 space-y-4"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><Sparkles size={18} /> Dopamine Hook</div><p className="text-xl text-slate-300 font-black tracking-tight">{data.chunks[currentChunk].dopamineHook}</p></div></div>)}</motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -1054,7 +1308,7 @@ export default function Home() {
 
       <AnimatePresence>{isZenLocked && (<motion.button initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} onClick={handleToggleZenLock} className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"><X size={32} className="group-hover:rotate-90 transition-transform" /></motion.button>)}</AnimatePresence>
 
-      <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-[var(--color-shadow)] backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={18}/></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all active:scale-90 border-2 border-white/20"><MessageCircle size={28}/></button></div>)}</AnimatePresence>
+      <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-[var(--color-shadow)] backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-white rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
       
       <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
         <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
@@ -1062,5 +1316,17 @@ export default function Home() {
         </p>
         <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
       </footer>
-    </main></>);
+    </main></>
+  );
+}
+m onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-white rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
+      
+      <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
+        <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
+          DJ <Fish size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
+        </p>
+        <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
+      </footer>
+    </main></>
+  );
 }
