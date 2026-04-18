@@ -3,7 +3,7 @@ document.getElementById('simplifyBtn').addEventListener('click', async () => {
   const statusEl = document.getElementById('status');
   const btn = document.getElementById('simplifyBtn');
 
-  statusEl.innerText = "Capturing text...";
+  statusEl.innerText = "Capturing Noise...";
   btn.style.opacity = "0.5";
   btn.disabled = true;
 
@@ -11,9 +11,9 @@ document.getElementById('simplifyBtn').addEventListener('click', async () => {
     const response = await chrome.tabs.sendMessage(tab.id, { action: "extractText" });
     const text = response.text;
 
-    if (!text) throw new Error("Could not find any readable text.");
+    if (!text) throw new Error("Noise not found.");
 
-    statusEl.innerText = "Refracting the Noise...";
+    statusEl.innerText = "Refracting Web...";
 
     const encodedText = encodeURIComponent(text.slice(0, 3000));
     // ENSURING THE PRODUCTION URL IS USED

@@ -30,54 +30,64 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
     h1 {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 900;
       margin: 0;
+      font-style: italic;
       letter-spacing: -0.025em;
-      background: linear-gradient(to right, #60a5fa, #a78bfa);
+      background: linear-gradient(110deg, #3b82f6 0%, #8b5cf6 25%, #fff 50%, #8b5cf6 75%, #06b6d4 100%);
+      background-size: 200% auto;
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
+      animation: prism-refract 4s linear infinite;
     }
+    @keyframes prism-refract { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
     p {
       font-size: 13px;
       color: #94a3b8;
       margin: 0;
+      font-style: italic;
       line-height: 1.5;
     }
     button {
       width: 100%;
-      padding: 14px;
-      background: #3b82f6;
+      padding: 18px;
+      background: linear-gradient(to right, #2563eb, #4f46e5);
       color: white;
-      border: none;
-      border-radius: 16px;
-      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      font-weight: 900;
       font-size: 14px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.2em;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
     }
     button:hover {
-      background: #2563eb;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+      background: linear-gradient(to right, #3b82f6, #6366f1);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(37, 99, 235, 0.4);
     }
     button:active {
-      transform: translateY(0);
+      transform: translateY(0) scale(0.98);
     }
     #status {
-      font-size: 11px;
-      font-weight: 700;
-      color: #3b82f6;
+      font-size: 10px;
+      font-weight: 900;
+      color: #60a5fa;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.3em;
       height: 16px;
+      font-style: italic;
     }
     .footer {
-      font-size: 10px;
+      font-size: 8px;
+      font-weight: 900;
       color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.4em;
       margin-top: 8px;
     }
   </style>
@@ -89,11 +99,11 @@
     </div>
     <div>
       <h1>Dassah's Prism</h1>
-      <p>Quiet the noise. Clear the flow.</p>
+      <p>Reclaim your sovereignty.</p>
     </div>
-    <div id="status">Ready to Simplify</div>
-    <button id="simplifyBtn">Simplify This Page</button>
-    <div class="footer">Dassah's Prism v1.0</div>
+    <div id="status">Neural Link: Ready</div>
+    <button id="simplifyBtn">Refract Page</button>
+    <div class="footer">DJ | Rooted in Christ</div>
   </div>
   <script src="popup.js"></script>
 </body>

@@ -682,6 +682,35 @@ export default function Home() {
   const [starredItems, setStarredItems] = useState<{heading: string, content: string, type: 'metaphor' | 'hook'}[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [missionGoal, setMissionGoal] = useState('');
+
+  // Neural Snapshot - Auto Save
+  useEffect(() => {
+    if (data && currentChunk >= -1) {
+      const snapshot = {
+        data,
+        currentChunk,
+        input,
+        missionGoal,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem('dassahs_neural_snapshot', JSON.stringify(snapshot));
+    }
+  }, [data, currentChunk, input, missionGoal]);
+
+  const handleResumeSnapshot = () => {
+    playClick();
+    const saved = localStorage.getItem('dassahs_neural_snapshot');
+    if (saved) {
+      const { data: savedData, currentChunk: savedChunk, input: savedInput, missionGoal: savedGoal } = JSON.parse(saved);
+      setData(savedData);
+      setCurrentChunk(savedChunk);
+      setInput(savedInput);
+      setMissionGoal(savedGoal);
+      setRewardType('step');
+      setTimeout(() => setRewardType('none'), 2000);
+    }
+  };
 
   const DEFAULT_AVATARS = [
     { id: 'spark', icon: <Sparkles className="text-amber-400" />, label: 'The Spark' },
@@ -768,7 +797,10 @@ export default function Home() {
         // Force logout if they haven't accepted the new terms yet
         await supabase.auth.signOut();
       } else {
-        setLinkState('established');
+        setLinkState('revealing');
+        setTimeout(() => {
+          setLinkState('established');
+        }, 4000); // 4 second portal reveal
       }
     };
     checkTOS();
@@ -1033,6 +1065,14 @@ export default function Home() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const handleLoadExample = () => {
+    playClick();
+    const exampleNoise = "This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text. It's filled with unnecessary jargon and complex clauses that are designed to overwhelm the reader rather than provide clarity. By the time you reach the end, you've forgotten how it started, and the 'Sovereign Core' of the message is lost in a sea of cognitive noise.";
+    setInput(exampleNoise);
+    setRewardType('step');
+    setTimeout(() => setRewardType('none'), 2000);
+  };
+
   const handleSimplify = async (textToSimplify = input) => {
     playClick(); if (!textToSimplify.trim()) return; 
     const limit = user ? 15 : 5;
@@ -1042,7 +1082,7 @@ export default function Home() {
     setData(null); // CLEAR PREVIOUS DATA TO FORCE NEW DISCERNMENT UI
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
-      const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify, isScenic, cognitiveMode }) });
+      const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify, isScenic, cognitiveMode, missionGoal }) });
       if (!res.ok) { const errData = await res.json(); throw new Error(errData.error || "The Prism is blurry. Try again."); }
       const result = await res.json(); setData(result);
       const title = result.tldr[0].slice(0, 30) + '...';
@@ -1219,7 +1259,7 @@ export default function Home() {
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
-        <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="flex gap-6 pt-2"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Rank</p><p className="text-white font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Result</p><p className="text-white font-bold text-base italic">100% Clarity</p></div></div>)}</div></motion.div></>
+        <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Rank</p><p className="text-white font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Result</p><p className="text-white font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-white/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">"Inhale clarity. Exhale the mission. Your sovereignty is established."</p></motion.div></div>)}</div></motion.div></>
       )}</AnimatePresence>
 
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-6 pointer-events-none">
@@ -1508,14 +1548,34 @@ export default function Home() {
             <div className="bg-black/20 p-6 rounded-[2rem] border border-white/5 space-y-3"><p className="text-[8px] uppercase tracking-widest text-slate-500 font-black">The Noise</p><p className="text-xs text-slate-500 leading-relaxed">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text.</p></div>
             <div className="bg-blue-500/5 p-6 rounded-[2rem] border border-blue-500/10 space-y-3 relative overflow-hidden"><div className="absolute top-2 right-4 animate-pulse"><Sparkle size={10} className="text-blue-400" /></div><p className="text-[8px] uppercase tracking-widest text-blue-400 font-black">The Clarity</p><p className="text-xs text-slate-300 leading-relaxed font-bold"><span className="text-white font-black">Thi</span>s <span className="text-white font-black">i</span>s <span className="text-white font-black">a</span> <span className="text-white font-black">shor</span>t, <span className="text-white font-black">Bioni</span>c <span className="text-white font-black">pat</span>h. <span className="text-white font-black">You</span>r <span className="text-white font-black">brai</span>n <span className="text-white font-black">lock</span>s <span className="text-white font-black">i</span>n <span className="text-white font-black">instan</span>tly.</p></div>
           </div>
-          <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/10 p-3 shadow-2xl overflow-hidden relative group focus-within:border-blue-500/50 transition-all flex flex-col items-center">
-            <div className="pt-6 pb-2"><RefractiveNeuralCore loading={loading} inputLength={input.length} isVictorious={false} user={user} mousePos={mousePos} focusMode={focusMode} /></div>
+           <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/10 p-3 shadow-2xl overflow-hidden relative group focus-within:border-blue-500/50 transition-all flex flex-col items-center">
+            <div className="pt-6 pb-2 relative">
+              <RefractiveNeuralCore loading={loading} inputLength={input.length} isVictorious={false} user={user} mousePos={mousePos} focusMode={focusMode} />
+              <button onClick={handleLoadExample} title="Refract an Example" className="absolute -bottom-2 -right-4 p-3 bg-white/10 border border-white/10 rounded-2xl text-amber-400 hover:text-white hover:bg-white/20 transition-all group shadow-xl">
+                <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
+              </button>
+              {localStorage.getItem('dassahs_neural_snapshot') && !data && (
+                <button onClick={handleResumeSnapshot} title="Resume Last Mission" className="absolute -bottom-2 -left-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-400 hover:text-white hover:bg-blue-600 transition-all group shadow-xl flex items-center gap-2">
+                  <Anchor size={18} className="group-hover:rotate-[-20deg] transition-transform" />
+                  <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Resume Link</span>
+                </button>
+              )}
+            </div>
             <div className="w-full relative group">
               {showNeuroMirror ? (
                 <div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto"><NeuroMirrorText text={input || "Paste some text..."} /></div>
               ) : (
                 <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-700 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
               )}
+            </div>
+            <div className="w-full px-8 md:px-12 pb-4">
+              <input 
+                type="text" 
+                value={missionGoal} 
+                onChange={(e) => setMissionGoal(e.target.value)} 
+                placeholder="What is your Sovereign Goal? (Optional)" 
+                className="w-full bg-blue-500/5 border border-blue-500/20 p-4 rounded-2xl text-xs font-bold text-blue-100 italic focus:outline-none focus:border-blue-500/50 transition-all"
+              />
             </div>
             <div className="w-full bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border-t border-white/5">
               <div className="flex items-center gap-4">
