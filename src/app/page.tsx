@@ -110,7 +110,7 @@ interface SimplifiedData {
   tldr: string[];
   whyCare: string;
   readingTime: string;
-  chunks: { heading: string; content: string; keyTerms: string[]; metaphor: string; dopamineHook: string; }[];
+  chunks: { heading: string; content: string; summary: string; keyTerms: string[]; metaphor: string; dopamineHook: string; }[];
   chartData: { type: 'bar' | 'line' | 'pie'; data: { name: string; value: number }[] } | null;
   actions: { task: string; priority: 'high' | 'medium' | 'low' }[];
 }
@@ -826,6 +826,10 @@ export default function Home() {
   const [isSharing, setIsSharing] = useState(false);
   const [isZenLocked, setIsZenLocked] = useState(false);
   const [isGreyedOut, setIsGreyedOut] = useState(false);
+  const [storyMode, setStoryMode] = useState(false);
+  const [showMissionBrief, setShowMissionBrief] = useState(false);
+  const [showVictory, setShowVictory] = useState(false);
+  const [shareId, setShareId] = useState<string | null>(null);
   
   const resonanceFactor = useMemo(() => {
     if (!data || currentChunk < 0 || currentChunk >= data.chunks.length) return 1.0;
@@ -1061,7 +1065,32 @@ export default function Home() {
     setUsageCount(parseInt(localStorage.getItem('dassahs_prism_usage') || '0'));
     const urlParams = new URLSearchParams(window.location.search);
     const textParam = urlParams.get('text');
-    if (textParam) { setInput(decodeURIComponent(textParam)); handleSimplify(decodeURIComponent(textParam)); window.history.replaceState({}, document.title, "/"); }
+    const shareIdParam = urlParams.get('share_id');
+
+    if (textParam) { 
+      setInput(decodeURIComponent(textParam)); 
+      handleSimplify(decodeURIComponent(textParam)); 
+      window.history.replaceState({}, document.title, "/"); 
+    } else if (shareIdParam) {
+      const fetchShared = async () => {
+        setLoading(true);
+        try {
+          const res = await fetch(`/api/share?id=${shareIdParam}`);
+          const result = await res.json();
+          if (result.data) {
+            setData(result.data);
+            setCurrentChunk(-1);
+            setShareId(shareIdParam);
+          }
+        } catch (e) {
+          console.error("Failed to load shared Prism");
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchShared();
+      window.history.replaceState({}, document.title, "/");
+    }
     return () => subscription.unsubscribe();
   }, []);
 
@@ -1080,9 +1109,10 @@ export default function Home() {
     
     setLoading(true);
     setData(null); // CLEAR PREVIOUS DATA TO FORCE NEW DISCERNMENT UI
+    setShareId(null);
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
-      const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify, isScenic, cognitiveMode, missionGoal }) });
+      const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify, isScenic, cognitiveMode, missionGoal, isStory: storyMode }) });
       if (!res.ok) { const errData = await res.json(); throw new Error(errData.error || "The Prism is blurry. Try again."); }
       const result = await res.json(); setData(result);
       const title = result.tldr[0].slice(0, 30) + '...';
@@ -1095,8 +1125,22 @@ export default function Home() {
   const handleShare = async () => { 
     if (!data) return; setIsSharing(true); 
     try { 
-      const shareText = `I just crushed a massive document in ${data.readingTime} using Dassah's Prism. ⚡️ Sovereignty reclaimed.\n\nCheck out the Prism: ${window.location.origin}/?text=${encodeURIComponent(input.slice(0, 500))}`; 
-      await navigator.clipboard.writeText(shareText); alert("Viral share text copied! Go brag on TikTok or X! 🚀"); 
+      let id = shareId;
+      if (!id) {
+        const title = data.tldr[0].slice(0, 50);
+        const res = await fetch('/api/share', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, data, userId: user?.id })
+        });
+        const result = await res.json();
+        id = result.id;
+        setShareId(id);
+      }
+      
+      const shareUrl = `${window.location.origin}/s/${id}`;
+      const shareText = `I just crushed the noise! ⚡️ Dassah's Prism refracted a document into ${data.readingTime} of pure clarity. Sovereignty: 100%. Join the flow: ${shareUrl}`; 
+      await navigator.clipboard.writeText(shareText); alert("Victory shared! Link copied to clipboard. 🚀"); 
     } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); } 
   };
 
@@ -1150,7 +1194,7 @@ export default function Home() {
     else if (data && currentChunk === data.chunks.length) {
       setRewardType('final'); setIsZenLocked(false); if (document.fullscreenElement) document.exitFullscreen();
       setDassahPoints(prev => { const next = prev + 10; localStorage.setItem('dassah_points', next.toString()); return next; });
-      setTimeout(() => { setRewardType('none'); handleReset(); }, 5000);
+      setTimeout(() => { setShowVictory(true); }, 2000);
     }
   };
 
@@ -1518,6 +1562,36 @@ export default function Home() {
         </div>
       )}</AnimatePresence>
 
+      <AnimatePresence>{showMissionBrief && data && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="max-w-2xl w-full bg-[var(--color-shadow)] border-2 border-blue-500/30 p-10 md:p-16 rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] relative max-h-[90vh] overflow-y-auto no-scrollbar">
+            <button onClick={() => setShowMissionBrief(false)} className="absolute top-8 right-8 p-3 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
+            <div className="space-y-12">
+              <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 w-fit flex items-center gap-3"><Rocket size={18}/> Mission Brief</div>
+              
+              <div className="space-y-4">
+                <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2>
+                <p className="text-3xl md:text-5xl font-black leading-[1.1] text-white tracking-tight italic">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p>
+              </div>
+
+              <div className="space-y-8">
+                <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">Core Refractions</h2>
+                <div className="space-y-6">
+                  {data.tldr.map((point, i) => (
+                    <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group">
+                      <span className="flex-shrink-0 w-10 h-10 rounded-xl bg-[var(--color-glass)] text-blue-400 flex items-center justify-center font-black mr-6 border border-[var(--color-border)] group-hover:border-blue-500/50 transition-all text-base">{i + 1}</span>
+                      <p className="text-lg md:text-xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              <button onClick={() => setShowMissionBrief(false)} className="w-full bg-blue-600 py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-white shadow-xl hover:opacity-80 transition-all active:scale-95">Acknowledge & Return</button>
+            </div>
+          </motion.div>
+        </div>
+      )}</AnimatePresence>
+
       <AnimatePresence>{showFeedback && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="max-w-md w-full bg-[var(--color-shadow)] border-2 border-amber-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] relative overflow-hidden">
@@ -1584,19 +1658,31 @@ export default function Home() {
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                 <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}<span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic' : 'Quick'}</span></button>
-                <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:shadow-[0_0_60px_rgba(147,51,234,0.5)] transition-all active:scale-95 text-lg">{loading ? <Loader2 className="animate-spin" /> : 'Discern It'}</button>
-              </div>
+                <button onClick={() => setStoryMode(!storyMode)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${storyMode ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{storyMode ? <Rocket size={18}/> : <Anchor size={18}/>}<span className="text-[10px] font-black uppercase tracking-widest">{storyMode ? 'Story' : 'Fact'}</span></button>
+                <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:shadow-[0_0_60px_rgba(147,51,234,0.5)] transition-all active:scale-95 text-lg">{loading ? <Loader2 className="animate-spin" /> : 'Discern It'}</button>              </div>
             </div>
           </div>
         </motion.div>
       ) : (
         <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">
-          <div className="mb-8 flex justify-end gap-4"><button onClick={handleDownloadSummary} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest"><Download size={18}/> Save Summary</button></div>
-          <AnimatePresence mode="wait">
+          <div className="mb-8 flex justify-end gap-4">
+            <button onClick={() => { setShowMissionBrief(true); playClick(); }} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-blue-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest"><Rocket size={18}/> Mission Brief</button>
+            <button onClick={handleDownloadSummary} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest"><Download size={18}/> Save Summary</button>
+          </div>          <AnimatePresence mode="wait">
             {currentChunk === -1 ? (
-              <motion.div key="summary" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] space-y-12 shadow-2xl"><div className="flex items-center justify-between"><div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 flex items-center gap-3"><Rocket size={18}/> Saved {data.readingTime}</div><button onClick={handleReset} className="p-5 bg-[var(--color-glass)] rounded-3xl text-slate-500 hover:text-red-400 transition-all"><X size={24}/></button></div><div className="space-y-8"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2><p className="text-4xl md:text-5xl font-black leading-[1.1] text-white tracking-tight">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p></div><div className="space-y-10">{data.tldr.map((point, i) => (<motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex items-start group"><span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-[var(--color-glass)] text-blue-400 flex items-center justify-center font-black mr-8 border border-[var(--color-border)] group-hover:border-blue-500/50 transition-all text-lg">{i + 1}</span><p className="text-xl md:text-2xl font-bold text-slate-300 leading-snug">{isBionic ? <BionicText text={point} /> : point}</p></motion.div>))}</div><button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Prism <ArrowRight className="inline ml-4"/></button></motion.div>
-            ) : currentChunk === data.chunks.length ? (
-              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={handleShare} className="flex-1 p-6 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-[2rem] text-slate-400 hover:text-white transition-all flex items-center justify-center gap-3 font-black uppercase text-sm tracking-widest"><Share2 size={24}/> {isSharing ? 'Copying...' : 'Share the Prism'}</button><button onClick={() => { playClick(); handleNext(); }} className="flex-[2] bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button></div></motion.div>
+              <motion.div key="ready" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] text-center space-y-8 shadow-2xl relative overflow-hidden">
+                <div className="mx-auto w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse"><Zap size={48} /></div>
+                <div className="space-y-4">
+                  <h2 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter">Neural Refraction Complete</h2>
+                  <p className="text-slate-400 font-bold uppercase tracking-[0.4em] text-[10px]">Saved {data.readingTime} of Cognitive Noise</p>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Prism <ArrowRight className="inline ml-4"/></button>
+                  <button onClick={() => { setShowMissionBrief(true); playClick(); }} className="w-full bg-white/5 py-4 rounded-xl font-black uppercase tracking-[0.3em] text-[10px] text-slate-400 hover:text-white transition-all">View Mission Brief</button>
+                </div>
+                <button onClick={handleReset} className="absolute top-8 right-8 p-4 text-slate-600 hover:text-red-400 transition-all"><X size={20}/></button>
+              </motion.div>
+            ) : currentChunk === data.chunks.length ? (              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={() => { playClick(); handleNext(); }} className="flex-1 bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button></div></motion.div>
             ) : (
               <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
                 <div className="absolute top-10 left-10 flex items-center gap-4">
@@ -1604,7 +1690,11 @@ export default function Home() {
                   <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button>
                 </div>
                 
-                <h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
+                <h2 className="text-4xl md:text-6xl font-black mb-4 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
+                <div className="mb-8 p-4 bg-blue-500/10 border-l-4 border-blue-500 rounded-r-xl">
+                  <p className="text-blue-300 text-xs font-black uppercase tracking-widest mb-1">Segment Snap</p>
+                  <p className="text-slate-300 font-bold italic">{isBionic ? <BionicText text={data.chunks[currentChunk].summary} /> : data.chunks[currentChunk].summary}</p>
+                </div>
                 <div className="space-y-8 flex-grow">
                   <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
                   {/* Progress Prism at the bottom of content */}
@@ -1696,6 +1786,39 @@ export default function Home() {
 
       <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-[var(--color-shadow)] backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-white rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
       
+      <AnimatePresence>{showVictory && data && (
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[700] flex items-center justify-center p-4">
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-lg w-full bg-slate-900 border-2 border-amber-500/30 p-10 md:p-16 rounded-[4rem] text-center space-y-10 shadow-[0_0_150px_rgba(245,158,11,0.3)] relative overflow-hidden">
+             <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent pointer-events-none" />
+             <div className="mx-auto w-32 h-32 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500 animate-bounce shadow-[0_0_50px_rgba(245,158,11,0.2)]"><Trophy size={64} /></div>
+             
+             <div className="space-y-4">
+               <h2 className="text-5xl font-black text-white tracking-tighter italic">NEURAL VICTORY</h2>
+               <p className="text-amber-400 font-black uppercase tracking-[0.5em] text-xs">Sovereignty Reclaimed</p>
+             </div>
+
+             <div className="grid grid-cols-2 gap-4">
+               <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Time Saved</p>
+                 <p className="text-2xl font-black text-white">{data.readingTime}</p>
+               </div>
+               <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Efficiency</p>
+                 <p className="text-2xl font-black text-white">100%</p>
+               </div>
+             </div>
+
+             <div className="space-y-4">
+               <button onClick={handleShare} className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 hover:scale-[1.02] active:scale-95 py-8 rounded-[2.5rem] font-black uppercase tracking-widest text-xl shadow-[0_20px_50px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-4">
+                 {isSharing ? <Loader2 className="animate-spin" /> : <Share2 size={24} />}
+                 Share My Sovereignty
+               </button>
+               <button onClick={handleReset} className="w-full text-slate-600 font-bold uppercase text-[10px] tracking-[0.5em] py-4 hover:text-slate-400 transition-colors">Return to Vault</button>
+             </div>
+          </motion.div>
+        </div>
+      )}</AnimatePresence>
+
       <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
         <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
           DJ <Fish size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.

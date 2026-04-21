@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { text, mode, question, context, isScenic, cognitiveMode, missionGoal } = await req.json();
+    const { text, mode, question, context, isScenic, cognitiveMode, missionGoal, isStory } = await req.json();
 
     if (!text && mode !== 'chat') {
       return NextResponse.json(
@@ -22,15 +22,24 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const modelsToTry = ['gemini-2.0-flash', 'gemini-flash-latest'];
+    const modelsToTry = [
+      'gemini-2.0-pro-exp-02-05', 
+      'gemini-1.5-pro', 
+      'gemini-2.0-flash', 
+      'gemini-1.5-flash'
+    ];
     
-    const prompt = `
-You are an expert cognitive architect called "Dassah's Prism." Your mission is to transmute overwhelming "Noise" into "Divine Clarity" through Deep Discernment. You are a fierce advocate for the user's sovereignty.
+    // ... rest of prompt logic ...
 
-USER MISSION GOAL: ${missionGoal || 'Discovery & Clarity'}
+    You are an expert cognitive architect called "Dassah's Prism." Your mission is to transmute overwhelming "Noise" into "Divine Clarity" through Deep Discernment. You are a fierce advocate for the user's sovereignty.
 
+    ${text.length > 100000 ? '⚠️ LARGE INPUT DETECTED: This is a full book/document. Prioritize the most critical narrative/logical nodes and consolidate minor details to maintain "Divine Clarity" without overloading the bandwidth.' : ''}
+
+    USER MISSION GOAL: ${missionGoal || 'Discovery & Clarity'}
+    ...
 DEEP DISCERNMENT PROTOCOL:
-First, perform a hidden "Sovereign Audit" of the INPUT. Identify the category and adopt the corresponding "Refraction Role":
+First, perform a hidden "Sovereign Audit" of the INPUT. Identify the category and adopt the corresponding "Refraction Role" (If isStory is TRUE, ALWAYS adopt the STORY/BOOK role):
+${isStory ? 'FORCED ROLE: STORY/BOOK' : ''}
 
 1. LEGAL (The "Legal Shield"):
    - Specifically hunt for "Red Flags" (Auto-renewals, hidden costs, data selling).
@@ -49,26 +58,29 @@ First, perform a hidden "Sovereign Audit" of the INPUT. Identify the category an
    - Prioritize "Patient Agency." Provide 3 specific questions the user should ask their doctor based on this data.
    - Target: Health Agency.
 
-5. LITERARY/CASUAL (The "Intel Safari"):
+5. STORY/BOOK (The "Narrative Weaver"):
+   - Focus on emotional arc, key character growth, major plot turns, and "The Soul's Lesson."
+   - Target: Immersive Enjoyment & Deep Resonance.
+   - If this is a story, provide a more vast, evocative summary in the "whyCare" and "tldr" sections.
+
+6. LITERARY/CASUAL (The "Intel Safari"):
    - Focus on "Aha! Moments," emotional core, and plot momentum.
    - Target: Instant Insight.
 
 TARGET AUDIENCE: ${cognitiveMode === 'ceo' ? 'CEO/Executive (Prioritize "Executive Distillation" - ultra-high impact, bottom-line value, rapid decision-making context.)' : 'ADHD/Neurodivergent (Prioritize "Neural Refraction" - dopamine-aligned, high stimulation, fascinating hooks to maintain focus.)'}
 
-PROCESSING MODE: ${isScenic ? 'SCENIC ROUTE (Full immersive journey: Use wild, creative metaphors, fascinating "Did you know?" hooks, and break the text into many small, vibrant segments. Be witty and expansive.)' : 'QUICK FILTER (Ultra-fast extraction: Get the absolute core facts in the shortest time possible. Use minimal segments and extreme brevity.)'}
+PROCESSING MODE: ${isScenic ? 'SCENIC ROUTE (Full immersive journey: Use wild, creative metaphors, fascinating "Did you know?" hooks, and break the text into 5-15 small, vibrant segments depending on the depth and length of the input. Be witty and expansive. Provide in-depth analysis for each segment. If this is a story, make it a vast, deep-dive exploration of the narrative.)' : 'QUICK FILTER (Ultra-fast extraction: Get the absolute core facts in the shortest time possible. Use 3-5 minimal segments and extreme brevity.)'}
+
+ALWAYS TIE ALL ANALYSIS BACK TO THE USER'S SOVEREIGN GOAL: ${missionGoal || 'Discovery & Clarity'}
 
 Follow these strict rules for the JSON output:
-1. "tldr": Exactly 3 concise, punchy bullet points.
-2. "whyCare": A compelling "Mission Anchor" reason (Safety, Success, or Sovereignty).
+1. "tldr": Exactly 3 concise, punchy bullet points that directly address the Sovereign Goal.
+2. "whyCare": A compelling "Mission Anchor" reason (Safety, Success, or Sovereignty). For stories, make this an evocative "Why this story matters to your soul."
 3. "readingTime": Estimate concentration time.
 4. "chunks": 
    - "heading": High-impact (Add ⚠️ if Legal Red Flag found).
-   - "content": Based on role: 
-     - Legal: Trap detection + Plain Explanation.
-     - Educational: First Principles breakdown.
-     - Business: The Social Decoder (Who/What/When + Vibe).
-     - Medical: The Body Advocate (Results + Questions for Doctor).
-     - Literary: Vivid, fast-paced "Aha!" moments.
+   - "content": The primary text for this segment.
+   - "summary": A 1-sentence "Neural Snap" summary of ONLY this specific segment.
    - "keyTerms": 1-3 keywords.
    - "metaphor": Mandatory creative/funny comparison.
    - "dopamineHook": Mandatory "Mind-Blow" fact or high-stakes realization.
@@ -84,6 +96,7 @@ Respond ONLY with a valid JSON object matching the exact structure below:
     {
       "heading": "string",
       "content": "string",
+      "summary": "string",
       "keyTerms": ["string", "string"],
       "metaphor": "string",
       "dopamineHook": "string"
@@ -116,9 +129,20 @@ ${text}
 
     for (const modelName of modelsToTry) {
       try {
+        const isPro = modelName.includes('pro');
         const model = genAI.getGenerativeModel({ 
           model: modelName,
-          generationConfig: { responseMimeType: "application/json" }
+          generationConfig: { 
+            responseMimeType: "application/json",
+            temperature: isPro ? 0.7 : 0.4, // Higher temperature for more creative/vast story summaries on Pro
+            topP: 0.95,
+          },
+          safetySettings: [
+            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_ONLY_HIGH" },
+            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" } // Essential for Legal/Medical 'Red Flag' detection
+          ]
         });
         
         const result = await model.generateContent(generationPrompt);
@@ -137,7 +161,7 @@ ${text}
     }
 
     if (!responseText) {
-      throw new Error(`The Neural Prism is currently saturated. Please try again in a few moments. (Details: ${lastError?.message})`);
+      throw new Error(`The Neural Prism is currently synchronizing with the Divine Server. Our bandwidth is tight—please give us 10-15 seconds to recalibrate and try again. (Details: ${lastError?.message})`);
     }
 
     // Chat mode has simple text response
@@ -156,7 +180,14 @@ ${text}
         tldr: parsedData.tldr || ["No summary generated"],
         whyCare: parsedData.whyCare || "Focus was interrupted.",
         readingTime: parsedData.readingTime || "1m",
-        chunks: parsedData.chunks || [{ heading: "Neural Hiccup", content: "AI failed to segment.", keyTerms: [], metaphor: "", dopamineHook: "" }],
+        chunks: parsedData.chunks.map((c: any) => ({
+          heading: c.heading || "Neural Fragment",
+          content: c.content || "",
+          summary: c.summary || "Segment analyzed.",
+          keyTerms: c.keyTerms || [],
+          metaphor: c.metaphor || "",
+          dopamineHook: c.dopamineHook || ""
+        })) || [{ heading: "Neural Hiccup", content: "AI failed to segment.", summary: "No summary.", keyTerms: [], metaphor: "", dopamineHook: "" }],
         chartData: parsedData.chartData || null,
         actions: parsedData.actions || []
       };
