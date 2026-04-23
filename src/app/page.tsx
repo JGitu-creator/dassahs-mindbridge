@@ -970,7 +970,7 @@ export default function Home() {
           if (localStorage.getItem('dassahs_prism_tutorial_complete') !== 'true') {
             setTimeout(() => {
               setShowTutorial(true);
-            }, 1000);
+            }, 3000); // 3 second delay to let tagline animation finish
           }
         }, 4000); // 4 second portal reveal
       }
@@ -1149,7 +1149,7 @@ export default function Home() {
 
   const handleSimplify = async (textToSimplify = input) => {
     playClick(); if (!textToSimplify.trim()) return; 
-    const limit = user ? 15 : 5;
+    const limit = user ? 30 : 10;
     if (usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
     
     setLoading(true);
