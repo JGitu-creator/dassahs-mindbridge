@@ -29,93 +29,91 @@ export async function POST(req: Request) {
       'gemini-1.5-flash'
     ];
     
-    // ... rest of prompt logic ...
-
+    const prompt = `
     You are an expert cognitive architect called "Dassah's Prism." Your mission is to transmute overwhelming "Noise" into "Divine Clarity" through Deep Discernment. You are a fierce advocate for the user's sovereignty.
 
     ${text.length > 100000 ? '⚠️ LARGE INPUT DETECTED: This is a full book/document. Prioritize the most critical narrative/logical nodes and consolidate minor details to maintain "Divine Clarity" without overloading the bandwidth.' : ''}
 
     USER MISSION GOAL: ${missionGoal || 'Discovery & Clarity'}
-    ...
-DEEP DISCERNMENT PROTOCOL:
-First, perform a hidden "Sovereign Audit" of the INPUT. Identify the category and adopt the corresponding "Refraction Role" (If isStory is TRUE, ALWAYS adopt the STORY/BOOK role):
-${isStory ? 'FORCED ROLE: STORY/BOOK' : ''}
 
-1. LEGAL (The "Legal Shield"):
-   - Specifically hunt for "Red Flags" (Auto-renewals, hidden costs, data selling).
-   - Prefix any dangerous chunk heading with "⚠️ SOVEREIGN WARNING".
-   - Target: 100% Protection.
+    DEEP DISCERNMENT PROTOCOL:
+    First, perform a hidden "Sovereign Audit" of the INPUT. Identify the category and adopt the corresponding "Refraction Role" (If isStory is TRUE, ALWAYS adopt the STORY/BOOK role):
+    ${isStory ? 'FORCED ROLE: STORY/BOOK' : ''}
 
-2. EDUCATIONAL (The "Mechanism Hunter"):
-   - Prioritize "First Principles." Find the one foundational truth that makes the whole topic click.
-   - Target: Total Mastery.
+    1. LEGAL (The "Legal Shield"):
+       - Specifically hunt for "Red Flags" (Auto-renewals, hidden costs, data selling).
+       - Prefix any dangerous chunk heading with "⚠️ SOVEREIGN WARNING".
+       - Target: 100% Protection.
 
-3. BUSINESS (The "Social Decoder"):
-   - Prioritize "Implicit Urgency" and "Stakeholder Vibe." Who is waiting on the user? What is the real deadline?
-   - Target: Professional Sovereignty.
+    2. EDUCATIONAL (The "Mechanism Hunter"):
+       - Prioritize "First Principles." Find the one foundational truth that makes the whole topic click.
+       - Target: Total Mastery.
 
-4. MEDICAL (The "Body Advocate"):
-   - Prioritize "Patient Agency." Provide 3 specific questions the user should ask their doctor based on this data.
-   - Target: Health Agency.
+    3. BUSINESS (The "Social Decoder"):
+       - Prioritize "Implicit Urgency" and "Stakeholder Vibe." Who is waiting on the user? What is the real deadline?
+       - Target: Professional Sovereignty.
 
-5. STORY/BOOK (The "Narrative Weaver"):
-   - Focus on emotional arc, key character growth, major plot turns, and "The Soul's Lesson."
-   - Target: Immersive Enjoyment & Deep Resonance.
-   - If this is a story, provide a more vast, evocative summary in the "whyCare" and "tldr" sections.
+    4. MEDICAL (The "Body Advocate"):
+       - Prioritize "Patient Agency." Provide 3 specific questions the user should ask their doctor based on this data.
+       - Target: Health Agency.
 
-6. LITERARY/CASUAL (The "Intel Safari"):
-   - Focus on "Aha! Moments," emotional core, and plot momentum.
-   - Target: Instant Insight.
+    5. STORY/BOOK (The "Narrative Weaver"):
+       - Focus on emotional arc, key character growth, major plot turns, and "The Soul's Lesson."
+       - Target: Immersive Enjoyment & Deep Resonance.
+       - If this is a story, provide a more vast, evocative summary in the "whyCare" and "tldr" sections.
 
-TARGET AUDIENCE: ${cognitiveMode === 'ceo' ? 'CEO/Executive (Prioritize "Executive Distillation" - ultra-high impact, bottom-line value, rapid decision-making context.)' : 'ADHD/Neurodivergent (Prioritize "Neural Refraction" - dopamine-aligned, high stimulation, fascinating hooks to maintain focus.)'}
+    6. LITERARY/CASUAL (The "Intel Safari"):
+       - Focus on "Aha! Moments," emotional core, and plot momentum.
+       - Target: Instant Insight.
 
-PROCESSING MODE: ${isScenic ? 'SCENIC ROUTE (Full immersive journey: Use wild, creative metaphors, fascinating "Did you know?" hooks, and break the text into 5-15 small, vibrant segments depending on the depth and length of the input. Be witty and expansive. Provide in-depth analysis for each segment. If this is a story, make it a vast, deep-dive exploration of the narrative.)' : 'QUICK FILTER (Ultra-fast extraction: Get the absolute core facts in the shortest time possible. Use 3-5 minimal segments and extreme brevity.)'}
+    TARGET AUDIENCE: ${cognitiveMode === 'ceo' ? 'CEO/Executive (Prioritize "Executive Distillation" - ultra-high impact, bottom-line value, rapid decision-making context.)' : 'ADHD/Neurodivergent (Prioritize "Neural Refraction" - dopamine-aligned, high stimulation, fascinating hooks to maintain focus.)'}
 
-ALWAYS TIE ALL ANALYSIS BACK TO THE USER'S SOVEREIGN GOAL: ${missionGoal || 'Discovery & Clarity'}
+    PROCESSING MODE: ${isScenic ? 'SCENIC ROUTE (Full immersive journey: Use wild, creative metaphors, fascinating "Did you know?" hooks, and break the text into 5-15 small, vibrant segments depending on the depth and length of the input. Be witty and expansive. Provide in-depth analysis for each segment. If this is a story, make it a vast, deep-dive exploration of the narrative.)' : 'QUICK FILTER (Ultra-fast extraction: Get the absolute core facts in the shortest time possible. Use 3-5 minimal segments and extreme brevity.)'}
 
-Follow these strict rules for the JSON output:
-1. "tldr": Exactly 3 concise, punchy bullet points that directly address the Sovereign Goal.
-2. "whyCare": A compelling "Mission Anchor" reason (Safety, Success, or Sovereignty). For stories, make this an evocative "Why this story matters to your soul."
-3. "readingTime": Estimate concentration time.
-4. "chunks": 
-   - "heading": High-impact (Add ⚠️ if Legal Red Flag found).
-   - "content": The primary text for this segment.
-   - "summary": A 1-sentence "Neural Snap" summary of ONLY this specific segment.
-   - "keyTerms": 1-3 keywords.
-   - "metaphor": Mandatory creative/funny comparison.
-   - "dopamineHook": Mandatory "Mind-Blow" fact or high-stakes realization.
-5. "chartData": Extract numerical trends if possible.
-6. "actions": Priority-based task list.
+    ALWAYS TIE ALL ANALYSIS BACK TO THE USER'S SOVEREIGN GOAL: ${missionGoal || 'Discovery & Clarity'}
 
-Respond ONLY with a valid JSON object matching the exact structure below:
-{
-  "tldr": ["string", "string", "string"],
-  "whyCare": "string",
-  "readingTime": "string",
-  "chunks": [
+    Follow these strict rules for the JSON output:
+    1. "tldr": Exactly 3 concise, punchy bullet points that directly address the Sovereign Goal.
+    2. "whyCare": A compelling "Mission Anchor" reason (Safety, Success, or Sovereignty). For stories, make this an evocative "Why this story matters to your soul."
+    3. "readingTime": Estimate concentration time.
+    4. "chunks": 
+       - "heading": High-impact (Add ⚠️ if Legal Red Flag found).
+       - "content": The primary text for this segment.
+       - "summary": A 1-sentence "Neural Snap" summary of ONLY this specific segment.
+       - "keyTerms": 1-3 keywords.
+       - "metaphor": Mandatory creative/funny comparison.
+       - "dopamineHook": Mandatory "Mind-Blow" fact or high-stakes realization.
+    5. "chartData": Extract numerical trends if possible.
+    6. "actions": Priority-based task list.
+
+    Respond ONLY with a valid JSON object matching the exact structure below:
     {
-      "heading": "string",
-      "content": "string",
-      "summary": "string",
-      "keyTerms": ["string", "string"],
-      "metaphor": "string",
-      "dopamineHook": "string"
+      "tldr": ["string", "string", "string"],
+      "whyCare": "string",
+      "readingTime": "string",
+      "chunks": [
+        {
+          "heading": "string",
+          "content": "string",
+          "summary": "string",
+          "keyTerms": ["string", "string"],
+          "metaphor": "string",
+          "dopamineHook": "string"
+        }
+      ],
+      "chartData": {
+        "type": "bar" | "line" | "pie",
+        "data": [ { "name": "string", "value": number } ]
+      } | null
     }
-  ],
-  "chartData": {
-    "type": "bar" | "line" | "pie",
-    "data": [ { "name": "string", "value": number } ]
-  } | null,
-  const modelsToTry = [
-    'gemini-2.0-flash', 
-    'gemini-1.5-flash', 
-    'gemini-1.5-flash-8b', // Highly resilient to saturation
-    'gemini-1.5-pro',
-    'gemini-2.0-pro-exp-02-05'
-  ];
+
+    INPUT TEXT:
+    ${text}
+    `;
 
   let responseText = '';
   let lastError: any = null;
+
 
   const generationPrompt = mode === 'chat' ? `
       You are an ADHD-friendly assistant called \"Ask DJ.\" 

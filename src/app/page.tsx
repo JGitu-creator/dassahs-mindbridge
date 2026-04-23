@@ -693,40 +693,40 @@ const NeuralLinkSevered = () => {
 
 const TUTORIAL_STEPS = [
   {
-    title: \"Welcome to the Prism\",
-    description: \"Hullo! I'm DJ. This is your Neural Prism—a sanctuary built to turn overwhelming 'Noise' into 'Divine Clarity.'\",
-    more: \"Dassah's Prism was born from the idea that ADHD isn't a deficit, but a high-powered engine. We use AI to refract complex data into vibrant, manageable streams of insight.\",
-    icon: <Sparkles className=\"text-blue-400\" size={48} />
+    title: "Welcome to the Prism",
+    description: "Hullo! I'm DJ. This is your Neural Prism—a sanctuary built to turn overwhelming 'Noise' into 'Divine Clarity.'",
+    more: "Dassah's Prism was born from the idea that ADHD isn't a deficit, but a high-powered engine. We use AI to refract complex data into vibrant, manageable streams of insight.",
+    icon: <Sparkles className="text-blue-400" size={48} />
   },
   {
-    title: \"Refraction & Modes\",
-    description: \"Use the slider above to see the magic. Switch between 'Dastastic' (stimulating) and 'Sovereign' (executive) modes to suit your mind.\",
-    more: \"Dastastic mode uses metaphors and hooks to keep you engaged. Sovereign mode uses 'Executive Distillation' for rapid, bottom-line decision making.\",
-    icon: <Zap className=\"text-amber-500\" size={48} />
+    title: "Refraction & Modes",
+    description: "Use the slider above to see the magic. Switch between 'Dastastic' (stimulating) and 'Sovereign' (executive) modes to suit your mind.",
+    more: "Dastastic mode uses metaphors and hooks to keep you engaged. Sovereign mode uses 'Executive Distillation' for rapid, bottom-line decision making.",
+    icon: <Zap className="text-amber-500" size={48} />
   },
   {
-    title: \"The Neural Core\",
-    description: \"Paste your noise into the core. Pop a specific objective into the 'Sovereign Goal' box to help the Prism focus its discernment.\",
-    more: \"When you provide a Goal, the Prism's 'Deep Discernment Protocol' specifically hunts for information that serves that objective, ignoring the fluff.\",
-    icon: <Brain className=\"text-purple-400\" size={48} />
+    title: "The Neural Core",
+    description: "Paste your noise into the core. Pop a specific objective into the 'Sovereign Goal' box to help the Prism focus its discernment.",
+    more: "When you provide a Goal, the Prism's 'Deep Discernment Protocol' specifically hunts for information that serves that objective, ignoring the fluff.",
+    icon: <Brain className="text-purple-400" size={48} />
   },
   {
-    title: \"Neural Command\",
-    description: \"Click the gears! Control your environment with Soundscapes (Brown Noise), Bionic reading, and the Neural Bridge (Extension).\",
-    more: \"Neural Command is your cockpit. Use Bionic reading to guide your eyes, and Brown Noise to drown out external distractions during deep focus.\",
-    icon: <Settings className=\"text-blue-500\" size={48} />
+    title: "Neural Command",
+    description: "Click the gears! Control your environment with Soundscapes (Brown Noise), Bionic reading, and the Neural Bridge (Extension).",
+    more: "Neural Command is your cockpit. Use Bionic reading to guide your eyes, and Brown Noise to drown out external distractions during deep focus.",
+    icon: <Settings className="text-blue-500" size={48} />
   },
   {
-    title: \"Neural Identity\",
-    description: \"Click the Crown. This is your Sovereignty: track your 'Bandwidth Reclaimed' (Words & Time) and access your Achieving Vault (History).\",
-    more: \"Neural Identity turns your productivity into a visual testimony. Your history is stored securely in the Vault so you never lose a 'Refraction'.\",
-    icon: <Crown className=\"text-yellow-500\" size={48} />
+    title: "Neural Identity",
+    description: "Click the Crown. This is your Sovereignty: track your 'Bandwidth Reclaimed' (Words & Time) and access your Achieving Vault (History).",
+    more: "Neural Identity turns your productivity into a visual testimony. Your history is stored securely in the Vault so you never lose a 'Refraction'.",
+    icon: <Crown className="text-yellow-500" size={48} />
   },
   {
-    title: \"Ask DJ & Zen Lock\",
-    description: \"Need a hand? 'Ask DJ' is always here. Need absolute silence? 'Zen Lock' clears the UI so it's just you and the clarity.\",
-    more: \"Ask DJ can perform tasks like 'make a poem' or 'find dates.' Zen Lock is designed for 'Profound Cognitive Intensity' sessions where any UI element is a distraction.\",
-    icon: <Rocket className=\"text-indigo-500\" size={48} />
+    title: "Ask DJ & Zen Lock",
+    description: "Need a hand? 'Ask DJ' is always here. Need absolute silence? 'Zen Lock' clears the UI so it's just you and the clarity.",
+    more: "Ask DJ can perform tasks like 'make a poem' or 'find dates.' Zen Lock is designed for 'Profound Cognitive Intensity' sessions where any UI element is a distraction.",
+    icon: <Rocket className="text-indigo-500" size={48} />
   }
 ];
 
