@@ -694,38 +694,48 @@ const NeuralLinkSevered = () => {
 const TUTORIAL_STEPS = [
   {
     title: \"Welcome to the Prism\",
-    description: \"Hullo there! I'm DJ. This is your Neural Prism—a sanctuary built to turn overwhelming 'Noise' into 'Divine Clarity.' Let’s have a quick look around, shall we?\",
+    description: \"Hullo! I'm DJ. This is your Neural Prism—a sanctuary built to turn overwhelming 'Noise' into 'Divine Clarity.'\",
+    more: \"Dassah's Prism was born from the idea that ADHD isn't a deficit, but a high-powered engine. We use AI to refract complex data into vibrant, manageable streams of insight.\",
     icon: <Sparkles className=\"text-blue-400\" size={48} />
   },
   {
-    title: \"Neural Refraction\",
-    description: \"Look at the slider above. 'Dastastic' mode is for a fun, engaging experience. 'Sovereign' mode is a sleek, business-like layout. Choose the path that fits your mood.\",
+    title: \"Refraction & Modes\",
+    description: \"Use the slider above to see the magic. Switch between 'Dastastic' (stimulating) and 'Sovereign' (executive) modes to suit your mind.\",
+    more: \"Dastastic mode uses metaphors and hooks to keep you engaged. Sovereign mode uses 'Executive Distillation' for rapid, bottom-line decision making.\",
     icon: <Zap className=\"text-amber-500\" size={48} />
   },
   {
-    title: \"Input & Goals\",
-    description: \"Paste your text into the central core. If you have a goal—like 'find the deadlines'—put it in the 'Sovereign Goal' box. It helps the Prism focus.\",
+    title: \"The Neural Core\",
+    description: \"Paste your noise into the core. Pop a specific objective into the 'Sovereign Goal' box to help the Prism focus its discernment.\",
+    more: \"When you provide a Goal, the Prism's 'Deep Discernment Protocol' specifically hunts for information that serves that objective, ignoring the fluff.\",
     icon: <Brain className=\"text-purple-400\" size={48} />
   },
   {
-    title: \"Clean Documents\",
-    description: \"For heavy files, use the 'Clean Document' button. We’ll strip away the fluff and give you the 'Golden Essence' of your PDF or Word doc.\",
-    icon: <Upload className=\"text-blue-500\" size={48} />
+    title: \"Neural Command\",
+    description: \"Click the gears! Control your environment with Soundscapes (Brown Noise), Bionic reading, and the Neural Bridge (Extension).\",
+    more: \"Neural Command is your cockpit. Use Bionic reading to guide your eyes, and Brown Noise to drown out external distractions during deep focus.\",
+    icon: <Settings className=\"text-blue-500\" size={48} />
   },
   {
-    title: \"Discern It\",
-    description: \"When you’re ready, click 'Discern It.' The Prism will break everything down into easy 'Segments,' metaphors, and tasks. Pure focus, simplified.\",
-    icon: <Rocket className=\"text-indigo-500\" size={48} />
+    title: \"Neural Identity\",
+    description: \"Click the Crown. This is your Sovereignty: track your 'Bandwidth Reclaimed' (Words & Time) and access your Achieving Vault (History).\",
+    more: \"Neural Identity turns your productivity into a visual testimony. Your history is stored securely in the Vault so you never lose a 'Refraction'.\",
+    icon: <Crown className=\"text-yellow-500\" size={48} />
   },
   {
     title: \"Ask DJ & Zen Lock\",
-    description: \"If you need help, 'Ask DJ' is always ready for a chat. For total focus, use 'Zen Lock' to clear away all distractions. Cheers to your new clarity!\",
-    icon: <Crown className=\"text-yellow-500\" size={48} />
+    description: \"Need a hand? 'Ask DJ' is always here. Need absolute silence? 'Zen Lock' clears the UI so it's just you and the clarity.\",
+    more: \"Ask DJ can perform tasks like 'make a poem' or 'find dates.' Zen Lock is designed for 'Profound Cognitive Intensity' sessions where any UI element is a distraction.\",
+    icon: <Rocket className=\"text-indigo-500\" size={48} />
   }
 ];
 
 const TutorialModal = ({ step, onNext, onClose }: { step: number, onNext: () => void, onClose: () => void }) => {
   const current = TUTORIAL_STEPS[step];
+  const [showMore, setShowMore] = useState(false);
+
+  useEffect(() => { setShowMore(false); }, [step]);
+
   return (
     <div className=\"fixed inset-0 bg-black/90 backdrop-blur-2xl z-[1000] flex items-center justify-center p-4\">
       <motion.div 
@@ -733,22 +743,45 @@ const TutorialModal = ({ step, onNext, onClose }: { step: number, onNext: () => 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: -20 }}
-        className=\"max-w-md w-full bg-slate-900 border-2 border-blue-500/30 p-10 md:p-16 rounded-[4rem] text-center space-y-8 shadow-[0_0_150px_rgba(59,130,246,0.3)]\"
+        className=\"max-w-md w-full bg-slate-900 border-2 border-blue-500/30 p-8 md:p-12 rounded-[4rem] text-center space-y-6 shadow-[0_0_150px_rgba(59,130,246,0.3)]\"
       >
-        <div className=\"mx-auto w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center mb-4\">
+        <div className=\"mx-auto w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mb-2\">
           {current.icon}
         </div>
-        <div className=\"space-y-4\">
-          <p className=\"text-blue-400 font-black uppercase tracking-[0.4em] text-[10px]\">Step {step + 1} of {TUTORIAL_STEPS.length}</p>
-          <h2 className=\"text-3xl md:text-5xl font-black text-white italic tracking-tighter\">{current.title}</h2>
-          <p className=\"text-slate-400 text-lg leading-relaxed font-medium\">{current.description}</p>
+        <div className=\"space-y-3\">
+          <p className=\"text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]\">Node {step + 1} of {TUTORIAL_STEPS.length}</p>
+          <h2 className=\"text-3xl font-black text-white italic tracking-tighter\">{current.title}</h2>
+          <p className=\"text-slate-400 text-base leading-relaxed font-medium\">{current.description}</p>
+          
+          <div className=\"pt-2\">
+            <button 
+              onClick={() => setShowMore(!showMore)} 
+              className=\"text-[9px] font-black uppercase tracking-[0.2em] text-blue-500/60 hover:text-blue-400 transition-colors\"
+            >
+              {showMore ? \"- Show Less\" : \"+ Read Further\"}
+            </button>
+            <AnimatePresence>
+              {showMore && (
+                <motion.div 
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className=\"overflow-hidden\"
+                >
+                  <p className=\"mt-4 p-4 bg-white/5 rounded-2xl text-xs text-slate-500 leading-relaxed italic border border-white/5\">
+                    {current.more}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
-        <div className=\"pt-8\">
+        <div className=\"pt-4\">
           <button 
             onClick={step === TUTORIAL_STEPS.length - 1 ? onClose : onNext}
-            className=\"w-full bg-blue-600 hover:bg-blue-500 py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-white shadow-xl transition-all active:scale-95\"
+            className=\"w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] text-white shadow-xl transition-all active:scale-95\"
           >
-            {step === TUTORIAL_STEPS.length - 1 ? \"Brilliant, Let's Begin!\" : \"Next Point\"}
+            {step === TUTORIAL_STEPS.length - 1 ? \"Establish Link\" : \"Next Point\"}
           </button>
         </div>
       </motion.div>
