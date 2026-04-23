@@ -150,6 +150,110 @@ const StarParticles = ({ count, isFinal }: { count: number, isFinal: boolean }) 
   );
 };
 
+const NeuralRefractionSlider = () => {
+  const [sliderPos, setSliderPos] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMove = (e: any) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    setSliderPos(Math.max(0, Math.min(100, (x / rect.width) * 100)));
+  };
+
+  return (
+    <div 
+      ref={containerRef}
+      onMouseMove={handleMove}
+      onTouchMove={handleMove}
+      className="relative w-full h-[300px] md:h-[400px] rounded-[3rem] overflow-hidden border-2 border-white/10 cursor-ew-resize group shadow-2xl"
+    >
+      {/* Noise Side (Left) */}
+      <div className="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-30">
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 mb-6">The Noise</p>
+        <p className="text-xl md:text-3xl text-slate-400 leading-relaxed blur-[1px]">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow.</p>
+      </div>
+
+      {/* Clarity Side (Right) - Use clipPath to reveal */}
+      <div 
+        className="absolute inset-0 bg-blue-600/5 backdrop-blur-[2px] flex flex-col items-center justify-center p-8 md:p-16 text-center select-none z-10"
+        style={{ clipPath: `polygon(${sliderPos}% 0, 100% 0, 100% 100%, ${sliderPos}% 100%)` }}
+      >
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-400 mb-6">The Clarity</p>
+        <p className="text-xl md:text-3xl text-white font-black leading-relaxed italic">
+          <span className="text-blue-400">Thi</span>s <span className="text-blue-400">i</span>s <span className="text-blue-400">a</span> <span className="text-blue-400">shor</span>t, <span className="text-blue-400">Bioni</span>c <span className="text-blue-400">pat</span>h. <span className="text-blue-400">You</span>r <span className="text-blue-400">brai</span>n <span className="text-blue-400">lock</span>s <span className="text-blue-400">i</span>n <span className="text-blue-400">instan</span>tly.
+        </p>
+      </div>
+
+      {/* Divider */}
+      <div 
+        className="absolute top-0 bottom-0 w-[2px] bg-white z-20 shadow-[0_0_20px_rgba(255,255,255,0.5)]"
+        style={{ left: `${sliderPos}%` }}
+      >
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+          <MoreHorizontal size={24} className="text-black rotate-90" />
+        </div>
+      </div>
+      
+      {/* Interaction Hint */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-[9px] font-black uppercase tracking-[0.3em] text-white/40 pointer-events-none group-hover:opacity-0 transition-opacity">
+        Slide to Refract
+      </div>
+    </div>
+  );
+};
+
+const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData, isOpen: boolean, onToggle: () => void }) => {
+  const anchors = useMemo(() => {
+    const allTerms = data.chunks.flatMap(c => c.keyTerms);
+    return Array.from(new Set(allTerms)).slice(0, 15);
+  }, [data]);
+
+  return (
+    <div className={`fixed right-0 top-1/2 -translate-y-1/2 z-[450] transition-all duration-500 ${isOpen ? 'translate-x-0' : 'translate-x-[calc(100%-40px)]'}`}>
+      <div className="flex items-center">
+        <button 
+          onClick={onToggle}
+          className="w-10 h-20 bg-blue-600 rounded-l-2xl flex items-center justify-center text-white shadow-2xl border-y border-l border-white/20"
+        >
+          <Anchor size={20} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        <div className="w-64 bg-slate-900/90 backdrop-blur-3xl border-l border-white/10 p-6 shadow-2xl h-[400px] overflow-y-auto no-scrollbar rounded-bl-3xl">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-6 flex items-center gap-2">
+            <Anchor size={12} /> Neural Anchors
+          </p>
+          <div className="space-y-3">
+            {anchors.map((anchor, i) => (
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+                key={i} 
+                className="p-3 bg-white/5 rounded-xl border border-white/5 text-xs font-bold text-slate-300 hover:bg-white/10 transition-colors cursor-default"
+              >
+                {anchor}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SceneRecap = ({ chunk }: { chunk: any }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-[2rem] mb-8"
+  >
+    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-2 flex items-center gap-2">
+      <Zap size={14} /> Previously Refracted
+    </p>
+    <p className="text-slate-300 italic font-medium">"...{chunk.summary}"</p>
+  </motion.div>
+);
+
 const BionicText = ({ text }: { text: string }) => {
   if (!text) return null;
   return (
@@ -206,123 +310,64 @@ const ContextAnchor = ({ whyCare, isZenLocked, segmentIdx }: { whyCare: string, 
   );
 };
 
-const NeuralReset = ({ onComplete }: { onComplete: () => void }) => {
-  const [seconds, setSeconds] = useState(15);
-  
+const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: () => void }) => {
+  const [seconds, setSeconds] = useState(level === 1 ? 15 : level === 2 ? 30 : 60);
+  const [puzzleState, setLazyPuzzle] = useState<number[]>([]);
+  const [solvedCount, setSolvedCount] = useState(0);
+
   useEffect(() => {
     const timer = setInterval(() => {
-      setSeconds(s => {
-        if (s <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return s - 1;
-      });
+      setSeconds(s => (s <= 1 ? 0 : s - 1));
     }, 1000);
+    if (level === 3) {
+      setLazyPuzzle([...Array(8)].map((_, i) => i % 4).sort(() => Math.random() - 0.5));
+    }
     return () => clearInterval(timer);
-  }, []);
+  }, [level]);
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.1 }}
-      className="fixed inset-0 z-[550] flex items-center justify-center p-4 bg-black/60 backdrop-blur-3xl"
-    >
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{ y: 400, x: Math.random() * 400 - 200, opacity: 0, scale: 0 }}
-            animate={{ 
-              y: -400, 
-              opacity: [0, 0.5, 0],
-              scale: [0, 1.5, 0],
-              x: (Math.random() * 400 - 200)
-            }}
-            transition={{ duration: 6, repeat: Infinity, delay: Math.random() * 5, ease: "easeInOut" }}
-            className="absolute left-1/2 top-1/2 w-1 h-1 bg-blue-400 rounded-full blur-[1px]"
-          />
-        ))}
-      </div>
-
-      <div className="max-w-md w-full text-center space-y-12 relative z-10">
-        <div className="relative flex flex-col items-center justify-center gap-8">
-          {/* Neural Eye Animation for "Look Away" */}
-          {seconds > 10 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex gap-4">
-              {[0, 1].map(i => (
-                <div key={i} className="w-10 h-6 bg-white/5 rounded-full relative overflow-hidden flex items-center justify-center border border-white/10">
-                  <motion.div 
-                    animate={{ x: [0, 6, -6, 0], y: [0, -2, 2, 0] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                    className="w-3 h-3 bg-blue-400 rounded-full shadow-[0_0_10px_#60a5fa]" 
-                  />
-                </div>
-              ))}
-            </motion.div>
-          )}
-
-          <div className="relative flex items-center justify-center">
-            <motion.div 
-              animate={{ scale: [1, 2, 1], opacity: [0.1, 0.4, 0.1] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute w-40 h-40 bg-blue-500/20 rounded-full blur-3xl"
-            />
-            <motion.div 
-              animate={{ 
-                scale: seconds > 0 && seconds <= 10 ? [1, 1.4, 1] : 1,
-                rotate: seconds === 0 ? 360 : 0
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className={`relative w-32 h-32 rounded-full border-4 ${seconds === 0 ? 'border-emerald-500 shadow-[0_0_20px_#10b981]' : 'border-blue-500/30'} flex items-center justify-center transition-colors duration-1000`}
-            >
-              {seconds === 0 ? (
-                <CheckCircle2 className="text-emerald-500 w-16 h-16" />
-              ) : (
-                <span className="text-4xl font-black text-white tabular-nums">{seconds}</span>
-              )}
-            </motion.div>
-          </div>
-        </div>
-        
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[600] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4">
+      <div className="max-w-xl w-full text-center space-y-12">
         <div className="space-y-4">
-          <motion.div 
-            key={seconds > 10 ? 'look' : seconds > 0 ? 'breathe' : 'done'}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-2"
-          >
-            <h2 className="text-3xl font-black italic text-white tracking-tight uppercase">
-              {seconds > 10 ? "Look Away" : seconds > 0 ? "Neural Reset" : "Systems Clear"}
-            </h2>
-            <p className="text-blue-400 font-bold uppercase tracking-[0.4em] text-[10px]">
-              {seconds > 10 ? "Find a distant horizon" : seconds > 0 ? "Deep focus breathing" : "Mission Ready"}
-            </p>
-          </motion.div>
-          
-          <p className="text-slate-400 font-medium text-lg h-8">
-            {seconds > 10 ? "Rest your eyes for a moment." : seconds > 5 ? "Inhale clarity..." : seconds > 0 ? "Exhale the noise..." : "Reclaiming sovereignty."}
-          </p>
+          <p className="text-blue-400 font-black uppercase tracking-[0.5em] text-[10px]">Neural Rhythm: Level {level}</p>
+          <h2 className="text-5xl md:text-7xl font-black italic text-white tracking-tighter">
+            {level === 1 ? "Neural Blink" : level === 2 ? "Sovereign Breath" : "Dopamine Anchor"}
+          </h2>
         </div>
 
-        {seconds === 0 && (
-          <motion.button 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onComplete}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(37,99,235,0.4)] transition-all text-white"
-          >
-            Resume Mission
-          </motion.button>
-        )}
+        <div className="relative h-48 flex items-center justify-center">
+           {level === 1 && (
+             <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 4, repeat: Infinity }} className="w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
+           )}
+           {level === 2 && (
+             <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="w-32 h-32 border-4 border-blue-500/30 rounded-3xl flex items-center justify-center">
+                <div className="w-16 h-16 bg-blue-500/20 rounded-xl" />
+             </motion.div>
+           )}
+           {level === 3 && (
+             <div className="grid grid-cols-4 gap-3">
+               {puzzleState.map((val, i) => (
+                 <motion.button whileHover={{ scale: 1.1 }} onClick={() => setSolvedCount(s => s + 1)} key={i} className="w-12 h-12 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center text-white font-black">{val}</motion.button>
+               ))}
+             </div>
+           )}
+           <div className="absolute text-6xl font-black tabular-nums text-white/20">{seconds}s</div>
+        </div>
+
+        <div className="space-y-6">
+          <p className="text-slate-400 text-lg font-medium">
+            {level === 1 ? "Look away from the screen. Find a distant object and focus on it for 15 seconds." : 
+             level === 2 ? "Follow the expanding square. Inhale as it grows, exhale as it shrinks. Regulate your sovereignty." : 
+             "Refresh your cognitive interest. Tap the numbers in any order to anchor your dopamine."}
+          </p>
+          {seconds === 0 && (
+            <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} onClick={onComplete} className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all">Resume Mission</motion.button>
+          )}
+        </div>
       </div>
     </motion.div>
   );
 };
-
 const ProgressPrism = ({ current, total }: { current: number, total: number }) => {
   const percentage = ((current + 1) / total) * 100;
   
@@ -646,6 +691,125 @@ const NeuralLinkSevered = () => {
   );
 };
 
+const TUTORIAL_STEPS = [
+  {
+    title: \"Welcome to the Prism\",
+    description: \"Hullo there! I'm DJ. This is your Neural Prism—a sanctuary built to turn overwhelming 'Noise' into 'Divine Clarity.' Let’s have a quick look around, shall we?\",
+    icon: <Sparkles className=\"text-blue-400\" size={48} />
+  },
+  {
+    title: \"Neural Refraction\",
+    description: \"Look at the slider above. 'Dastastic' mode is for a fun, engaging experience. 'Sovereign' mode is a sleek, business-like layout. Choose the path that fits your mood.\",
+    icon: <Zap className=\"text-amber-500\" size={48} />
+  },
+  {
+    title: \"Input & Goals\",
+    description: \"Paste your text into the central core. If you have a goal—like 'find the deadlines'—put it in the 'Sovereign Goal' box. It helps the Prism focus.\",
+    icon: <Brain className=\"text-purple-400\" size={48} />
+  },
+  {
+    title: \"Clean Documents\",
+    description: \"For heavy files, use the 'Clean Document' button. We’ll strip away the fluff and give you the 'Golden Essence' of your PDF or Word doc.\",
+    icon: <Upload className=\"text-blue-500\" size={48} />
+  },
+  {
+    title: \"Discern It\",
+    description: \"When you’re ready, click 'Discern It.' The Prism will break everything down into easy 'Segments,' metaphors, and tasks. Pure focus, simplified.\",
+    icon: <Rocket className=\"text-indigo-500\" size={48} />
+  },
+  {
+    title: \"Ask DJ & Zen Lock\",
+    description: \"If you need help, 'Ask DJ' is always ready for a chat. For total focus, use 'Zen Lock' to clear away all distractions. Cheers to your new clarity!\",
+    icon: <Crown className=\"text-yellow-500\" size={48} />
+  }
+];
+
+const TutorialModal = ({ step, onNext, onClose }: { step: number, onNext: () => void, onClose: () => void }) => {
+  const current = TUTORIAL_STEPS[step];
+  return (
+    <div className=\"fixed inset-0 bg-black/90 backdrop-blur-2xl z-[1000] flex items-center justify-center p-4\">
+      <motion.div 
+        key={step}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: -20 }}
+        className=\"max-w-md w-full bg-slate-900 border-2 border-blue-500/30 p-10 md:p-16 rounded-[4rem] text-center space-y-8 shadow-[0_0_150px_rgba(59,130,246,0.3)]\"
+      >
+        <div className=\"mx-auto w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center mb-4\">
+          {current.icon}
+        </div>
+        <div className=\"space-y-4\">
+          <p className=\"text-blue-400 font-black uppercase tracking-[0.4em] text-[10px]\">Step {step + 1} of {TUTORIAL_STEPS.length}</p>
+          <h2 className=\"text-3xl md:text-5xl font-black text-white italic tracking-tighter\">{current.title}</h2>
+          <p className=\"text-slate-400 text-lg leading-relaxed font-medium\">{current.description}</p>
+        </div>
+        <div className=\"pt-8\">
+          <button 
+            onClick={step === TUTORIAL_STEPS.length - 1 ? onClose : onNext}
+            className=\"w-full bg-blue-600 hover:bg-blue-500 py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-white shadow-xl transition-all active:scale-95\"
+          >
+            {step === TUTORIAL_STEPS.length - 1 ? \"Brilliant, Let's Begin!\" : \"Next Point\"}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const RefractiveTagline = () => {
+  const [phase, setPhase] = useState<'noise' | 'flash' | 'clarity'>('noise');
+
+  useEffect(() => {
+    const timer1 = setTimeout(() => setPhase('flash'), 1000);
+    const timer2 = setTimeout(() => setPhase('clarity'), 1300);
+    return () => { clearTimeout(timer1); clearTimeout(timer2); };
+  }, []);
+
+  const text = \"Turn overwhelming noise into clear focus in seconds.\";
+
+  return (
+    <div className=\"relative h-12 flex items-center justify-center overflow-hidden\">
+      <motion.p 
+        animate={{ 
+          filter: phase === 'noise' ? 'blur(4px)' : 'blur(0px)',
+          opacity: phase === 'noise' ? 0.6 : 1,
+          x: phase === 'noise' ? [0, -2, 2, -1, 0] : 0,
+          scale: phase === 'flash' ? 1.05 : 1
+        }}
+        transition={{ 
+          x: phase === 'noise' ? { repeat: Infinity, duration: 0.2 } : { duration: 0.2 },
+          filter: { duration: 0.5 },
+          scale: { duration: 0.2 }
+        }}
+        className={`text-lg md:text-xl font-bold italic tracking-tight text-center transition-colors duration-500 ${phase === 'clarity' ? 'text-blue-400' : 'text-slate-500'}`}
+      >
+        \"{text}\"
+      </motion.p>
+      
+      <AnimatePresence>
+        {phase === 'flash' && (
+          <motion.div 
+            initial={{ left: '-100%' }}
+            animate={{ left: '200%' }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: \"easeInOut\" }}
+            className=\"absolute inset-0 z-10 w-40 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg] pointer-events-none\"
+          />
+        )}
+      </AnimatePresence>
+
+      {phase === 'clarity' && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1.5 }}
+          transition={{ duration: 0.3 }}
+          className=\"absolute inset-0 bg-blue-500/10 blur-3xl rounded-full pointer-events-none\"
+        />
+      )}
+    </div>
+  );
+};
+
 export default function Home() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -669,6 +833,8 @@ export default function Home() {
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
@@ -800,6 +966,12 @@ export default function Home() {
         setLinkState('revealing');
         setTimeout(() => {
           setLinkState('established');
+          // Trigger tutorial if never seen
+          if (localStorage.getItem('dassahs_prism_tutorial_complete') !== 'true') {
+            setTimeout(() => {
+              setShowTutorial(true);
+            }, 1000);
+          }
         }, 4000); // 4 second portal reveal
       }
     };
@@ -810,17 +982,72 @@ export default function Home() {
     if (savedStars) setStarredItems(JSON.parse(savedStars));
   }, []);
 
+  const playNeuralSoundscape = (type: 'brown' | 'gamma') => {
+    try {
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioContextClass(); audioCtxRef.current = ctx;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const mainGain = ctx.createGain();
+      mainGain.gain.setValueAtTime(audioVolume, ctx.currentTime);
+      mainGain.connect(ctx.destination);
+
+      if (type === 'brown') {
+        const bufferSize = ctx.sampleRate * 2;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = buffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          output[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = output[i];
+          output[i] *= 3.5; // brown noise is quieter
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer; noise.loop = true;
+        noise.connect(mainGain);
+        noise.start(); noiseNodeRef.current = noise;
+      } else if (type === 'gamma') {
+        // Binaural Beats: 200Hz and 240Hz (40Hz Gamma difference)
+        const leftOsc = ctx.createOscillator();
+        const rightOsc = ctx.createOscillator();
+        const leftPanner = ctx.createStereoPanner();
+        const rightPanner = ctx.createStereoPanner();
+
+        leftOsc.frequency.setValueAtTime(200, ctx.currentTime);
+        rightOsc.frequency.setValueAtTime(240, ctx.currentTime);
+        leftPanner.pan.setValueAtTime(-1, ctx.currentTime);
+        rightPanner.pan.setValueAtTime(1, ctx.currentTime);
+
+        leftOsc.connect(leftPanner); leftPanner.connect(mainGain);
+        rightOsc.connect(rightPanner); rightPanner.connect(mainGain);
+
+        leftOsc.start(); rightOsc.start();
+        noiseNodeRef.current = { stop: () => { leftOsc.stop(); rightOsc.stop(); } };
+      }
+    } catch (e) { console.error("Soundscape failed"); }
+  };
+
   useEffect(() => {
-    if (starredItems.length > 0 || localStorage.getItem('dassahs_neural_vault')) {
-      localStorage.setItem('dassahs_neural_vault', JSON.stringify(starredItems));
+    if (audioMode !== 'none') {
+      if (noiseNodeRef.current?.stop) noiseNodeRef.current.stop();
+      playNeuralSoundscape(audioMode as any);
+    } else {
+      if (noiseNodeRef.current?.stop) noiseNodeRef.current.stop();
     }
-  }, [starredItems]);
+  }, [audioMode]);
+
+  useEffect(() => {
+    // Starred items vault sync logic (existing)
+
 
   const [feedbackInput, setFeedbackInput] = useState('');
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
   const [showBreak, setShowBreak] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
   const [dassahPoints, setDassahPoints] = useState(0);
+  const [totalWordsRefracted, setTotalWordsRefracted] = useState(0);
+  const [totalMinutesSaved, setTotalMinutesSaved] = useState(0);
   const [suspenseIdx, setSuspenseIdx] = useState(0);
   const [actionIdx, setActionIdx] = useState(0);
   const [isSharing, setIsSharing] = useState(false);
@@ -830,193 +1057,11 @@ export default function Home() {
   const [showMissionBrief, setShowMissionBrief] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
   const [shareId, setShareId] = useState<string | null>(null);
-  
-  const resonanceFactor = useMemo(() => {
-    if (!data || currentChunk < 0 || currentChunk >= data.chunks.length) return 1.0;
-    const chunk = data.chunks[currentChunk];
-    const isAction = /do|act|go|now|build|create|start|finish|crush|win/i.test(chunk.content);
-    const isReflective = chunk.metaphor.length > 20;
-    if (isAction) return 1.4; // Faster, more intense
-    if (isReflective) return 0.7; // Slower, more spacious
-    return 1.0;
-  }, [data, currentChunk]);
-  
-  const callsign = !user ? "Neural Seeker" : isPaid ? "Prism Architect" : "Sovereign Discernor";
-  const syncLevel = !user ? "Seeking Neural Anchor..." : isPaid ? "Sync: Absolute" : "Sync Level: Processing";
-
-  const catchphrases = ["INTEL SECURED!", "OBJECTIVE CAPTURED!", "NEURAL SYNC: 100%", "DATA STREAM PURIFIED!", "FOCUS ANCHORED!"];
-  const currentCatchphrase = useMemo(() => catchphrases[Math.floor(Math.random() * catchphrases.length)], [rewardType]);
-
-  const brainPulseDuration = input.length > 500 ? 0.5 : input.length > 100 ? 1 : 3;
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const themeMenuRef = useRef<HTMLDivElement>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const noiseNodeRef = useRef<any>(null);
-  const musicRef = useRef<HTMLAudioElement | null>(null);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-
-  const handleChat = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim() || chatLoading) return;
-    const userMsg = chatInput; setChatInput(''); setChatHistory(prev => [...prev, { role: 'user', text: userMsg }]);
-    setChatLoading(true);
-    try {
-      const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'chat', question: userMsg, context: data }) });
-      const result = await res.json();
-      setChatHistory(prev => [...prev, { role: 'ai', text: result.answer }]);
-      if (user) { await supabase.from('feedback_vault').insert({ user_id: user.id, type: 'chat', content: { question: userMsg, answer: result.answer, contextTitle: data?.tldr?.[0] || 'General Prism' } }); }
-    } catch (err) { setChatHistory(prev => [...prev, { role: 'ai', text: "The Filter is shaky, try again!" }]); } finally { setChatLoading(false); }
-  };
-
-  const handleFeedbackSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); if (!feedbackInput.trim()) return;
-    try {
-      const { error } = await supabase.from('feedback_vault').insert({ user_id: user?.id || null, type: 'feedback', content: { feedback: feedbackInput, timestamp: new Date().toISOString() } });
-      if (error) throw error; setFeedbackInput(''); setFeedbackSuccess(true);
-      setTimeout(() => { setFeedbackSuccess(false); setShowFeedback(false); }, 2000);
-    } catch (err) { alert("Feedback failed to cross the Prism."); }
-  };
-
-  const handleReadAloud = (text: string) => {
-    if (isPlaying) { window.speechSynthesis.cancel(); setIsPlaying(false); return; }
-    const utterance = new SpeechSynthesisUtterance(text); utterance.onend = () => setIsPlaying(false);
-    utteranceRef.current = utterance; setIsPlaying(true); window.speechSynthesis.speak(utterance);
-  };
-
-  const playClick = () => { 
-    try { 
-      const audio = new Audio('/audio/click.mp3'); 
-      audio.volume = 0.2; 
-      audio.onerror = () => {};
-      audio.play().catch(() => {});
-    } catch(e) {} 
-  };
-
-  const loadHistory = async (userId: string) => {
-    const { data, error } = await supabase.from('history').select('*').eq('user_id', userId).order('created_at', { ascending: false });
-    if (!error && data) setHistory(data.map(h => ({ id: h.id, date: new Date(h.created_at).toLocaleDateString(), title: h.title, data: h.data })));
-  };
-
-  const loadProfile = async (userId: string) => {
-    const { data, error } = await supabase.from('profiles').select('is_paid, avatar_url, terms_accepted_at').eq('id', userId).single();
-    if (data) {
-      setIsPaid(data.is_paid);
-      setAvatarUrl(data.avatar_url);
-      
-      // If server has proof of acceptance, sync local state
-      if (data.terms_accepted_at) {
-        localStorage.setItem('dassahs_prism_tos_accepted', 'true');
-        setAcceptedTOS(true);
-        if (linkState === 'pending') setLinkState('established');
-      }
-    }
-    if (error && error.code !== 'PGRST116') console.error('Error loading profile:', error);
-  };
-
-  const handleLogin = async () => { 
-    if (!acceptedTOS) {
-      setShowTOS(true);
-      return;
-    }
-    await supabase.auth.signInWithOAuth({ 
-      provider: 'google', 
-      options: { 
-        redirectTo: window.location.origin,
-        queryParams: { prompt: 'select_account' }
-      } 
-    }); 
-  };
-  const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); setHistory([]); };
-
-  const handleReset = () => { setData(null); setCurrentChunk(-1); setInput(''); setChatHistory([]); setRewardType('none'); };
-
-  const playSuspenseSound = (variant = suspenseIdx, factor = resonanceFactor) => {
-    try {
-      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
-      audioCtxRef.current = ctx;
-      const progressions = [ [261.63, 329.63, 392.00, 523.25], [220.00, 261.63, 329.63, 440.00], [196.00, 246.94, 293.66, 392.00] ];
-      const notes = progressions[variant % 3]; let nextNoteTime = ctx.currentTime;
-      const scheduleNote = () => {
-        while (nextNoteTime < ctx.currentTime + 0.1) {
-          const osc = ctx.createOscillator(); const g = ctx.createGain();
-          osc.type = variant === 1 ? 'triangle' : 'sine';
-          osc.frequency.setValueAtTime(notes[Math.floor(Math.random() * notes.length)], nextNoteTime);
-          if (variant === 2) { 
-            const mod = ctx.createOscillator(); const modG = ctx.createGain();
-            mod.frequency.setValueAtTime(osc.frequency.value * 2.5, nextNoteTime);
-            modG.gain.setValueAtTime(200, nextNoteTime);
-            mod.connect(modG); modG.connect(osc.frequency); mod.start(nextNoteTime); mod.stop(nextNoteTime + 1.5);
-          }
-          g.gain.setValueAtTime(0, nextNoteTime); g.gain.linearRampToValueAtTime(variant === 2 ? 0.015 : 0.03, nextNoteTime + 0.1);
-          g.gain.exponentialRampToValueAtTime(0.001, nextNoteTime + (variant === 1 ? 2.5 / factor : 1.5 / factor));
-          osc.connect(g); g.connect(ctx.destination); osc.start(nextNoteTime); osc.stop(nextNoteTime + 3);
-          nextNoteTime += (variant === 1 ? 1.2 / factor : 0.6 / factor);
-        }
-      };
-      const intervalId = setInterval(scheduleNote, 25);
-      noiseNodeRef.current = { disconnect: () => clearInterval(intervalId) };
-    } catch (e) {}
-  };
-
-  const playActionSound = (variant = actionIdx, factor = resonanceFactor) => {
-    try {
-      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
-      audioCtxRef.current = ctx;
-      if (variant === 0) {
-        const freqs = [130.81, 164.81, 196.00];
-        freqs.forEach(f => {
-          const osc = ctx.createOscillator(); const g = ctx.createGain();
-          osc.type = 'sine'; osc.frequency.setValueAtTime(f, ctx.currentTime);
-          const lfo = ctx.createOscillator(); lfo.frequency.setValueAtTime(0.5 * factor, ctx.currentTime);
-          const lfoG = ctx.createGain(); lfoG.gain.setValueAtTime(0.3, ctx.currentTime);
-          lfo.connect(lfoG); lfoG.connect(g.gain); g.gain.setValueAtTime(0, ctx.currentTime);
-          g.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 2);
-          osc.connect(g); g.connect(ctx.destination); lfo.start(); osc.start(); noiseNodeRef.current = osc;
-        });
-      } else if (variant === 1) { 
-        let nextDropTime = ctx.currentTime;
-        const scheduleDrop = () => {
-          while (nextDropTime < ctx.currentTime + 0.1) {
-            const osc = ctx.createOscillator(); const g = ctx.createGain();
-            osc.type = 'sine'; osc.frequency.setValueAtTime(Math.random() * 500 + 400, nextDropTime);
-            osc.frequency.exponentialRampToValueAtTime(100, nextDropTime + 0.1);
-            g.gain.setValueAtTime(0.02, nextDropTime); g.gain.exponentialRampToValueAtTime(0.001, nextDropTime + 0.1);
-            osc.connect(g); g.connect(ctx.destination); osc.start(nextDropTime); osc.stop(nextDropTime + 0.1);
-            nextDropTime += 0.15 / factor;
-          }
-        };
-        const intervalId = setInterval(scheduleDrop, 25);
-        noiseNodeRef.current = { disconnect: () => clearInterval(intervalId) };
-      } else { 
-        const bufferSize = ctx.sampleRate * 2; const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-        const noise = ctx.createBufferSource(); noise.buffer = buffer; noise.loop = true;
-        const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(400, ctx.currentTime);
-        const lfo = ctx.createOscillator(); lfo.frequency.setValueAtTime(0.3 * factor, ctx.currentTime);
-        const lfoG = ctx.createGain(); lfoG.gain.setValueAtTime(300, ctx.currentTime);
-        lfo.connect(lfoG); lfoG.connect(filter.frequency);
-        const gain = ctx.createGain(); gain.gain.setValueAtTime(0, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 2);
-        noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
-        lfo.start(); noise.start(); noiseNodeRef.current = noise;
-      }
-    } catch (e) {}
-  };
-
-  useEffect(() => { setDassahPoints(parseInt(localStorage.getItem('dassah_points') || '0')); }, []);
-
-  useEffect(() => {
-    if (musicRef.current) { musicRef.current.pause(); musicRef.current = null; }
-    if (noiseNodeRef.current) { if (noiseNodeRef.current.disconnect) noiseNodeRef.current.disconnect(); if (noiseNodeRef.current.stop) noiseNodeRef.current.stop(); noiseNodeRef.current = null; }
-    if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') { audioCtxRef.current.close(); audioCtxRef.current = null; }
-    if (audioMode === 'suspense') playSuspenseSound(suspenseIdx);
-    else if (audioMode === 'action') playActionSound(actionIdx);
-    else if (audioMode === 'brown') {
-      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContextClass(); if (ctx.state === 'suspended') ctx.resume();
-      audioCtxRef.current = ctx;
+  const [anchorsOpen, setAnchorsOpen] = useState(false);
+  const [breakLevel, setBreakLevel] = useState(1);
+  const [showRecap, setShowRecap] = useState(false);
+  const [audioMode, setAudioMode] = useState<'none' | 'brown' | 'gamma'>('none');
+  const [audioVolume, setAudioVolume] = useState(0.2);
       const bufferSize = ctx.sampleRate * 2; const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const output = buffer.getChannelData(0); let lastOut = 0.0;
       for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; output[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = output[i]; output[i] *= 3.5; }
@@ -1115,6 +1160,22 @@ export default function Home() {
       const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify, isScenic, cognitiveMode, missionGoal, isStory: storyMode }) });
       if (!res.ok) { const errData = await res.json(); throw new Error(errData.error || "The Prism is blurry. Try again."); }
       const result = await res.json(); setData(result);
+      
+      // Update Bandwidth Stats
+      const wordCount = textToSimplify.trim().split(/\s+/).length;
+      const minutesSaved = parseInt(result.readingTime) || 1;
+      
+      setTotalWordsRefracted(prev => {
+        const next = prev + wordCount;
+        localStorage.setItem('total_words_refracted', next.toString());
+        return next;
+      });
+      setTotalMinutesSaved(prev => {
+        const next = prev + minutesSaved;
+        localStorage.setItem('total_minutes_saved', next.toString());
+        return next;
+      });
+      
       const title = result.tldr[0].slice(0, 30) + '...';
       if (user) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
       setUsageCount(prev => { const next = prev + 1; localStorage.setItem('dassahs_prism_usage', next.toString()); return next; });
@@ -1181,15 +1242,22 @@ export default function Home() {
   };
 
   const handleNext = () => {
-    if (data && currentChunk < data.chunks.length) { 
+    if (data && currentChunk < data.chunks.length) {
       const nextChunk = currentChunk + 1;
-      // Trigger break every 3 segments (at index 2, 5, 8...)
+
+      // Infinite 3-6-9 Rhythm Logic
       if (nextChunk > 0 && nextChunk % 3 === 0 && nextChunk < data.chunks.length) {
+        // level cycles 1, 2, 3, 1, 2, 3...
+        const totalBreaks = nextChunk / 3;
+        const level = ((totalBreaks - 1) % 3) + 1;
+        setBreakLevel(level);
         setShowBreak(true);
+        if (level >= 2) setShowRecap(true);
       }
-      setCurrentChunk(nextChunk); 
-      setRewardType('step'); 
-      setTimeout(() => setRewardType('none'), 2000); 
+
+      setCurrentChunk(nextChunk);
+      setRewardType('step');
+      setTimeout(() => setRewardType('none'), 2000);
     } 
     else if (data && currentChunk === data.chunks.length) {
       setRewardType('final'); setIsZenLocked(false); if (document.fullscreenElement) document.exitFullscreen();
@@ -1197,7 +1265,6 @@ export default function Home() {
       setTimeout(() => { setShowVictory(true); }, 2000);
     }
   };
-
   const handleCheckout = async (lookupKey: string) => {
     if (!user) { handleLogin(); return; }
     playClick();
@@ -1285,6 +1352,10 @@ export default function Home() {
         <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
         <div className="fixed inset-0 -z-10 transition-colors duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
         <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
+
+        {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && (
+          <NeuralAnchorSidebar data={data} isOpen={anchorsOpen} onToggle={() => setAnchorsOpen(!anchorsOpen)} />
+        )}
         
         <AnimatePresence>
           {data && currentChunk >= 0 && currentChunk < data.chunks.length && (
@@ -1294,7 +1365,7 @@ export default function Home() {
 
         <AnimatePresence>
           {showBreak && (
-            <NeuralReset onComplete={() => { playClick(); setShowBreak(false); }} />
+            <NeuralRhythmBreak level={breakLevel} onComplete={() => { playClick(); setShowBreak(false); }} />
           )}
         </AnimatePresence>
 
@@ -1314,6 +1385,15 @@ export default function Home() {
           
           <div className="w-[1px] h-6 bg-white/10 mx-1" />
           
+          {/* Soundscapes */}
+          <div className="flex items-center gap-1">
+            <button onClick={() => { playClick(); setAudioMode('brown'); }} title="Brown Noise" className={`p-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all ${audioMode === 'brown' ? 'bg-amber-500/20 text-amber-500 border border-amber-500/50' : 'text-slate-500 hover:text-white'}`}>Brown</button>
+            <button onClick={() => { playClick(); setAudioMode('gamma'); }} title="40Hz Gamma Focus" className={`p-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all ${audioMode === 'gamma' ? 'bg-blue-500/20 text-blue-500 border border-blue-500/50' : 'text-slate-500 hover:text-white'}`}>Gamma</button>
+            <button onClick={() => { playClick(); setAudioMode('none'); }} title="Silence" className={`p-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all ${audioMode === 'none' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`}>Silent</button>
+          </div>
+
+          <div className="w-[1px] h-6 bg-white/10 mx-1" />
+
           {/* Quick Toggles */}
           <div className="flex items-center gap-1">
             <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading (T)" className={`p-3 rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
@@ -1330,10 +1410,13 @@ export default function Home() {
           
           <div className="flex items-center gap-4 px-2">
             <div className="flex flex-col items-center">
-              <p className="text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Neural Sync</p>
+              <p className="text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Bandwidth Reclaimed</p>
               <div className="flex items-center gap-2">
-                <Star className="text-amber-500 fill-amber-500" size={10} />
-                <span className="font-black text-white text-xs tabular-nums">{dassahPoints}</span>
+                <Clock className="text-blue-400" size={10} />
+                <span className="font-black text-white text-xs tabular-nums">{totalMinutesSaved}m</span>
+                <span className="w-[1px] h-3 bg-white/10 mx-1" />
+                <Brain className="text-purple-400" size={10} />
+                <span className="font-black text-white text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
               </div>
             </div>
           </div>
@@ -1370,7 +1453,7 @@ export default function Home() {
       </div>
 
       {/* Prism Link (Feedback) */}
-      <button onClick={() => setShowFeedback(true)} className="fixed bottom-8 left-8 z-[200] p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 text-slate-500 hover:text-white hover:bg-white/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl">
+      <button onClick={() => setShowFeedback(true)} className="fixed top-24 left-8 z-[120] p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 text-slate-500 hover:text-white hover:bg-white/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl">
         <div className="absolute inset-0 bg-blue-500/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         <MessageSquare size={20} className="relative z-10 group-hover:scale-110 transition-transform" />
       </button>
@@ -1385,10 +1468,38 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Visual Spectrum</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(THEMES).map(([id, t]) => (
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Neural Continuity</p>
+                    <div className="space-y-3">
+                      {localStorage.getItem('dassahs_neural_snapshot') && !data && (
+                        <button onClick={() => { setShowNeuralCommand(false); handleResumeSnapshot(); }} className="w-full p-5 rounded-2xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-between group hover:bg-blue-600 hover:border-blue-400 transition-all">
+                          <div className="flex items-center gap-4">
+                            <Anchor size={20} className="text-blue-400 group-hover:text-white" />
+                            <div className="text-left">
+                              <p className="text-xs font-black text-white uppercase tracking-widest">Resume Mission</p>
+                              <p className="text-[8px] text-blue-400/60 group-hover:text-blue-100 font-bold uppercase tracking-tight">Pick up where you left off</p>
+                            </div>
+                          </div>
+                          <ArrowRight size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      )}
+                      <a href="/dassahs-prism-extension.zip" download className="w-full p-5 rounded-2xl bg-purple-600/10 border border-purple-500/30 flex items-center justify-between group hover:bg-purple-600 hover:border-purple-400 transition-all">
+                        <div className="flex items-center gap-4">
+                          <Rocket size={20} className="text-purple-400 group-hover:text-white" />
+                          <div className="text-left">
+                            <p className="text-xs font-black text-white uppercase tracking-widest">Neural Bridge</p>
+                            <p className="text-[8px] text-purple-400/60 group-hover:text-purple-100 font-bold uppercase tracking-tight">Download Chrome Extension</p>
+                          </div>
+                        </div>
+                        <Download size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </a>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Visual Spectrum</p>
+                    <div className="grid grid-cols-2 gap-2">                    {Object.entries(THEMES).map(([id, t]) => (
                       <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
                         <div className="w-5 h-5 rounded-md" style={{ backgroundColor: t.accent }} />
                         <span className="text-[9px] font-bold text-white truncate">{t.name}</span>
@@ -1445,8 +1556,13 @@ export default function Home() {
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-4xl w-full max-h-[90vh] overflow-y-auto no-scrollbar bg-[var(--color-glass)] p-8 md:p-12 rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-10">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-black text-white italic flex items-center gap-4"><Crown className="text-amber-400" /> Neural Identity</h2>
-                <div className="bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 flex items-center gap-2">
-                  <Star className="text-amber-500 fill-amber-500" size={12}/><span className="font-black text-white text-[10px]">{dassahPoints}</span>
+                <div className="flex gap-3">
+                  <div className="bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-500/20 flex items-center gap-2">
+                    <Clock className="text-blue-400" size={12}/><span className="font-black text-white text-[10px]">{totalMinutesSaved}m</span>
+                  </div>
+                  <div className="bg-purple-500/10 px-3 py-1.5 rounded-xl border border-purple-500/20 flex items-center gap-2">
+                    <Brain className="text-purple-400" size={12}/><span className="font-black text-white text-[10px]">{totalWordsRefracted.toLocaleString()} Words</span>
+                  </div>
                 </div>
                 <button onClick={() => setShowNeuralIdentity(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
               </div>
@@ -1614,41 +1730,36 @@ export default function Home() {
 
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24 pb-20">
-          <header className="text-center space-y-8 relative">
-            <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tight italic">Dassah's <span className="prism-text">Prism</span></h1>
-            <p className="text-lg md:text-xl text-blue-400/80 font-bold italic tracking-tight text-center">"Turn overwhelming noise into clear focus in seconds."</p>
+          <header className=\"text-center space-y-8 relative\">
+            <h1 className=\"text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tight italic\">Dassah's <span className=\"prism-text\">Prism</span></h1>
+            <RefractiveTagline />
           </header>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto opacity-60 hover:opacity-100 transition-opacity">
-            <div className="bg-black/20 p-6 rounded-[2rem] border border-white/5 space-y-3"><p className="text-[8px] uppercase tracking-widest text-slate-500 font-black">The Noise</p><p className="text-xs text-slate-500 leading-relaxed">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text.</p></div>
-            <div className="bg-blue-500/5 p-6 rounded-[2rem] border border-blue-500/10 space-y-3 relative overflow-hidden"><div className="absolute top-2 right-4 animate-pulse"><Sparkle size={10} className="text-blue-400" /></div><p className="text-[8px] uppercase tracking-widest text-blue-400 font-black">The Clarity</p><p className="text-xs text-slate-300 leading-relaxed font-bold"><span className="text-white font-black">Thi</span>s <span className="text-white font-black">i</span>s <span className="text-white font-black">a</span> <span className="text-white font-black">shor</span>t, <span className="text-white font-black">Bioni</span>c <span className="text-white font-black">pat</span>h. <span className="text-white font-black">You</span>r <span className="text-white font-black">brai</span>n <span className="text-white font-black">lock</span>s <span className="text-white font-black">i</span>n <span className="text-white font-black">instan</span>tly.</p></div>
-          </div>
-           <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/10 p-3 shadow-2xl overflow-hidden relative group focus-within:border-blue-500/50 transition-all flex flex-col items-center">
-            <div className="pt-6 pb-2 relative">
+          
+          <NeuralRefractionSlider />
+
+          <div className=\"bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/20 p-3 shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden relative group focus-within:border-blue-500/50 hover:border-white/30 transition-all flex flex-col items-center\">
+            <div className=\"pt-6 pb-2 relative\">
               <RefractiveNeuralCore loading={loading} inputLength={input.length} isVictorious={false} user={user} mousePos={mousePos} focusMode={focusMode} />
-              <button onClick={handleLoadExample} title="Refract an Example" className="absolute -bottom-2 -right-4 p-3 bg-white/10 border border-white/10 rounded-2xl text-amber-400 hover:text-white hover:bg-white/20 transition-all group shadow-xl">
-                <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
-              </button>
-              {localStorage.getItem('dassahs_neural_snapshot') && !data && (
-                <button onClick={handleResumeSnapshot} title="Resume Last Mission" className="absolute -bottom-2 -left-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-400 hover:text-white hover:bg-blue-600 transition-all group shadow-xl flex items-center gap-2">
-                  <Anchor size={18} className="group-hover:rotate-[-20deg] transition-transform" />
-                  <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Resume Link</span>
-                </button>
-              )}
             </div>
-            <div className="w-full relative group">
+            <div className=\"w-full relative group\">
               {showNeuroMirror ? (
-                <div className="w-full h-64 md:h-80 bg-black/20 rounded-[2.5rem] overflow-y-auto"><NeuroMirrorText text={input || "Paste some text..."} /></div>
+                <div className=\"w-full h-64 md:h-80 bg-black/60 rounded-[2.5rem] overflow-y-auto border border-white/10\"><NeuroMirrorText text={input || \"Paste some text...\"} /></div>
               ) : (
-                <textarea className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-transparent resize-none focus:outline-none placeholder:text-slate-700 text-slate-200 leading-relaxed font-medium" placeholder="Paste the noise here..." value={input} onChange={(e) => setInput(e.target.value)} />
+                <textarea 
+                  className=\"w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-black/40 rounded-[2.5rem] border-2 border-white/10 focus:border-blue-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-600 text-slate-200 leading-relaxed font-medium\" 
+                  placeholder=\"Paste the noise here...\" 
+                  value={input} 
+                  onChange={(e) => setInput(e.target.value)} 
+                />
               )}
             </div>
-            <div className="w-full px-8 md:px-12 pb-4">
+            <div className=\"w-full px-8 md:px-12 pb-4\">
               <input 
-                type="text" 
+                type=\"text\" 
                 value={missionGoal} 
                 onChange={(e) => setMissionGoal(e.target.value)} 
-                placeholder="What is your Sovereign Goal? (Optional)" 
-                className="w-full bg-blue-500/5 border border-blue-500/20 p-4 rounded-2xl text-xs font-bold text-blue-100 italic focus:outline-none focus:border-blue-500/50 transition-all"
+                placeholder=\"What is your Sovereign Goal? (Optional)\" 
+                className=\"w-full bg-blue-500/20 border-2 border-blue-500/30 p-4 rounded-2xl text-sm font-bold text-blue-100 placeholder:text-blue-300/40 italic focus:outline-none focus:border-blue-500/60 focus:bg-blue-500/25 transition-all\"
               />
             </div>
             <div className="w-full bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border-t border-white/5">
@@ -1659,7 +1770,14 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                 <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}<span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic' : 'Quick'}</span></button>
                 <button onClick={() => setStoryMode(!storyMode)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${storyMode ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{storyMode ? <Rocket size={18}/> : <Anchor size={18}/>}<span className="text-[10px] font-black uppercase tracking-widest">{storyMode ? 'Story' : 'Fact'}</span></button>
-                <button onClick={() => handleSimplify()} disabled={loading || !input.trim()} className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:shadow-[0_0_60px_rgba(147,51,234,0.5)] transition-all active:scale-95 text-lg">{loading ? <Loader2 className="animate-spin" /> : 'Discern It'}</button>              </div>
+                <button 
+                  onClick={() => handleSimplify()} 
+                  disabled={loading || !input.trim()} 
+                  className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:shadow-[0_0_60px_rgba(147,51,234,0.5)] transition-all active:scale-95 text-lg"
+                >
+                  {loading ? <Loader2 className="animate-spin" /> : 'Discern It'}
+                </button>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -1691,6 +1809,11 @@ export default function Home() {
                 </div>
                 
                 <h2 className="text-4xl md:text-6xl font-black mb-4 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
+                
+                {storyMode && showRecap && currentChunk > 0 && (
+                  <SceneRecap chunk={data.chunks[currentChunk - 1]} />
+                )}
+                
                 <div className="mb-8 p-4 bg-blue-500/10 border-l-4 border-blue-500 rounded-r-xl">
                   <p className="text-blue-300 text-xs font-black uppercase tracking-widest mb-1">Segment Snap</p>
                   <p className="text-slate-300 font-bold italic">{isBionic ? <BionicText text={data.chunks[currentChunk].summary} /> : data.chunks[currentChunk].summary}</p>
@@ -1823,8 +1946,24 @@ export default function Home() {
         <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
           DJ <Fish size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
         </p>
-        <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
+        <div className=\"flex items-center gap-4\">
+          <button onClick={() => setShowAbout(true)} className=\"mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all\">About the Prism</button>
+          <button onClick={() => { playClick(); setTutorialStep(0); setShowTutorial(true); }} className=\"mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-all flex items-center gap-2\"><Sparkles size={10}/> Neural Guide</button>
+        </div>
       </footer>
+
+      <AnimatePresence>
+        {showTutorial && (
+          <TutorialModal 
+            step={tutorialStep} 
+            onNext={() => setTutorialStep(s => s + 1)} 
+            onClose={() => {
+              setShowTutorial(false);
+              localStorage.setItem('dassahs_prism_tutorial_complete', 'true');
+            }} 
+          />
+        )}
+      </AnimatePresence>
     </main>
       )}
     </>

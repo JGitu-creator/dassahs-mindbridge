@@ -14,7 +14,29 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Dassah's Prism",
-  description: "Discern clarity from noise. A professional cognitive tool for Profound Cognitive Intensity.",
+  description: "Refract overwhelming noise into divine clarity. Your cognitive architecture, optimized.",
+  openGraph: {
+    title: "Dassah's Prism",
+    description: "Sovereignty Reclaimed. Turn noise into focus in seconds.",
+    url: "https://dassahs-prism.vercel.app",
+    siteName: "Dassah's Prism",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1559757175-57008173bc7d?auto=format&fit=crop&q=80&w=1200&h=630",
+        width: 1200,
+        height: 630,
+        alt: "Neural Prism - Cognitive Clarity",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Dassah's Prism",
+    description: "Crush the cognitive noise. Anchor your focus.",
+    images: ["https://images.unsplash.com/photo-1559757175-57008173bc7d?auto=format&fit=crop&q=80&w=1200&h=630"],
+  },
 };
 
 export default function RootLayout({

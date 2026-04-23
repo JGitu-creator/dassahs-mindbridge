@@ -106,32 +106,42 @@ Respond ONLY with a valid JSON object matching the exact structure below:
     "type": "bar" | "line" | "pie",
     "data": [ { "name": "string", "value": number } ]
   } | null,
-  "actions": [ { "task": "string", "priority": "high" | "medium" | "low" } ]
-}
+  const modelsToTry = [
+    'gemini-2.0-flash', 
+    'gemini-1.5-flash', 
+    'gemini-1.5-flash-8b', // Highly resilient to saturation
+    'gemini-1.5-pro',
+    'gemini-2.0-pro-exp-02-05'
+  ];
 
-INPUT:
-${text}
-`;
+  let responseText = '';
+  let lastError: any = null;
 
-    let responseText = '';
-    let lastError: any = null;
+  const generationPrompt = mode === 'chat' ? `
+      You are an ADHD-friendly assistant called \"Ask DJ.\" 
+      Based on the CONTEXT provided below, answer the user's question or follow their direct instructions (e.g. \"make a poem\", \"summarize dates\", \"find names\").
 
-    const generationPrompt = mode === 'chat' ? `
-        You are an ADHD-friendly assistant. Based on the following context, answer the user's question in 1-2 very simple, encouraging sentences. 
-        Use bullet points if listing things. 
-        
-        CONTEXT:
-        ${JSON.stringify(context)}
-        
-        USER QUESTION:
-        ${question}
-      ` : prompt;
+      RULES:
+      1. Be simple, encouraging, and clear.
+      2. Use bullet points for lists.
+      3. If asked to do a task based on the document, perform it fully within the chat response.
+      4. Respond ONLY with clean, plain text. Do NOT wrap your answer in JSON, brackets, or code symbols.
 
-    for (const modelName of modelsToTry) {
-      try {
-        const isPro = modelName.includes('pro');
-        const model = genAI.getGenerativeModel({ 
-          model: modelName,
+      CONTEXT:
+      ${JSON.stringify(context)}
+
+      USER REQUEST:
+      ${question}
+    ` : prompt;
+
+  for (const modelName of modelsToTry) {
+    try {
+      // If not the first model, wait 1 second before retrying to avoid spamming the same rate limit
+      if (lastError) await new Promise(r => setTimeout(r, 1000));
+
+      const isPro = modelName.includes('pro');
+      const model = genAI.getGenerativeModel({ 
+        model: modelName,
           generationConfig: { 
             responseMimeType: "application/json",
             temperature: isPro ? 0.7 : 0.4, // Higher temperature for more creative/vast story summaries on Pro
