@@ -1563,47 +1563,34 @@ export default function Home() {
       </AnimatePresence>
 
       {/* PUBLIC COMPLIANCE SECTION - ALWAYS VISIBLE TO GOOGLE BOTS */}
-      <footer className="w-full bg-black/40 backdrop-blur-md border-t border-white/5 py-12 px-6 mt-auto z-[100]">
+      <footer className="w-full bg-[#0f172a] border-t border-white/5 py-12 px-6 z-[2000] relative">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="space-y-4">
-            <h2 className="text-2xl font-black text-white italic">Dassah's Prism</h2>
+            <h2 className="text-2xl font-black text-white italic">Dassah's-Prism</h2>
             <p className="text-slate-400 text-sm leading-relaxed max-w-md">
-              Dassah's Prism is a professional cognitive optimization tool. We use advanced AI to transmute overwhelming digital noise into structured, high-impact clarity, helping you reclaim the sovereignty of your focus.
+              Dassah's-Prism is a professional cognitive optimization tool. Our purpose is to help users transmute overwhelming digital noise into structured, high-impact clarity, reclaiming the sovereignty of their focus through advanced AI discernment.
             </p>
           </div>
           <div className="flex flex-col md:items-end justify-center gap-6">
             <div className="flex gap-8">
-              <a href="https://dassahs-mindbridge.vercel.app/privacy" className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-blue-400 transition-all">Privacy Policy</a>
+              <a href="https://dassahs-mindbridge.vercel.app/privacy" className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 hover:text-white transition-all underline">Privacy Policy</a>
               <a href="#" className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-blue-400 transition-all">Terms of Service</a>
             </div>
-            <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-700">© 2026 Dassah's Prism | DJ | Rooted in Christ</p>
+            <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-700">© 2026 Dassah's-Prism | DJ | Rooted in Christ</p>
           </div>
         </div>
       </footer>
 
-      {linkState === 'established' && (
-        <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
-        <div className="fixed inset-0 -z-10 transition-colors duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
-        
-        {/* PUBLIC TRANSPARENCY SECTION FOR GOOGLE VERIFICATION */}
-        {!data && (
-          <div className="w-full max-w-4xl mx-auto px-4 py-12 border-t border-white/10 mt-20 relative z-10">
-            <h2 className="text-xl font-black text-white uppercase tracking-widest mb-6 italic">Neural Purpose</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-400 text-sm font-medium">
-              <p>Dassah's Prism is a cognitive optimization tool designed for neurodivergent individuals and executives. Our mission is to transmute overwhelming digital noise into structured, divine clarity using advanced AI discernment protocols.</p>
-              <p>By using the Prism, you reclaim the sovereignty of your focus. We provide high-impact summaries, dopamine-aligned hooks, and bionic reading interfaces to ensure your cognitive bandwidth is never wasted.</p>
-            </div>
-            <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-6">
-                <a href="#" className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-600 hover:text-blue-400 transition-colors">Privacy Policy</a>
-                <a href="#" className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-600 hover:text-blue-400 transition-colors">Terms of Neural Link</a>
-              </div>
-              <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-800">Dassah's Prism © 2026 | DJ | Rooted in Christ</p>
-            </div>
-          </div>
+      <AnimatePresence>
+        {(linkState === 'pending' || linkState === 'syncing' || linkState === 'revealing') && (
+          <MissionMandate 
+            linkState={linkState}
+            syncProgress={syncProgress}
+            onAccept={handleEstablishLink}
+            onCancel={() => { playClick(); setLinkState('severed'); }}
+          />
         )}
-
-        <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
+      </AnimatePresence>
 
         {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && (
           <NeuralAnchorSidebar data={data} isOpen={anchorsOpen} onToggle={() => setAnchorsOpen(!anchorsOpen)} />
