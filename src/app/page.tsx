@@ -1082,12 +1082,14 @@ export default function Home() {
     if (savedStars) setStarredItems(JSON.parse(savedStars));
   }, []);
 
-  const playNeuralSoundscape = (type: 'brown' | 'gamma') => {
+  const playNeuralSoundscape = (type: 'brown' | 'gamma' | 'suspense' | 'action') => {
     try {
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        audioCtxRef.current.close();
+      }
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass(); audioCtxRef.current = ctx;
-      if (ctx.state === 'suspended') ctx.resume();
-
+      
       const mainGain = ctx.createGain();
       mainGain.gain.setValueAtTime(audioVolume, ctx.currentTime);
       mainGain.connect(ctx.destination);
@@ -1101,31 +1103,52 @@ export default function Home() {
           const white = Math.random() * 2 - 1;
           output[i] = (lastOut + (0.02 * white)) / 1.02;
           lastOut = output[i];
-          output[i] *= 3.5; // brown noise is quieter
+          output[i] *= 3.5;
         }
         const noise = ctx.createBufferSource();
         noise.buffer = buffer; noise.loop = true;
         noise.connect(mainGain);
-        noise.start(); noiseNodeRef.current = noise;
+        noise.start(); 
+        noiseNodeRef.current = { stop: () => { noise.stop(); ctx.close(); } };
       } else if (type === 'gamma') {
-        // Binaural Beats: 200Hz and 240Hz (40Hz Gamma difference)
         const leftOsc = ctx.createOscillator();
         const rightOsc = ctx.createOscillator();
         const leftPanner = ctx.createStereoPanner();
         const rightPanner = ctx.createStereoPanner();
-
         leftOsc.frequency.setValueAtTime(200, ctx.currentTime);
         rightOsc.frequency.setValueAtTime(240, ctx.currentTime);
         leftPanner.pan.setValueAtTime(-1, ctx.currentTime);
         rightPanner.pan.setValueAtTime(1, ctx.currentTime);
-
         leftOsc.connect(leftPanner); leftPanner.connect(mainGain);
         rightOsc.connect(rightPanner); rightPanner.connect(mainGain);
-
         leftOsc.start(); rightOsc.start();
-        noiseNodeRef.current = { stop: () => { leftOsc.stop(); rightOsc.stop(); } };
+        noiseNodeRef.current = { stop: () => { leftOsc.stop(); rightOsc.stop(); ctx.close(); } };
+      } else if (type === 'suspense') {
+        const osc = ctx.createOscillator();
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(110, ctx.currentTime);
+        lfo.frequency.setValueAtTime(0.5, ctx.currentTime);
+        lfoGain.gain.setValueAtTime(20, ctx.currentTime);
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        osc.connect(mainGain);
+        osc.start(); lfo.start();
+        noiseNodeRef.current = { stop: () => { osc.stop(); lfo.stop(); ctx.close(); } };
+      } else if (type === 'action') {
+        const osc = ctx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(60, ctx.currentTime);
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(400, ctx.currentTime);
+        osc.connect(filter);
+        filter.connect(mainGain);
+        osc.start();
+        noiseNodeRef.current = { stop: () => { osc.stop(); ctx.close(); } };
       }
-    } catch (e) { console.error("Soundscape failed"); }
+    } catch (e) { console.error("Soundscape failed", e); }
   };
 
   const loadHistory = async (userId: string) => {
