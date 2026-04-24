@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Dassah's Prism",
   description: "Refract overwhelming noise into divine clarity. Your cognitive architecture, optimized.",
+  verification: {
+    google: "YEfuEJS5zA9GRMvseo0Dp0HU70i_1fJdsXf0kmLuMQ0",
+  },
   openGraph: {
     title: "Dassah's Prism",
     description: "Sovereignty Reclaimed. Turn noise into focus in seconds.",
