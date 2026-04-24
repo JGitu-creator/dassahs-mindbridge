@@ -23,9 +23,9 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const modelsToTry = [
-      'gemini-3-flash',
-      'gemini-3.1-pro',
-      'gemini-1.5-flash-latest'
+      'gemini-2.0-flash-001',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro'
     ];
     
     const prompt = `

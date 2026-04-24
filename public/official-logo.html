@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dassah's Prism Official Logo</title>
+    <style>
+        body {
+            background: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .logo-container {
+            width: 512px;
+            height: 512px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+            border: 4px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .logo-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            font-style: italic;
+            font-size: 260px;
+            color: white;
+            letter-spacing: -10px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        .shimmer {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 50%, transparent 55%);
+            animation: move 3s infinite linear;
+        }
+        @keyframes move {
+            0% { transform: translate(-10%, -10%); }
+            100% { transform: translate(10%, 10%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <div class="shimmer"></div>
+        <div class="logo-text">DP</div>
+    </div>
+</body>
+</html>
