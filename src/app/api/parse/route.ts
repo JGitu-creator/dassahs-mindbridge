@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     text = text.replace(/[ \t]+/g, ' '); 
     text = text.trim();
 
-    return NextResponse.json({ text: text.slice(0, 500000) });
+    return NextResponse.json({ text: text.slice(0, 100000) });
   } catch (error: any) {
     console.error('Parsing error:', error);
     return NextResponse.json({ error: `Parsing Failed: ${error.message}` }, { status: 500 });

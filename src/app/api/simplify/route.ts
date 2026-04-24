@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { text, mode, question, context, isScenic, cognitiveMode, missionGoal, isStory } = await req.json();
+    const { text = '', mode, question, context, isScenic, cognitiveMode, missionGoal, isStory } = await req.json();
 
     if (!text && mode !== 'chat') {
       return NextResponse.json(
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     const prompt = `
     You are an expert cognitive architect called "Dassah's Prism." Your mission is to transmute overwhelming "Noise" into "Divine Clarity" through Deep Discernment. You are a fierce advocate for the user's sovereignty.
 
-    ${text.length > 100000 ? '⚠️ LARGE INPUT DETECTED: This is a full book/document. Prioritize the most critical narrative/logical nodes and consolidate minor details to maintain "Divine Clarity" without overloading the bandwidth.' : ''}
+    ${text && text.length > 100000 ? '⚠️ LARGE INPUT DETECTED: This is a full book/document. Prioritize the most critical narrative/logical nodes and consolidate minor details to maintain "Divine Clarity" without overloading the bandwidth.' : ''}
 
     USER MISSION GOAL: ${missionGoal || 'Discovery & Clarity'}
 

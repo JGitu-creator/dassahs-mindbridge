@@ -565,7 +565,7 @@ const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAcc
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={linkState === 'revealing' ? { scale: 1.5, opacity: 0, filter: 'blur(20px)' } : { opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeInOut" }}
-        className="max-w-2xl w-full bg-slate-900 border-2 border-blue-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.2)] space-y-8 my-auto relative overflow-hidden"
+        className="max-w-2xl w-full bg-slate-900 border-2 border-blue-500/30 p-6 md:p-12 rounded-[2rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.2)] space-y-6 md:space-y-8 my-auto relative overflow-hidden"
       >
         {linkState === 'syncing' && (
           <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-sm z-50 flex flex-col items-center justify-center space-y-6">
@@ -574,75 +574,75 @@ const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAcc
               <div className="absolute inset-[-20px] border-2 border-blue-400/20 rounded-full animate-[neural-gear_15s_linear_infinite_reverse]" />
               <RefractiveNeuralCore loading={true} inputLength={0} isVictorious={false} user={null} mousePos={{x:0, y:0}} focusMode="dastastic" />
             </div>
-            <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden">
+            <div className="w-48 md:w-64 h-1.5 md:h-2 bg-white/10 rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${syncProgress}%` }}
                 className="h-full bg-blue-500 shadow-[0_0_20px_#3b82f6]"
               />
             </div>
-            <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-xs animate-pulse">Syncing Neural Link: {syncProgress}%</p>
+            <p className="text-blue-400 font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-[10px] md:text-xs animate-pulse">Syncing Neural Link: {syncProgress}%</p>
           </div>
         )}
 
-        <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-widest text-xs">
-          <Shield size={20} className="animate-pulse" /> Mission Mandate: Sovereign Directive
+        <div className="flex items-center gap-3 md:gap-4 text-blue-400 font-black uppercase tracking-widest text-[10px] md:text-xs">
+          <Shield size={16} className="animate-pulse" /> Mission Mandate: Sovereign Directive
         </div>
         
         <div className="space-y-2">
-          <h2 className="text-3xl md:text-5xl font-black text-white italic leading-tight">Enter Dassah's <span className="prism-text">Neural Prism</span></h2>
-          <p className="text-slate-400 font-medium italic">Establishing a secure connection for your neurodivergent journey.</p>
+          <h2 className="text-2xl md:text-5xl font-black text-white italic leading-tight">Enter Dassah's <span className="prism-text">Neural Prism</span></h2>
+          <p className="text-xs md:text-sm text-slate-400 font-medium italic">Establishing a secure connection for your neurodivergent journey.</p>
         </div>
         
-        <div className="space-y-6 text-slate-300 overflow-y-auto max-h-[40vh] pr-4 custom-scrollbar">
-          <div className="p-4 bg-blue-500/5 rounded-2xl border border-blue-500/20 mb-4">
-             <p className="text-[10px] text-blue-300 font-black uppercase tracking-widest mb-1 italic">Parental Directive</p>
-             <p className="text-xs font-bold leading-relaxed text-blue-100 italic">"By establishing this link for a minor, you as a parent or guardian provide neural consent for their access to the Prism."</p>
+        <div className="space-y-4 md:space-y-6 text-slate-300 overflow-y-auto max-h-[35vh] md:max-h-[40vh] pr-2 md:pr-4 custom-scrollbar">
+          <div className="p-3 md:p-4 bg-blue-500/5 rounded-xl md:rounded-2xl border border-blue-500/20 mb-4">
+             <p className="text-[8px] md:text-[10px] text-blue-300 font-black uppercase tracking-widest mb-1 italic">Parental Directive</p>
+             <p className="text-[10px] md:text-xs font-bold leading-relaxed text-blue-100 italic">"By establishing this link for a minor, you as a parent or guardian provide neural consent for their access to the Prism."</p>
           </div>
 
-          <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
-            <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Lock size={12} className="text-blue-400" /> 1. The "Sensitive Data" Shield</h3>
-            <p className="text-sm leading-relaxed text-blue-100">Neural Guardrails: Do not input highly sensitive data (e.g., SSNs, passwords, or private health records). We are not liable for the exposure of data you choose to provide.</p>
-            <p className="text-[10px] text-slate-500 italic font-bold">[What this means: Keep your private secrets like passwords and IDs out of the Prism for your safety!]</p>
+          <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
+            <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Lock size={10} className="text-blue-400" /> 1. The "Sensitive Data" Shield</h3>
+            <p className="text-xs md:text-sm leading-relaxed text-blue-100">Neural Guardrails: Do not input highly sensitive data (e.g., SSNs, passwords, or private health records). We are not liable for the exposure of data you choose to provide.</p>
+            <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: Keep your private secrets like passwords and IDs out of the Prism for your safety!]</p>
           </div>
           
-          <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
-            <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Zap size={12} className="text-amber-400" /> 2. Neural Resonance (Data Processing)</h3>
-            <p className="text-sm leading-relaxed text-blue-100">Your inputs are processed via Google's Gemini models to provide clarity. By using the Prism, you agree to their standard data handling protocols.</p>
-            <p className="text-[10px] text-slate-500 italic font-bold">[What this means: Google's smart robots help us clean the noise, and they follow strict rules to keep things safe.]</p>
+          <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
+            <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Zap size={10} className="text-amber-400" /> 2. Neural Resonance (Data Processing)</h3>
+            <p className="text-xs md:text-sm leading-relaxed text-blue-100">Your inputs are processed via Google's Gemini models to provide clarity. By using the Prism, you agree to their standard data handling protocols.</p>
+            <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: Google's smart robots help us clean the noise, and they follow strict rules to keep things safe.]</p>
           </div>
           
-          <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
-            <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Shield size={12} className="text-emerald-400" /> 3. "As-Is" Liability</h3>
-            <p className="text-sm leading-relaxed text-blue-100">Dassah's Prism is provided "as is" without warranties. The creators shall not be liable for any direct or indirect damages resulting from your use of this tool.</p>
-            <p className="text-[10px] text-slate-500 italic font-bold">[What this means: We built this tool with love to help you, but we aren't responsible if things aren't perfect or if the noise is too loud today.]</p>
+          <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
+            <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Shield size={10} className="text-emerald-400" /> 3. "As-Is" Liability</h3>
+            <p className="text-xs md:text-sm leading-relaxed text-blue-100">Dassah's Prism is provided "as is" without warranties. The creators shall not be liable for any direct or indirect damages resulting from your use of this tool.</p>
+            <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: We built this tool with love to help you, but we aren't responsible if things aren't perfect or if the noise is too loud today.]</p>
           </div>
           
-          <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
-            <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Brain size={12} className="text-purple-400" /> 4. Cerebral Guardianship (GDPR/CCPA)</h3>
-            <p className="text-sm leading-relaxed text-blue-100">You have the "Right to Erasure" (to have your data deleted) and we never sell your neural profile to third parties.</p>
-            <p className="text-[10px] text-slate-500 italic font-bold">[What this means: You own your brain data. You can ask us to delete it whenever you want! We never sell your thoughts.]</p>
+          <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
+            <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Brain size={10} className="text-purple-400" /> 4. Cerebral Guardianship (GDPR/CCPA)</h3>
+            <p className="text-xs md:text-sm leading-relaxed text-blue-100">You have the "Right to Erasure" (to have your data deleted) and we never sell your neural profile to third parties.</p>
+            <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: You own your brain data. You can ask us to delete it whenever you want! We never sell your thoughts.]</p>
           </div>
 
-          <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/5">
-            <h3 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2"><Anchor size={12} className="text-blue-400" /> 5. Functional Neural Anchors (Cookies)</h3>
-            <p className="text-sm leading-relaxed text-blue-100">We use essential cookies to keep your neural link active and save your preferences.</p>
-            <p className="text-[10px] text-slate-500 italic font-bold">[What this means: Small digital anchors help the Prism remember who you are so you don't have to sign in every time!]</p>
+          <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
+            <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Anchor size={10} className="text-blue-400" /> 5. Functional Neural Anchors (Cookies)</h3>
+            <p className="text-xs md:text-sm leading-relaxed text-blue-100">We use essential cookies to keep your neural link active and save your preferences.</p>
+            <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: Small digital anchors help the Prism remember who you are so you don't have to sign in every time!]</p>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-4 relative z-10">
+        <div className="flex flex-col sm:flex-row gap-2 md:gap-4 pt-4 relative z-10">
           <button 
             onClick={onAccept}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-xl shadow-blue-500/20 group"
+            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-4 md:py-6 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.1em] md:tracking-[0.2em] transition-all active:scale-95 shadow-xl shadow-blue-500/20 group text-xs md:text-base"
           >
-            <span className="flex items-center justify-center gap-3">
-              Establish Neural Link <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+            <span className="flex items-center justify-center gap-2 md:gap-3">
+              Establish Neural Link <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
             </span>
           </button>
           <button 
             onClick={onCancel}
-            className="px-8 py-6 text-slate-500 font-black uppercase tracking-widest hover:text-red-400 transition-colors"
+            className="px-6 py-4 md:px-8 md:py-6 text-slate-500 font-black uppercase tracking-widest hover:text-red-400 transition-colors text-[10px] md:text-sm"
           >
             Sever Link
           </button>
@@ -658,7 +658,7 @@ const PortalReveal = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[1500] flex flex-col items-center justify-center bg-black"
+      className="fixed inset-0 z-[1500] flex flex-col items-center justify-center bg-black p-4"
     >
       <motion.div
         initial={{ y: 20, opacity: 0 }}
@@ -666,15 +666,15 @@ const PortalReveal = () => {
         transition={{ delay: 0.5, duration: 1 }}
         className="text-center space-y-1"
       >
-        <p className="text-[8px] font-black uppercase tracking-[1em] text-blue-400/40 ml-[1em]">entering</p>
-        <h2 className="text-5xl md:text-8xl font-black italic prism-text drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">Dassah's Prism</h2>
+        <p className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.6em] md:tracking-[1em] text-blue-400/40 ml-[0.6em] md:ml-[1em]">entering</p>
+        <h2 className="text-3xl md:text-8xl font-black italic prism-text drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">Dassah's Prism</h2>
       </motion.div>
       
       <motion.div 
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ delay: 1, duration: 1.5, ease: "circOut" }}
-        className="mt-12 w-48 h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent"
+        className="mt-8 md:mt-12 w-32 md:w-48 h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent"
       />
     </motion.div>
   );
