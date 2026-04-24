@@ -1565,6 +1565,25 @@ export default function Home() {
       {linkState === 'established' && (
         <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
         <div className="fixed inset-0 -z-10 transition-colors duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
+        
+        {/* PUBLIC TRANSPARENCY SECTION FOR GOOGLE VERIFICATION */}
+        {!data && (
+          <div className="w-full max-w-4xl mx-auto px-4 py-12 border-t border-white/10 mt-20 relative z-10">
+            <h2 className="text-xl font-black text-white uppercase tracking-widest mb-6 italic">Neural Purpose</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-400 text-sm font-medium">
+              <p>Dassah's Prism is a cognitive optimization tool designed for neurodivergent individuals and executives. Our mission is to transmute overwhelming digital noise into structured, divine clarity using advanced AI discernment protocols.</p>
+              <p>By using the Prism, you reclaim the sovereignty of your focus. We provide high-impact summaries, dopamine-aligned hooks, and bionic reading interfaces to ensure your cognitive bandwidth is never wasted.</p>
+            </div>
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <a href="#" className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-600 hover:text-blue-400 transition-colors">Privacy Policy</a>
+                <a href="#" className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-600 hover:text-blue-400 transition-colors">Terms of Neural Link</a>
+              </div>
+              <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-800">Dassah's Prism © 2026 | DJ | Rooted in Christ</p>
+            </div>
+          </div>
+        )}
+
         <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
 
         {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && (
