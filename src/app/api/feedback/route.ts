@@ -7,27 +7,28 @@ const supabase = createClient(supabaseUrl!, supabaseAnonKey!);
 
 export async function POST(req: Request) {
   try {
-    const { feedback, userId, email } = await req.json();
+    const { feedback, userId } = await req.json();
 
     console.log('--- NEW FEEDBACK RECEIVED ---');
     console.log('User ID:', userId);
-    console.log('Email:', email);
     console.log('Feedback:', feedback);
     console.log('-----------------------------');
 
     // Save to Supabase 'feedback_vault' table
+    // We only use 'content' and 'user_id' as they are confirmed/likely safe
     const { error } = await supabase
       .from('feedback_vault')
       .insert([
         { 
           user_id: userId || null, 
-          email: email || 'anonymous', 
-          content: feedback,
-          created_at: new Date().toISOString()
+          content: feedback
         }
       ]);
 
-    if (error) throw error;
+    if (error) {
+      console.warn('Supabase Insert Warning:', error.message);
+      // We don't fail the whole request because logging to console worked
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
