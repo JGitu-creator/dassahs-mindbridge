@@ -1562,6 +1562,25 @@ export default function Home() {
         )}
       </AnimatePresence>
 
+      {/* PUBLIC COMPLIANCE SECTION - ALWAYS VISIBLE TO GOOGLE BOTS */}
+      <footer className="w-full bg-black/40 backdrop-blur-md border-t border-white/5 py-12 px-6 mt-auto z-[100]">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-black text-white italic">Dassah's Prism</h2>
+            <p className="text-slate-400 text-sm leading-relaxed max-w-md">
+              Dassah's Prism is a professional cognitive optimization tool. We use advanced AI to transmute overwhelming digital noise into structured, high-impact clarity, helping you reclaim the sovereignty of your focus.
+            </p>
+          </div>
+          <div className="flex flex-col md:items-end justify-center gap-6">
+            <div className="flex gap-8">
+              <a href="https://dassahs-mindbridge.vercel.app/privacy" className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-blue-400 transition-all">Privacy Policy</a>
+              <a href="#" className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-blue-400 transition-all">Terms of Service</a>
+            </div>
+            <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-700">© 2026 Dassah's Prism | DJ | Rooted in Christ</p>
+          </div>
+        </div>
+      </footer>
+
       {linkState === 'established' && (
         <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
         <div className="fixed inset-0 -z-10 transition-colors duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
