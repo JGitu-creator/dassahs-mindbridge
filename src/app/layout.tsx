@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Dassah's Prism",
   description: "Refract overwhelming noise into divine clarity. Your cognitive architecture, optimized.",
   verification: {
-    google: "YEfuEJS5zA9GRMvseo0Dp0HU70i_1fJdsXf0kmLuMQ0",
+    google: "e6jGjBArh4BltMG2MGWLqlH9-b8-sRuEfMF_dyceQ4w",
   },
   openGraph: {
     title: "Dassah's Prism",
