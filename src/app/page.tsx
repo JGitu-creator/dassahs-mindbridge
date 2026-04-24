@@ -1943,51 +1943,51 @@ export default function Home() {
       )}</AnimatePresence>
 
       {!data ? (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24 pb-20">
-          <header className="text-center space-y-8 relative">
-            <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text">Prism</span></h1>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-6 md:space-y-10 z-10 px-4 pt-20 md:pt-24 pb-20">
+          <header className="text-center space-y-4 md:space-y-8 relative">
+            <h1 className="text-5xl md:text-9xl font-black text-white leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text">Prism</span></h1>
             <RefractiveTagline />
           </header>
-          
+
           <NeuralRefractionSlider />
 
-          <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[3rem] border-2 border-white/20 p-3 shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden relative group focus-within:border-blue-500/50 hover:border-white/30 transition-all flex flex-col items-center">
-            <div className="pt-6 pb-2 relative">
+          <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[2rem] md:rounded-[3rem] border-2 border-white/20 p-2 md:p-3 shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden relative group focus-within:border-blue-500/50 hover:border-white/30 transition-all flex flex-col items-center">
+            <div className="pt-4 md:pt-6 pb-2 relative">
               <RefractiveNeuralCore loading={loading} inputLength={input.length} isVictorious={false} user={user} mousePos={mousePos} focusMode={focusMode} />
             </div>
             <div className="w-full relative group">
               {showNeuroMirror ? (
-                <div className="w-full h-64 md:h-80 bg-black/60 rounded-[2.5rem] overflow-y-auto border border-white/10"><NeuroMirrorText text={input || "Paste some text..."} /></div>
+                <div className="w-full h-48 md:h-80 bg-black/60 rounded-[1.5rem] md:rounded-[2.5rem] overflow-y-auto border border-white/10"><NeuroMirrorText text={input || "Paste some text..."} /></div>
               ) : (
                 <textarea 
-                  className="w-full h-64 md:h-80 p-8 md:p-12 text-lg md:text-xl bg-black/40 rounded-[2.5rem] border-2 border-white/10 focus:border-blue-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-600 text-slate-200 leading-relaxed font-medium" 
+                  className="w-full h-48 md:h-80 p-6 md:p-12 text-base md:text-xl bg-black/40 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-white/10 focus:border-blue-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-600 text-slate-200 leading-relaxed font-medium" 
                   placeholder="Paste the noise here..." 
                   value={input} 
                   onChange={(e) => setInput(e.target.value)} 
                 />
               )}
             </div>
-            <div className="w-full px-8 md:px-12 pb-4">
+            <div className="w-full px-6 md:px-12 pb-4">
               <input 
                 type="text" 
                 value={missionGoal} 
                 onChange={(e) => setMissionGoal(e.target.value)} 
                 placeholder="What is your Sovereign Goal? (Optional)" 
-                className="w-full bg-blue-500/20 border-2 border-blue-500/30 p-4 rounded-2xl text-sm font-bold text-blue-100 placeholder:text-blue-300/40 italic focus:outline-none focus:border-blue-500/60 focus:bg-blue-500/25 transition-all"
+                className="w-full bg-blue-500/20 border-2 border-blue-500/30 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold text-blue-100 placeholder:text-blue-300/40 italic focus:outline-none focus:border-blue-500/60 focus:bg-blue-500/25 transition-all"
               />
             </div>
-            <div className="w-full bg-[var(--color-glass)] p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-6 border-t border-white/5">
-              <div className="flex items-center gap-4">
-                <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-3"><Upload size={20} className="text-blue-500" /> Clean Document</button>
-                <button onClick={() => { playClick(); setShowNeuroMirror(!showNeuroMirror); }} className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${showNeuroMirror ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}><Ghost size={16} /><span className="text-[10px] font-black uppercase tracking-widest">{showNeuroMirror ? 'Stop' : 'Show Noise'}</span></button>
+            <div className="w-full bg-[var(--color-glass)] p-4 md:p-8 rounded-[1.5rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-4 md:gap-6 border-t border-white/5">
+              <div className="flex items-center gap-3 md:gap-4">
+                <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-2 md:gap-3"><Upload size={16} className="text-blue-500" /> Clean Document</button>
+                <button onClick={() => { playClick(); setShowNeuroMirror(!showNeuroMirror); }} className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-xl border transition-all ${showNeuroMirror ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}><Ghost size={14} /><span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{showNeuroMirror ? 'Stop' : 'Show Noise'}</span></button>
               </div>
-              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-                <button onClick={() => setIsScenic(!isScenic)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={18}/> : <Zap size={18}/>}<span className="text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic' : 'Quick'}</span></button>
-                <button onClick={() => setStoryMode(!storyMode)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all ${storyMode ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{storyMode ? <Rocket size={18}/> : <Anchor size={18}/>}<span className="text-[10px] font-black uppercase tracking-widest">{storyMode ? 'Story' : 'Fact'}</span></button>
+              <div className="flex items-center gap-2 md:gap-4 w-full sm:w-auto">
+                <button onClick={() => setIsScenic(!isScenic)} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}<span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic' : 'Quick'}</span></button>
+                <button onClick={() => setStoryMode(!storyMode)} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border transition-all ${storyMode ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}<span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{storyMode ? 'Story' : 'Fact'}</span></button>
                 <button 
                   onClick={() => handleSimplify()} 
                   disabled={loading || !input.trim()} 
-                  className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-12 md:px-20 py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:shadow-[0_0_60px_rgba(147,51,234,0.5)] transition-all active:scale-95 text-lg"
+                  className="flex-[2] sm:flex-none bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-6 md:px-20 py-3 md:py-7 rounded-xl md:rounded-[2.5rem] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:shadow-[0_0_60px_rgba(147,51,234,0.5)] transition-all active:scale-95 text-sm md:text-lg"
                 >
                   {loading ? <Loader2 className="animate-spin" /> : 'Discern It'}
                 </button>
@@ -1996,10 +1996,10 @@ export default function Home() {
           </div>
         </motion.div>
       ) : (
-        <div className="max-w-2xl lg:max-w-3xl w-full pt-32 pb-20 z-10 px-4">
-          <div className="mb-8 flex justify-end gap-4">
-            <button onClick={() => { setShowMissionBrief(true); playClick(); }} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-blue-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest"><Rocket size={18}/> Mission Brief</button>
-            <button onClick={handleDownloadSummary} className="p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-3 font-black uppercase text-[10px] tracking-widest"><Download size={18}/> Save Summary</button>
+        <div className="max-w-2xl lg:max-w-3xl w-full pt-24 md:pt-32 pb-20 z-10 px-4">
+          <div className="mb-6 md:mb-8 flex justify-end gap-2 md:gap-4">
+            <button onClick={() => { setShowMissionBrief(true); playClick(); }} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-blue-400 hover:text-white transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Rocket size={16}/><span className="hidden xs:inline">Mission Brief</span></button>
+            <button onClick={handleDownloadSummary} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Download size={16}/><span className="hidden xs:inline">Save Summary</span></button>
           </div>          <AnimatePresence mode="wait">
             {currentChunk === -1 ? (
               <motion.div key="ready" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] text-center space-y-8 shadow-2xl relative overflow-hidden">

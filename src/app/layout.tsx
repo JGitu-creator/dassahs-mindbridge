@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Dassah's Prism",
     description: "Sovereignty Reclaimed. Turn noise into focus in seconds.",
-    url: "https://dassahs-prism.vercel.app",
+    url: "https://dassahs-mindbridge-rjeiohdc3-phidotaxis-3372s-projects.vercel.app",
     siteName: "Dassah's Prism",
     images: [
       {

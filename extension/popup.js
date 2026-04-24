@@ -17,7 +17,7 @@ document.getElementById('simplifyBtn').addEventListener('click', async () => {
 
     const encodedText = encodeURIComponent(text.slice(0, 3000));
     // ENSURING THE PRODUCTION URL IS USED
-    const appUrl = `https://dassahs-prism.vercel.app/?text=${encodedText}`;
+    const appUrl = `https://dassahs-mindbridge-rjeiohdc3-phidotaxis-3372s-projects.vercel.app/?text=${encodedText}`;
     
     chrome.tabs.create({ url: appUrl });
     window.close(); 

@@ -10,7 +10,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "refractSelection" && info.selectionText) {
     const encodedText = encodeURIComponent(info.selectionText);
     // USING PRODUCTION URL (Default fallback to localhost)
-    const appUrl = `https://dassahs-prism.vercel.app/?text=${encodedText}`;
+    const appUrl = `https://dassahs-mindbridge-rjeiohdc3-phidotaxis-3372s-projects.vercel.app/?text=${encodedText}`;
     chrome.tabs.create({ url: appUrl });
   }
 });
