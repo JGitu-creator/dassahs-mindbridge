@@ -1,0 +1,12 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" rx="240" fill="url(#paint0_linear)"/>
+  <path d="M300 350H450C520 350 580 400 580 480C580 560 520 610 450 610H300V350ZM400 530H450C480 530 500 510 500 480C500 450 480 430 450 430H400V530Z" fill="white"/>
+  <path d="M620 350H770C840 350 900 400 900 480C900 560 840 610 770 610H620V350ZM720 530H770C800 530 820 510 820 480C820 450 800 430 770 430H720V530Z" fill="white" opacity="0.8"/>
+  <text x="512" y="650" font-family="Arial" font-weight="900" font-style="italic" font-size="380" fill="white" text-anchor="middle">DP</text>
+  <defs>
+    <linearGradient id="paint0_linear" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+</svg>
