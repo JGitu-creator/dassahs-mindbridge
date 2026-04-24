@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Dassah's Prism - Neural Bridge",
-  "version": "1.1",
-  "description": "Refract overwhelming noise into divine clarity.",
+  "name": "Dassah's Prism: Neural Bridge",
+  "version": "1.2",
+  "description": "Refract overwhelming noise into divine clarity. Your cognitive architecture, optimized.",
   "permissions": ["activeTab", "scripting", "contextMenus", "notifications"],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_title": "Dassah's Prism"
   },
   "background": {
     "service_worker": "background.js"
