@@ -1,11 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "ADHD Cognitive Filter",
-  "version": "1.0",
-  "description": "Simplifies dense webpages for an ADHD-friendly experience.",
-  "permissions": ["activeTab", "scripting"],
+  "name": "Dassah's Prism - Neural Bridge",
+  "version": "1.1",
+  "description": "Refract overwhelming noise into divine clarity.",
+  "permissions": ["activeTab", "scripting", "contextMenus", "notifications"],
   "action": {
     "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
@@ -14,6 +17,7 @@
     }
   ],
   "host_permissions": [
+    "https://dassahs-prism.vercel.app/*",
     "http://localhost:3000/*"
   ]
 }

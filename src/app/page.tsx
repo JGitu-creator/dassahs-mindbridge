@@ -1461,6 +1461,9 @@ export default function Home() {
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
+        queryParams: {
+          prompt: 'select_account',
+        },
       },
     });
     if (error) alert("Neural Link failed: " + error.message);
