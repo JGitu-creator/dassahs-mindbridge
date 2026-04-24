@@ -1,4 +1,9 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl!, supabaseAnonKey!);
 
 export async function POST(req: Request) {
   try {
@@ -10,8 +15,19 @@ export async function POST(req: Request) {
     console.log('Feedback:', feedback);
     console.log('-----------------------------');
 
-    // In a real app, you'd save this to Supabase or send an email.
-    // For now, we'll return success to keep the UI happy.
+    // Save to Supabase 'feedback_vault' table
+    const { error } = await supabase
+      .from('feedback_vault')
+      .insert([
+        { 
+          user_id: userId || null, 
+          email: email || 'anonymous', 
+          content: feedback,
+          created_at: new Date().toISOString()
+        }
+      ]);
+
+    if (error) throw error;
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
