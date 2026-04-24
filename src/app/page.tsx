@@ -128,19 +128,34 @@ const useIsMobile = () => {
 const StarParticles = ({ count, isFinal }: { count: number, isFinal: boolean }) => {
   const isMobile = useIsMobile();
   const mobileCount = isMobile ? Math.min(count, 20) : count;
+  
+  const particlesRef = useRef<any[]>([]);
+  if (particlesRef.current.length === 0) {
+    particlesRef.current = [...Array(100)].map(() => ({
+      initialX: Math.random() * 2000,
+      scale: Math.random() * 0.5 + 0.5,
+      animateX: Math.random() * 2000,
+      offsetX: Math.random() * 100 - 50,
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 5
+    }));
+  }
+
+  const activeParticles = particlesRef.current.slice(0, mobileCount);
+
   return (
     <div className="fixed inset-0 pointer-events-none z-[401]">
-      {[...Array(mobileCount)].map((_, i) => (
+      {activeParticles.map((p, i) => (
         <motion.div
           key={i}
-          initial={{ y: -20, x: Math.random() * 2000, opacity: 1, scale: Math.random() * 0.5 + 0.5 }}
+          initial={{ y: -20, x: p.initialX, opacity: 1, scale: p.scale }}
           animate={{ 
             y: 1200, 
-            x: `calc(${Math.random() * 2000}px + ${Math.random() * 100 - 50}px)`, 
+            x: `calc(${p.animateX}px + ${p.offsetX}px)`, 
             rotate: 360,
             opacity: 0 
           }}
-          transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, ease: "linear", delay: Math.random() * 5 }}
+          transition={{ duration: p.duration, repeat: Infinity, ease: "linear", delay: p.delay }}
           className="absolute"
         >
           {isFinal ? <Trophy className="text-amber-400" size={isMobile ? 16 : 24} /> : <Sparkle className="text-blue-400" size={isMobile ? 12 : 16} />}
@@ -845,6 +860,27 @@ const RefractiveTagline = () => {
 
 export default function Home() {
   const [input, setInput] = useState('');
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const noiseNodeRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const playClick = () => {
+    try {
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioContextClass();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.1);
+    } catch (e) {}
+  };
+
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<SimplifiedData | null>(null);
   const [currentChunk, setCurrentChunk] = useState(-1);
@@ -855,7 +891,7 @@ export default function Home() {
   const [usageCount, setUsageCount] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);
   const [isBionic, setIsBionic] = useState(true);
-  const [audioMode, setAudioMode] = useState<'none' | 'brown' | 'suspense' | 'action'>('none');
+  const [audioMode, setAudioMode] = useState<'none' | 'brown' | 'suspense' | 'action' | 'gamma'>('none');
   const [mouseFocus, setMouseFocus] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
@@ -882,6 +918,37 @@ export default function Home() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [missionGoal, setMissionGoal] = useState('');
+  const [feedbackInput, setFeedbackInput] = useState('');
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+  const [showBreak, setShowBreak] = useState(false);
+  const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
+  const [dassahPoints, setDassahPoints] = useState(0);
+  const [totalWordsRefracted, setTotalWordsRefracted] = useState(0);
+  const [totalMinutesSaved, setTotalMinutesSaved] = useState(0);
+  const [suspenseIdx, setSuspenseIdx] = useState(0);
+  const [actionIdx, setActionIdx] = useState(0);
+  const [isSharing, setIsSharing] = useState(false);
+  const [isZenLocked, setIsZenLocked] = useState(false);
+  const [isGreyedOut, setIsGreyedOut] = useState(false);
+  const [storyMode, setStoryMode] = useState(false);
+  const [showMissionBrief, setShowMissionBrief] = useState(false);
+  const [showVictory, setShowVictory] = useState(false);
+  const [shareId, setShareId] = useState<string | null>(null);
+  const [anchorsOpen, setAnchorsOpen] = useState(false);
+  const [breakLevel, setBreakLevel] = useState(1);
+  const [showRecap, setShowRecap] = useState(false);
+  const [audioVolume, setAudioVolume] = useState(0.2);
+
+  const CATCHPHRASES = [
+    "Neural Link Established",
+    "Cognitive Clarity Achieved",
+    "Executive Function Engaged",
+    "Noise Refracted",
+    "Divine Focus Locked",
+    "Bandwidth Reclaimed",
+    "Sovereignty Restored"
+  ];
+  const currentCatchphrase = useMemo(() => CATCHPHRASES[Math.floor(Math.random() * CATCHPHRASES.length)], [rewardType]);
 
   // Neural Snapshot - Auto Save
   useEffect(() => {
@@ -1061,6 +1128,40 @@ export default function Home() {
     } catch (e) { console.error("Soundscape failed"); }
   };
 
+  const loadHistory = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('history')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      if (data) setHistory(data);
+    } catch (e) {
+      console.error("Failed to load history:", e);
+    }
+  };
+
+  const loadProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      if (error) throw error;
+      if (data) {
+        setIsPaid(data.is_paid || false);
+        setAvatarUrl(data.avatar_url || null);
+        setDassahPoints(data.points || 0);
+        setTotalWordsRefracted(data.words_refracted || 0);
+        setTotalMinutesSaved(data.minutes_saved || 0);
+      }
+    } catch (e) {
+      console.error("Failed to load profile:", e);
+    }
+  };
+
   useEffect(() => {
     if (audioMode !== 'none') {
       if (noiseNodeRef.current?.stop) noiseNodeRef.current.stop();
@@ -1071,40 +1172,8 @@ export default function Home() {
   }, [audioMode]);
 
   useEffect(() => {
-    // Starred items vault sync logic (existing)
-
-
-  const [feedbackInput, setFeedbackInput] = useState('');
-  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
-  const [showBreak, setShowBreak] = useState(false);
-  const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
-  const [dassahPoints, setDassahPoints] = useState(0);
-  const [totalWordsRefracted, setTotalWordsRefracted] = useState(0);
-  const [totalMinutesSaved, setTotalMinutesSaved] = useState(0);
-  const [suspenseIdx, setSuspenseIdx] = useState(0);
-  const [actionIdx, setActionIdx] = useState(0);
-  const [isSharing, setIsSharing] = useState(false);
-  const [isZenLocked, setIsZenLocked] = useState(false);
-  const [isGreyedOut, setIsGreyedOut] = useState(false);
-  const [storyMode, setStoryMode] = useState(false);
-  const [showMissionBrief, setShowMissionBrief] = useState(false);
-  const [showVictory, setShowVictory] = useState(false);
-  const [shareId, setShareId] = useState<string | null>(null);
-  const [anchorsOpen, setAnchorsOpen] = useState(false);
-  const [breakLevel, setBreakLevel] = useState(1);
-  const [showRecap, setShowRecap] = useState(false);
-  const [audioMode, setAudioMode] = useState<'none' | 'brown' | 'gamma'>('none');
-  const [audioVolume, setAudioVolume] = useState(0.2);
-      const bufferSize = ctx.sampleRate * 2; const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const output = buffer.getChannelData(0); let lastOut = 0.0;
-      for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; output[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = output[i]; output[i] *= 3.5; }
-      const source = ctx.createBufferSource(); source.buffer = buffer; source.loop = true;
-      const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(400, ctx.currentTime);
-      const gain = ctx.createGain(); gain.gain.setValueAtTime(0, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 1);
-      source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
-      source.start(); noiseNodeRef.current = source;
-    }
-  }, [audioMode, suspenseIdx, actionIdx, resonanceFactor, currentChunk]);
+    localStorage.setItem('dassahs_neural_vault', JSON.stringify(starredItems));
+  }, [starredItems]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => { 
@@ -1171,6 +1240,27 @@ export default function Home() {
     }
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedbackInput.trim()) return;
+    playClick();
+    try {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feedback: feedbackInput, userId: user?.id, email: user?.email })
+      });
+      setFeedbackSuccess(true);
+      setTimeout(() => {
+        setShowFeedback(false);
+        setFeedbackSuccess(false);
+        setFeedbackInput('');
+      }, 3000);
+    } catch (err) {
+      alert("Feedback vault failed. Try again!");
+    }
+  };
 
   const handleLoadExample = () => {
     playClick();
@@ -1262,6 +1352,29 @@ export default function Home() {
     } catch (err: any) { alert(`Upload Failed: ${err.message}`); } finally { setLoading(false); }
   };
 
+  const handleReadAloud = (text: string) => {
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+      return;
+    }
+    playClick();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onend = () => setIsPlaying(false);
+    window.speechSynthesis.speak(utterance);
+    setIsPlaying(true);
+  };
+
+  const handleReset = () => {
+    playClick();
+    setData(null);
+    setInput('');
+    setCurrentChunk(-1);
+    setMissionGoal('');
+    setRewardType('none');
+    localStorage.removeItem('dassahs_neural_snapshot');
+  };
+
   const handleToggleZenLock = () => {
     playClick();
     if (isZenLocked) {
@@ -1272,6 +1385,29 @@ export default function Home() {
         if (document.fullscreenElement) document.exitFullscreen();
       }
     } else { setIsZenLocked(true); document.documentElement.requestFullscreen().catch(() => {}); }
+  };
+
+  const handleChat = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim() || chatLoading) return;
+    playClick();
+    const newUserMsg = { role: 'user' as const, text: chatInput };
+    setChatHistory(prev => [...prev, newUserMsg]);
+    setChatInput('');
+    setChatLoading(true);
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: chatInput, history: chatHistory, data })
+      });
+      const result = await res.json();
+      setChatHistory(prev => [...prev, { role: 'ai' as const, text: result.text }]);
+    } catch (err) {
+      setChatHistory(prev => [...prev, { role: 'ai' as const, text: "The Neural Link is flickering. Try again." }]);
+    } finally {
+      setChatLoading(false);
+    }
   };
 
   const handleNext = () => {
@@ -1317,6 +1453,25 @@ export default function Home() {
     } catch (err: any) {
       alert(`Handshake Failed: ${err.message}`);
     }
+  };
+
+  const handleLogin = async () => {
+    playClick();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+    if (error) alert("Neural Link failed: " + error.message);
+  };
+
+  const handleLogout = async () => {
+    playClick();
+    await supabase.auth.signOut();
+    setUser(null);
+    setHistory([]);
+    setIsPaid(false);
   };
 
   const currentTheme = THEMES[theme];
@@ -1407,7 +1562,7 @@ export default function Home() {
       <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
 
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
-        <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Rank</p><p className="text-white font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Result</p><p className="text-white font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-white/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">"Inhale clarity. Exhale the mission. Your sovereignty is established."</p></motion.div></div>)}</div></motion.div></>
+        <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Rank</p><p className="text-white font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Result</p><p className="text-white font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-white/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">&quot;Inhale clarity. Exhale the mission. Your sovereignty is established.&quot;</p></motion.div></div>)}</div></motion.div></>
       )}</AnimatePresence>
 
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-6 pointer-events-none">
@@ -1538,11 +1693,11 @@ export default function Home() {
                         <span className="text-[9px] font-bold text-white truncate">{t.name}</span>
                       </button>
                     ))}
-                  </div>
-                </div>
+                    </div>
+                    </div>
+                    </div>
 
-                <div className="space-y-6">
-                  <div>
+                    <div className="space-y-6">                  <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Neural Resonance</p>
                     <div className="grid grid-cols-1 gap-2">
                       {[ 
@@ -1683,12 +1838,12 @@ export default function Home() {
               </motion.header>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <motion.div style={{ x: (mousePos.x - 1000) * -0.01, y: (mousePos.y - 500) * -0.01 }} className="space-y-6 text-slate-300 text-lg leading-relaxed font-medium">
-                  <p>Dassah's Prism is not merely a tool; it is a living testimony. For those of us navigating the spectrum, Profound Cognitive Intensity is not a deficiency to be 'fixed,' but a high-powered engine awaiting its rightful fuel. Guided by the grace of Christ, I have come to embrace this condition as a divine blessing—a singular, vibrant lens that allows us to perceive the world's complexity with a unique and profound depth.</p>
+                  <p>Dassah&apos;s Prism is not merely a tool; it is a living testimony. For those of us navigating the spectrum, Profound Cognitive Intensity is not a deficiency to be &apos;fixed,&apos; but a high-powered engine awaiting its rightful fuel. Guided by the grace of Christ, I have come to embrace this condition as a divine blessing—a singular, vibrant lens that allows us to perceive the world&apos;s complexity with a unique and profound depth.</p>
                   <p>Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming cacophony of modern information into a purposeful stream of clarity, inviting you to step out of the noise and into the light of the gift we have been given.</p>
                 </motion.div>
                 <motion.div style={{ x: (mousePos.x - 1000) * 0.03, y: (mousePos.y - 500) * 0.03 }} className="space-y-6 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 italic">
                   <p className="text-blue-400 font-black uppercase text-xs tracking-widest mb-4">The Origin</p>
-                  <p className="text-slate-400">"It started after a long, transformative talk with my brother, longest friend, and ultimate support system, <span className="text-white font-bold">Eng. Jimmy Njuguna</span>, who challenged me to use my tech knowledge for a greater purpose. That spark was ignited when my cousin and mentor, <span className="text-white font-bold">Dr. Kizzie Shako</span>, looked at my struggle and said: <span className="text-blue-400 uppercase font-black tracking-tight">'Then do something about it.'</span>"</p>
+                  <p className="text-slate-400">&quot;It started after a long, transformative talk with my brother, longest friend, and ultimate support system, <span className="text-white font-bold">Eng. Jimmy Njuguna</span>, who challenged me to use my tech knowledge for a greater purpose. That spark was ignited when my cousin and mentor, <span className="text-white font-bold">Dr. Kizzie Shako</span>, looked at my struggle and said: <span className="text-blue-400 uppercase font-black tracking-tight">&apos;Then do something about it.&apos;</span>&quot;</p>
                   <p className="text-slate-400 mt-4">— And so, the Dastastic Prism was built.</p>
                 </motion.div>
               </div>
@@ -1696,7 +1851,7 @@ export default function Home() {
                 <h3 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-4"><Zap size={24} className="text-amber-500" /> The Methodology</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {[
-                    { n: "01", t: "Neural Refraction", d: "Capture noise via 'Dastastic' (Dopamine-First) or 'Sovereign' (Executive-Sleek) modes. Our engine maps your chosen cognitive path instantly." },
+                    { n: "01", t: "Neural Refraction", d: "Capture noise via &apos;Dastastic&apos; (Dopamine-First) or &apos;Sovereign&apos; (Executive-Sleek) modes. Our engine maps your chosen cognitive path instantly." },
                     { n: "02", t: "Executive Distillation", d: "The Grace: We strip the fluff, boiling down complex noise into high-impact maps for rapid, sovereign decision-making." },
                     { n: "03", t: "Cognitive Resonance", d: "The Flow: Integrated audio-visual synchronization and Zen-locked focus lock your brain into a state of divine clarity." }
                   ].map((step, i) => (<motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3"><span className="text-4xl font-black text-blue-500/30 tracking-tight">{step.n}</span><p className="text-white font-black uppercase text-sm tracking-widest">{step.t}</p><p className="text-slate-500 text-sm font-medium">{step.d}</p></motion.div>))}
@@ -1747,7 +1902,7 @@ export default function Home() {
             <button onClick={() => setShowFeedback(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors"><X size={24}/></button>
             <div className="space-y-6">
               <div className="flex items-center gap-4 text-amber-400 font-black uppercase tracking-widest text-xs"><MessageSquare size={20} /> Feedback Vault</div>
-              <h2 className="text-3xl font-black text-white italic">How's the Prism?</h2>
+              <h2 className="text-3xl font-black text-white italic">How&apos;s the Prism?</h2>
               {feedbackSuccess ? (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="py-12 text-center space-y-4"><div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400"><CheckCircle2 size={32} /></div><p className="text-white font-bold">Feedback Vaulted!</p></motion.div>
               ) : (
@@ -1764,7 +1919,7 @@ export default function Home() {
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-10 z-10 px-4 pt-24 pb-20">
           <header className="text-center space-y-8 relative">
-            <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tight italic">Dassah's <span className="prism-text">Prism</span></h1>
+            <h1 className="text-6xl md:text-9xl font-black text-white leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text">Prism</span></h1>
             <RefractiveTagline />
           </header>
           

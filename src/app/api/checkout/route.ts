@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27.acacia' as any,
-});
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-01-27.acacia' as any,
+    })
+  : null;
 
 export async function POST(req: Request) {
   try {
+    if (!stripe) {
+      throw new Error('Stripe is not configured on this environment.');
+    }
     const { lookup_key, userId } = await req.json();
 
     if (!userId) {
