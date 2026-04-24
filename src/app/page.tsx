@@ -1599,29 +1599,6 @@ export default function Home() {
           
           <div className="w-[1px] h-6 bg-white/10 mx-1" />
           
-          {/* Soundscapes */}
-          <div className="flex items-center gap-1">
-            <button onClick={() => { playClick(); setAudioMode('brown'); }} title="Brown Noise" className={`p-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all ${audioMode === 'brown' ? 'bg-amber-500/20 text-amber-500 border border-amber-500/50' : 'text-slate-500 hover:text-white'}`}>Brown</button>
-            <button onClick={() => { playClick(); setAudioMode('gamma'); }} title="40Hz Gamma Focus" className={`p-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all ${audioMode === 'gamma' ? 'bg-blue-500/20 text-blue-500 border border-blue-500/50' : 'text-slate-500 hover:text-white'}`}>Gamma</button>
-            <button onClick={() => { playClick(); setAudioMode('none'); }} title="Silence" className={`p-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all ${audioMode === 'none' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`}>Silent</button>
-          </div>
-
-          <div className="w-[1px] h-6 bg-white/10 mx-1" />
-
-          {/* Quick Toggles */}
-          <div className="flex items-center gap-1">
-            <button onClick={() => { playClick(); setIsBionic(!isBionic); }} title="Bionic Reading (T)" className={`p-3 rounded-xl transition-all ${isBionic ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-              <Type size={18} />
-            </button>
-            {data && (
-              <button onClick={handleToggleZenLock} title="Anchor Focus (Lock)" className={`p-3 rounded-xl transition-all ${isZenLocked ? 'bg-red-600 text-white animate-pulse' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                <Lock size={18} />
-              </button>
-            )}
-          </div>
-
-          <div className="w-[1px] h-6 bg-white/10 mx-1" />
-          
           <div className="flex items-center gap-4 px-2">
             <div className="flex flex-col items-center">
               <p className="text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Bandwidth Reclaimed</p>
