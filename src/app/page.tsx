@@ -1871,7 +1871,7 @@ export default function Home() {
             <div className="space-y-12 relative z-10">
               <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH&apos;S-PRISM</div>
-                <h2 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tight italic pb-6">About the Founder: <span className="prism-text">The Journey</span></h2>
+                <h2 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tight italic pb-6">About the <span className="prism-text">Playful Founder 🧠</span></h2>
               </motion.header>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -1884,7 +1884,7 @@ export default function Home() {
 
                   <p>It was only through His strength that my greatest source of exhaustion was transformed into my most powerful gift. The victory wasn&apos;t that the world stopped being complex; the victory was that He gave me the peace to finally master it. Guided by His grace, I began to channel that intense processing power into &apos;systems thinking&apos;. Suddenly, I could look under the hood of chaotic environments—whether untangling complex partnerships or building outdoor communities—and build structures that brought clarity, all for His glory.</p>
                   
-                  <p>That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
+                  <p>That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace. Stay Dastastic! ✨</p>
                 </div>
 
                 <div className="space-y-8">
@@ -1941,13 +1941,14 @@ export default function Home() {
 
               <footer className="pt-12 flex flex-col sm:flex-row items-center justify-between gap-8 border-t border-white/10">
                 <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
-                    <span className="text-3xl font-black text-white italic">DJ</span>
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl relative group">
+                    <div className="absolute -top-2 -right-2 bg-amber-500 text-black p-1 rounded-full shadow-lg group-hover:rotate-12 transition-transform"><Brain size={16} /></div>
+                    <span className="text-3xl font-black text-white italic">JG</span>
                   </div>
                   <div>
-                    <p className="text-white font-black uppercase text-sm tracking-widest">Founded by DJ</p>
+                    <p className="text-white font-black uppercase text-sm tracking-widest">Founded by JGitu</p>
                     <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter flex items-center gap-2">
-                      DJ <IchthysIcon size={14} className="text-blue-500" /> Rooted in Christ
+                      JG <IchthysIcon size={14} className="text-blue-500" /> Rooted in Christ
                     </p>
                   </div>
                 </div>
