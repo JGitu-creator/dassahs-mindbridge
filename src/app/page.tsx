@@ -30,6 +30,30 @@ const THEMES: Record<Theme, ThemeConfig> = {
     shadow: 'rgba(0,0,0,0.5)', mesh: 'rgba(59, 130, 246, 0.1)',
     prism: ['#3b82f6', '#8b5cf6', '#06b6d4']
   },
+  neon: {
+    name: 'Dastastic Neon',
+    c1: '#000000', c2: '#09090b',
+    text: '#ffffff', accent: '#22c55e',
+    glass: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)',
+    shadow: 'rgba(34, 197, 94, 0.2)', mesh: 'rgba(34, 197, 94, 0.05)',
+    prism: ['#22c55e', '#a855f7', '#3b82f6']
+  },
+  electric: {
+    name: 'Electric Grace',
+    c1: '#020617', c2: '#1e1b4b',
+    text: '#ffffff', accent: '#f43f5e',
+    glass: 'rgba(244, 63, 94, 0.1)', border: 'rgba(244, 63, 94, 0.3)',
+    shadow: 'rgba(244, 63, 94, 0.2)', mesh: 'rgba(244, 63, 94, 0.05)',
+    prism: ['#f43f5e', '#fbbf24', '#2dd4bf']
+  },
+  gold: {
+    name: 'Divine Gold',
+    c1: '#451a03', c2: '#000000',
+    text: '#fffbeb', accent: '#fbbf24',
+    glass: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.4)',
+    shadow: 'rgba(251, 191, 36, 0.2)', mesh: 'rgba(251, 191, 36, 0.05)',
+    prism: ['#fbbf24', '#f59e0b', '#ffffff']
+  },
   emerald: {
     name: 'Hadassah Silk',
     c1: '#064e3b', c2: '#022c22',
@@ -61,46 +85,6 @@ const THEMES: Record<Theme, ThemeConfig> = {
     glass: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.05)',
     shadow: 'rgba(0,0,0,0.8)', mesh: 'rgba(255, 255, 255, 0.05)',
     prism: ['#ffffff', '#888888', '#444444']
-  },
-  ruby: {
-    name: 'Crimson Grace',
-    c1: '#450a0a', c2: '#1a0505',
-    text: '#fef2f2', accent: '#ef4444',
-    glass: 'rgba(153, 27, 27, 0.4)', border: 'rgba(239, 68, 68, 0.2)',
-    shadow: 'rgba(69, 10, 10, 0.6)', mesh: 'rgba(239, 68, 68, 0.15)',
-    prism: ['#ef4444', '#f87171', '#991b1b']
-  },
-  rose: {
-    name: 'Rose Anointing',
-    c1: '#1c1917', c2: '#0c0a09',
-    text: '#fafaf9', accent: '#e11d48',
-    glass: 'rgba(28, 25, 23, 0.6)', border: 'rgba(225, 29, 72, 0.2)',
-    shadow: 'rgba(0,0,0,0.7)', mesh: 'rgba(225, 29, 72, 0.1)',
-    prism: ['#e11d48', '#fb7185', '#be123c']
-  },
-  celestial: {
-    name: 'Celestial Anchor',
-    c1: '#082f49', c2: '#0c4a6e',
-    text: '#f0f9ff', accent: '#0ea5e9',
-    glass: 'rgba(12, 74, 110, 0.5)', border: 'rgba(14, 165, 233, 0.2)',
-    shadow: 'rgba(8, 47, 73, 0.6)', mesh: 'rgba(14, 165, 233, 0.1)',
-    prism: ['#0ea5e9', '#38bdf8', '#0284c7']
-  },
-  iron: {
-    name: 'Iron Discernment',
-    c1: '#0f172a', c2: '#1e293b',
-    text: '#f8fafc', accent: '#64748b',
-    glass: 'rgba(30, 41, 59, 0.6)', border: 'rgba(100, 116, 139, 0.3)',
-    shadow: 'rgba(15, 23, 42, 0.8)', mesh: 'rgba(148, 163, 184, 0.1)',
-    prism: ['#64748b', '#94a3b8', '#475569']
-  },
-  eternal: {
-    name: 'Eternal Light',
-    c1: '#1e1b4b', c2: '#312e81',
-    text: '#eef2ff', accent: '#6366f1',
-    glass: 'rgba(49, 46, 129, 0.4)', border: 'rgba(99, 102, 241, 0.3)',
-    shadow: 'rgba(30, 27, 75, 0.7)', mesh: 'rgba(99, 102, 241, 0.15)',
-    prism: ['#6366f1', '#a5b4fc', '#4338ca']
   }
 };
 
@@ -913,6 +897,7 @@ export default function Home() {
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
+      if (ctx.state === 'suspended') ctx.resume();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
