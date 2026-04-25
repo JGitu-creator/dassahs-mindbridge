@@ -647,6 +647,11 @@ const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAcc
             Sever Link
           </button>
         </div>
+
+        <div className="pt-6 flex justify-center gap-6 border-t border-white/5 mt-4">
+          <a href="/privacy" className="text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-blue-400 transition-colors">Privacy Shield</a>
+          <a href="#" className="text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-blue-400 transition-colors">Neural Terms</a>
+        </div>
       </motion.div>
     </div>
   );
@@ -1562,24 +1567,10 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* PUBLIC COMPLIANCE SECTION - ALWAYS VISIBLE TO GOOGLE BOTS */}
-      <footer className="w-full bg-[#0f172a] border-t border-white/5 py-12 px-6 z-[2000] relative">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="space-y-4">
-            <h2 className="text-2xl font-black text-white italic">Dassah's-Prism</h2>
-            <p className="text-slate-400 text-sm leading-relaxed max-w-md">
-              Dassah's-Prism is a professional cognitive optimization tool. Our purpose is to help users transmute overwhelming digital noise into structured, high-impact clarity, reclaiming the sovereignty of their focus through advanced AI discernment.
-            </p>
-          </div>
-          <div className="flex flex-col md:items-end justify-center gap-6">
-            <div className="flex gap-8">
-              <a href="https://dassahs-mindbridge.vercel.app/privacy" className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 hover:text-white transition-all underline">Privacy Policy</a>
-              <a href="#" className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-blue-400 transition-all">Terms of Service</a>
-            </div>
-            <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-700">© 2026 Dassah's-Prism | DJ | Rooted in Christ</p>
-          </div>
-        </div>
-      </footer>
+      {/* SUBTLE BRAND SIGNATURE - VISIBLE WITHOUT LOGIN */}
+      <div className="w-full py-8 px-6 z-[100] text-center opacity-30 hover:opacity-100 transition-opacity">
+        <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.5em]">Dassah&apos;s-Prism | Reclaiming Sovereignty</p>
+      </div>
 
       {linkState === 'established' && (
         <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
@@ -1883,6 +1874,11 @@ export default function Home() {
                 <div className="flex items-center gap-6"><div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl"><span className="text-3xl font-black text-white italic">DJ</span></div><div><p className="text-white font-black uppercase text-sm tracking-widest">Founded by DJ</p><p className="text-slate-500 text-xs font-bold uppercase tracking-tighter flex items-center gap-2">DJ <motion.div animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block"><Fish size={14} className="text-blue-500" /></motion.div> Rooted in Christ</p></div></div>
                 <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.5em] text-center sm:text-right">Dedicated to my forever partner and best friend, Dchan.</p>
               </footer>
+              
+              <div className="pt-8 flex justify-center gap-8 border-t border-white/5 opacity-40 hover:opacity-100 transition-opacity">
+                <a href="/privacy" className="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-colors">Privacy Shield</a>
+                <a href="#" className="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-colors">Neural Terms</a>
+              </div>
             </div>
           </motion.div>
         </div>
