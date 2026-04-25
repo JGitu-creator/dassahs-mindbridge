@@ -13,16 +13,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dassah's Prism",
+  title: "Dassah's-Prism",
   description: "Refract overwhelming noise into divine clarity. Your cognitive architecture, optimized.",
   verification: {
     google: "e6jGjBArh4BltMG2MGWLqlH9-b8-sRuEfMF_dyceQ4w",
   },
   openGraph: {
-    title: "Dassah's Prism",
+    title: "Dassah's-Prism",
     description: "Sovereignty Reclaimed. Turn noise into focus in seconds.",
     url: "https://dassahs-mindbridge-rjeiohdc3-phidotaxis-3372s-projects.vercel.app",
-    siteName: "Dassah's Prism",
+    siteName: "Dassah's-Prism",
     images: [
       {
         url: "https://images.unsplash.com/photo-1559757175-57008173bc7d?auto=format&fit=crop&q=80&w=1200&h=630",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dassah's Prism",
+    title: "Dassah's-Prism",
     description: "Crush the cognitive noise. Anchor your focus.",
     images: ["https://images.unsplash.com/photo-1559757175-57008173bc7d?auto=format&fit=crop&q=80&w=1200&h=630"],
   },

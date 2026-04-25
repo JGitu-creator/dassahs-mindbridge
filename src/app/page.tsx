@@ -125,7 +125,23 @@ const useIsMobile = () => {
   return isMobile;
 };
 
-const StarParticles = ({ count, isFinal }: { count: number, isFinal: boolean }) => {
+const IchthysIcon = ({ size = 24, className = "" }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M2 12c4-8 14-8 19 0l3 3M2 12c4 8 14 8 19 0l3-3" />
+  </svg>
+);
+
+const StarParticles = ({ count, isFinal }: { count: number, isFinal?: boolean }) => {
   const isMobile = useIsMobile();
   const mobileCount = isMobile ? Math.min(count, 20) : count;
   
@@ -614,7 +630,7 @@ const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAcc
           
           <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
             <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Shield size={10} className="text-emerald-400" /> 3. "As-Is" Liability</h3>
-            <p className="text-xs md:text-sm leading-relaxed text-blue-100">Dassah's Prism is provided "as is" without warranties. The creators shall not be liable for any direct or indirect damages resulting from your use of this tool.</p>
+            <p className="text-xs md:text-sm leading-relaxed text-blue-100">Dassah's-Prism is provided "as is" without warranties. The creators shall not be liable for any direct or indirect damages resulting from your use of this tool.</p>
             <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: We built this tool with love to help you, but we aren't responsible if things aren't perfect or if the noise is too loud today.]</p>
           </div>
           
@@ -665,22 +681,46 @@ const PortalReveal = () => {
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[1500] flex flex-col items-center justify-center bg-black p-4"
     >
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5, duration: 1 }}
-        className="text-center space-y-1"
-      >
-        <p className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.6em] md:tracking-[1em] text-blue-400/40 ml-[0.6em] md:ml-[1em]">entering</p>
-        <h2 className="text-3xl md:text-8xl font-black italic prism-text drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">Dassah's Prism</h2>
-      </motion.div>
-      
-      <motion.div 
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ delay: 1, duration: 1.5, ease: "circOut" }}
-        className="mt-8 md:mt-12 w-32 md:w-48 h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent"
-      />
+      <div className="relative flex flex-col items-center">
+        <svg width="160" height="80" viewBox="0 0 160 80" className="mb-8">
+          <motion.path
+            d="M10 40c30-30 90-30 130 0l20 15M10 40c30 30 90 30 130 0l20-15"
+            fill="none"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+          />
+          <motion.path
+            d="M10 40c30-30 90-30 130 0l20 15M10 40c30 30 90 30 130 0l20-15"
+            fill="none"
+            stroke="url(#ichthys-grad)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 1, 0.5] }}
+            transition={{ delay: 1.5, duration: 1 }}
+          />
+          <defs>
+            <linearGradient id="ichthys-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#3b82f6" />
+              <stop offset="100%" stopColor="#8b5cf6" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 1.8, duration: 0.5, ease: "easeOut" }}
+          className="text-center space-y-1"
+        >
+          <p className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.6em] md:tracking-[1em] text-blue-400/40 ml-[0.6em] md:ml-[1em]">entering</p>
+          <h2 className="text-3xl md:text-8xl font-black italic prism-text drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">Dassah&apos;s-Prism</h2>
+        </motion.div>
+      </div>
     </motion.div>
   );
 };
@@ -715,7 +755,7 @@ const TUTORIAL_STEPS = [
   {
     title: "Welcome to the Prism",
     description: "Hullo! I'm DJ. This is your Neural Prism—a sanctuary built to turn overwhelming 'Noise' into 'Divine Clarity.'",
-    more: "Dassah's Prism was born from the idea that ADHD isn't a deficit, but a high-powered engine. We use AI to refract complex data into vibrant, manageable streams of insight.",
+    more: "Dassah's-Prism was born from the idea that ADHD isn't a deficit, but a high-powered engine. We use AI to refract complex data into vibrant, manageable streams of insight.",
     icon: <Sparkles className="text-blue-400" size={48} />
   },
   {
@@ -1351,7 +1391,7 @@ export default function Home() {
       }
       
       const shareUrl = `${window.location.origin}/s/${id}`;
-      const shareText = `I just crushed the noise! ⚡️ Dassah's Prism refracted a document into ${data.readingTime} of pure clarity. Sovereignty: 100%. Join the flow: ${shareUrl}`; 
+      const shareText = `I just crushed the noise! ⚡️ Dassah's-Prism refracted a document into ${data.readingTime} of pure clarity. Sovereignty: 100%. Join the flow: ${shareUrl}`; 
       await navigator.clipboard.writeText(shareText); alert("Victory shared! Link copied to clipboard. 🚀"); 
     } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); } 
   };
@@ -1840,39 +1880,74 @@ export default function Home() {
 
       <AnimatePresence>{showAbout && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} className="max-w-3xl w-full refractive-border p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto overflow-hidden">
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} className="max-w-4xl w-full refractive-border p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto overflow-hidden">
             {[...Array(12)].map((_, i) => <GlassShard key={i} i={i} color={currentTheme.prism[i % 3]} mousePos={mousePos} />)}
             <motion.div initial={{ x: '-100%', skewX: -20 }} animate={{ x: '200%' }} transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }} className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-10" />
             <button onClick={() => setShowAbout(false)} className="absolute top-8 right-8 p-4 hover:bg-white/10 rounded-full text-slate-400 transition-colors z-20"><X size={32}/></button>
             <div className="space-y-12 relative z-10">
               <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
-                <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH'S PRISM</div>
-                <h2 className="text-5xl md:text-7xl font-black text-white leading-[1.4] tracking-tight italic pb-6">From Noise to Divine <span className="prism-text">Clarity</span></h2>
+                <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH&apos;S-PRISM</div>
+                <h2 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tight italic pb-6">About the Founder: The Journey</h2>
               </motion.header>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <motion.div style={{ x: (mousePos.x - 1000) * -0.01, y: (mousePos.y - 500) * -0.01 }} className="space-y-6 text-slate-300 text-lg leading-relaxed font-medium">
-                  <p>Dassah&apos;s Prism is not merely a tool; it is a living testimony. For those of us navigating the spectrum, Profound Cognitive Intensity is not a deficiency to be &apos;fixed,&apos; but a high-powered engine awaiting its rightful fuel. Guided by the grace of Christ, I have come to embrace this condition as a divine blessing—a singular, vibrant lens that allows us to perceive the world&apos;s complexity with a unique and profound depth.</p>
-                  <p>Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming cacophony of modern information into a purposeful stream of clarity, inviting you to step out of the noise and into the light of the gift we have been given.</p>
-                </motion.div>
-                <motion.div style={{ x: (mousePos.x - 1000) * 0.03, y: (mousePos.y - 500) * 0.03 }} className="space-y-6 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 italic">
-                  <p className="text-blue-400 font-black uppercase text-xs tracking-widest mb-4">The Origin</p>
-                  <p className="text-slate-400">&quot;It started after a long, transformative talk with my brother, longest friend, and ultimate support system, <span className="text-white font-bold">Eng. Jimmy Njuguna</span>, who challenged me to use my tech knowledge for a greater purpose. That spark was ignited when my cousin and mentor, <span className="text-white font-bold">Dr. Kizzie Shako</span>, looked at my struggle and said: <span className="text-blue-400 uppercase font-black tracking-tight">&apos;Then do something about it.&apos;</span>&quot;</p>
-                  <p className="text-slate-400 mt-4">— And so, the Dastastic Prism was built.</p>
-                </motion.div>
-              </div>
-              <div className="space-y-8 pt-8 border-t border-white/10">
-                <h3 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-4"><Zap size={24} className="text-amber-500" /> The Methodology</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  {[
-                    { n: "01", t: "Neural Refraction", d: "Capture noise via &apos;Dastastic&apos; (Dopamine-First) or &apos;Sovereign&apos; (Executive-Sleek) modes. Our engine maps your chosen cognitive path instantly." },
-                    { n: "02", t: "Executive Distillation", d: "The Grace: We strip the fluff, boiling down complex noise into high-impact maps for rapid, sovereign decision-making." },
-                    { n: "03", t: "Cognitive Resonance", d: "The Flow: Integrated audio-visual synchronization and Zen-locked focus lock your brain into a state of divine clarity." }
-                  ].map((step, i) => (<motion.div style={{ y: (mousePos.y - 500) * (0.01 * (i + 1)) }} key={i} className="space-y-3"><span className="text-4xl font-black text-blue-500/30 tracking-tight">{step.n}</span><p className="text-white font-black uppercase text-sm tracking-widest">{step.t}</p><p className="text-slate-500 text-sm font-medium">{step.d}</p></motion.div>))}
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <div className="lg:col-span-2 space-y-8 text-slate-300 text-lg leading-relaxed font-medium">
+                  <p>For as long as I can remember, the world hasn&apos;t just been loud; it has been a flood of raw, unfiltered data. From a young age, my mind and body processed every detail with profound intensity. For years, I navigated a world that felt like an overwhelming cacophony, battling the sheer exhaustion of a mind trying to process everything at once. I tried to manage this massive cognitive load on my own strength, but it only ever led to paralysis and defeat.</p>
+                  
+                  <p className="bg-blue-600/10 p-8 rounded-[2rem] border border-blue-500/20 italic text-blue-100 shadow-inner">
+                    The turning point was not a clever productivity hack or a sudden surge of willpower. When my mother and I surrendered our lives to Christ, He stepped into the absolute centre of that mental chaos. He didn&apos;t just quiet the room; He rescued me from the weight of my own mind. I realised then that my profound cognitive intensity was not a glitch. It was a high-powered engine that I had simply been running on the wrong fuel.
+                  </p>
+
+                  <p>It was only through His strength that my greatest source of exhaustion was transformed into my most powerful gift. The victory wasn&apos;t that the world stopped being complex; the victory was that He gave me the peace to finally master it. Guided by His grace, I began to channel that intense processing power into &apos;systems thinking&apos;. Suddenly, I could look under the hood of chaotic environments—whether untangling complex partnerships or building outdoor communities—and build structures that brought clarity, all for His glory.</p>
+                  
+                  <p>That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
+                </div>
+
+                <div className="space-y-8">
+                  <motion.div style={{ y: (mousePos.y - 500) * 0.05 }} className="bg-white/5 p-8 rounded-[2.5rem] border border-white/10 relative overflow-hidden">
+                    <div className="absolute -right-8 -top-8 opacity-10 rotate-12"><Rocket size={120} /></div>
+                    <p className="text-blue-400 font-black uppercase text-xs tracking-widest mb-4 relative z-10">The Final Push</p>
+                    <p className="text-slate-400 relative z-10 font-bold italic leading-relaxed">
+                      &quot;This build became a reality through the sovereign push of <span className="text-white">Eng. Jimmy Njuguna</span> and <span className="text-white">Dr. Kizzie Shako</span>. Jimmy challenged me to use my tech knowledge for a greater purpose, and Kizzie looked at the struggle and said: &apos;Then do something about it.&apos;&quot;
+                    </p>
+                  </motion.div>
+
+                  <div className="bg-amber-500/5 p-8 rounded-[2.5rem] border border-amber-500/10">
+                    <p className="text-amber-500 font-black uppercase text-[10px] tracking-widest mb-6">Dedication & Legacy</p>
+                    <div className="space-y-6">
+                      <div className="group">
+                        <p className="text-white font-black text-sm uppercase tracking-wider mb-1 group-hover:text-amber-400 transition-colors">DChan</p>
+                        <p className="text-slate-500 text-xs italic">&quot;He who finds a wife finds a good thing&quot; — My anchor, who centred me and fixed my eyes on Him.</p>
+                      </div>
+                      <div>
+                        <p className="text-white font-black text-sm uppercase tracking-wider mb-1">Phido (Mum)</p>
+                        <p className="text-slate-500 text-xs">My foundation, who rooted me in faith so I could stand back up when I fell.</p>
+                      </div>
+                      <div>
+                        <p className="text-white font-black text-sm uppercase tracking-wider mb-1">Old, old Cucu</p>
+                        <p className="text-slate-500 text-xs">My roots.</p>
+                      </div>
+                      <div>
+                        <p className="text-white font-black text-sm uppercase tracking-wider mb-1">Auntie Sisy</p>
+                        <p className="text-slate-500 text-xs">My guide and tread-setter, who kept me grasped to the right path.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+
               <footer className="pt-12 flex flex-col sm:flex-row items-center justify-between gap-8 border-t border-white/10">
-                <div className="flex items-center gap-6"><div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl"><span className="text-3xl font-black text-white italic">DJ</span></div><div><p className="text-white font-black uppercase text-sm tracking-widest">Founded by DJ</p><p className="text-slate-500 text-xs font-bold uppercase tracking-tighter flex items-center gap-2">DJ <motion.div animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block"><Fish size={14} className="text-blue-500" /></motion.div> Rooted in Christ</p></div></div>
-                <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.5em] text-center sm:text-right">Dedicated to my forever partner and best friend, Dchan.</p>
+                <div className="flex items-center gap-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                    <span className="text-3xl font-black text-white italic">DJ</span>
+                  </div>
+                  <div>
+                    <p className="text-white font-black uppercase text-sm tracking-widest">Founded by DJ</p>
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter flex items-center gap-2">
+                      DJ <IchthysIcon size={14} className="text-blue-500" /> Rooted in Christ
+                    </p>
+                  </div>
+                </div>
               </footer>
               
               <div className="pt-8 flex justify-center gap-8 border-t border-white/5 opacity-40 hover:opacity-100 transition-opacity">
