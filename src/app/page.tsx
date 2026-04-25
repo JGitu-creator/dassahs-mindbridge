@@ -2271,7 +2271,7 @@ export default function Home() {
 
       <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
         <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
-          DJ <IchthysIcon size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
+          JG <IchthysIcon size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
         </p>
         <div className="flex items-center gap-4">
           <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
@@ -2286,6 +2286,18 @@ export default function Home() {
             onNext={() => setTutorialStep(s => s + 1)} 
             onClose={() => {
               setShowTutorial(false);
+              localStorage.setItem('dassahs_prism_tutorial_complete', 'true');
+            }} 
+          />
+        )}
+      </AnimatePresence>
+    </main>
+      )}
+    </>
+  );
+}
+
+owTutorial(false);
               localStorage.setItem('dassahs_prism_tutorial_complete', 'true');
             }} 
           />
