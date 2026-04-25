@@ -1904,12 +1904,31 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-8">
-                  <motion.div style={{ y: (mousePos.y - 500) * 0.05 }} className="bg-white/5 p-8 rounded-[2.5rem] border border-white/10 relative overflow-hidden">
-                    <div className="absolute -right-8 -top-8 opacity-10 rotate-12"><Rocket size={120} /></div>
-                    <p className="text-blue-400 font-black uppercase text-xs tracking-widest mb-4 relative z-10">The Final Push</p>
-                    <p className="text-slate-400 relative z-10 font-bold italic leading-relaxed">
-                      &quot;This build became a reality through the sovereign push of <span className="text-white">Eng. Jimmy Njuguna</span> and <span className="text-white">Dr. Kizzie Shako</span>. Jimmy challenged me to use my tech knowledge for a greater purpose, and Kizzie looked at the struggle and said: &apos;Then do something about it.&apos;&quot;
-                    </p>
+                  <motion.div style={{ y: (mousePos.y - 500) * 0.05 }} className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-8 rounded-[2.5rem] border-2 border-blue-500/30 relative overflow-hidden group shadow-2xl">
+                    <div className="absolute -right-8 -top-8 opacity-10 rotate-12 group-hover:scale-110 transition-transform duration-700"><Rocket size={120} /></div>
+                    <div className="flex items-center gap-3 text-blue-400 font-black uppercase text-xs tracking-widest mb-6 relative z-10">
+                      <Zap size={16} className="text-amber-400 animate-pulse" /> The Final Push
+                    </div>
+                    
+                    <div className="space-y-6 relative z-10">
+                      <p className="text-slate-300 italic leading-relaxed">
+                        This build became a reality through the sovereign push of two monumental souls:
+                      </p>
+                      
+                      <div className="border-l-4 border-blue-500 pl-6 space-y-2 group/jimmy">
+                        <p className="text-white font-black uppercase tracking-tighter text-xl group-hover:text-blue-400 transition-colors">Eng. Jimmy Njuguna</p>
+                        <p className="text-slate-400 text-sm font-bold">
+                          The loving support of a brother who <span className="text-blue-400 uppercase">ALWAYS PUSHES FOR THE BEST</span> and challenged me to use my tech knowledge for a greater purpose.
+                        </p>
+                      </div>
+
+                      <div className="border-l-4 border-purple-500 pl-6 space-y-2 group/kizzie">
+                        <p className="text-white font-black uppercase tracking-tighter text-xl group-hover:text-purple-400 transition-colors">Dr. Kizzie Shako</p>
+                        <p className="text-slate-400 text-sm font-bold">
+                          The mentor encouragement that ignited the fire: <span className="text-purple-400 font-black italic">&quot;THEN DO SOMETHING ABOUT IT!&quot;</span>
+                        </p>
+                      </div>
+                    </div>
                   </motion.div>
 
                   <div className="bg-amber-500/5 p-8 rounded-[2.5rem] border border-amber-500/10">
@@ -1952,7 +1971,7 @@ export default function Home() {
               
               <div className="pt-8 flex justify-center gap-8 border-t border-white/5 opacity-40 hover:opacity-100 transition-opacity">
                 <a href="/privacy" className="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-colors">Privacy Shield</a>
-                <a href="#" className="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-colors">Neural Terms</a>
+                <a href="/terms" className="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-colors">Neural Terms</a>
               </div>
             </div>
           </motion.div>
@@ -2225,7 +2244,7 @@ export default function Home() {
 
       <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
         <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
-          DJ <Fish size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
+          DJ <IchthysIcon size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
         </p>
         <div className="flex items-center gap-4">
           <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
