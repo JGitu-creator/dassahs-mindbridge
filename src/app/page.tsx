@@ -1154,16 +1154,15 @@ export default function Home() {
 
   const playNeuralSoundscape = (type: 'brown' | 'gamma' | 'suspense' | 'action') => {
     try {
-      // Stop existing sounds
       if (noiseNodeRef.current?.stop) {
         noiseNodeRef.current.stop();
       }
 
       const soundUrls = {
-        brown: 'https://archive.org/download/lp_atmospheric-noises-vol-1_various/side_1_1_brown_noise.mp3',
-        gamma: 'https://www.soundjay.com/buttons/beep-01a.mp3', // Placeholder for quick test
-        suspense: 'https://cdn.pixabay.com/download/audio/2022/02/10/audio_c8b8bdf80c.mp3?filename=zen-healing-13000.mp3',
-        action: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=electronic-future-beats-11799.mp3'
+        brown: 'https://ia800201.us.archive.org/3/items/lp_atmospheric-noises-vol-1_various/side_1_1_brown_noise.mp3',
+        gamma: 'https://www.soundjay.com/buttons/beep-01a.mp3', 
+        suspense: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_73070498a4.mp3?filename=ambient-piano-logo-16532.mp3',
+        action: 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_feb947a750.mp3?filename=soul-lofi-126335.mp3'
       };
 
       const audio = new Audio(soundUrls[type]);
@@ -1876,29 +1875,29 @@ export default function Home() {
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-8 text-slate-200 text-lg leading-relaxed font-medium">
-                  <div className="bg-gradient-to-r from-blue-500/10 to-transparent p-6 border-l-4 border-blue-500 rounded-r-2xl">
+                  <motion.div style={{ y: (mousePos.y - 500) * -0.01, x: (mousePos.x - 1000) * -0.01 }} className="bg-gradient-to-r from-blue-500/10 to-transparent p-8 border-l-4 border-blue-500 rounded-r-3xl shadow-xl">
                     <p>For as long as I can remember, the world hasn&apos;t just been loud; it has been a flood of raw, unfiltered data. From a young age, my mind and body processed every detail with profound intensity. For years, I navigated a world that felt like an overwhelming cacophony, battling the sheer exhaustion of a mind trying to process everything at once. I tried to manage this massive cognitive load on my own strength, but it only ever led to paralysis and defeat.</p>
-                  </div>
+                  </motion.div>
                   
-                  <div className="bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-blue-600/20 p-10 rounded-[3rem] border-2 border-white/10 italic text-white shadow-[0_0_50px_rgba(59,130,246,0.2)] relative overflow-hidden group">
+                  <motion.div style={{ y: (mousePos.y - 500) * 0.02, x: (mousePos.x - 1000) * 0.02 }} className="bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-blue-600/20 p-10 rounded-[3rem] border-2 border-white/10 italic text-white shadow-[0_0_50px_rgba(59,130,246,0.2)] relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
                     <p className="relative z-10 text-xl md:text-2xl leading-relaxed">
                       The turning point was not a clever productivity hack or a sudden surge of willpower. When my mother and I surrendered our lives to Christ, He stepped into the absolute centre of that mental chaos. He didn&apos;t just quiet the room; He rescued me from the weight of my own mind. I realised then that my profound cognitive intensity was not a glitch. It was a high-powered engine that I had simply been running on the wrong fuel.
                     </p>
-                  </div>
+                  </motion.div>
 
-                  <div className="bg-gradient-to-r from-purple-500/10 to-transparent p-6 border-l-4 border-purple-500 rounded-r-2xl">
+                  <motion.div style={{ y: (mousePos.y - 500) * -0.015, x: (mousePos.x - 1000) * -0.015 }} className="bg-gradient-to-r from-purple-500/10 to-transparent p-8 border-l-4 border-purple-500 rounded-r-3xl shadow-xl">
                     <p>It was only through His strength that my greatest source of exhaustion was transformed into my most powerful gift. The victory wasn&apos;t that the world stopped being complex; the victory was that He gave me the peace to finally master it. Guided by His grace, I began to channel that intense processing power into &apos;systems thinking&apos;. Suddenly, I could look under the hood of chaotic environments—whether untangling complex partnerships or building outdoor communities—and build structures that brought clarity, all for His glory.</p>
-                  </div>
+                  </motion.div>
                   
-                  <div className="bg-gradient-to-br from-amber-500/10 to-transparent p-8 rounded-[2rem] border border-amber-500/20">
-                    <p className="text-white font-bold">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
-                    <p className="mt-6 text-2xl font-black italic prism-text">Stay Dastastic! 🌟✨</p>
-                  </div>
+                  <motion.div style={{ y: (mousePos.y - 500) * 0.01, x: (mousePos.x - 1000) * 0.01 }} className="bg-gradient-to-br from-amber-500/10 to-transparent p-10 rounded-[3rem] border-2 border-amber-500/20 shadow-2xl">
+                    <p className="text-white font-bold text-xl leading-relaxed">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
+                    <p className="mt-8 text-3xl font-black italic prism-text">Stay Dastastic! 🌟✨</p>
+                  </motion.div>
                 </div>
 
                 <div className="space-y-8">
-                  <motion.div style={{ y: (mousePos.y - 500) * 0.05 }} className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-8 rounded-[2.5rem] border-2 border-blue-500/30 relative overflow-hidden group shadow-2xl">
+                  <motion.div style={{ y: (mousePos.y - 500) * 0.05, x: (mousePos.x - 1000) * 0.03 }} className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-8 rounded-[2.5rem] border-2 border-blue-500/30 relative overflow-hidden group shadow-2xl">
                     <div className="absolute -right-8 -top-8 opacity-10 rotate-12 group-hover:scale-110 transition-transform duration-700"><Rocket size={120} /></div>
                     <div className="flex items-center gap-3 text-blue-400 font-black uppercase text-xs tracking-widest mb-6 relative z-10">
                       <Zap size={16} className="text-amber-400 animate-pulse" /> The Final Push
@@ -1925,27 +1924,28 @@ export default function Home() {
                     </div>
                   </motion.div>
 
-                  <div className="bg-amber-500/5 p-8 rounded-[2.5rem] border border-amber-500/10">
-                    <p className="text-amber-500 font-black uppercase text-[10px] tracking-widest mb-6">Dedication & Legacy</p>
-                    <div className="space-y-6">
+                  <motion.div style={{ y: (mousePos.y - 500) * 0.08, x: (mousePos.x - 1000) * -0.02 }} className="bg-gradient-to-br from-amber-500/10 to-amber-600/10 p-8 rounded-[2.5rem] border-2 border-amber-500/20 shadow-2xl relative overflow-hidden">
+                    <div className="absolute -right-6 -bottom-6 opacity-10 rotate-[-12deg]"><Crown size={100} /></div>
+                    <p className="text-amber-500 font-black uppercase text-[10px] tracking-widest mb-6 relative z-10 flex items-center gap-2"><Trophy size={14} /> Dedication & Legacy</p>
+                    <div className="space-y-8 relative z-10">
+                      <div className="group border-b border-white/5 pb-4">
+                        <p className="text-white font-black text-sm uppercase tracking-wider mb-2 group-hover:text-amber-400 transition-colors flex items-center gap-2">DChan <Heart size={12} className="fill-red-500 stroke-red-500" /></p>
+                        <p className="text-slate-400 text-xs italic leading-relaxed">&quot;He who finds a wife finds a good thing&quot; — My anchor, who centred me and fixed my eyes on Him.</p>
+                      </div>
+                      <div className="group border-b border-white/5 pb-4">
+                        <p className="text-white font-black text-sm uppercase tracking-wider mb-2">Phido (Mum)</p>
+                        <p className="text-slate-400 text-xs leading-relaxed">My foundation, who rooted me in faith so I could stand back up when I fell.</p>
+                      </div>
+                      <div className="group border-b border-white/5 pb-4">
+                        <p className="text-white font-black text-sm uppercase tracking-wider mb-2">Old, old Cucu</p>
+                        <p className="text-slate-400 text-xs leading-relaxed">My roots.</p>
+                      </div>
                       <div className="group">
-                        <p className="text-white font-black text-sm uppercase tracking-wider mb-1 group-hover:text-amber-400 transition-colors">DChan</p>
-                        <p className="text-slate-500 text-xs italic">&quot;He who finds a wife finds a good thing&quot; — My anchor, who centred me and fixed my eyes on Him.</p>
-                      </div>
-                      <div>
-                        <p className="text-white font-black text-sm uppercase tracking-wider mb-1">Phido (Mum)</p>
-                        <p className="text-slate-500 text-xs">My foundation, who rooted me in faith so I could stand back up when I fell.</p>
-                      </div>
-                      <div>
-                        <p className="text-white font-black text-sm uppercase tracking-wider mb-1">Old, old Cucu</p>
-                        <p className="text-slate-500 text-xs">My roots.</p>
-                      </div>
-                      <div>
-                        <p className="text-white font-black text-sm uppercase tracking-wider mb-1">Auntie Sisy</p>
-                        <p className="text-slate-500 text-xs">My guide and tread-setter, who kept me grasped to the right path.</p>
+                        <p className="text-white font-black text-sm uppercase tracking-wider mb-2">Auntie Sisy</p>
+                        <p className="text-slate-400 text-xs leading-relaxed">My guide and tread-setter, who kept me grasped to the right path.</p>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
 
