@@ -1097,8 +1097,16 @@ export default function Home() {
   const [streakCount, setStreakCount] = useState(0);
   const [lastRefractDate, setLastRefractDate] = useState<string | null>(null);
   const [audioVolume, setAudioVolume] = useState(0.3);
+  const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
   const [neuralRhythm, setNeuralRhythm] = useState(true);
   const audioRef = useRef<any>(null);
+
+  const unlockAudio = () => {
+    if (isAudioUnlocked) return;
+    playClick(); // This initializes the AudioContext on user interaction
+    setIsAudioUnlocked(true);
+    console.log("Neural Audio Engines Unlocked");
+  };
 
   // Neural Streak Logic
   useEffect(() => {
@@ -1170,13 +1178,15 @@ export default function Home() {
         rnb: 'https://cdn.pixabay.com/download/audio/2023/10/01/audio_104e14f08c.mp3?filename=slow-motion-rnb-168581.mp3',
         lofi: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808d7430b.mp3?filename=lofi-study-112191.mp3'
       };
+
       const sound = new Howl({
         src: [soundUrls[type]],
         html5: true,
         loop: true,
         volume: audioVolume,
-        onplayerror: function() {
-          console.warn("Audio blocked. Waiting for interaction.");
+        onloaderror: (id, err) => console.error("Soundscape Load Error:", err),
+        onplayerror: (id, err) => {
+          console.warn("Audio blocked or play error:", err);
           sound.once('unlock', () => sound.play());
         }
       });
@@ -1309,7 +1319,7 @@ export default function Home() {
   };
 
   const handleEstablishLink = async () => {
-    playClick();
+    unlockAudio();
     setLinkState('syncing');
     
     // Animate sync progress
@@ -1460,7 +1470,7 @@ export default function Home() {
   };
 
   const handleSimplify = async (textToSimplify = input) => {
-    playClick(); if (!textToSimplify.trim()) return; 
+    unlockAudio(); if (!textToSimplify.trim()) return; 
     const limit = user ? 30 : 10;
     if (usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
     
@@ -1954,7 +1964,7 @@ export default function Home() {
               </div>
 
               <div className="flex justify-center">
-                <button onClick={() => setShowNeuralCommand(false)} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
+                <button onClick={() => { unlockAudio(); setShowNeuralCommand(false); }} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
               </div>
             </motion.div>
           </div>
