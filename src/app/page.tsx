@@ -10,7 +10,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
-type Theme = 'midnight' | 'emerald' | 'sunset' | 'nebula' | 'ghost' | 'ruby' | 'rose' | 'celestial' | 'iron' | 'eternal';
+type Theme = 'midnight' | 'emerald' | 'sunset' | 'nebula' | 'ghost' | 'ruby' | 'rose' | 'celestial' | 'iron' | 'eternal' | 'neon' | 'electric' | 'gold';
 
 interface ThemeConfig {
   name: string;
