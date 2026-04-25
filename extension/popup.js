@@ -16,14 +16,18 @@ document.getElementById('simplifyBtn').addEventListener('click', async () => {
     statusEl.innerText = "Refracting Web...";
 
     const encodedText = encodeURIComponent(text.slice(0, 3000));
-    // ENSURING THE PRODUCTION URL IS USED
-    const appUrl = `https://dassahs-mindbridge-rjeiohdc3-phidotaxis-3372s-projects.vercel.app/?text=${encodedText}`;
+    const appUrl = `https://dassahs-mindbridge.vercel.app/?text=${encodedText}`;
     
     chrome.tabs.create({ url: appUrl });
     window.close(); 
 
   } catch (err) {
-    statusEl.innerText = "Error: " + err.message;
+    if (err.message.includes("Could not establish connection")) {
+      statusEl.innerText = "Please refresh the page to sync.";
+      statusEl.style.color = "#3b82f6";
+    } else {
+      statusEl.innerText = "Error: " + err.message;
+    }
     btn.style.opacity = "1";
     btn.disabled = false;
   }
