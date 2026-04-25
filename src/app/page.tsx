@@ -2297,15 +2297,3 @@ export default function Home() {
   );
 }
 
-owTutorial(false);
-              localStorage.setItem('dassahs_prism_tutorial_complete', 'true');
-            }} 
-          />
-        )}
-      </AnimatePresence>
-    </main>
-      )}
-    </>
-  );
-}
-
