@@ -1160,10 +1160,10 @@ export default function Home() {
       }
 
       const soundUrls = {
-        brown: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Placeholder: We will use high-end loops
-        gamma: 'https://actions.google.com/sounds/v1/ambiences/humming_industrial_fan.ogg',
-        suspense: 'https://actions.google.com/sounds/v1/ambiences/deep_forest_with_birds.ogg',
-        action: 'https://actions.google.com/sounds/v1/ambiences/rain_on_roof.ogg'
+        brown: 'https://archive.org/download/lp_atmospheric-noises-vol-1_various/side_1_1_brown_noise.mp3',
+        gamma: 'https://www.soundjay.com/buttons/beep-01a.mp3', // Placeholder for quick test
+        suspense: 'https://cdn.pixabay.com/download/audio/2022/02/10/audio_c8b8bdf80c.mp3?filename=zen-healing-13000.mp3',
+        action: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=electronic-future-beats-11799.mp3'
       };
 
       const audio = new Audio(soundUrls[type]);
@@ -1871,20 +1871,30 @@ export default function Home() {
             <div className="space-y-12 relative z-10">
               <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH&apos;S-PRISM</div>
-                <h2 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tight italic pb-6">About the <span className="prism-text">Playful Founder 🧠</span></h2>
+                <h2 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tight italic pb-6">The <span className="prism-text">Dastastical Founder 🧠✨</span></h2>
               </motion.header>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                <div className="lg:col-span-2 space-y-8 text-slate-300 text-lg leading-relaxed font-medium">
-                  <p>For as long as I can remember, the world hasn&apos;t just been loud; it has been a flood of raw, unfiltered data. From a young age, my mind and body processed every detail with profound intensity. For years, I navigated a world that felt like an overwhelming cacophony, battling the sheer exhaustion of a mind trying to process everything at once. I tried to manage this massive cognitive load on my own strength, but it only ever led to paralysis and defeat.</p>
+                <div className="lg:col-span-2 space-y-8 text-slate-200 text-lg leading-relaxed font-medium">
+                  <div className="bg-gradient-to-r from-blue-500/10 to-transparent p-6 border-l-4 border-blue-500 rounded-r-2xl">
+                    <p>For as long as I can remember, the world hasn&apos;t just been loud; it has been a flood of raw, unfiltered data. From a young age, my mind and body processed every detail with profound intensity. For years, I navigated a world that felt like an overwhelming cacophony, battling the sheer exhaustion of a mind trying to process everything at once. I tried to manage this massive cognitive load on my own strength, but it only ever led to paralysis and defeat.</p>
+                  </div>
                   
-                  <p className="bg-blue-600/10 p-8 rounded-[2rem] border border-blue-500/20 italic text-blue-100 shadow-inner">
-                    The turning point was not a clever productivity hack or a sudden surge of willpower. When my mother and I surrendered our lives to Christ, He stepped into the absolute centre of that mental chaos. He didn&apos;t just quiet the room; He rescued me from the weight of my own mind. I realised then that my profound cognitive intensity was not a glitch. It was a high-powered engine that I had simply been running on the wrong fuel.
-                  </p>
+                  <div className="bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-blue-600/20 p-10 rounded-[3rem] border-2 border-white/10 italic text-white shadow-[0_0_50px_rgba(59,130,246,0.2)] relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
+                    <p className="relative z-10 text-xl md:text-2xl leading-relaxed">
+                      The turning point was not a clever productivity hack or a sudden surge of willpower. When my mother and I surrendered our lives to Christ, He stepped into the absolute centre of that mental chaos. He didn&apos;t just quiet the room; He rescued me from the weight of my own mind. I realised then that my profound cognitive intensity was not a glitch. It was a high-powered engine that I had simply been running on the wrong fuel.
+                    </p>
+                  </div>
 
-                  <p>It was only through His strength that my greatest source of exhaustion was transformed into my most powerful gift. The victory wasn&apos;t that the world stopped being complex; the victory was that He gave me the peace to finally master it. Guided by His grace, I began to channel that intense processing power into &apos;systems thinking&apos;. Suddenly, I could look under the hood of chaotic environments—whether untangling complex partnerships or building outdoor communities—and build structures that brought clarity, all for His glory.</p>
+                  <div className="bg-gradient-to-r from-purple-500/10 to-transparent p-6 border-l-4 border-purple-500 rounded-r-2xl">
+                    <p>It was only through His strength that my greatest source of exhaustion was transformed into my most powerful gift. The victory wasn&apos;t that the world stopped being complex; the victory was that He gave me the peace to finally master it. Guided by His grace, I began to channel that intense processing power into &apos;systems thinking&apos;. Suddenly, I could look under the hood of chaotic environments—whether untangling complex partnerships or building outdoor communities—and build structures that brought clarity, all for His glory.</p>
+                  </div>
                   
-                  <p>That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace. Stay Dastastic! ✨</p>
+                  <div className="bg-gradient-to-br from-amber-500/10 to-transparent p-8 rounded-[2rem] border border-amber-500/20">
+                    <p className="text-white font-bold">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
+                    <p className="mt-6 text-2xl font-black italic prism-text">Stay Dastastic! 🌟✨</p>
+                  </div>
                 </div>
 
                 <div className="space-y-8">
