@@ -1,12 +1,35 @@
 "use client";
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { 
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal,
-  Compass, Check, LogOut, Shield, Anchor, Heart
+  Compass, Check, LogOut, Shield, Anchor, Heart, Eye
 } from 'lucide-react';
+import { Howl } from 'howler';
+
+const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
+  const isMobile = useIsMobile();
+  if (isMobile) return null;
+
+  return (
+    <div className="fixed top-8 left-1/2 -translate-x-1/2 flex gap-4 z-[200] opacity-30 hover:opacity-100 transition-opacity pointer-events-none">
+      {[0, 1].map((i) => (
+        <div key={i} className="w-10 h-10 bg-white/10 rounded-full border border-white/20 flex items-center justify-center relative overflow-hidden backdrop-blur-md">
+          <motion.div 
+            animate={{ 
+              x: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth / 2 : 0)) * 0.01,
+              y: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight / 2 : 0)) * 0.01 
+            }}
+            className="w-4 h-4 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.8)]"
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
@@ -1007,177 +1030,53 @@ export default function Home() {
   const [anchorsOpen, setAnchorsOpen] = useState(false);
   const [breakLevel, setBreakLevel] = useState(1);
   const [showRecap, setShowRecap] = useState(false);
-  const [audioVolume, setAudioVolume] = useState(0.2);
+  const [audioVolume, setAudioVolume] = useState(0.3);
+  const [neuralRhythm, setNeuralRhythm] = useState(true);
+  const audioRef = useRef<any>(null);
 
-  const CATCHPHRASES = [
-    "Neural Link Established",
-    "Cognitive Clarity Achieved",
-    "Executive Function Engaged",
-    "Noise Refracted",
-    "Divine Focus Locked",
-    "Bandwidth Reclaimed",
-    "Sovereignty Restored"
-  ];
-  const currentCatchphrase = useMemo(() => CATCHPHRASES[Math.floor(Math.random() * CATCHPHRASES.length)], [rewardType]);
-
-  // Neural Snapshot - Auto Save
-  useEffect(() => {
-    if (data && currentChunk >= -1) {
-      const snapshot = {
-        data,
-        currentChunk,
-        input,
-        missionGoal,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem('dassahs_neural_snapshot', JSON.stringify(snapshot));
-    }
-  }, [data, currentChunk, input, missionGoal]);
-
-  const handleResumeSnapshot = () => {
-    playClick();
-    const saved = localStorage.getItem('dassahs_neural_snapshot');
-    if (saved) {
-      const { data: savedData, currentChunk: savedChunk, input: savedInput, missionGoal: savedGoal } = JSON.parse(saved);
-      setData(savedData);
-      setCurrentChunk(savedChunk);
-      setInput(savedInput);
-      setMissionGoal(savedGoal);
-      setRewardType('step');
-      setTimeout(() => setRewardType('none'), 2000);
-    }
-  };
-
-  const DEFAULT_AVATARS = [
-    { id: 'spark', icon: <Sparkles className="text-amber-400" />, label: 'The Spark' },
-    { id: 'prism', icon: <Palette className="text-blue-400" />, label: 'The Prism' },
-    { id: 'shield', icon: <Shield className="text-emerald-400" />, label: 'The Shield' },
-    { id: 'brain', icon: <Brain className="text-purple-400" />, label: 'The Core' },
-    { id: 'crown', icon: <Crown className="text-yellow-500" />, label: 'The Sovereign' },
-  ];
-
-  const handleAvatarSelect = async (url: string) => {
-    if (!user) return;
-    setAvatarUrl(url);
-    await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
-  };
-
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-    setUploadingAvatar(true);
+  const playNeuralSoundscape = (type: 'brown' | 'gamma' | 'suspense' | 'action' | 'none') => {
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file);
-      if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
-      handleAvatarSelect(publicUrl);
-    } catch (err) { alert("Failed to upload neural image."); } finally { setUploadingAvatar(false); }
-  };
-
-  const handleToggleStar = (item: {heading: string, content: string, type: 'metaphor' | 'hook'}) => {
-    playClick();
-    setStarredItems(prev => {
-      const exists = prev.find(i => i.content === item.content && i.type === item.type);
-      if (exists) return prev.filter(i => !(i.content === item.content && i.type === item.type));
-      return [...prev, item];
-    });
-  };
-
-  const handleEstablishLink = async () => {
-    playClick();
-    setLinkState('syncing');
-    
-    // Animate sync progress
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.floor(Math.random() * 15) + 5;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        setTimeout(async () => {
-          setLinkState('revealing');
-          // Wait for PortalReveal animation to play
-          setTimeout(async () => {
-            localStorage.setItem('dassahs_prism_tos_accepted', 'true');
-            
-            // Server-side proof of acceptance for authenticated users
-            if (user) {
-              await supabase.from('profiles').update({ 
-                terms_accepted_at: new Date().toISOString() 
-              }).eq('id', user.id);
-            }
-
-            setAcceptedTOS(true);
-            setLinkState('established');
-            setShowTOS(false);
-            // High speed celebrate particles
-            setRewardType('final');
-            setTimeout(() => setRewardType('none'), 3000);
-          }, 4000); // Wait for the reveal to complete
-        }, 800);
+      if (audioRef.current) {
+        audioRef.current.stop();
+        audioRef.current.unload();
       }
-      setSyncProgress(progress);
-    }, 200);
-  };
 
-  useEffect(() => {
-    const checkTOS = async () => {
-      const accepted = localStorage.getItem('dassahs_prism_tos_accepted') === 'true';
-      setAcceptedTOS(accepted);
-      
-      if (!accepted) {
-        setShowTOS(true);
-        setLinkState('pending');
-        // Force logout if they haven't accepted the new terms yet
-        await supabase.auth.signOut();
-      } else {
-        setLinkState('revealing');
-        setTimeout(() => {
-          setLinkState('established');
-          // Trigger tutorial if never seen
-          if (localStorage.getItem('dassahs_prism_tutorial_complete') !== 'true') {
-            setTimeout(() => {
-              setShowTutorial(true);
-            }, 3000); // 3 second delay to let tagline animation finish
-          }
-        }, 4000); // 4 second portal reveal
-      }
-    };
-    checkTOS();
-
-    // Load starred items from vault
-    const savedStars = localStorage.getItem('dassahs_neural_vault');
-    if (savedStars) setStarredItems(JSON.parse(savedStars));
-  }, []);
-
-  const playNeuralSoundscape = (type: 'brown' | 'gamma' | 'suspense' | 'action') => {
-    try {
-      if (noiseNodeRef.current?.stop) {
-        noiseNodeRef.current.stop();
-      }
+      if (type === 'none') return;
 
       const soundUrls = {
-        brown: 'https://ia800201.us.archive.org/3/items/lp_atmospheric-noises-vol-1_various/side_1_1_brown_noise.mp3',
-        gamma: 'https://www.soundjay.com/buttons/beep-01a.mp3', 
-        suspense: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_73070498a4.mp3?filename=ambient-piano-logo-16532.mp3',
+        brown: 'https://archive.org/download/lp_atmospheric-noises-vol-1_various/side_1_1_brown_noise.mp3',
+        gamma: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_73070498a4.mp3?filename=ambient-piano-logo-16532.mp3', 
+        suspense: 'https://cdn.pixabay.com/download/audio/2022/02/10/audio_c8b8bdf80c.mp3?filename=zen-healing-13000.mp3',
         action: 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_feb947a750.mp3?filename=soul-lofi-126335.mp3'
       };
 
-      const audio = new Audio(soundUrls[type]);
-      audio.loop = true;
-      audio.volume = audioVolume;
-      audio.play().catch(e => console.warn("Browser blocked sound. Click required."));
+      const sound = new Howl({
+        src: [soundUrls[type]],
+        html5: true,
+        loop: true,
+        volume: audioVolume,
+        onplayerror: function() {
+          console.warn("Audio blocked. Waiting for interaction.");
+          sound.once('unlock', () => sound.play());
+        }
+      });
 
-      noiseNodeRef.current = { 
-        stop: () => { 
-          audio.pause(); 
-          audio.currentTime = 0; 
-        } 
-      };
-    } catch (e) { console.error("Soundscape failed", e); }
+      sound.play();
+      audioRef.current = sound;
+    } catch (e) { console.error("Neural Soundscape Recalibration Failed", e); }
   };
+
+  useEffect(() => {
+    const handleKeys = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
+      if (e.key.toLowerCase() === 't') {
+        playClick();
+        setIsBionic(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeys);
+    return () => window.removeEventListener('keydown', handleKeys);
+  }, []);
 
   const loadHistory = async (userId: string) => {
     try {
@@ -1693,8 +1592,21 @@ export default function Home() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Sovereign Controls</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button onClick={() => { playClick(); setIsBionic(!isBionic); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
+                        <Type size={20} />
+                        <span className="text-[8px] font-black uppercase tracking-widest">Bionic Shield (T)</span>
+                      </button>
+                      <button onClick={() => { playClick(); setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-purple-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
+                        <Clock size={20} />
+                        <span className="text-[8px] font-black uppercase tracking-widest">Neural Rhythm</span>
+                      </button>
+                    </div>
+                  </div>
+
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Neural Continuity</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4 mt-6">Neural Continuity</p>
                     <div className="space-y-3">
                       {localStorage.getItem('dassahs_neural_snapshot') && !data && (
                         <button onClick={() => { setShowNeuralCommand(false); handleResumeSnapshot(); }} className="w-full p-5 rounded-2xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-between group hover:bg-blue-600 hover:border-blue-400 transition-all">
