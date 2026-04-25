@@ -592,11 +592,7 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
       transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
       className={`relative mx-auto w-28 h-28 md:w-44 md:h-44 bg-gradient-to-br ${color} text-white rounded-[3rem] md:rounded-[5rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_100px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000 z-10`}
     >
-      <img 
-        src="/logo.png" 
-        alt="Prism Core" 
-        className={`w-20 h-20 md:w-32 md:h-32 object-contain ${isVictorious && user ? "drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" : "opacity-80"}`} 
-      />      
+      <Brain className={`w-16 h-16 md:w-24 md:h-24 ${isVictorious && user ? "text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" : "opacity-80"}`} />
       {/* Refractive Shards around the core */}
       {[...Array(8)].map((_, i) => (
         <motion.div
@@ -621,6 +617,55 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
       <NeuralSparks active={loading || (isTyping && focusMode === 'dastastic')} />
       {isVictorious && user && (<motion.div animate={{ opacity: [0.5, 1, 0.5], scale: [1, 1.5, 1] }} transition={{ duration: 2, repeat: Infinity }} className="absolute inset-0 bg-amber-400/20 rounded-full blur-3xl -z-10" />)}
     </motion.div>
+  );
+};
+
+const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) => {
+  if (!data) return null;
+  const wordCount = data.chunks.reduce((acc: number, chunk: any) => acc + (chunk.original?.length || 0), 0) / 5; // Approx
+  
+  return (
+    <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1100] flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="max-w-md w-full bg-slate-900 border-2 border-amber-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] text-center space-y-8"
+      >
+        <div className="mx-auto w-24 h-24 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500 animate-pulse">
+          <Trophy size={48} />
+        </div>
+        
+        <div className="space-y-2">
+          <p className="text-amber-400 font-black uppercase tracking-[0.4em] text-[10px]">Mission Accomplished</p>
+          <h2 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter leading-tight">CEREBRAL RECAP</h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-left">
+            <p className="text-[8px] font-black uppercase text-slate-500 mb-1">Noise Crushed</p>
+            <p className="text-xl font-black text-white italic">~{Math.round(wordCount)} Words</p>
+          </div>
+          <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-left">
+            <p className="text-[8px] font-black uppercase text-slate-500 mb-1">Time Saved</p>
+            <p className="text-xl font-black text-white italic">{data.readingTime}</p>
+          </div>
+        </div>
+
+        <div className="bg-amber-500/5 p-6 rounded-3xl border border-amber-500/20">
+          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-amber-400 mb-3 italic">Divine Insight</p>
+          <p className="text-sm text-amber-100 font-bold italic leading-relaxed">
+            &quot;Inhale clarity. Your sovereignty is established. The noise is but a shadow in the prism of your focus.&quot;
+          </p>
+        </div>
+
+        <button 
+          onClick={onFinish}
+          className="w-full bg-white text-black py-5 rounded-3xl font-black uppercase tracking-[0.4em] text-sm hover:scale-105 transition-all active:scale-95 shadow-2xl"
+        >
+          Reclaim Bandwidth
+        </button>
+      </motion.div>
+    </div>
   );
 };
 
@@ -962,8 +1007,12 @@ export default function Home() {
   const playClick = () => {
     try {
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContextClass();
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new AudioContextClass();
+      }
+      const ctx = audioCtxRef.current!;
       if (ctx.state === 'suspended') ctx.resume();
+      
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
@@ -1007,8 +1056,18 @@ export default function Home() {
   const [showNeuralCommand, setShowNeuralCommand] = useState(false);
   const [showNeuralIdentity, setShowNeuralIdentity] = useState(false);
   const [showTOS, setShowTOS] = useState(false);
-  const [acceptedTOS, setAcceptedTOS] = useState(false);
-  const [linkState, setLinkState] = useState<'pending' | 'syncing' | 'revealing' | 'established' | 'severed'>('pending');
+  const [acceptedTOS, setAcceptedTOS] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('dassahs_prism_tos_accepted') === 'true';
+    }
+    return false;
+  });
+  const [linkState, setLinkState] = useState<'pending' | 'syncing' | 'revealing' | 'established' | 'severed'>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('dassahs_prism_tos_accepted') === 'true' ? 'established' : 'pending';
+    }
+    return 'pending';
+  });
   const [syncProgress, setSyncProgress] = useState(0);
   const [starredItems, setStarredItems] = useState<{heading: string, content: string, type: 'metaphor' | 'hook'}[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -1033,9 +1092,65 @@ export default function Home() {
   const [anchorsOpen, setAnchorsOpen] = useState(false);
   const [breakLevel, setBreakLevel] = useState(1);
   const [showRecap, setShowRecap] = useState(false);
+  const [timerActive, setTimerActive] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0); // In seconds
+  const [streakCount, setStreakCount] = useState(0);
+  const [lastRefractDate, setLastRefractDate] = useState<string | null>(null);
   const [audioVolume, setAudioVolume] = useState(0.3);
   const [neuralRhythm, setNeuralRhythm] = useState(true);
   const audioRef = useRef<any>(null);
+
+  // Neural Streak Logic
+  useEffect(() => {
+    const savedStreak = parseInt(localStorage.getItem('dassahs_neural_streak') || '0');
+    const savedDate = localStorage.getItem('dassahs_last_refract_date');
+    setStreakCount(savedStreak);
+    setLastRefractDate(savedDate);
+    
+    // Check if streak is broken (more than 48 hours)
+    if (savedDate) {
+      const now = new Date();
+      const last = new Date(savedDate);
+      const diff = now.getTime() - last.getTime();
+      if (diff > 48 * 60 * 60 * 1000) {
+        setStreakCount(0);
+        localStorage.setItem('dassahs_neural_streak', '0');
+      }
+    }
+  }, []);
+
+  const updateStreak = () => {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    
+    if (lastRefractDate !== today) {
+      const newStreak = streakCount + 1;
+      setStreakCount(newStreak);
+      setLastRefractDate(today);
+      localStorage.setItem('dassahs_neural_streak', newStreak.toString());
+      localStorage.setItem('dassahs_last_refract_date', today);
+    }
+  };
+
+  // Focus Timer Logic
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (timerActive && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && timerActive) {
+      setTimerActive(false);
+      // Optional: Add a gentle end-of-timer sound
+    }
+    return () => clearInterval(interval);
+  }, [timerActive, timeLeft]);
+
+  const addTime = (minutes: number) => {
+    playClick();
+    setTimeLeft(prev => prev + minutes * 60);
+    setTimerActive(true);
+  };
 
   const playNeuralSoundscape = (type: 'brown' | 'gamma' | 'suspense' | 'action' | 'amapiano' | 'rnb' | 'lofi' | 'none') => {
     try {
@@ -1373,6 +1488,8 @@ export default function Home() {
         return next;
       });
       
+      updateStreak();
+      
       const title = result.tldr[0].slice(0, 30) + '...';
       if (user) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
       setUsageCount(prev => { const next = prev + 1; localStorage.setItem('dassahs_prism_usage', next.toString()); return next; });
@@ -1505,7 +1622,7 @@ export default function Home() {
     else if (data && currentChunk === data.chunks.length) {
       setRewardType('final'); setIsZenLocked(false); if (document.fullscreenElement) document.exitFullscreen();
       setDassahPoints(prev => { const next = prev + 10; localStorage.setItem('dassah_points', next.toString()); return next; });
-      setTimeout(() => { setShowVictory(true); }, 2000);
+      setTimeout(() => { setShowRecap(true); }, 2000);
     }
   };
   const handleCheckout = async (lookupKey: string) => {
@@ -1597,6 +1714,10 @@ export default function Home() {
       <style>{themeStyles}</style>
       
       <AnimatePresence>
+        {showRecap && <CerebralRecap data={data} onFinish={() => { playClick(); setShowRecap(false); handleReset(); }} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {linkState === 'severed' && <NeuralLinkSevered />}
       </AnimatePresence>
 
@@ -1666,6 +1787,13 @@ export default function Home() {
                 <span className="w-[1px] h-3 bg-white/10 mx-1" />
                 <Brain className="text-purple-400" size={10} />
                 <span className="font-black text-white text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
+                {streakCount > 0 && (
+                  <>
+                    <span className="w-[1px] h-3 bg-white/10 mx-1" />
+                    <Star className="text-amber-500 fill-amber-500 animate-pulse" size={10} />
+                    <span className="font-black text-white text-xs tabular-nums">{streakCount}x</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -1710,13 +1838,13 @@ export default function Home() {
       <AnimatePresence>
         {showNeuralCommand && (
           <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-2xl w-full bg-[var(--color-glass)] p-8 md:p-12 rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-8">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-black text-white italic flex items-center gap-4"><Compass className="text-blue-400" /> Neural Command</h2>
-                <button onClick={() => setShowNeuralCommand(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-2xl w-full max-h-[90dvh] overflow-y-auto no-scrollbar bg-[var(--color-glass)] p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-6 md:gap-8 relative">
+              <div className="flex justify-between items-center sticky top-0 bg-transparent backdrop-blur-md z-10 pb-4">
+                <h2 className="text-xl md:text-2xl font-black text-white italic flex items-center gap-3 md:gap-4"><Compass className="text-blue-400" /> Neural Command</h2>
+                <button onClick={() => { playClick(); setShowNeuralCommand(false); }} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className="space-y-6">
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Sovereign Controls</p>
@@ -2092,8 +2220,40 @@ export default function Home() {
           <NeuralRefractionSlider />
 
           <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[2rem] md:rounded-[3rem] border-2 border-white/20 p-2 md:p-3 shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden relative group focus-within:border-blue-500/50 hover:border-white/30 transition-all flex flex-col items-center">
-            <div className="pt-4 md:pt-6 pb-2 relative">
+            <div className="pt-4 md:pt-6 pb-2 relative flex flex-col items-center gap-4">
               <RefractiveNeuralCore loading={loading} inputLength={input.length} isVictorious={false} user={user} mousePos={mousePos} focusMode={focusMode} />
+              
+              {/* LOW PRESSURE FOCUS TIMER */}
+              <div className="flex flex-col items-center gap-2">
+                {timerActive ? (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col items-center gap-3"
+                  >
+                    <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/10 backdrop-blur-md">
+                      <Clock size={14} className="text-blue-400 animate-pulse" />
+                      <span className="text-sm font-black text-white tabular-nums">
+                        {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                      </span>
+                      <button 
+                        onClick={() => addTime(5)}
+                        className="ml-2 bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 p-1 rounded-lg transition-colors"
+                        title="Add 5 Minutes"
+                      >
+                        <Zap size={12} fill="currentColor" />
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <button 
+                    onClick={() => addTime(15)}
+                    className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 hover:text-blue-400 transition-colors opacity-40 hover:opacity-100 py-2"
+                  >
+                    Engage Focus Timer
+                  </button>
+                )}
+              </div>
             </div>
             <div className="w-full relative group">
               {showNeuroMirror ? (
