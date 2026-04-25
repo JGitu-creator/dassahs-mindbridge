@@ -716,7 +716,7 @@ const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAcc
 
         <div className="pt-6 flex justify-center gap-6 border-t border-white/5 mt-4">
           <a href="/privacy" className="text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-blue-400 transition-colors">Privacy Shield</a>
-          <a href="#" className="text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-blue-400 transition-colors">Neural Terms</a>
+          <a href="/terms" className="text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-blue-400 transition-colors">Neural Terms</a>
         </div>
       </motion.div>
     </div>
