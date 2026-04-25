@@ -1872,7 +1872,7 @@ export default function Home() {
             <div className="space-y-12 relative z-10">
               <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH&apos;S-PRISM</div>
-                <h2 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tight italic pb-6">About the Founder: The Journey</h2>
+                <h2 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tight italic pb-6">About the Founder: <span className="prism-text">The Journey</span></h2>
               </motion.header>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
