@@ -7,7 +7,6 @@ import {
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal,
   Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church
 } from 'lucide-react';
-import { Howl } from 'howler';
 
 const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
   const isMobile = useIsMobile();
@@ -502,18 +501,11 @@ const GlassShard = ({ color, mousePos, i }: { color: string, mousePos: { x: numb
   />
 );
 
-const FrostedGlassDepth = ({ theme, mousePos, audioMode, isZenLocked, focusMode }: { theme: Theme, mousePos: { x: number, y: number }, audioMode: string, isZenLocked: boolean, focusMode: string }) => {
+const FrostedGlassDepth = ({ theme, mousePos, isZenLocked, focusMode }: { theme: Theme, mousePos: { x: number, y: number }, isZenLocked: boolean, focusMode: string }) => {
   const t = THEMES[theme];
   const isMobile = useIsMobile();
 
-  const pulseVariants = {
-    action: { scale: [1, 1.2, 0.9, 1], opacity: [0.4, 0.8, 0.4], transition: { duration: 2, repeat: Infinity } },
-    suspense: { scale: [1, 1.1, 0.95, 1], opacity: [0.3, 0.6, 0.3], transition: { duration: 4, repeat: Infinity } },
-    brown: { scale: [1, 1.05, 0.98, 1], opacity: [0.2, 0.4, 0.2], transition: { duration: 8, repeat: Infinity } },
-    none: { scale: [1, 1.02, 0.99, 1], opacity: [0.15, 0.3, 0.15], transition: { duration: 12, repeat: Infinity } }
-  };
-
-  const currentPulse = (pulseVariants as any)[audioMode] || pulseVariants.none;
+  const currentPulse = { scale: [1, 1.02, 0.99, 1], opacity: [0.15, 0.3, 0.15], transition: { duration: 12, repeat: Infinity } };
   const sovereignPulse = { scale: [1, 1.01, 1], opacity: [0.1, 0.15, 0.1], transition: { duration: 10, repeat: Infinity } };
 
   return (
@@ -629,38 +621,38 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="max-w-md w-full bg-slate-900 border-2 border-amber-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] text-center space-y-8"
+        className="max-w-md w-full bg-slate-900 border-2 border-amber-500/30 p-6 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] text-center space-y-6 md:space-y-8 max-h-[90dvh] overflow-y-auto no-scrollbar"
       >
-        <div className="mx-auto w-24 h-24 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500 animate-pulse">
-          <Trophy size={48} />
+        <div className="mx-auto w-16 h-16 md:w-24 md:h-24 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500">
+          <Trophy size={32} />
         </div>
         
-        <div className="space-y-2">
-          <p className="text-amber-400 font-black uppercase tracking-[0.4em] text-[10px]">Mission Accomplished</p>
-          <h2 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter leading-tight">CEREBRAL RECAP</h2>
+        <div className="space-y-1">
+          <p className="text-amber-400 font-black uppercase tracking-[0.4em] text-[8px] md:text-[10px]">Mission Accomplished</p>
+          <h2 className="text-2xl md:text-5xl font-black text-white italic tracking-tighter leading-tight">CEREBRAL RECAP</h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-left">
-            <p className="text-[8px] font-black uppercase text-slate-500 mb-1">Noise Crushed</p>
-            <p className="text-xl font-black text-white italic">~{Math.round(wordCount)} Words</p>
+        <div className="grid grid-cols-2 gap-3 md:gap-4">
+          <div className="bg-white/5 p-3 md:p-4 rounded-2xl border border-white/10 text-left">
+            <p className="text-[7px] md:text-[8px] font-black uppercase text-slate-500 mb-1">Noise Crushed</p>
+            <p className="text-sm md:text-xl font-black text-white italic">~{Math.round(wordCount)} Words</p>
           </div>
-          <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-left">
-            <p className="text-[8px] font-black uppercase text-slate-500 mb-1">Time Saved</p>
-            <p className="text-xl font-black text-white italic">{data.readingTime}</p>
+          <div className="bg-white/5 p-3 md:p-4 rounded-2xl border border-white/10 text-left">
+            <p className="text-[7px] md:text-[8px] font-black uppercase text-slate-500 mb-1">Time Saved</p>
+            <p className="text-sm md:text-xl font-black text-white italic">{data.readingTime}</p>
           </div>
         </div>
 
-        <div className="bg-amber-500/5 p-6 rounded-3xl border border-amber-500/20">
-          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-amber-400 mb-3 italic">Divine Insight</p>
-          <p className="text-sm text-amber-100 font-bold italic leading-relaxed">
-            &quot;Inhale clarity. Your sovereignty is established. The noise is but a shadow in the prism of your focus.&quot;
+        <div className="bg-amber-500/5 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-amber-500/20">
+          <p className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.3em] text-amber-400 mb-2 md:mb-3 italic">Divine Insight</p>
+          <p className="text-xs md:text-sm text-amber-100 font-bold italic leading-relaxed">
+            &quot;Inhale clarity. Your sovereignty is established.&quot;
           </p>
         </div>
 
         <button 
           onClick={onFinish}
-          className="w-full bg-white text-black py-5 rounded-3xl font-black uppercase tracking-[0.4em] text-sm hover:scale-105 transition-all active:scale-95 shadow-2xl"
+          className="w-full bg-white text-black py-4 md:py-5 rounded-2xl md:rounded-3xl font-black uppercase tracking-[0.4em] text-[10px] md:text-sm hover:scale-105 transition-all active:scale-95 shadow-2xl"
         >
           Reclaim Bandwidth
         </button>
@@ -1000,31 +992,8 @@ const RefractiveTagline = () => {
 
 export default function Home() {
   const [input, setInput] = useState('');
-  const audioCtxRef = useRef<AudioContext | null>(null);
   const noiseNodeRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const playClick = () => {
-    try {
-      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new AudioContextClass();
-      }
-      const ctx = audioCtxRef.current!;
-      if (ctx.state === 'suspended') ctx.resume();
-      
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, ctx.currentTime);
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.1);
-    } catch (e) {}
-  };
 
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<SimplifiedData | null>(null);
@@ -1036,7 +1005,6 @@ export default function Home() {
   const [usageCount, setUsageCount] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);
   const [isBionic, setIsBionic] = useState(true);
-  const [audioMode, setAudioMode] = useState<'none' | 'brown' | 'suspense' | 'action' | 'gamma' | 'amapiano' | 'rnb' | 'lofi'>('none');
   const [mouseFocus, setMouseFocus] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
@@ -1080,8 +1048,6 @@ export default function Home() {
   const [dassahPoints, setDassahPoints] = useState(0);
   const [totalWordsRefracted, setTotalWordsRefracted] = useState(0);
   const [totalMinutesSaved, setTotalMinutesSaved] = useState(0);
-  const [suspenseIdx, setSuspenseIdx] = useState(0);
-  const [actionIdx, setActionIdx] = useState(0);
   const [isSharing, setIsSharing] = useState(false);
   const [isZenLocked, setIsZenLocked] = useState(false);
   const [isGreyedOut, setIsGreyedOut] = useState(false);
@@ -1096,17 +1062,7 @@ export default function Home() {
   const [timeLeft, setTimeLeft] = useState(0); // In seconds
   const [streakCount, setStreakCount] = useState(0);
   const [lastRefractDate, setLastRefractDate] = useState<string | null>(null);
-  const [audioVolume, setAudioVolume] = useState(0.3);
-  const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
   const [neuralRhythm, setNeuralRhythm] = useState(true);
-  const audioRef = useRef<any>(null);
-
-  const unlockAudio = () => {
-    if (isAudioUnlocked) return;
-    playClick(); // This initializes the AudioContext on user interaction
-    setIsAudioUnlocked(true);
-    console.log("Neural Audio Engines Unlocked");
-  };
 
   // Neural Streak Logic
   useEffect(() => {
@@ -1155,52 +1111,15 @@ export default function Home() {
   }, [timerActive, timeLeft]);
 
   const addTime = (minutes: number) => {
-    playClick();
     setTimeLeft(prev => prev + minutes * 60);
     setTimerActive(true);
-  };
-
-  const playNeuralSoundscape = (type: 'brown' | 'gamma' | 'suspense' | 'action' | 'amapiano' | 'rnb' | 'lofi' | 'none') => {
-    try {
-      if (audioRef.current) {
-        audioRef.current.stop();
-        audioRef.current.unload();
-      }
-
-      if (type === 'none') return;
-
-      const soundUrls = {
-        brown: 'https://archive.org/download/lp_atmospheric-noises-vol-1_various/side_1_1_brown_noise.mp3',
-        gamma: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_73070498a4.mp3?filename=ambient-piano-logo-16532.mp3',
-        suspense: 'https://cdn.pixabay.com/download/audio/2022/02/10/audio_c8b8bdf80c.mp3?filename=zen-healing-13000.mp3',
-        action: 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_feb947a750.mp3?filename=soul-lofi-126335.mp3',
-        amapiano: 'https://cdn.pixabay.com/download/audio/2024/02/09/audio_651a4f0019.mp3?filename=afrobeat-deep-house-188172.mp3',
-        rnb: 'https://cdn.pixabay.com/download/audio/2023/10/01/audio_104e14f08c.mp3?filename=slow-motion-rnb-168581.mp3',
-        lofi: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808d7430b.mp3?filename=lofi-study-112191.mp3'
-      };
-
-      const sound = new Howl({
-        src: [soundUrls[type]],
-        html5: true,
-        loop: true,
-        volume: audioVolume,
-        onloaderror: (id, err) => console.error("Soundscape Load Error:", err),
-        onplayerror: (id, err) => {
-          console.warn("Audio blocked or play error:", err);
-          sound.once('unlock', () => sound.play());
-        }
-      });
-
-      sound.play();
-      audioRef.current = sound;
-    } catch (e) { console.error("Neural Soundscape Recalibration Failed", e); }
   };
 
   useEffect(() => {
     const handleKeys = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
       if (e.key.toLowerCase() === 't') {
-        playClick();
+        
         setIsBionic(prev => !prev);
       }
     };
@@ -1268,7 +1187,7 @@ export default function Home() {
   }, [data, currentChunk, input, missionGoal]);
 
   const handleResumeSnapshot = () => {
-    playClick();
+    
     const saved = localStorage.getItem('dassahs_neural_snapshot');
     if (saved) {
       const { data: savedData, currentChunk: savedChunk, input: savedInput, missionGoal: savedGoal } = JSON.parse(saved);
@@ -1310,7 +1229,7 @@ export default function Home() {
   };
 
   const handleToggleStar = (item: {heading: string, content: string, type: 'metaphor' | 'hook'}) => {
-    playClick();
+    
     setStarredItems(prev => {
       const exists = prev.find(i => i.content === item.content && i.type === item.type);
       if (exists) return prev.filter(i => !(i.content === item.content && i.type === item.type));
@@ -1319,7 +1238,7 @@ export default function Home() {
   };
 
   const handleEstablishLink = async () => {
-    unlockAudio();
+    
     setLinkState('syncing');
     
     // Animate sync progress
@@ -1354,21 +1273,6 @@ export default function Home() {
       setSyncProgress(progress);
     }, 200);
   };
-
-  useEffect(() => {
-    if (audioRef.current && typeof audioRef.current.volume === 'function') {
-      audioRef.current.volume(audioVolume);
-    }
-  }, [audioVolume]);
-
-  useEffect(() => {
-    if (audioMode !== 'none') {
-      if (noiseNodeRef.current?.stop) noiseNodeRef.current.stop();
-      playNeuralSoundscape(audioMode as any);
-    } else {
-      if (noiseNodeRef.current?.stop) noiseNodeRef.current.stop();
-    }
-  }, [audioMode]);
 
   useEffect(() => {
     localStorage.setItem('dassahs_neural_vault', JSON.stringify(starredItems));
@@ -1443,7 +1347,7 @@ export default function Home() {
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!feedbackInput.trim()) return;
-    playClick();
+    
     try {
       await fetch('/api/feedback', {
         method: 'POST',
@@ -1462,7 +1366,7 @@ export default function Home() {
   };
 
   const handleLoadExample = () => {
-    playClick();
+    
     const exampleNoise = "This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text. It's filled with unnecessary jargon and complex clauses that are designed to overwhelm the reader rather than provide clarity. By the time you reach the end, you've forgotten how it started, and the 'Sovereign Core' of the message is lost in a sea of cognitive noise.";
     setInput(exampleNoise);
     setRewardType('step');
@@ -1470,7 +1374,7 @@ export default function Home() {
   };
 
   const handleSimplify = async (textToSimplify = input) => {
-    unlockAudio(); if (!textToSimplify.trim()) return; 
+     if (!textToSimplify.trim()) return; 
     const limit = user ? 30 : 10;
     if (usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
     
@@ -1559,7 +1463,7 @@ export default function Home() {
       setIsPlaying(false);
       return;
     }
-    playClick();
+    
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.onend = () => setIsPlaying(false);
     window.speechSynthesis.speak(utterance);
@@ -1567,7 +1471,7 @@ export default function Home() {
   };
 
   const handleReset = () => {
-    playClick();
+    
     setData(null);
     setInput('');
     setCurrentChunk(-1);
@@ -1577,7 +1481,7 @@ export default function Home() {
   };
 
   const handleToggleZenLock = () => {
-    playClick();
+    
     if (isZenLocked) {
       const penalty = currentChunk === data?.chunks.length ? 50 : (currentChunk + 1) * 5;
       if (confirm(`Wait! Breaking Hadassah's Lock now costs ${penalty} Dassah Points. Are you sure?`)) {
@@ -1591,7 +1495,7 @@ export default function Home() {
   const handleChat = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || chatLoading) return;
-    playClick();
+    
     const newUserMsg = { role: 'user' as const, text: chatInput };
     setChatHistory(prev => [...prev, newUserMsg]);
     setChatInput('');
@@ -1637,7 +1541,7 @@ export default function Home() {
   };
   const handleCheckout = async (lookupKey: string) => {
     if (!user) { handleLogin(); return; }
-    playClick();
+    
     alert("Initiating Neural Handshake... Synchronizing with Dassah’s Prism. Prepare for unlimited bandwidth.");
     try {
       const res = await fetch('/api/checkout', {
@@ -1657,7 +1561,7 @@ export default function Home() {
   };
 
   const handleLogin = async () => {
-    playClick();
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -1671,7 +1575,7 @@ export default function Home() {
   };
 
   const handleLogout = async () => {
-    playClick();
+    
     await supabase.auth.signOut();
     setUser(null);
     setHistory([]);
@@ -1724,7 +1628,7 @@ export default function Home() {
       <style>{themeStyles}</style>
       
       <AnimatePresence>
-        {showRecap && <CerebralRecap data={data} onFinish={() => { playClick(); setShowRecap(false); handleReset(); }} />}
+        {showRecap && <CerebralRecap data={data} onFinish={() => { setShowRecap(false); handleReset(); }} />}
       </AnimatePresence>
 
       <AnimatePresence>
@@ -1741,20 +1645,17 @@ export default function Home() {
             linkState={linkState}
             syncProgress={syncProgress}
             onAccept={handleEstablishLink}
-            onCancel={() => { playClick(); setLinkState('severed'); }}
+            onCancel={() => { setLinkState('severed'); }}
           />
         )}
       </AnimatePresence>
 
-      {/* SUBTLE BRAND SIGNATURE - VISIBLE WITHOUT LOGIN */}
-      <div className="w-full py-8 px-6 z-[100] text-center opacity-30 hover:opacity-100 transition-opacity">
-        <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.5em]">Dassah&apos;s-Prism | Reclaiming Sovereignty</p>
-      </div>
+      {/* REMOVED: SUBTLE BRAND SIGNATURE */}
 
       {linkState === 'established' && (
         <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
         <div className={`fixed inset-0 -z-10 transition-all duration-1000 ${neuralRhythm ? 'animate-neural-pulse' : ''}`} style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
-        <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
+        <FrostedGlassDepth theme={theme} mousePos={mousePos} isZenLocked={isZenLocked} focusMode={focusMode} />
 
         {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && (
           <NeuralAnchorSidebar data={data} isOpen={anchorsOpen} onToggle={() => setAnchorsOpen(!anchorsOpen)} />
@@ -1768,7 +1669,7 @@ export default function Home() {
 
         <AnimatePresence>
           {showBreak && (
-            <NeuralRhythmBreak level={breakLevel} onComplete={() => { playClick(); setShowBreak(false); }} />
+            <NeuralRhythmBreak level={breakLevel} onComplete={() => {  setShowBreak(false); }} />
           )}
         </AnimatePresence>
 
@@ -1782,7 +1683,7 @@ export default function Home() {
 
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-6 pointer-events-none">
         <nav className={`pointer-events-auto flex items-center gap-2 px-3 py-2 rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
-          <button onClick={() => { playClick(); setShowNeuralCommand(true); }} title="Neural Command" className="p-3 rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
+          <button onClick={() => { setShowNeuralCommand(true); }} title="Neural Command" className="p-3 rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
             <Compass size={20} className="group-hover:rotate-90 transition-transform duration-500" />
           </button>
           
@@ -1810,7 +1711,7 @@ export default function Home() {
 
           <div className="w-[1px] h-6 bg-white/10 mx-1" />
 
-          <button onClick={() => { playClick(); setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-white'}`}>
+          <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-white'}`}>
             {focusMode === 'sovereign' ? <Crown size={14} /> : <Zap size={14} />}
             <span className="hidden sm:block">{focusMode === 'sovereign' ? 'Sovereign' : 'Dastastic'}</span>
           </button>
@@ -1851,7 +1752,7 @@ export default function Home() {
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-2xl w-full max-h-[90dvh] overflow-y-auto no-scrollbar bg-[var(--color-glass)] p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-6 md:gap-8 relative">
               <div className="flex justify-between items-center sticky top-0 bg-transparent backdrop-blur-md z-10 pb-4">
                 <h2 className="text-xl md:text-2xl font-black text-white italic flex items-center gap-3 md:gap-4"><Compass className="text-blue-400" /> Neural Command</h2>
-                <button onClick={() => { playClick(); setShowNeuralCommand(false); }} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
+                <button onClick={() => { setShowNeuralCommand(false); }} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -1859,11 +1760,11 @@ export default function Home() {
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Sovereign Controls</p>
                     <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => { playClick(); setIsBionic(!isBionic); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
+                      <button onClick={() => { setIsBionic(!isBionic); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
                         <Type size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Bionic Shield (T)</span>
                       </button>
-                      <button onClick={() => { playClick(); setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-purple-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
+                      <button onClick={() => { setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-purple-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
                         <Clock size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Neural Rhythm</span>
                       </button>
@@ -1902,7 +1803,7 @@ export default function Home() {
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Visual Spectrum</p>
                     <div className="grid grid-cols-2 gap-2">
                       {Object.entries(THEMES).map(([id, t]) => (
-                        <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
+                        <button key={id} onClick={() => { setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
                           <div className="w-5 h-5 rounded-md" style={{ backgroundColor: t.accent }} />
                           <span className="text-[9px] font-bold text-white truncate text-left" title={t.name}>{t.name}</span>
                         </button>
@@ -1912,59 +1813,12 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-6">
-                  <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Resonance</p>
-                      <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
-                        <Volume2 size={12} className={audioVolume > 0 ? "text-blue-400" : "text-slate-500"} />
-                        <input 
-                          type="range" 
-                          min="0" max="1" step="0.01" 
-                          value={audioVolume} 
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            setAudioVolume(val);
-                          }}
-                          className="w-20 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:bg-white/20 transition-colors"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[ 
-                        {m:'none', i:<X size={14}/>, n:'Silent', d:'Pure focus'}, 
-                        {m:'brown', i:<Sun size={14}/>, n:'Resonance', d:'Brown noise'}, 
-                        {m:'suspense', i:<Ghost size={14}/>, n:'Harmony', d:'Soundscape', v: suspenseIdx, set: setSuspenseIdx}, 
-                        {m:'action', i:<Swords size={14}/>, n:'Zen Flow', d:'Focus rhythm', v: actionIdx, set: setActionIdx},
-                        {m:'amapiano', i:<Music size={14}/>, n:'Amapiano', d:'Soulful beats'},
-                        {m:'rnb', i:<Heart size={14}/>, n:'Slow R&B', d:'90s Soul'},
-                        {m:'lofi', i:<Church size={14}/>, n:'Divine Lofi', d:'Christian Chill'}
-                      ].map((s) => (
-                        <div key={s.m} className="flex gap-2">
-                          <button onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex-grow flex items-center gap-2 p-2 rounded-xl transition-all text-left ${audioMode === s.m ? 'bg-blue-600 text-white shadow-lg' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
-                            <div className={`p-1.5 rounded-lg ${audioMode === s.m ? 'bg-white/20' : 'bg-white/5'}`}>{s.i}</div>
-                            <div className="min-w-0">
-                              <p className="text-[8px] font-black uppercase tracking-widest leading-tight truncate">{s.n} {s.v !== undefined ? `v${s.v + 1}` : ''}</p>
-                              <p className="text-[7px] opacity-60 font-medium leading-tight truncate">{s.d}</p>
-                            </div>
-                          </button>
-                          {s.set && (
-                            <button 
-                              onClick={() => { playClick(); s.set((v: number) => (v + 1) % 3); if (audioMode === s.m) setAudioMode('none'); setTimeout(() => setAudioMode(s.m as any), 10); }}
-                              className="p-2 rounded-xl bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
-                              title="Cycle Variation"
-                            >
-                              <MoreHorizontal size={14} />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  {/* Neural Resonance Removed */}
                 </div>
               </div>
 
               <div className="flex justify-center">
-                <button onClick={() => { unlockAudio(); setShowNeuralCommand(false); }} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
+                <button onClick={() => { setShowNeuralCommand(false); }} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
               </div>
             </motion.div>
           </div>
@@ -2288,8 +2142,8 @@ export default function Home() {
             </div>
             <div className="w-full bg-[var(--color-glass)] p-4 md:p-8 rounded-[1.5rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-4 md:gap-6 border-t border-white/5">
               <div className="flex items-center gap-3 md:gap-4">
-                <button onClick={() => { playClick(); fileInputRef.current?.click(); }} className="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-2 md:gap-3"><Upload size={16} className="text-blue-500" /> Clean Document</button>
-                <button onClick={() => { playClick(); setShowNeuroMirror(!showNeuroMirror); }} className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-xl border transition-all ${showNeuroMirror ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}><Ghost size={14} /><span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{showNeuroMirror ? 'Stop' : 'Show Noise'}</span></button>
+                <button onClick={() => { fileInputRef.current?.click(); }} className="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-2 md:gap-3"><Upload size={16} className="text-blue-500" /> Clean Document</button>
+                <button onClick={() => { setShowNeuroMirror(!showNeuroMirror); }} className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-xl border transition-all ${showNeuroMirror ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}><Ghost size={14} /><span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{showNeuroMirror ? 'Stop' : 'Show Noise'}</span></button>
               </div>
               <div className="flex items-center gap-2 md:gap-4 w-full sm:w-auto">
                 <button onClick={() => setIsScenic(!isScenic)} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}<span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic' : 'Quick'}</span></button>
@@ -2308,7 +2162,7 @@ export default function Home() {
       ) : (
         <div className="max-w-2xl lg:max-w-3xl w-full pt-24 md:pt-32 pb-20 z-10 px-4">
           <div className="mb-6 md:mb-8 flex justify-end gap-2 md:gap-4">
-            <button onClick={() => { setShowMissionBrief(true); playClick(); }} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-blue-400 hover:text-white transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Rocket size={16}/><span className="hidden xs:inline">Mission Brief</span></button>
+            <button onClick={() => { setShowMissionBrief(true);  }} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-blue-400 hover:text-white transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Rocket size={16}/><span className="hidden xs:inline">Mission Brief</span></button>
             <button onClick={handleDownloadSummary} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Download size={16}/><span className="hidden xs:inline">Save Summary</span></button>
           </div>          <AnimatePresence mode="wait">
             {currentChunk === -1 ? (
@@ -2319,12 +2173,12 @@ export default function Home() {
                   <p className="text-slate-400 font-bold uppercase tracking-[0.4em] text-[10px]">Saved {data.readingTime} of Cognitive Noise</p>
                 </div>
                 <div className="flex flex-col gap-4">
-                  <button onClick={() => { setCurrentChunk(0); playClick(); }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Prism <ArrowRight className="inline ml-4"/></button>
-                  <button onClick={() => { setShowMissionBrief(true); playClick(); }} className="w-full bg-white/5 py-4 rounded-xl font-black uppercase tracking-[0.3em] text-[10px] text-slate-400 hover:text-white transition-all">View Mission Brief</button>
+                  <button onClick={() => { setCurrentChunk(0);  }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Prism <ArrowRight className="inline ml-4"/></button>
+                  <button onClick={() => { setShowMissionBrief(true);  }} className="w-full bg-white/5 py-4 rounded-xl font-black uppercase tracking-[0.3em] text-[10px] text-slate-400 hover:text-white transition-all">View Mission Brief</button>
                 </div>
                 <button onClick={handleReset} className="absolute top-8 right-8 p-4 text-slate-600 hover:text-red-400 transition-all"><X size={20}/></button>
               </motion.div>
-            ) : currentChunk === data.chunks.length ? (              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={() => { playClick(); handleNext(); }} className="flex-1 bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button></div></motion.div>
+            ) : currentChunk === data.chunks.length ? (              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={() => { handleNext(); }} className="flex-1 bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button></div></motion.div>
             ) : (
               <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
                 <div className="absolute top-10 left-10 flex items-center gap-4">
@@ -2393,7 +2247,7 @@ export default function Home() {
       )}
 
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
-      <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 bg-[var(--color-shadow)] backdrop-blur-3xl z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { playClick(); setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-[var(--color-glass)] hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
+      <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 bg-[var(--color-shadow)] backdrop-blur-3xl z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-[var(--color-glass)] hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
 
       <AnimatePresence>{showPaywall && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
@@ -2474,7 +2328,7 @@ export default function Home() {
         </p>
         <div className="flex items-center gap-4">
           <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
-          <button onClick={() => { playClick(); setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
+          <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
         </div>
       </footer>
 
