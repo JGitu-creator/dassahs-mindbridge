@@ -2195,33 +2195,35 @@ export default function Home() {
       <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] bg-[var(--color-shadow)] backdrop-blur-3xl border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-white rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
       
       <AnimatePresence>{showVictory && data && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[700] flex items-center justify-center p-4">
-          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-lg w-full bg-slate-900 border-2 border-amber-500/30 p-10 md:p-16 rounded-[4rem] text-center space-y-10 shadow-[0_0_150px_rgba(245,158,11,0.3)] relative overflow-hidden">
-             <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent pointer-events-none" />
-             <div className="mx-auto w-32 h-32 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500 animate-bounce shadow-[0_0_50px_rgba(245,158,11,0.2)]"><Trophy size={64} /></div>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[700] flex items-center justify-center p-6">
+          <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="max-w-md w-full bg-slate-900 border-2 border-white/10 p-8 md:p-12 rounded-[3rem] text-center space-y-8 shadow-[0_0_100px_rgba(59,130,246,0.3)] relative overflow-hidden">
+             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.2)_0%,transparent_70%)] pointer-events-none" />
+             <button onClick={() => setShowVictory(false)} className="absolute top-6 right-6 p-2 hover:bg-white/10 rounded-full text-slate-500 hover:text-white transition-all z-20"><X size={20}/></button>
              
-             <div className="space-y-4">
-               <h2 className="text-5xl font-black text-white tracking-tighter italic">NEURAL VICTORY</h2>
-               <p className="text-amber-400 font-black uppercase tracking-[0.5em] text-xs">Sovereignty Reclaimed</p>
+             <div className="mx-auto w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse relative z-10"><Trophy size={32} /></div>
+             
+             <div className="space-y-2 relative z-10">
+               <h2 className="text-3xl font-black text-white tracking-tighter italic">NEURAL <span className="prism-text">VICTORY</span></h2>
+               <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]">Sovereignty Reclaimed</p>
              </div>
 
-             <div className="grid grid-cols-2 gap-4">
-               <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
-                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Time Saved</p>
-                 <p className="text-2xl font-black text-white">{data.readingTime}</p>
+             <div className="grid grid-cols-2 gap-3 relative z-10">
+               <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Time Saved</p>
+                 <p className="text-xl font-black text-white">{data.readingTime}</p>
                </div>
-               <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
-                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Efficiency</p>
-                 <p className="text-2xl font-black text-white">100%</p>
+               <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Efficiency</p>
+                 <p className="text-xl font-black text-white">100%</p>
                </div>
              </div>
 
-             <div className="space-y-4">
-               <button onClick={handleShare} className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 hover:scale-[1.02] active:scale-95 py-8 rounded-[2.5rem] font-black uppercase tracking-widest text-xl shadow-[0_20px_50px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-4">
-                 {isSharing ? <Loader2 className="animate-spin" /> : <Share2 size={24} />}
-                 Share My Sovereignty
+             <div className="space-y-3 relative z-10 pt-4">
+               <button onClick={handleShare} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
+                 {isSharing ? <Loader2 className="animate-spin" size={18} /> : <Share2 size={18} />}
+                 Share Victory
                </button>
-               <button onClick={handleReset} className="w-full text-slate-600 font-bold uppercase text-[10px] tracking-[0.5em] py-4 hover:text-slate-400 transition-colors">Return to Vault</button>
+               <button onClick={handleReset} className="w-full text-slate-500 font-bold uppercase text-[9px] tracking-[0.4em] py-3 hover:text-slate-300 transition-colors">Return to Vault</button>
              </div>
           </motion.div>
         </div>
