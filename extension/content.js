@@ -6,7 +6,7 @@ const checkNoiseLevel = () => {
   // If more than 800 words, it's a "Noisy" page
   if (wordCount > 800) {
     console.log("Dassah's Prism: High Noise detected. Consider refracting.");
-    // We could inject a small UI element here to suggest refraction
+    chrome.runtime.sendMessage({ action: "showNoiseAlert", wordCount });
   }
 };
 

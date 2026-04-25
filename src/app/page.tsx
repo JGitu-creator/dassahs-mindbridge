@@ -5,7 +5,7 @@ import {
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal,
-  Compass, Check, LogOut, Shield, Anchor, Heart, Eye
+  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church
 } from 'lucide-react';
 import { Howl } from 'howler';
 
@@ -592,8 +592,11 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
       transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
       className={`relative mx-auto w-28 h-28 md:w-44 md:h-44 bg-gradient-to-br ${color} text-white rounded-[3rem] md:rounded-[5rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_100px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000 z-10`}
     >
-      <Brain className={`w-16 h-16 md:w-24 md:h-24 ${isVictorious && user ? "text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" : ""}`} />
-      
+      <img 
+        src="/logo.png" 
+        alt="Prism Core" 
+        className={`w-20 h-20 md:w-32 md:h-32 object-contain ${isVictorious && user ? "drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" : "opacity-80"}`} 
+      />      
       {/* Refractive Shards around the core */}
       {[...Array(8)].map((_, i) => (
         <motion.div
@@ -984,7 +987,7 @@ export default function Home() {
   const [usageCount, setUsageCount] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);
   const [isBionic, setIsBionic] = useState(true);
-  const [audioMode, setAudioMode] = useState<'none' | 'brown' | 'suspense' | 'action' | 'gamma'>('none');
+  const [audioMode, setAudioMode] = useState<'none' | 'brown' | 'suspense' | 'action' | 'gamma' | 'amapiano' | 'rnb' | 'lofi'>('none');
   const [mouseFocus, setMouseFocus] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
@@ -1034,7 +1037,7 @@ export default function Home() {
   const [neuralRhythm, setNeuralRhythm] = useState(true);
   const audioRef = useRef<any>(null);
 
-  const playNeuralSoundscape = (type: 'brown' | 'gamma' | 'suspense' | 'action' | 'none') => {
+  const playNeuralSoundscape = (type: 'brown' | 'gamma' | 'suspense' | 'action' | 'amapiano' | 'rnb' | 'lofi' | 'none') => {
     try {
       if (audioRef.current) {
         audioRef.current.stop();
@@ -1045,11 +1048,13 @@ export default function Home() {
 
       const soundUrls = {
         brown: 'https://archive.org/download/lp_atmospheric-noises-vol-1_various/side_1_1_brown_noise.mp3',
-        gamma: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_73070498a4.mp3?filename=ambient-piano-logo-16532.mp3', 
+        gamma: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_73070498a4.mp3?filename=ambient-piano-logo-16532.mp3',
         suspense: 'https://cdn.pixabay.com/download/audio/2022/02/10/audio_c8b8bdf80c.mp3?filename=zen-healing-13000.mp3',
-        action: 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_feb947a750.mp3?filename=soul-lofi-126335.mp3'
+        action: 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_feb947a750.mp3?filename=soul-lofi-126335.mp3',
+        amapiano: 'https://cdn.pixabay.com/download/audio/2024/02/09/audio_651a4f0019.mp3?filename=afrobeat-deep-house-188172.mp3',
+        rnb: 'https://cdn.pixabay.com/download/audio/2023/10/01/audio_104e14f08c.mp3?filename=slow-motion-rnb-168581.mp3',
+        lofi: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808d7430b.mp3?filename=lofi-study-112191.mp3'
       };
-
       const sound = new Howl({
         src: [soundUrls[type]],
         html5: true,
@@ -1111,6 +1116,12 @@ export default function Home() {
       console.error("Failed to load profile:", e);
     }
   };
+
+  useEffect(() => {
+    if (audioRef.current && typeof audioRef.current.volume === 'function') {
+      audioRef.current.volume(audioVolume);
+    }
+  }, [audioVolume]);
 
   useEffect(() => {
     if (audioMode !== 'none') {
@@ -1438,6 +1449,8 @@ export default function Home() {
     }
     @keyframes prism-refract { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
     @keyframes neural-gear { 0% { rotate: 0deg; } 100% { rotate: 360deg; } }
+    @keyframes neural-pulse { 0%, 100% { opacity: 0.8; scale: 1; } 50% { opacity: 1; scale: 1.02; } }
+    .animate-neural-pulse { animation: neural-pulse 4s ease-in-out infinite; }
     .prism-text {
       background: linear-gradient(110deg, var(--prism-1) 0%, var(--prism-2) 25%, #fff 50%, var(--prism-2) 75%, var(--prism-3) 100%);
       background-size: 200% auto;
@@ -1496,7 +1509,7 @@ export default function Home() {
 
       {linkState === 'established' && (
         <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
-        <div className="fixed inset-0 -z-10 transition-colors duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
+        <div className={`fixed inset-0 -z-10 transition-all duration-1000 ${neuralRhythm ? 'animate-neural-pulse' : ''}`} style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
         <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
 
         {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && (
@@ -1592,6 +1605,7 @@ export default function Home() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
+                  <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Sovereign Controls</p>
                     <div className="grid grid-cols-2 gap-3">
                       <button onClick={() => { playClick(); setIsBionic(!isBionic); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
@@ -1620,7 +1634,7 @@ export default function Home() {
                           <ArrowRight size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </button>
                       )}
-                      <a href="/dassahs-prism-extension.zip" download className="w-full p-5 rounded-2xl bg-purple-600/10 border border-purple-500/30 flex items-center justify-between group hover:bg-purple-600 hover:border-purple-400 transition-all">
+                      <a href="/dassahs-prism-extension.zip" download className="w-full p-5 rounded-2xl bg-purple-600/10 border border-purple-500/30 flex items-center justify-between group hover:bg-blue-600 hover:border-blue-400 transition-all">
                         <div className="flex items-center gap-4">
                           <Rocket size={20} className="text-purple-400 group-hover:text-white" />
                           <div className="text-left">
@@ -1635,37 +1649,57 @@ export default function Home() {
 
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Visual Spectrum</p>
-                    <div className="grid grid-cols-2 gap-2">                    {Object.entries(THEMES).map(([id, t]) => (
-                      <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
-                        <div className="w-5 h-5 rounded-md" style={{ backgroundColor: t.accent }} />
-                        <span className="text-[9px] font-bold text-white truncate">{t.name}</span>
-                      </button>
-                    ))}
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(THEMES).map(([id, t]) => (
+                        <button key={id} onClick={() => { playClick(); setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
+                          <div className="w-5 h-5 rounded-md" style={{ backgroundColor: t.accent }} />
+                          <span className="text-[9px] font-bold text-white truncate text-left" title={t.name}>{t.name}</span>
+                        </button>
+                      ))}
                     </div>
-                    </div>
-                    </div>
+                  </div>
+                </div>
 
-                    <div className="space-y-6">                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Neural Resonance</p>
-                    <div className="grid grid-cols-1 gap-2">
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Resonance</p>
+                      <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
+                        <Volume2 size={12} className={audioVolume > 0 ? "text-blue-400" : "text-slate-500"} />
+                        <input 
+                          type="range" 
+                          min="0" max="1" step="0.01" 
+                          value={audioVolume} 
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            setAudioVolume(val);
+                          }}
+                          className="w-20 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:bg-white/20 transition-colors"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
                       {[ 
                         {m:'none', i:<X size={14}/>, n:'Silent', d:'Pure focus'}, 
                         {m:'brown', i:<Sun size={14}/>, n:'Resonance', d:'Brown noise'}, 
                         {m:'suspense', i:<Ghost size={14}/>, n:'Harmony', d:'Soundscape', v: suspenseIdx, set: setSuspenseIdx}, 
-                        {m:'action', i:<Swords size={14}/>, n:'Zen Flow', d:'Focus rhythm', v: actionIdx, set: setActionIdx} 
+                        {m:'action', i:<Swords size={14}/>, n:'Zen Flow', d:'Focus rhythm', v: actionIdx, set: setActionIdx},
+                        {m:'amapiano', i:<Music size={14}/>, n:'Amapiano', d:'Soulful beats'},
+                        {m:'rnb', i:<Heart size={14}/>, n:'Slow R&B', d:'90s Soul'},
+                        {m:'lofi', i:<Church size={14}/>, n:'Divine Lofi', d:'Christian Chill'}
                       ].map((s) => (
                         <div key={s.m} className="flex gap-2">
-                          <button onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex-grow flex items-center gap-3 p-3 rounded-xl transition-all text-left ${audioMode === s.m ? 'bg-blue-600 text-white shadow-lg' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
-                            <div className={`p-2 rounded-lg ${audioMode === s.m ? 'bg-white/20' : 'bg-white/5'}`}>{s.i}</div>
-                            <div>
-                              <p className="text-[9px] font-black uppercase tracking-widest leading-tight">{s.n} {s.v !== undefined ? `v${s.v + 1}` : ''}</p>
-                              <p className="text-[7px] opacity-60 font-medium leading-tight">{s.d}</p>
+                          <button onClick={() => { playClick(); setAudioMode(s.m as any); }} className={`flex-grow flex items-center gap-2 p-2 rounded-xl transition-all text-left ${audioMode === s.m ? 'bg-blue-600 text-white shadow-lg' : 'bg-white/5 text-slate-400 hover:text-white'}`}>
+                            <div className={`p-1.5 rounded-lg ${audioMode === s.m ? 'bg-white/20' : 'bg-white/5'}`}>{s.i}</div>
+                            <div className="min-w-0">
+                              <p className="text-[8px] font-black uppercase tracking-widest leading-tight truncate">{s.n} {s.v !== undefined ? `v${s.v + 1}` : ''}</p>
+                              <p className="text-[7px] opacity-60 font-medium leading-tight truncate">{s.d}</p>
                             </div>
                           </button>
                           {s.set && (
                             <button 
                               onClick={() => { playClick(); s.set((v: number) => (v + 1) % 3); if (audioMode === s.m) setAudioMode('none'); setTimeout(() => setAudioMode(s.m as any), 10); }}
-                              className="p-3 rounded-xl bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                              className="p-2 rounded-xl bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
                               title="Cycle Variation"
                             >
                               <MoreHorizontal size={14} />
@@ -1677,7 +1711,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-center">
                 <button onClick={() => setShowNeuralCommand(false)} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
               </div>

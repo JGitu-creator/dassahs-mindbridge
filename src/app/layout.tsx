@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Dassah's-Prism",
   description: "Refract overwhelming noise into divine clarity. Your cognitive architecture, optimized.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
   verification: {
     google: "e6jGjBArh4BltMG2MGWLqlH9-b8-sRuEfMF_dyceQ4w",
   },
@@ -25,20 +30,20 @@ export const metadata: Metadata = {
     siteName: "Dassah's-Prism",
     images: [
       {
-        url: "https://images.unsplash.com/photo-1559757175-57008173bc7d?auto=format&fit=crop&q=80&w=1200&h=630",
-        width: 1200,
-        height: 630,
-        alt: "Neural Prism - Cognitive Clarity",
+        url: "/logo.png",
+        width: 800,
+        height: 800,
+        alt: "Dassah's Prism - Cognitive Clarity",
       },
     ],
     locale: "en_US",
     type: "website",
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Dassah's-Prism",
     description: "Crush the cognitive noise. Anchor your focus.",
-    images: ["https://images.unsplash.com/photo-1559757175-57008173bc7d?auto=format&fit=crop&q=80&w=1200&h=630"],
+    images: ["/logo.png"],
   },
 };
 

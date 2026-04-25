@@ -18,7 +18,12 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 // Listener for messages from content scripts
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "showNoiseAlert") {
-    // Optionally implement a notification here
-    console.log("Noise detected on page!");
+    chrome.notifications.create({
+      type: "basic",
+      iconUrl: "logo.png",
+      title: "High Noise Detected",
+      message: `This page has ~${request.wordCount} words. Consider refracting with Dassah's Prism for better focus.`,
+      priority: 1
+    });
   }
 });
