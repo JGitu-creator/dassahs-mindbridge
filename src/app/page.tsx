@@ -1581,16 +1581,10 @@ export default function Home() {
         </div>
       </footer>
 
-      <AnimatePresence>
-        {(linkState === 'pending' || linkState === 'syncing' || linkState === 'revealing') && (
-          <MissionMandate 
-            linkState={linkState}
-            syncProgress={syncProgress}
-            onAccept={handleEstablishLink}
-            onCancel={() => { playClick(); setLinkState('severed'); }}
-          />
-        )}
-      </AnimatePresence>
+      {linkState === 'established' && (
+        <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
+        <div className="fixed inset-0 -z-10 transition-colors duration-1000" style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
+        <FrostedGlassDepth theme={theme} mousePos={mousePos} audioMode={audioMode} isZenLocked={isZenLocked} focusMode={focusMode} />
 
         {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && (
           <NeuralAnchorSidebar data={data} isOpen={anchorsOpen} onToggle={() => setAnchorsOpen(!anchorsOpen)} />
