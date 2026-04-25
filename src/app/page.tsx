@@ -1117,6 +1117,119 @@ export default function Home() {
     }
   };
 
+  const CATCHPHRASES = [
+    "Neural Link Established",
+    "Cognitive Clarity Achieved",
+    "Executive Function Engaged",
+    "Noise Refracted",
+    "Divine Focus Locked",
+    "Bandwidth Reclaimed",
+    "Sovereignty Restored"
+  ];
+  const currentCatchphrase = useMemo(() => CATCHPHRASES[Math.floor(Math.random() * CATCHPHRASES.length)], [rewardType]);
+
+  // Neural Snapshot - Auto Save
+  useEffect(() => {
+    if (data && currentChunk >= -1) {
+      const snapshot = {
+        data,
+        currentChunk,
+        input,
+        missionGoal,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem('dassahs_neural_snapshot', JSON.stringify(snapshot));
+    }
+  }, [data, currentChunk, input, missionGoal]);
+
+  const handleResumeSnapshot = () => {
+    playClick();
+    const saved = localStorage.getItem('dassahs_neural_snapshot');
+    if (saved) {
+      const { data: savedData, currentChunk: savedChunk, input: savedInput, missionGoal: savedGoal } = JSON.parse(saved);
+      setData(savedData);
+      setCurrentChunk(savedChunk);
+      setInput(savedInput);
+      setMissionGoal(savedGoal);
+      setRewardType('step');
+      setTimeout(() => setRewardType('none'), 2000);
+    }
+  };
+
+  const DEFAULT_AVATARS = [
+    { id: 'spark', icon: <Sparkles className="text-amber-400" />, label: 'The Spark' },
+    { id: 'prism', icon: <Palette className="text-blue-400" />, label: 'The Prism' },
+    { id: 'shield', icon: <Shield className="text-emerald-400" />, label: 'The Shield' },
+    { id: 'brain', icon: <Brain className="text-purple-400" />, label: 'The Core' },
+    { id: 'crown', icon: <Crown className="text-yellow-500" />, label: 'The Sovereign' },
+  ];
+
+  const handleAvatarSelect = async (url: string) => {
+    if (!user) return;
+    setAvatarUrl(url);
+    await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file);
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      handleAvatarSelect(publicUrl);
+    } catch (err) { alert("Failed to upload neural image."); } finally { setUploadingAvatar(false); }
+  };
+
+  const handleToggleStar = (item: {heading: string, content: string, type: 'metaphor' | 'hook'}) => {
+    playClick();
+    setStarredItems(prev => {
+      const exists = prev.find(i => i.content === item.content && i.type === item.type);
+      if (exists) return prev.filter(i => !(i.content === item.content && i.type === item.type));
+      return [...prev, item];
+    });
+  };
+
+  const handleEstablishLink = async () => {
+    playClick();
+    setLinkState('syncing');
+    
+    // Animate sync progress
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.floor(Math.random() * 15) + 5;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setTimeout(async () => {
+          setLinkState('revealing');
+          // Wait for PortalReveal animation to play
+          setTimeout(async () => {
+            localStorage.setItem('dassahs_prism_tos_accepted', 'true');
+            
+            // Server-side proof of acceptance for authenticated users
+            if (user) {
+              await supabase.from('profiles').update({ 
+                terms_accepted_at: new Date().toISOString() 
+              }).eq('id', user.id);
+            }
+
+            setAcceptedTOS(true);
+            setLinkState('established');
+            setShowTOS(false);
+            // High speed celebrate particles
+            setRewardType('final');
+            setTimeout(() => setRewardType('none'), 3000);
+          }, 4000); // Wait for the reveal to complete
+        }, 800);
+      }
+      setSyncProgress(progress);
+    }, 200);
+  };
+
   useEffect(() => {
     if (audioRef.current && typeof audioRef.current.volume === 'function') {
       audioRef.current.volume(audioVolume);
