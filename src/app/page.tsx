@@ -5,7 +5,7 @@ import {
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal,
-  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck
+  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc
 } from 'lucide-react';
 
 const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
@@ -1811,10 +1811,14 @@ export default function Home() {
       {linkState === 'established' && (
         <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)', backgroundColor: focusMode === 'sovereign' ? '#000' : 'transparent' }}>
         <div className={`fixed inset-0 -z-10 transition-all duration-1000`} style={{ background: focusMode === 'sovereign' ? '#000' : `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
-        {focusMode !== 'sovereign' && (
-          <div className="fixed inset-0 pointer-events-none opacity-20 z-0">
-            <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, var(--color-accent) 1px, transparent 1px), linear-gradient(to bottom, var(--color-accent) 1px, transparent 1px)`, backgroundSize: '60px 60px' }} />
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" />
+        {focusMode !== 'sovereign' ? (
+          <div className="fixed inset-0 pointer-events-none opacity-[0.07] z-0">
+            <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, var(--color-accent) 0.5px, transparent 0.5px), linear-gradient(to bottom, var(--color-accent) 0.5px, transparent 0.5px)`, backgroundSize: '40px 40px' }} />
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/10 to-black/20" />
+          </div>
+        ) : (
+          <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-0">
+             <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)`, backgroundSize: '80px 80px' }} />
           </div>
         )}
         <SnakeLightsBackground theme={theme} mousePos={mousePos} focusMode={focusMode} />
