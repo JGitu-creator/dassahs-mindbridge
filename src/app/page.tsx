@@ -675,7 +675,9 @@ const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAcc
             <div className="relative">
               <div className="absolute inset-[-40px] border-4 border-dashed border-blue-500/30 rounded-full animate-[neural-gear_10s_linear_infinite]" />
               <div className="absolute inset-[-20px] border-2 border-blue-400/20 rounded-full animate-[neural-gear_15s_linear_infinite_reverse]" />
-              <RefractiveNeuralCore loading={true} inputLength={0} isVictorious={false} user={null} mousePos={{x:0, y:0}} focusMode="dastastic" />
+              <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-blue-500/30 shadow-2xl">
+                 <NeuralRefractionSlider />
+              </div>
             </div>
             <div className="w-48 md:w-64 h-1.5 md:h-2 bg-white/10 rounded-full overflow-hidden">
               <motion.div 
@@ -693,11 +695,15 @@ const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAcc
         </div>
         
         <div className="space-y-2">
-          <h2 className="text-2xl md:text-5xl font-black text-white italic leading-tight">Enter Dassah's <span className="prism-text">Neural Prism</span></h2>
-          <p className="text-xs md:text-sm text-slate-400 font-medium italic">Establishing a secure connection for your neurodivergent journey.</p>
+          <h2 className="text-2xl md:text-5xl font-black text-white italic leading-tight">Crush Noise. <span className="prism-text">Claim Focus.</span></h2>
+          <p className="text-xs md:text-sm text-slate-400 font-medium italic">Turn a 20-page document into a 3-minute mission.</p>
+        </div>
+
+        <div className="w-full my-4 hidden md:block">
+           <NeuralRefractionSlider />
         </div>
         
-        <div className="space-y-4 md:space-y-6 text-slate-300 overflow-y-auto max-h-[35vh] md:max-h-[40vh] pr-2 md:pr-4 custom-scrollbar">
+        <div className="space-y-4 md:space-y-6 text-slate-300 overflow-y-auto max-h-[25vh] md:max-h-[30vh] pr-2 md:pr-4 custom-scrollbar">
           <div className="p-3 md:p-4 bg-blue-500/5 rounded-xl md:rounded-2xl border border-blue-500/20 mb-4">
              <p className="text-[8px] md:text-[10px] text-blue-300 font-black uppercase tracking-widest mb-1 italic">Parental Directive</p>
              <p className="text-[10px] md:text-xs font-bold leading-relaxed text-blue-100 italic">"By establishing this link for a minor, you as a parent or guardian provide neural consent for their access to the Prism."</p>
@@ -990,6 +996,129 @@ const RefractiveTagline = () => {
   );
 };
 
+const SnakeLightsBackground = ({ mousePos, theme, focusMode }: { mousePos: { x: number, y: number }, theme: Theme, focusMode: string }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const t = THEMES[theme] || THEMES.midnight;
+
+  useEffect(() => {
+    if (focusMode === 'sovereign') return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
+    const resize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    };
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    const gridSize = 30;
+    const cols = Math.ceil(width / gridSize);
+    const rows = Math.ceil(height / gridSize);
+
+    class Snake {
+      segments: {x: number, y: number}[];
+      color: string;
+      direction: {x: number, y: number};
+      timer: number;
+      speed: number;
+
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.segments = [{x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows)}];
+        this.color = t.prism[Math.floor(Math.random() * t.prism.length)];
+        const dirs = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
+        this.direction = dirs[Math.floor(Math.random() * dirs.length)];
+        this.timer = 0;
+        this.speed = 8 + Math.random() * 12;
+      }
+
+      update() {
+        this.timer++;
+        if (this.timer >= this.speed) {
+          this.timer = 0;
+          const head = this.segments[0];
+          
+          if (Math.random() > 0.85) {
+             const dirs = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
+             this.direction = dirs[Math.floor(Math.random() * dirs.length)];
+          }
+
+          const newHead = {
+            x: (head.x + this.direction.x + cols) % cols,
+            y: (head.y + this.direction.y + rows) % rows
+          };
+
+          this.segments.unshift(newHead);
+          if (this.segments.length > 6) {
+            this.segments.pop();
+          }
+
+          // React to mouse
+          const dx = (newHead.x * gridSize) - mousePos.x;
+          const dy = (newHead.y * gridSize) - mousePos.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 150) {
+            this.speed = 3; // Speed up near mouse
+          } else {
+            this.speed = 10 + Math.random() * 5;
+          }
+        }
+      }
+
+      draw() {
+        this.segments.forEach((seg, i) => {
+          const alpha = (1 - (i / this.segments.length)) * 0.4;
+          ctx!.fillStyle = this.color;
+          ctx!.globalAlpha = alpha;
+          ctx!.shadowBlur = 15;
+          ctx!.shadowColor = this.color;
+          ctx!.fillRect(seg.x * gridSize + 4, seg.y * gridSize + 4, gridSize - 8, gridSize - 8);
+        });
+      }
+    }
+
+    const snakes = [...Array(12)].map(() => new Snake());
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+      snakes.forEach(s => {
+        s.update();
+        s.draw();
+      });
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [focusMode, theme, mousePos]);
+
+  if (focusMode === 'sovereign') return null;
+
+  return (
+    <canvas 
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0 opacity-50 transition-opacity duration-1000"
+    />
+  );
+};
+
 export default function Home() {
   const [input, setInput] = useState('');
   const noiseNodeRef = useRef<any>(null);
@@ -1045,6 +1174,25 @@ export default function Home() {
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
   const [showBreak, setShowBreak] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
+  const [simplicityLevel, setSimplicityLevel] = useState<'surgical' | 'vibrant'>('vibrant');
+  const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
+  const brownNoiseRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (brownNoisePlaying) {
+      if (!brownNoiseRef.current) {
+        brownNoiseRef.current = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); // Placeholder for brown noise
+        // Using a public URL for brown noise would be better, but let's assume local or a more stable source
+        // For now, let's use a generated noise or a common URL
+        brownNoiseRef.current.src = 'https://archive.org/download/BrownNoise10Hours/Brown_Noise_10_Hours.mp3';
+        brownNoiseRef.current.loop = true;
+      }
+      brownNoiseRef.current.play().catch(e => console.error("Audio playback failed", e));
+    } else {
+      brownNoiseRef.current?.pause();
+    }
+    return () => brownNoiseRef.current?.pause();
+  }, [brownNoisePlaying]);
   const [dassahPoints, setDassahPoints] = useState(0);
   const [totalWordsRefracted, setTotalWordsRefracted] = useState(0);
   const [totalMinutesSaved, setTotalMinutesSaved] = useState(0);
@@ -1119,8 +1267,10 @@ export default function Home() {
     const handleKeys = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
       if (e.key.toLowerCase() === 't') {
-        
         setIsBionic(prev => !prev);
+      }
+      if (e.key.toLowerCase() === 's') {
+        setFocusMode(prev => prev === 'dastastic' ? 'sovereign' : 'dastastic');
       }
     };
     window.addEventListener('keydown', handleKeys);
@@ -1279,6 +1429,15 @@ export default function Home() {
   }, [starredItems]);
 
   useEffect(() => {
+    if (linkState === 'established' && !localStorage.getItem('dassahs_prism_tutorial_seen')) {
+      setTimeout(() => {
+        setShowTutorial(true);
+        localStorage.setItem('dassahs_prism_tutorial_seen', 'true');
+      }, 2000);
+    }
+  }, [linkState]);
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => { 
       if (session?.user && localStorage.getItem('dassahs_prism_tos_accepted') !== 'true') {
         supabase.auth.signOut();
@@ -1373,6 +1532,14 @@ export default function Home() {
     setTimeout(() => setRewardType('none'), 2000);
   };
 
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (data && resultRef.current) {
+      resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [data]);
+
   const handleSimplify = async (textToSimplify = input) => {
      if (!textToSimplify.trim()) return; 
     const limit = user ? 30 : 10;
@@ -1383,7 +1550,18 @@ export default function Home() {
     setShareId(null);
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
-      const res = await fetch('/api/simplify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: textToSimplify, isScenic, cognitiveMode, missionGoal, isStory: storyMode }) });
+      const res = await fetch('/api/simplify', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ 
+          text: textToSimplify, 
+          isScenic, 
+          cognitiveMode, 
+          missionGoal, 
+          isStory: storyMode,
+          simplicityLevel 
+        }) 
+      });
       if (!res.ok) { const errData = await res.json(); throw new Error(errData.error || "The Prism is blurry. Try again."); }
       const result = await res.json(); setData(result);
       
@@ -1428,7 +1606,8 @@ export default function Home() {
       }
       
       const shareUrl = `${window.location.origin}/s/${id}`;
-      const shareText = `I just crushed the noise! ⚡️ Dassah's-Prism refracted a document into ${data.readingTime} of pure clarity. Sovereignty: 100%. Join the flow: ${shareUrl}`; 
+      const wordCount = input.trim().split(/\s+/).length;
+      const shareText = `I just crushed the noise! ⚡️ Dassah's-Prism refracted ${wordCount.toLocaleString()} words into ${data.readingTime} of pure clarity. Reclaimed ${Math.round(wordCount / 100)}% of my mental bandwidth. 🧠 Join the flow: ${shareUrl}`; 
       await navigator.clipboard.writeText(shareText); alert("Victory shared! Link copied to clipboard. 🚀"); 
     } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); } 
   };
@@ -1653,36 +1832,39 @@ export default function Home() {
       {/* REMOVED: SUBTLE BRAND SIGNATURE */}
 
       {linkState === 'established' && (
-        <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)' }}>
-        <div className={`fixed inset-0 -z-10 transition-all duration-1000 ${neuralRhythm ? 'animate-neural-pulse' : ''}`} style={{ background: `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
-        <FrostedGlassDepth theme={theme} mousePos={mousePos} isZenLocked={isZenLocked} focusMode={focusMode} />
+        <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)', backgroundColor: focusMode === 'sovereign' ? '#000' : 'transparent' }}>
+        <div className={`fixed inset-0 -z-10 transition-all duration-1000 ${neuralRhythm && focusMode !== 'sovereign' ? 'animate-neural-pulse' : ''}`} style={{ background: focusMode === 'sovereign' ? '#000' : `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
+        <SnakeLightsBackground theme={theme} mousePos={mousePos} focusMode={focusMode} />
 
-        {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && (
+        {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && focusMode !== 'sovereign' && (
           <NeuralAnchorSidebar data={data} isOpen={anchorsOpen} onToggle={() => setAnchorsOpen(!anchorsOpen)} />
         )}
         
         <AnimatePresence>
           {data && currentChunk >= 0 && currentChunk < data.chunks.length && (
-            <ContextAnchor whyCare={data.whyCare} isZenLocked={isZenLocked} segmentIdx={currentChunk} />
+            <ContextAnchor whyCare={data.whyCare} isZenLocked={isZenLocked || focusMode === 'sovereign'} segmentIdx={currentChunk} />
           )}
         </AnimatePresence>
 
         <AnimatePresence>
-          {showBreak && (
+          {showBreak && focusMode !== 'sovereign' && (
             <NeuralRhythmBreak level={breakLevel} onComplete={() => {  setShowBreak(false); }} />
           )}
         </AnimatePresence>
 
-        <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
-
-      <div className="fixed inset-0 pointer-events-none opacity-20"><div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} /><div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" /></div>
+        {focusMode !== 'sovereign' && (
+          <div className="fixed inset-0 pointer-events-none opacity-20">
+            <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" />
+          </div>
+        )}
 
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
         <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Rank</p><p className="text-white font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Result</p><p className="text-white font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-white/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">&quot;Inhale clarity. Exhale the mission. Your sovereignty is established.&quot;</p></motion.div></div>)}</div></motion.div></>
       )}</AnimatePresence>
 
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-6 pointer-events-none">
-        <nav className={`pointer-events-auto flex items-center gap-2 px-3 py-2 rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
+        <nav className={`pointer-events-auto flex items-center gap-2 px-3 py-2 rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked || focusMode === 'sovereign' ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
           <button onClick={() => { setShowNeuralCommand(true); }} title="Neural Command" className="p-3 rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
             <Compass size={20} className="group-hover:rotate-90 transition-transform duration-500" />
           </button>
@@ -1741,7 +1923,7 @@ export default function Home() {
       </div>
 
       {/* Prism Link (Feedback) */}
-      <button onClick={() => setShowFeedback(true)} className="fixed top-24 left-8 z-[120] p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 text-slate-500 hover:text-white hover:bg-white/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl">
+      <button onClick={() => setShowFeedback(true)} className={`fixed top-24 left-8 z-[120] p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 text-slate-500 hover:text-white hover:bg-white/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl ${focusMode === 'sovereign' ? 'hidden' : ''}`}>
         <div className="absolute inset-0 bg-blue-500/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         <MessageSquare size={20} className="relative z-10 group-hover:scale-110 transition-transform" />
       </button>
@@ -1813,7 +1995,42 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-6">
-                  {/* Neural Resonance Removed */}
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Neural Harmonies</p>
+                    <button 
+                      onClick={() => setBrownNoisePlaying(!brownNoisePlaying)} 
+                      className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center justify-between group ${brownNoisePlaying ? 'bg-amber-600/20 border-amber-500 text-amber-400' : 'bg-white/5 border-transparent text-slate-500'}`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <Volume2 size={20} className={brownNoisePlaying ? 'animate-pulse' : ''} />
+                        <div className="text-left">
+                          <p className="text-xs font-black text-white uppercase tracking-widest">Brown Noise</p>
+                          <p className="text-[8px] text-slate-500 group-hover:text-slate-300 font-bold uppercase tracking-tight">Audio Focus Shield</p>
+                        </div>
+                      </div>
+                      <div className={`w-2 h-2 rounded-full ${brownNoisePlaying ? 'bg-amber-400 animate-pulse' : 'bg-white/10'}`} />
+                    </button>
+                  </div>
+
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Discernment Level</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button 
+                        onClick={() => setSimplicityLevel('vibrant')} 
+                        className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${simplicityLevel === 'vibrant' ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}
+                      >
+                        <Sparkles size={20} />
+                        <span className="text-[8px] font-black uppercase tracking-widest">Vibrant (Simple)</span>
+                      </button>
+                      <button 
+                        onClick={() => setSimplicityLevel('surgical')} 
+                        className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${simplicityLevel === 'surgical' ? 'bg-red-600/20 border-red-500 text-red-400' : 'bg-white/5 border-transparent text-slate-500'}`}
+                      >
+                        <Shield size={20} />
+                        <span className="text-[8px] font-black uppercase tracking-widest">Surgical (Expert)</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -2124,7 +2341,7 @@ export default function Home() {
                 <div className="w-full h-48 md:h-80 bg-black/60 rounded-[1.5rem] md:rounded-[2.5rem] overflow-y-auto border border-white/10"><NeuroMirrorText text={input || "Paste some text..."} /></div>
               ) : (
                 <textarea 
-                  className="w-full h-48 md:h-80 p-6 md:p-12 text-base md:text-xl bg-black/40 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-white/10 focus:border-blue-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-600 text-slate-200 leading-relaxed font-medium" 
+                  className="w-full h-48 md:h-80 p-6 md:p-12 text-base md:text-xl bg-black/40 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-white/20 focus:border-purple-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-400 text-slate-200 leading-relaxed font-medium" 
                   placeholder="Paste the noise here..." 
                   value={input} 
                   onChange={(e) => setInput(e.target.value)} 
@@ -2149,9 +2366,16 @@ export default function Home() {
                 <button onClick={() => setIsScenic(!isScenic)} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}<span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic' : 'Quick'}</span></button>
                 <button onClick={() => setStoryMode(!storyMode)} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border transition-all ${storyMode ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}<span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{storyMode ? 'Story' : 'Fact'}</span></button>
                 <button 
+                  onClick={() => setShowHistory(true)} 
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border border-white/10 bg-white/5 text-slate-400 hover:text-white transition-all"
+                >
+                  <Clock size={16}/>
+                  <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">Vault</span>
+                </button>
+                <button 
                   onClick={() => handleSimplify()} 
                   disabled={loading || !input.trim()} 
-                  className="flex-[2] sm:flex-none bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-6 md:px-20 py-3 md:py-7 rounded-xl md:rounded-[2.5rem] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:shadow-[0_0_60px_rgba(147,51,234,0.5)] transition-all active:scale-95 text-sm md:text-lg"
+                  className="flex-[2] sm:flex-none bg-gradient-to-r from-fuchsia-600 to-purple-500 hover:from-fuchsia-500 hover:to-purple-400 text-white px-6 md:px-20 py-3 md:py-7 rounded-xl md:rounded-[2.5rem] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] shadow-[0_0_40px_rgba(192,38,211,0.4)] hover:shadow-[0_0_60px_rgba(192,38,211,0.6)] transition-all active:scale-95 text-sm md:text-lg"
                 >
                   {loading ? <Loader2 className="animate-spin" /> : 'Discern It'}
                 </button>
@@ -2160,7 +2384,7 @@ export default function Home() {
           </div>
         </motion.div>
       ) : (
-        <div className="max-w-2xl lg:max-w-3xl w-full pt-24 md:pt-32 pb-20 z-10 px-4">
+        <div ref={resultRef} className="max-w-2xl lg:max-w-3xl w-full pt-24 md:pt-32 pb-20 z-10 px-4">
           <div className="mb-6 md:mb-8 flex justify-end gap-2 md:gap-4">
             <button onClick={() => { setShowMissionBrief(true);  }} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-blue-400 hover:text-white transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Rocket size={16}/><span className="hidden xs:inline">Mission Brief</span></button>
             <button onClick={handleDownloadSummary} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Download size={16}/><span className="hidden xs:inline">Save Summary</span></button>

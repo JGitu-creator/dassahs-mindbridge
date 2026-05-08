@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { text = '', mode, question, context, isScenic, cognitiveMode, missionGoal, isStory } = await req.json();
+    const { text = '', mode, question, context, isScenic, cognitiveMode, missionGoal, isStory, simplicityLevel } = await req.json();
 
     if (!text && mode !== 'chat') {
       return NextResponse.json(
@@ -23,10 +23,9 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const modelsToTry = [
-      'gemini-3.1-flash-preview',
-      'gemini-3.1-pro-preview',
-      'gemini-2.5-flash',
-      'gemini-2.5-pro'
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro'
     ];
     
     const prompt = `
@@ -71,6 +70,8 @@ export async function POST(req: Request) {
     PROCESSING MODE: ${isScenic ? 'SCENIC ROUTE (Full immersive journey: Use wild, creative metaphors, fascinating "Did you know?" hooks, and break the text into 5-15 small, vibrant segments depending on the depth and length of the input. Be witty and expansive. Provide in-depth analysis for each segment. If this is a story, make it a vast, deep-dive exploration of the narrative.)' : 'QUICK FILTER (Ultra-fast extraction: Get the absolute core facts in the shortest time possible. Use 3-5 minimal segments and extreme brevity.)'}
 
     ALWAYS TIE ALL ANALYSIS BACK TO THE USER'S SOVEREIGN GOAL: ${missionGoal || 'Discovery & Clarity'}
+
+    LANGUAGE LEVEL: ${simplicityLevel === 'vibrant' ? 'Vibrant & Simple (Use clear, punchy, easy-to-understand language. Avoid complex jargon unless necessary. Make it feel friendly and highly accessible.)' : 'Surgical & Precise (Use technical accuracy, industry-specific terminology where appropriate, and high-density information architecture.)'}
 
     Follow these strict rules for the JSON output:
     1. "tldr": Exactly 3 concise, punchy bullet points that directly address the Sovereign Goal.
