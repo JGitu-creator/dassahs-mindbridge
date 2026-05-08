@@ -1078,7 +1078,7 @@ const SnakeLightsBackground = ({ mousePos, theme, focusMode }: { mousePos: { x: 
   return (
     <canvas 
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0 opacity-20 transition-opacity duration-1000"
+      className="fixed inset-0 pointer-events-none z-0 opacity-10 transition-opacity duration-1000"
     />
   );
 };
@@ -1812,12 +1812,12 @@ export default function Home() {
         <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)', backgroundColor: focusMode === 'sovereign' ? '#000' : 'transparent' }}>
         <div className={`fixed inset-0 -z-10 transition-all duration-1000`} style={{ background: focusMode === 'sovereign' ? '#000' : `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
         {focusMode !== 'sovereign' ? (
-          <div className="fixed inset-0 pointer-events-none opacity-[0.07] z-0">
-            <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, var(--color-accent) 0.5px, transparent 0.5px), linear-gradient(to bottom, var(--color-accent) 0.5px, transparent 0.5px)`, backgroundSize: '40px 40px' }} />
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/10 to-black/20" />
+          <div className="fixed inset-0 pointer-events-none opacity-[0.05] z-0">
+            <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, var(--color-accent) 0.3px, transparent 0.3px), linear-gradient(to bottom, var(--color-accent) 0.3px, transparent 0.3px)`, backgroundSize: '40px 40px' }} />
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/5 to-black/15" />
           </div>
         ) : (
-          <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-0">
+          <div className="fixed inset-0 pointer-events-none opacity-[0.05] z-0">
              <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)`, backgroundSize: '80px 80px' }} />
           </div>
         )}
