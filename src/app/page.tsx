@@ -5,7 +5,7 @@ import {
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal,
-  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church
+  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck
 } from 'lucide-react';
 
 const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
@@ -501,48 +501,6 @@ const GlassShard = ({ color, mousePos, i }: { color: string, mousePos: { x: numb
   />
 );
 
-const FrostedGlassDepth = ({ theme, mousePos, isZenLocked, focusMode }: { theme: Theme, mousePos: { x: number, y: number }, isZenLocked: boolean, focusMode: string }) => {
-  const t = THEMES[theme];
-  const isMobile = useIsMobile();
-
-  const currentPulse = { scale: [1, 1.02, 0.99, 1], opacity: [0.15, 0.3, 0.15], transition: { duration: 12, repeat: Infinity } };
-  const sovereignPulse = { scale: [1, 1.01, 1], opacity: [0.1, 0.15, 0.1], transition: { duration: 10, repeat: Infinity } };
-
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {focusMode === 'sovereign' && (
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `linear-gradient(to right, ${t.accent} 1px, transparent 1px), linear-gradient(to bottom, ${t.accent} 1px, transparent 1px)`, backgroundSize: '100px 100px' }} />
-      )}
-      {[...Array(isMobile ? 3 : 8)].map((_, i) => (
-        <motion.div
-          key={`${i}`}
-          animate={focusMode === 'sovereign' ? sovereignPulse : currentPulse}
-          style={{
-            position: 'absolute',
-            left: `${(i * 25) % 100}%`,
-            top: `${(i * 35) % 100}%`,
-            width: `${isMobile ? 200 + i * 50 : 300 + i * 100}px`,
-            height: `${isMobile ? 200 + i * 50 : 300 + i * 100}px`,
-            background: `radial-gradient(circle at center, ${t.prism[i % 3]}${focusMode === 'sovereign' ? '22' : '88'}, transparent)`,
-            borderRadius: '50%',
-            filter: `blur(${isMobile ? '30px' : '90px'})`,
-            x: (mousePos.x - 500) * (isZenLocked || focusMode === 'sovereign' ? 0.01 : 0.05 + i * 0.01),
-            y: (mousePos.y - 400) * (isZenLocked || focusMode === 'sovereign' ? 0.01 : 0.05 + i * 0.01),
-          }}
-        />
-      ))}
-      {!isMobile && (
-        <motion.div 
-          animate={{ x: mousePos.x, y: mousePos.y }}
-          transition={{ type: 'spring', damping: 40, stiffness: 150 }}
-          className="fixed top-0 left-0 w-[300px] h-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 blur-[80px]"
-          style={{ background: `radial-gradient(circle, ${t.accent}33, transparent)`, willChange: 'transform' }}
-        />
-      )}
-    </div>
-  );
-};
-
 const NeuralSparks = ({ active }: { active: boolean }) => {
   if (!active) return null;
   return (
@@ -859,8 +817,8 @@ const TUTORIAL_STEPS = [
   },
   {
     title: "The Neural Core",
-    description: "Paste your noise into the core. Pop a specific objective into the 'Sovereign Goal' box to help the Prism focus its discernment.",
-    more: "When you provide a Goal, the Prism's 'Deep Discernment Protocol' specifically hunts for information that serves that objective, ignoring the fluff.",
+    description: "Paste your noise into the core. Choose your Discernment Level: 'Vibrant' for simple, friendly clarity, or 'Surgical' for expert, high-density precision.",
+    more: "Discernment Levels allow you to tune the output to your current cognitive energy. Vibrant mode is great for quick understanding, while Surgical mode provides the professional depth needed for complex tasks.",
     icon: <Brain className="text-purple-400" size={48} />
   },
   {
@@ -880,6 +838,12 @@ const TUTORIAL_STEPS = [
     description: "Need a hand? 'Ask DJ' is always here. Need absolute silence? 'Zen Lock' clears the UI so it's just you and the clarity.",
     more: "Ask DJ can perform tasks like 'make a poem' or 'find dates.' Zen Lock is designed for 'Profound Cognitive Intensity' sessions where any UI element is a distraction.",
     icon: <Rocket className="text-indigo-500" size={48} />
+  },
+  {
+    title: "Sovereign Off-Ramp",
+    description: "Finished? The 'Mission Brief' consolidation ensures you leave the Prism with peace, not just information.",
+    more: "Every session is designed to end with a clear summary and a moment of recalibration. You don't just 'read' with the Prism; you 'conclude' and reclaim your peace.",
+    icon: <ShieldCheck className="text-emerald-400" size={48} />
   }
 ];
 
@@ -2360,7 +2324,6 @@ export default function Home() {
             <div className="w-full bg-[var(--color-glass)] p-4 md:p-8 rounded-[1.5rem] md:rounded-[3.5rem] flex flex-col sm:flex-row justify-between items-center gap-4 md:gap-6 border-t border-white/5">
               <div className="flex items-center gap-3 md:gap-4">
                 <button onClick={() => { fileInputRef.current?.click(); }} className="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-2 md:gap-3"><Upload size={16} className="text-blue-500" /> Clean Document</button>
-                <button onClick={() => { setShowNeuroMirror(!showNeuroMirror); }} className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-xl border transition-all ${showNeuroMirror ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}><Ghost size={14} /><span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{showNeuroMirror ? 'Stop' : 'Show Noise'}</span></button>
               </div>
               <div className="flex items-center gap-2 md:gap-4 w-full sm:w-auto">
                 <button onClick={() => setIsScenic(!isScenic)} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}<span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic' : 'Quick'}</span></button>
