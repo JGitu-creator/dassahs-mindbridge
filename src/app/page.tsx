@@ -1585,7 +1585,28 @@ export default function Home() {
     } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); } 
   };
 
-  const handleDownloadSummary = () => { if (!data) return; const content = `DASSAH'S PRISM SUMMARY\n\nTHE VISION:\n${data.whyCare}\n\nTL;DR:\n${data.tldr.map(t => `- ${t}`).join('\n')}\n\nFULL PRISM LINK: ${window.location.origin}/?text=${encodeURIComponent(input)}`; const blob = new Blob([content], { type: 'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `dassahs_prism-summary.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); };
+  const handleDownloadSummary = () => { 
+    if (!data) return; 
+    const content = `# DASSAH'S PRISM: NEURAL REFRACTION\n\n## THE VISION\n> ${data.whyCare}\n\n## CORE TL;DR\n${data.tldr.map(t => `* **${t}**`).join('\n')}\n\n## PRIORITY ROADMAP\n${data.actions.map(a => `* [ ] **[${a.priority.toUpperCase()}]** ${a.task}`).join('\n')}\n\n---\n*Refracted via Dassah's-Prism. Reclaim your focus.*`; 
+    const blob = new Blob([content], { type: 'text/markdown' }); 
+    const url = URL.createObjectURL(blob); 
+    const a = document.createElement('a'); 
+    a.href = url; 
+    a.download = `prism_refraction_${new Date().toISOString().split('T')[0]}.md`; 
+    document.body.appendChild(a); 
+    a.click(); 
+    document.body.removeChild(a); 
+    URL.revokeObjectURL(url); 
+  };
+
+  const isSunday = new Date().getDay() === 0;
+  const divineInsights = [
+    "Commit your work to the Lord, and your plans will be established. - Proverbs 16:3",
+    "For I know the plans I have for you, declares the Lord. - Jeremiah 29:11",
+    "I can do all things through Christ who strengthens me. - Philippians 4:13",
+    "He gives power to the faint, and to him who has no might he increases strength. - Isaiah 40:29"
+  ];
+  const dailyInsight = divineInsights[new Date().getDate() % divineInsights.length];
 
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0]; if (!file) return; setLoading(true);
@@ -1803,6 +1824,27 @@ export default function Home() {
       <AnimatePresence>
         {oneClickRecap && (
           <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-blue-600/90 backdrop-blur-2xl p-6 rounded-[2rem] border border-white/20 shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0"><Eye size={20} className="text-white" /></div><p className="text-sm font-bold text-white leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {usageCount > 0 && usageCount % 5 === 0 && !localStorage.getItem(`milestone_${usageCount}`) && (
+          <motion.div 
+            initial={{ scale: 0.5, opacity: 0 }} 
+            animate={{ scale: 1, opacity: 1 }} 
+            exit={{ scale: 1.5, opacity: 0 }} 
+            className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none"
+            onAnimationComplete={() => localStorage.setItem(`milestone_${usageCount}`, 'true')}
+          >
+            <div className="bg-gradient-to-br from-amber-400 to-yellow-600 p-10 rounded-[3rem] shadow-[0_0_100px_rgba(245,158,11,0.6)] border-4 border-white/20 flex flex-col items-center gap-4">
+              <Trophy size={80} className="text-white animate-bounce" />
+              <div className="text-center text-white">
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-80">Neural Milestone</p>
+                <h2 className="text-4xl font-black italic tracking-tighter">LEVEL UP!</h2>
+                <p className="text-sm font-bold opacity-90">Focus reclaimed {usageCount} times.</p>
+              </div>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -2084,6 +2126,21 @@ export default function Home() {
                     </button>
                   </div>
 
+                  <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Corporate ROI (Team Potential)</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/20">
+                        <p className="text-[8px] font-black text-blue-400 uppercase mb-1">Team Saved</p>
+                        <p className="text-xl font-black text-white italic">{(totalMinutesSaved * 12).toLocaleString()}m</p>
+                      </div>
+                      <div className="bg-purple-600/10 p-4 rounded-2xl border border-purple-500/20">
+                        <p className="text-[8px] font-black text-purple-400 uppercase mb-1">Potential ROI</p>
+                        <p className="text-xl font-black text-white italic">{(totalWordsRefracted / 50).toFixed(0)}x</p>
+                      </div>
+                    </div>
+                    <p className="text-[8px] text-slate-500 italic font-bold">Estimated impact for a neurodivergent team of 12. Enterprise Shield: Active.</p>
+                  </div>
+
                   {!isPaid && (
                     <button onClick={() => { setShowNeuralIdentity(false); setShowPaywall(true); }} className="w-full p-6 rounded-[2rem] bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between group overflow-hidden relative shadow-xl">
                       <div className="relative z-10 text-left">
@@ -2222,8 +2279,8 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="text-white font-black uppercase text-sm tracking-widest">Founded by JGitu</p>
-                    <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter flex items-center gap-2">
-                      JG <IchthysIcon size={14} className="text-blue-500" /> Rooted in Christ
+                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                       Powered by Grace <IchthysIcon size={14} className="text-blue-500" />
                     </p>
                   </div>
                 </div>
@@ -2398,8 +2455,7 @@ export default function Home() {
                 </div>
                 <button onClick={handleReset} className="absolute top-8 right-8 p-4 text-slate-600 hover:text-red-400 transition-all"><X size={20}/></button>
               </motion.div>
-            ) : currentChunk === data.chunks.length ? (              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={() => { handleNext(); }} className="flex-1 bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button></div></motion.div>
-            ) : (
+            ) : currentChunk === data.chunks.length ? (              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={() => { handleNext(); }} className="flex-1 bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button><button onClick={async () => { const summary = `DASSAH'S PRISM: Mission Accomplished! ⚡️\n\nObjective: ${missionGoal || 'Learning'}\nActions:\n${data.actions.map(a => `- ${a.task}`).join('\n')}\n\nReclaimed by Grace.`; await navigator.clipboard.writeText(summary); alert("Parent Update Copied! 📱 Send it to Mum or Dad."); }} className="p-8 bg-blue-500/10 border-2 border-blue-500/20 rounded-[2rem] text-blue-400 font-black uppercase tracking-widest text-xs hover:bg-blue-500/20 transition-all flex items-center justify-center gap-3"><MessageCircle size={20} /> Share with Parent</button></div>{isSunday && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-12 p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/20 text-center space-y-4"><p className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-500">Divine Insight: Sabbath Reflection</p><p className="text-xl font-black italic text-white leading-relaxed">&quot;{dailyInsight}&quot;</p><p className="text-[10px] text-slate-500 font-bold uppercase">Reclaimed by Grace. Powered by Him.</p></motion.div>)}</motion.div>            ) : (
               <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
                 <div className="absolute top-10 left-10 flex items-center gap-4">
                   <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div>
