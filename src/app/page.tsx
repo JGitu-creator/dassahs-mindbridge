@@ -1026,11 +1026,11 @@ const SnakeLightsBackground = ({ mousePos, theme, focusMode }: { mousePos: { x: 
     const rows = Math.ceil(height / gridSize);
 
     class Snake {
-      segments: {x: number, y: number}[];
-      color: string;
-      direction: {x: number, y: number};
-      timer: number;
-      speed: number;
+      segments!: {x: number, y: number}[];
+      color!: string;
+      direction!: {x: number, y: number};
+      timer!: number;
+      speed!: number;
 
       constructor() {
         this.reset();
