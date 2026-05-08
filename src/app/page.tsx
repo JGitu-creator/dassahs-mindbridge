@@ -1094,6 +1094,9 @@ export default function Home() {
   const [history, setHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [accountTier, setAccountTier] = useState<'individual' | 'family' | 'team' | 'university'>('individual');
+  const [isGuardian, setIsGuardian] = useState(false);
+  const [linkedUsers, setLinkedUsers] = useState<any[]>([]);
   const [isPaid, setIsPaid] = useState(false); 
   const [usageCount, setUsageCount] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -1747,6 +1750,12 @@ export default function Home() {
     if (error) alert("Neural Link failed: " + error.message);
   };
 
+  const handleInviteUser = async (email: string) => {
+    if (!isGuardian) return;
+    alert(`Establishing Neural Bridge for ${email}... This user will be linked to your ${accountTier} dashboard.`);
+    // In production, this would send an invitation and create a Supabase entry
+  };
+
   const handleLogout = async () => {
     
     await supabase.auth.signOut();
@@ -2127,18 +2136,58 @@ export default function Home() {
                   </div>
 
                   <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Corporate ROI (Team Potential)</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">
+                      {accountTier === 'family' ? 'Neural Guardian (Parent Dashboard)' : 
+                       accountTier === 'team' ? 'Corporate ROI (Command Dashboard)' : 
+                       accountTier === 'university' ? 'University Access (VC Dashboard)' : 
+                       'Corporate ROI (Team Potential)'}
+                    </p>
+                    
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/20">
-                        <p className="text-[8px] font-black text-blue-400 uppercase mb-1">Team Saved</p>
-                        <p className="text-xl font-black text-white italic">{(totalMinutesSaved * 12).toLocaleString()}m</p>
+                        <p className="text-[8px] font-black text-blue-400 uppercase mb-1">
+                          {accountTier === 'family' ? 'Family Progress' : 'Team Saved'}
+                        </p>
+                        <p className="text-xl font-black text-white italic">{(totalMinutesSaved * (accountTier === 'individual' ? 1 : 12)).toLocaleString()}m</p>
                       </div>
                       <div className="bg-purple-600/10 p-4 rounded-2xl border border-purple-500/20">
-                        <p className="text-[8px] font-black text-purple-400 uppercase mb-1">Potential ROI</p>
-                        <p className="text-xl font-black text-white italic">{(totalWordsRefracted / 50).toFixed(0)}x</p>
+                        <p className="text-[8px] font-black text-purple-400 uppercase mb-1">
+                           {accountTier === 'family' ? 'Active Missions' : 'Potential ROI'}
+                        </p>
+                        <p className="text-xl font-black text-white italic">
+                          {accountTier === 'family' ? linkedUsers.length + 1 : (totalWordsRefracted / 50).toFixed(0) + 'x'}
+                        </p>
                       </div>
                     </div>
-                    <p className="text-[8px] text-slate-500 italic font-bold">Estimated impact for a neurodivergent team of 12. Enterprise Shield: Active.</p>
+
+                    {isGuardian && (
+                      <div className="space-y-4 pt-4 border-t border-white/5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2"><Settings size={12}/> Manage {accountTier} Members</p>
+                        <div className="flex gap-2">
+                          <input 
+                            id="invite-email"
+                            type="email" 
+                            placeholder="Add email..." 
+                            className="flex-1 bg-white/5 border border-white/10 p-2 rounded-xl text-xs text-white"
+                          />
+                          <button 
+                            onClick={() => {
+                              const email = (document.getElementById('invite-email') as HTMLInputElement).value;
+                              if (email) handleInviteUser(email);
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase"
+                          >
+                            Link
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-[8px] text-slate-500 italic font-bold">
+                      {accountTier === 'family' ? 'Guardian Shield: Link up to 5 family members. Managed by Grace.' : 
+                       accountTier === 'university' ? 'University License: Domain-wide refraction enabled. VC Access: Level 1.' :
+                       'Enterprise Shield: Team members link established. Dashboard active.'}
+                    </p>
                   </div>
 
                   {!isPaid && (
