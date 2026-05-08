@@ -83,7 +83,7 @@ export async function POST(req: Request) {
        - "content": The primary text for this segment.
        - "summary": A 1-sentence "Neural Snap" summary of ONLY this specific segment.
        - "keyTerms": 1-3 keywords.
-       - "metaphor": ${simplicityLevel === 'vibrant' ? 'Mandatory creative/funny comparison.' : 'Professional industry analogy or minimal comparison.'}
+       - "metaphor": ${simplicityLevel === 'vibrant' ? 'Mandatory creative/funny comparison.' : 'EXTREMELY IMPORTANT: Leave this field as an EMPTY STRING (""). Do not provide a metaphor.'}
        - "dopamineHook": ${simplicityLevel === 'vibrant' ? 'Mandatory "Mind-Blow" fact.' : 'Critical executive insight or high-stakes data point.'}
     5. "chartData": Extract numerical trends if possible.
     6. "actions": Priority-based task list.
