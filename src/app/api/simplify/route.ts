@@ -23,9 +23,10 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const modelsToTry = [
-      'gemini-2.0-flash',
       'gemini-1.5-flash',
-      'gemini-1.5-pro'
+      'gemini-1.5-flash-latest',
+      'gemini-1.5-pro',
+      'gemini-1.5-pro-latest'
     ];
     
     const prompt = `
@@ -82,8 +83,8 @@ export async function POST(req: Request) {
        - "content": The primary text for this segment.
        - "summary": A 1-sentence "Neural Snap" summary of ONLY this specific segment.
        - "keyTerms": 1-3 keywords.
-       - "metaphor": Mandatory creative/funny comparison.
-       - "dopamineHook": Mandatory "Mind-Blow" fact or high-stakes realization.
+       - "metaphor": ${simplicityLevel === 'vibrant' ? 'Mandatory creative/funny comparison.' : 'Professional industry analogy or minimal comparison.'}
+       - "dopamineHook": ${simplicityLevel === 'vibrant' ? 'Mandatory "Mind-Blow" fact.' : 'Critical executive insight or high-stakes data point.'}
     5. "chartData": Extract numerical trends if possible.
     6. "actions": Priority-based task list.
 
@@ -101,6 +102,9 @@ export async function POST(req: Request) {
           "metaphor": "string",
           "dopamineHook": "string"
         }
+      ],
+      "actions": [
+        { "task": "string", "priority": "high" | "medium" | "low" }
       ],
       "chartData": {
         "type": "bar" | "line" | "pie",

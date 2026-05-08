@@ -816,9 +816,9 @@ const TUTORIAL_STEPS = [
     icon: <Zap className="text-amber-500" size={48} />
   },
   {
-    title: "The Neural Core",
-    description: "Paste your noise into the core. Choose your Discernment Level: 'Vibrant' for simple, friendly clarity, or 'Surgical' for expert, high-density precision.",
-    more: "Discernment Levels allow you to tune the output to your current cognitive energy. Vibrant mode is great for quick understanding, while Surgical mode provides the professional depth needed for complex tasks.",
+    title: "Neural Core & Levels",
+    description: "Paste your noise into the core. Choose your Discernment Level: 'Vibrant' for simple clarity, or 'Surgical' for expert precision.",
+    more: "Vibrant Level uses punchy metaphors—ideal for ADHD brains needing dopamine. Surgical Level provides technical depth for professional 'Mechanism Hunters.'",
     icon: <Brain className="text-purple-400" size={48} />
   },
   {
@@ -828,21 +828,21 @@ const TUTORIAL_STEPS = [
     icon: <Settings className="text-blue-500" size={48} />
   },
   {
-    title: "Neural Identity",
-    description: "Click the Crown. This is your Sovereignty: track your 'Bandwidth Reclaimed' (Words & Time) and access your Achieving Vault (History).",
+    title: "Neural Identity & Vault",
+    description: "Click the Crown. This is your Sovereignty: track your 'Bandwidth Reclaimed' and access your Achieving Vault (History).",
     more: "Neural Identity turns your productivity into a visual testimony. Your history is stored securely in the Vault so you never lose a 'Refraction'.",
     icon: <Crown className="text-yellow-500" size={48} />
   },
   {
-    title: "Ask DJ & Zen Lock",
-    description: "Need a hand? 'Ask DJ' is always here. Need absolute silence? 'Zen Lock' clears the UI so it's just you and the clarity.",
-    more: "Ask DJ can perform tasks like 'make a poem' or 'find dates.' Zen Lock is designed for 'Profound Cognitive Intensity' sessions where any UI element is a distraction.",
-    icon: <Rocket className="text-indigo-500" size={48} />
+    title: "The Roadmap",
+    description: "Every refraction ends with a Priority Roadmap. These are your actionable steps, ranked by urgency (High, Medium, Low).",
+    more: "The Roadmap ensures you don't just learn—you ACT. Seal the Prism to consolidate your gains into long-term memory.",
+    icon: <BarChart3 className="text-amber-500" size={48} />
   },
   {
     title: "Sovereign Off-Ramp",
-    description: "Finished? The 'Mission Brief' consolidation ensures you leave the Prism with peace, not just information.",
-    more: "Every session is designed to end with a clear summary and a moment of recalibration. You don't just 'read' with the Prism; you 'conclude' and reclaim your peace.",
+    description: "The 'Mission Brief' consolidation ensures you leave the Prism with Peace, not just information. Reclaim your focus.",
+    more: "Every session ends with a clear summary. You don't just 'read' with the Prism; you 'conclude' and reclaim your peace.",
     icon: <ShieldCheck className="text-emerald-400" size={48} />
   }
 ];
@@ -1078,7 +1078,7 @@ const SnakeLightsBackground = ({ mousePos, theme, focusMode }: { mousePos: { x: 
   return (
     <canvas 
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0 opacity-50 transition-opacity duration-1000"
+      className="fixed inset-0 pointer-events-none z-0 opacity-20 transition-opacity duration-1000"
     />
   );
 };
@@ -1798,6 +1798,12 @@ export default function Home() {
       {linkState === 'established' && (
         <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)', backgroundColor: focusMode === 'sovereign' ? '#000' : 'transparent' }}>
         <div className={`fixed inset-0 -z-10 transition-all duration-1000 ${neuralRhythm && focusMode !== 'sovereign' ? 'animate-neural-pulse' : ''}`} style={{ background: focusMode === 'sovereign' ? '#000' : `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
+        {focusMode !== 'sovereign' && (
+          <div className="fixed inset-0 pointer-events-none opacity-20 z-0">
+            <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, var(--color-accent) 1px, transparent 1px), linear-gradient(to bottom, var(--color-accent) 1px, transparent 1px)`, backgroundSize: '60px 60px' }} />
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" />
+          </div>
+        )}
         <SnakeLightsBackground theme={theme} mousePos={mousePos} focusMode={focusMode} />
 
         {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && focusMode !== 'sovereign' && (
@@ -1816,12 +1822,7 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {focusMode !== 'sovereign' && (
-          <div className="fixed inset-0 pointer-events-none opacity-20">
-            <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-black/20 to-black/40" />
-          </div>
-        )}
+        {/* Background Overlay Removed (Moved to Main Layout) */}
 
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
         <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Rank</p><p className="text-white font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Result</p><p className="text-white font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-white/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">&quot;Inhale clarity. Exhale the mission. Your sovereignty is established.&quot;</p></motion.div></div>)}</div></motion.div></>
@@ -1854,6 +1855,12 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          <div className="w-[1px] h-6 bg-white/10 mx-1" />
+
+          <button onClick={() => setShowHistory(true)} title="Achieving Vault" className="p-3 rounded-2xl bg-white/5 text-amber-500 hover:text-white hover:bg-white/10 transition-all group">
+            <Clock size={20} className="group-hover:rotate-[-20deg] transition-transform" />
+          </button>
 
           <div className="w-[1px] h-6 bg-white/10 mx-1" />
 
@@ -2328,13 +2335,6 @@ export default function Home() {
               <div className="flex items-center gap-2 md:gap-4 w-full sm:w-auto">
                 <button onClick={() => setIsScenic(!isScenic)} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border transition-all ${isScenic ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}<span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{isScenic ? 'Scenic' : 'Quick'}</span></button>
                 <button onClick={() => setStoryMode(!storyMode)} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border transition-all ${storyMode ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' : 'bg-[var(--color-glass)] border-[var(--color-border)] text-slate-500'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}<span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">{storyMode ? 'Story' : 'Fact'}</span></button>
-                <button 
-                  onClick={() => setShowHistory(true)} 
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border border-white/10 bg-white/5 text-slate-400 hover:text-white transition-all"
-                >
-                  <Clock size={16}/>
-                  <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">Vault</span>
-                </button>
                 <button 
                   onClick={() => handleSimplify()} 
                   disabled={loading || !input.trim()} 
