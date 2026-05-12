@@ -1308,6 +1308,7 @@ export default function Home() {
         const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
         const ctx = new AudioContextClass();
         audioCtxRef.current = ctx;
+        if (ctx.state === 'suspended') ctx.resume();
         
         const bufferSize = 4096;
         let lastOut = 0.0;
@@ -2244,58 +2245,51 @@ export default function Home() {
         <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Rank</p><p className="text-white font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Result</p><p className="text-white font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-white/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">&quot;Inhale clarity. Exhale the mission. Your sovereignty is established.&quot;</p></motion.div></div>)}</div></motion.div></>
       )}</AnimatePresence>
 
-      <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-6 pointer-events-none">
-        <nav className={`pointer-events-auto flex items-center gap-2 px-3 py-2 rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked || focusMode === 'sovereign' ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
-          <button onClick={() => { setShowNeuralCommand(true); }} title="Neural Command" className="p-3 rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
-            <Compass size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+      <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-2 md:p-6 pointer-events-none">
+        <nav className={`pointer-events-auto flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-2xl md:rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
+          <button onClick={() => { setShowNeuralCommand(true); }} title="Neural Command" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
+            <Compass size={18} className="md:w-5 md:h-5 group-hover:rotate-90 transition-transform duration-500" />
           </button>
           
-          <div className="w-[1px] h-6 bg-white/10 mx-1" />
+          <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
           
-          <div className="flex items-center gap-4 px-2">
+          <div className="flex items-center gap-2 md:gap-4 px-1 md:px-2">
             <div className="flex flex-col items-center">
-              <p className="text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Bandwidth Reclaimed</p>
-              <div className="flex items-center gap-2">
-                <Clock className="text-blue-400" size={10} />
-                <span className="font-black text-white text-xs tabular-nums">{totalMinutesSaved}m</span>
-                <span className="w-[1px] h-3 bg-white/10 mx-1" />
-                <Brain className="text-purple-400" size={10} />
-                <span className="font-black text-white text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
-                {streakCount > 0 && (
-                  <>
-                    <span className="w-[1px] h-3 bg-white/10 mx-1" />
-                    <Star className="text-amber-500 fill-amber-500 animate-pulse" size={10} />
-                    <span className="font-black text-white text-xs tabular-nums">{streakCount}x</span>
-                  </>
-                )}
+              <p className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Bandwidth</p>
+              <div className="flex items-center gap-1.5 md:gap-2">
+                <Clock className="text-blue-400" size={8} className="md:w-[10px] md:h-[10px]" />
+                <span className="font-black text-white text-[10px] md:text-xs tabular-nums">{totalMinutesSaved}m</span>
+                <span className="hidden xs:block w-[1px] h-3 bg-white/10 mx-0.5 md:mx-1" />
+                <Brain className="hidden xs:block text-purple-400" size={8} className="md:w-[10px] md:h-[10px]" />
+                <span className="hidden xs:block font-black text-white text-[10px] md:text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
               </div>
             </div>
           </div>
 
-          <div className="w-[1px] h-6 bg-white/10 mx-1" />
+          <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
 
           {data && currentChunk >= 0 && (
-            <button onClick={handleOneClickRecap} title="Where was I? (Recap)" className="p-3 rounded-2xl bg-blue-500/10 text-blue-400 hover:text-white hover:bg-blue-500/20 transition-all flex items-center gap-2 group">
-              <Eye size={20} className="group-hover:scale-110 transition-transform" />
+            <button onClick={handleOneClickRecap} title="Where was I? (Recap)" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-400 hover:text-white hover:bg-blue-500/20 transition-all flex items-center gap-2 group">
+              <Eye size={18} className="md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
               <span className="hidden lg:block text-[10px] font-black uppercase tracking-widest">Recap</span>
             </button>
           )}
 
-          <div className="w-[1px] h-6 bg-white/10 mx-1" />
+          <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
 
-          <button onClick={() => setShowHistory(true)} title="Achieving Vault" className="p-3 rounded-2xl bg-white/5 text-amber-500 hover:text-white hover:bg-white/10 transition-all group">
-            <Clock size={20} className="group-hover:rotate-[-20deg] transition-transform" />
+          <button onClick={() => setShowHistory(true)} title="Achieving Vault" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-white/5 text-amber-500 hover:text-white hover:bg-white/10 transition-all group">
+            <Clock size={18} className="md:w-5 md:h-5 group-hover:rotate-[-20deg] transition-transform" />
           </button>
 
-          <div className="w-[1px] h-6 bg-white/10 mx-1" />
+          <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
 
-          <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-white'}`}>
-            {focusMode === 'sovereign' ? <Crown size={14} /> : <Zap size={14} />}
-            <span className="hidden sm:block">{focusMode === 'sovereign' ? 'Sovereign' : 'Dastastic'}</span>
+          <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-white'}`}>
+            {focusMode === 'sovereign' ? <Crown size={12} className="md:w-3.5 md:h-3.5" /> : <Zap size={12} className="md:w-3.5 md:h-3.5" />}
+            <span className="hidden xs:block">{focusMode === 'sovereign' ? 'Sov' : 'Das'}</span>
           </button>
 
           {user ? (
-            <button onClick={() => setShowNeuralIdentity(true)} className="w-10 h-10 rounded-2xl overflow-hidden border-2 border-blue-500/30 hover:border-blue-400 hover:scale-105 transition-all shadow-lg flex items-center justify-center bg-blue-500/10">
+            <button onClick={() => setShowNeuralIdentity(true)} className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl overflow-hidden border-2 border-blue-500/30 hover:border-blue-400 hover:scale-105 transition-all shadow-lg flex items-center justify-center bg-blue-500/10">
               {avatarUrl ? (
                 DEFAULT_AVATARS.find(a => a.id === avatarUrl) ? (
                   DEFAULT_AVATARS.find(a => a.id === avatarUrl)?.icon
@@ -2305,13 +2299,13 @@ export default function Home() {
               ) : user.user_metadata?.avatar_url ? (
                 <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <div className="text-blue-400 text-xs font-black uppercase">
+                <div className="text-blue-400 text-[10px] md:text-xs font-black uppercase">
                   {user.email?.slice(0, 1)}
                 </div>
               )}
             </button>
           ) : (
-            <button onClick={handleLogin} className="px-6 py-2 rounded-2xl bg-[var(--color-accent)] text-white text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-lg">
+            <button onClick={handleLogin} className="px-4 md:px-6 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-[var(--color-accent)] text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-lg">
               Join
             </button>
           )}
@@ -2927,6 +2921,20 @@ export default function Home() {
             <div className="w-full bg-[var(--color-glass)] p-3 md:p-4 rounded-3xl md:rounded-full flex items-center justify-between gap-2 md:gap-4 border border-white/10 shadow-2xl backdrop-blur-3xl">
               <div className="flex items-center gap-1 md:gap-2 pl-2">
                 <button onClick={() => { fileInputRef.current?.click(); }} title="Clean Document" className="p-2 md:p-3 text-slate-400 hover:text-white transition-colors bg-white/5 rounded-full"><Upload size={16} className="text-blue-500" /></button>
+                <button 
+                  onClick={() => { 
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.capture = 'environment';
+                    input.onchange = (e) => handleFileUpload(e);
+                    input.click();
+                  }} 
+                  title="Capture Neural Image" 
+                  className="p-2 md:p-3 text-slate-400 hover:text-white transition-colors bg-white/5 rounded-full"
+                >
+                  <Camera size={16} className="text-emerald-500" />
+                </button>
                 <div className="w-[1px] h-6 bg-white/10 mx-1" />
                 <button onClick={() => setIsScenic(!isScenic)} title={isScenic ? 'Scenic Route' : 'Quick Filter'} className={`p-2 md:p-3 rounded-full border transition-all ${isScenic ? 'bg-amber-500/20 border-amber-500/50 text-amber-500' : 'bg-white/5 border-transparent text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}</button>
                 <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}</button>
