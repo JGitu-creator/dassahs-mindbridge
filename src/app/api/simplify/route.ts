@@ -1,224 +1,190 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
 const apiKey = process.env.GEMINI_API_KEY;
+const openaiKey = process.env.OPENAI_API_KEY;
+const anthropicKey = process.env.ANTHROPIC_API_KEY;
+const deepseekKey = process.env.DEEPSEEK_API_KEY;
 
 export async function POST(req: Request) {
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: 'Gemini API key is not configured.' },
-      { status: 500 }
-    );
-  }
-
   try {
-    const { text = '', mode, question, context, isScenic, cognitiveMode, missionGoal, isStory, simplicityLevel } = await req.json();
+    const { 
+      text = '', 
+      mode, 
+      question, 
+      context, 
+      isScenic, 
+      cognitiveMode, 
+      missionGoal, 
+      isStory, 
+      simplicityLevel,
+      agentName, // For sequential council review
+      reviewStep // 'pros' | 'cons' | 'full'
+    } = await req.json();
 
-    if (!text && mode !== 'chat') {
-      return NextResponse.json(
-        { error: 'Valid input is required.' },
-        { status: 400 }
-      );
+    if (!text && mode !== 'chat' && mode !== 'council_review') {
+      return NextResponse.json({ error: 'Valid input is required.' }, { status: 400 });
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const modelsToTry = [
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro'
-    ];
-    
-    const prompt = `
-    You are an expert cognitive architect called "Dassah's Prism." Your mission is to transmute overwhelming "Noise" into "Divine Clarity" through Deep Discernment. You are a fierce advocate for the user's sovereignty.
+    const AGENT_ROLES: Record<string, string> = {
+      'Sarah': 'Legal & Family Shield. Focus on Red Flags, safety, and parental consent.',
+      'Dr. Helena': 'Institutional Mechanism Hunter. Focus on First Principles and academic/professional mastery.',
+      'Marcus': 'Corporate ROI & Social Decoder. Focus on implicit urgency, stakeholder vibe, and quantifiable value (time/money saved).',
+      'Maya': 'Markdown Librarian. Focus on high-density structure, the "Soul\'s Lesson," and long-term vaulting.',
+      'Leo': 'Dopamine Architect. Focus on "Aha! Moments," emotional core, and high-stimulation hooks.',
+      'DJ': 'Sovereign Guide. Orchestrates the flow and ensures alignment with the user\'s ultimate purpose.'
+    };
 
-    ${text && text.length > 100000 ? '⚠️ LARGE INPUT DETECTED: This is a full book/document. Prioritize the most critical narrative/logical nodes and consolidate minor details to maintain "Divine Clarity" without overloading the bandwidth.' : ''}
+    let generationPrompt = '';
 
-    USER MISSION GOAL: ${missionGoal || 'Discovery & Clarity'}
+    if (mode === 'council_review' && agentName) {
+      generationPrompt = `
+        You are ${agentName.toUpperCase()} from the Council of Agents. 
+        Your role is: ${AGENT_ROLES[agentName]}
+        
+        Review the following Noise based EXCLUSIVELY on your role.
+        ${reviewStep === 'pros' ? 'Provide only the PROS (Strengths/Opportunities) from your perspective.' : ''}
+        ${reviewStep === 'cons' ? 'Provide only the CONS (Risks/Red Flags/Waste) from your perspective.' : ''}
+        ${!reviewStep ? 'Provide a brief summary of the Pros and Cons from your perspective.' : ''}
 
-    DEEP DISCERNMENT PROTOCOL:
-    First, perform a hidden "Sovereign Audit" of the INPUT. Identify the category and adopt the corresponding "Refraction Role" (If isStory is TRUE, ALWAYS adopt the STORY/BOOK role):
-    ${isStory ? 'FORCED ROLE: STORY/BOOK' : ''}
+        TEXT TO REVIEW:
+        ${text}
 
-    1. LEGAL (The "Legal Shield"):
-       - Specifically hunt for "Red Flags" (Auto-renewals, hidden costs, data selling).
-       - Prefix any dangerous chunk heading with "⚠️ SOVEREIGN WARNING".
-       - Target: 100% Protection.
+        Respond in clean, punchy bullet points. Be fierce in your discernment.
+      `;
+    } else if (mode === 'chat') {
+      generationPrompt = `
+        You are an ADHD-friendly assistant called "Ask DJ." 
+        Based on the CONTEXT provided below, answer the user's question.
+        CONTEXT: ${JSON.stringify(context)}
+        USER REQUEST: ${question}
+      `;
+    // Default Refraction Prompt
+    generationPrompt = `
+      You are the "Council of Agents." Transmute this Noise into Divine Clarity.
+      Goal: ${missionGoal || 'Discovery'}
+      Target: ${cognitiveMode}
+      
+      For every segment (chunk), you MUST provide:
+      1. "logicRoot": The specific "First Principle" or foundational truth used to distill this segment.
+      2. "citations": A specific "Evidence Anchor" (e.g., Clause #, Stakeholder Name, or Page Context).
+      3. Sarah's Audit: If a Legal Red Flag exists, prefix the heading with "⚠️ SARAH'S WARNING".
 
-    2. EDUCATIONAL (The "Mechanism Hunter"):
-       - Prioritize "First Principles." Find the one foundational truth that makes the whole topic click.
-       - Target: Total Mastery.
-
-    3. BUSINESS (The "Social Decoder"):
-       - Prioritize "Implicit Urgency" and "Stakeholder Vibe." Who is waiting on the user? What is the real deadline?
-       - Target: Professional Sovereignty.
-
-    4. MEDICAL (The "Body Advocate"):
-       - Prioritize "Patient Agency." Provide 3 specific questions the user should ask their doctor based on this data.
-       - Target: Health Agency.
-
-    5. STORY/BOOK (The "Narrative Weaver"):
-       - Focus on emotional arc, key character growth, major plot turns, and "The Soul's Lesson."
-       - Target: Immersive Enjoyment & Deep Resonance.
-       - If this is a story, provide a more vast, evocative summary in the "whyCare" and "tldr" sections.
-
-    6. LITERARY/CASUAL (The "Intel Safari"):
-       - Focus on "Aha! Moments," emotional core, and plot momentum.
-       - Target: Instant Insight.
-
-    TARGET AUDIENCE: ${cognitiveMode === 'ceo' ? 'CEO/Executive (Prioritize "Executive Distillation" - ultra-high impact, bottom-line value, rapid decision-making context.)' : 'ADHD/Neurodivergent (Prioritize "Neural Refraction" - dopamine-aligned, high stimulation, fascinating hooks to maintain focus.)'}
-
-    PROCESSING MODE: ${isScenic ? 'SCENIC ROUTE (Full immersive journey: Use wild, creative metaphors, fascinating "Did you know?" hooks, and break the text into 5-15 small, vibrant segments depending on the depth and length of the input. Be witty and expansive. Provide in-depth analysis for each segment. If this is a story, make it a vast, deep-dive exploration of the narrative.)' : 'QUICK FILTER (Ultra-fast extraction: Get the absolute core facts in the shortest time possible. Use 3-5 minimal segments and extreme brevity.)'}
-
-    ALWAYS TIE ALL ANALYSIS BACK TO THE USER'S SOVEREIGN GOAL: ${missionGoal || 'Discovery & Clarity'}
-
-    LANGUAGE LEVEL: ${simplicityLevel === 'vibrant' ? 'Vibrant & Simple (Use clear, punchy, easy-to-understand language. Avoid complex jargon unless necessary. Make it feel friendly and highly accessible.)' : 'Surgical & Precise (Use technical accuracy, industry-specific terminology where appropriate, and high-density information architecture.)'}
-
-    Follow these strict rules for the JSON output:
-    1. "tldr": Exactly 3 concise, punchy bullet points that directly address the Sovereign Goal.
-    2. "whyCare": A compelling "Mission Anchor" reason (Safety, Success, or Sovereignty). For stories, make this an evocative "Why this story matters to your soul."
-    3. "readingTime": Estimate concentration time.
-    4. "chunks": 
-       - "heading": High-impact (Add ⚠️ if Legal Red Flag found).
-       - "content": The primary text for this segment.
-       - "summary": A 1-sentence "Neural Snap" summary of ONLY this specific segment.
-       - "keyTerms": 1-3 keywords.
-       - "metaphor": ${simplicityLevel === 'vibrant' ? 'Mandatory creative/funny comparison.' : 'EXTREMELY IMPORTANT: Leave this field as an EMPTY STRING (""). Do not provide a metaphor.'}
-       - "dopamineHook": ${simplicityLevel === 'vibrant' ? 'Mandatory "Mind-Blow" fact.' : 'Critical executive insight or high-stakes data point.'}
-    5. "chartData": Extract numerical trends if possible.
-    6. "actions": Priority-based task list.
-
-    Respond ONLY with a valid JSON object matching the exact structure below:
-    {
-      "tldr": ["string", "string", "string"],
-      "whyCare": "string",
-      "readingTime": "string",
-      "chunks": [
-        {
-          "heading": "string",
-          "content": "string",
-          "summary": "string",
-          "keyTerms": ["string", "string"],
-          "metaphor": "string",
-          "dopamineHook": "string"
-        }
-      ],
-      "actions": [
-        { "task": "string", "priority": "high" | "medium" | "low" }
-      ],
-      "chartData": {
-        "type": "bar" | "line" | "pie",
-        "data": [ { "name": "string", "value": number } ]
-      } | null
-    }
-
-    INPUT TEXT:
-    ${text}
+      Return a valid JSON object:
+      {
+        "tldr": ["string", "string", "string"],
+        "whyCare": "string",
+        "readingTime": "string",
+        "chunks": [
+          {
+            "heading": "string",
+            "content": "string",
+            "summary": "string",
+            "keyTerms": ["string"],
+            "metaphor": "string",
+            "dopamineHook": "string",
+            "logicRoot": "string",
+            "citations": "string"
+          }
+        ],
+        "actions": [
+          { "task": "string", "priority": "high" | "medium" | "low" }
+        ],
+        "chartData": null
+      }
+      
+      INPUT: ${text}
     `;
 
-  let responseText = '';
-  let lastError: any = null;
+    // --- FAILOVER LOGIC ---
+    const tryGemini = async () => {
+      if (!apiKey) throw new Error('No Gemini Key');
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const result = await model.generateContent(generationPrompt);
+      return result.response.text();
+    };
 
+    const tryOpenAI = async () => {
+      if (!openaiKey) throw new Error('No OpenAI Key');
+      const openai = new OpenAI({ apiKey: openaiKey });
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: generationPrompt }],
+      });
+      return completion.choices[0].message.content;
+    };
 
-  const generationPrompt = mode === 'chat' ? `
-      You are an ADHD-friendly assistant called \"Ask DJ.\" 
-      Based on the CONTEXT provided below, answer the user's question or follow their direct instructions (e.g. \"make a poem\", \"summarize dates\", \"find names\").
+    const tryAnthropic = async () => {
+      if (!anthropicKey) throw new Error('No Anthropic Key');
+      const anthropic = new Anthropic({ apiKey: anthropicKey });
+      const msg = await anthropic.messages.create({
+        model: "claude-3-5-haiku-20241022",
+        max_tokens: 1024,
+        messages: [{ role: "user", content: generationPrompt }],
+      });
+      return (msg.content[0] as any).text;
+    };
 
-      RULES:
-      1. Be simple, encouraging, and clear.
-      2. Use bullet points for lists.
-      3. If asked to do a task based on the document, perform it fully within the chat response.
-      4. Respond ONLY with clean, plain text. Do NOT wrap your answer in JSON, brackets, or code symbols.
+    const tryDeepSeek = async () => {
+      if (!deepseekKey) throw new Error('No DeepSeek Key');
+      const res = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${deepseekKey}` },
+        body: JSON.stringify({
+          model: "deepseek-chat",
+          messages: [{ role: "user", content: generationPrompt }]
+        })
+      });
+      const data = await res.json();
+      return data.choices[0].message.content;
+    };
 
-      CONTEXT:
-      ${JSON.stringify(context)}
+    let responseText = '';
+    const providers = [tryGemini, tryOpenAI, tryAnthropic, tryDeepSeek];
 
-      USER REQUEST:
-      ${question}
-    ` : prompt;
-
-  for (const modelName of modelsToTry) {
-    try {
-      // If not the first model, wait 1 second before retrying to avoid spamming the same rate limit
-      if (lastError) await new Promise(r => setTimeout(r, 1000));
-
-      const isPro = modelName.includes('pro');
-      const model = genAI.getGenerativeModel({ 
-        model: modelName,
-          generationConfig: { 
-            responseMimeType: "application/json",
-            temperature: isPro ? 0.7 : 0.4, // Higher temperature for more creative/vast story summaries on Pro
-            topP: 0.95,
-          },
-          safetySettings: [
-            { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-            { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-            { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-            { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE } // Essential for Legal/Medical 'Red Flag' detection
-          ]
-        });
-        
-        const result = await model.generateContent(generationPrompt);
-        const response = await result.response;
-        responseText = response.text();
-        
-        if (responseText) {
-          console.log(`Neural Refraction successful using ${modelName}`);
-          break;
-        }
-      } catch (err: any) {
-        console.warn(`Model ${modelName} failed or saturated. Shifting focus...`);
-        lastError = err;
-        continue;
+    for (const provider of providers) {
+      try {
+        responseText = await provider() || '';
+        if (responseText) break;
+      } catch (e) {
+        console.warn(`Provider failed, shifting focus...`);
       }
     }
 
-    if (!responseText) {
-      throw new Error(`The Neural Prism is currently synchronizing with the Divine Server. Our bandwidth is tight—please give us 10-15 seconds to recalibrate and try again. (Details: ${lastError?.message})`);
-    }
+    if (!responseText) throw new Error('All Neural Bridges are down.');
 
-    // Chat mode has simple text response
-    if (mode === 'chat') {
+    if (mode === 'chat' || mode === 'council_review') {
       return NextResponse.json({ answer: responseText });
     }
 
-    // Better cleaning: remove markdown blocks and any leading/trailing whitespace
     responseText = responseText.replace(/```json|```/gi, '').trim();
+    const parsedData = JSON.parse(responseText);
+
+    // --- HELENA & SARAH VALIDATION ---
+    const validatedData = {
+      tldr: parsedData.tldr || ["No summary generated"],
+      whyCare: parsedData.whyCare || "Focus was interrupted.",
+      readingTime: parsedData.readingTime || "1m",
+      chunks: (parsedData.chunks || []).map((c: any) => ({
+        heading: c.heading || "Neural Fragment",
+        content: c.content || "",
+        summary: c.summary || "Segment analyzed.",
+        keyTerms: c.keyTerms || [],
+        metaphor: c.metaphor || "",
+        dopamineHook: c.dopamineHook || "",
+        logicRoot: c.logicRoot || "Foundational principle established.",
+        citations: c.citations || "Contextual anchor secured."
+      })),
+      actions: parsedData.actions || [],
+      chartData: parsedData.chartData || null
+    };
     
-    try {
-      const parsedData = JSON.parse(responseText);
-      
-      // Ensure essential fields exist to prevent client crashes
-      const validatedData = {
-        tldr: parsedData.tldr || ["No summary generated"],
-        whyCare: parsedData.whyCare || "Focus was interrupted.",
-        readingTime: parsedData.readingTime || "1m",
-        chunks: parsedData.chunks.map((c: any) => ({
-          heading: c.heading || "Neural Fragment",
-          content: c.content || "",
-          summary: c.summary || "Segment analyzed.",
-          keyTerms: c.keyTerms || [],
-          metaphor: c.metaphor || "",
-          dopamineHook: c.dopamineHook || ""
-        })) || [{ heading: "Neural Hiccup", content: "AI failed to segment.", summary: "No summary.", keyTerms: [], metaphor: "", dopamineHook: "" }],
-        chartData: parsedData.chartData || null,
-        actions: parsedData.actions || []
-      };
-      
-      return NextResponse.json(validatedData);
-    } catch (parseError) {
-      console.error("Failed to parse Gemini output. Raw response:", responseText);
-      return NextResponse.json(
-        { error: 'Prism Refraction failed. AI output was not in the correct format.' },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json(validatedData);
 
   } catch (error: any) {
-    console.error('Simplification API Error:', error);
-    const errorMessage = error.message || 'An unexpected error occurred during processing.';
-    return NextResponse.json(
-      { error: `Neural Prism Error: ${errorMessage}` },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -1,22 +1,22 @@
 {
   "manifest_version": 3,
   "name": "Dassah's Prism: Neural Bridge",
-  "version": "1.3",
+  "version": "1.3.1",
   "description": "Refract overwhelming noise into divine clarity. Your cognitive architecture, optimized.",
   "permissions": ["activeTab", "scripting", "contextMenus", "notifications"],
   "action": {
     "default_popup": "popup.html",
     "default_title": "Dassah's Prism",
     "default_icon": {
-      "16": "logo.png",
-      "48": "logo.png",
-      "128": "logo.png"
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
     }
   },
   "icons": {
-    "16": "logo.png",
-    "48": "logo.png",
-    "128": "logo.png"
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   },
   "background": {
     "service_worker": "background.js"
@@ -29,6 +29,7 @@
   ],
   "host_permissions": [
     "https://dassahs-mindbridge-rjeiohdc3-phidotaxis-3372s-projects.vercel.app/*",
+    "https://dassahs-mindbridge.vercel.app/*",
     "http://localhost:3000/*"
   ]
 }

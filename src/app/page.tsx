@@ -153,12 +153,22 @@ const THEMES: Record<Theme, ThemeConfig> = {
 const COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899'];
 
 interface SimplifiedData {
+  id?: string;
   tldr: string[];
   whyCare: string;
   readingTime: string;
-  chunks: { heading: string; content: string; summary: string; keyTerms: string[]; metaphor: string; dopamineHook: string; }[];
+  chunks: { 
+    heading: string; 
+    content: string; 
+    summary: string; 
+    keyTerms: string[]; 
+    metaphor: string; 
+    dopamineHook: string;
+    logicRoot?: string;
+    citations?: string;
+  }[];
   chartData: { type: 'bar' | 'line' | 'pie'; data: { name: string; value: number }[] } | null;
-  actions: { task: string; priority: 'high' | 'medium' | 'low' }[];
+  actions: { task: string; priority: 'high' | 'medium' | 'low'; completed?: boolean }[];
 }
 
 const useIsMobile = () => {
@@ -602,9 +612,9 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
         </div>
 
         <div className="bg-amber-500/5 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-amber-500/20">
-          <p className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.3em] text-amber-400 mb-2 md:mb-3 italic">Divine Insight</p>
+          <p className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.3em] text-amber-400 mb-2 md:mb-3 italic">{isSunday ? "Sabbath Mode: Divine Insight" : "Divine Insight"}</p>
           <p className="text-xs md:text-sm text-amber-100 font-bold italic leading-relaxed">
-            &quot;Inhale clarity. Your sovereignty is established.&quot;
+            {isSunday ? dailyInsight : '"Inhale clarity. Your sovereignty is established."'}
           </p>
         </div>
 
@@ -802,61 +812,106 @@ const NeuralLinkSevered = () => {
   );
 };
 
-const TUTORIAL_STEPS = [
-  {
-    title: "Welcome to the Prism",
-    description: "Hullo! I'm DJ. This is your Neural Prism—a sanctuary built to turn overwhelming 'Noise' into 'Divine Clarity.'",
-    more: "Dassah's-Prism was born from the idea that ADHD isn't a deficit, but a high-powered engine. We use AI to refract complex data into vibrant, manageable streams of insight.",
-    icon: <Sparkles className="text-blue-400" size={48} />
-  },
-  {
-    title: "Refraction & Modes",
-    description: "Use the slider above to see the magic. Switch between 'Dastastic' (stimulating) and 'Sovereign' (executive) modes to suit your mind.",
-    more: "Dastastic mode uses metaphors and hooks to keep you engaged. Sovereign mode uses 'Executive Distillation' for rapid, bottom-line decision making.",
-    icon: <Zap className="text-amber-500" size={48} />
-  },
-  {
-    title: "Neural Core & Levels",
-    description: "Paste your noise into the core. Choose your Discernment Level: 'Vibrant' for simple clarity, or 'Surgical' for expert precision.",
-    more: "Vibrant Level uses punchy metaphors—ideal for ADHD brains needing dopamine. Surgical Level provides technical depth for professional 'Mechanism Hunters.'",
-    icon: <Brain className="text-purple-400" size={48} />
-  },
-  {
-    title: "Neural Command",
-    description: "Click the gears! Control your environment with Soundscapes (Brown Noise), Bionic reading, and the Neural Bridge (Extension).",
-    more: "Neural Command is your cockpit. Use Bionic reading to guide your eyes, and Brown Noise to drown out external distractions during deep focus.",
-    icon: <Settings className="text-blue-500" size={48} />
-  },
-  {
-    title: "Neural Identity & Vault",
-    description: "Click the Crown. This is your Sovereignty: track your 'Bandwidth Reclaimed' and access your Achieving Vault (History).",
-    more: "Neural Identity turns your productivity into a visual testimony. Your history is stored securely in the Vault so you never lose a 'Refraction'.",
-    icon: <Crown className="text-yellow-500" size={48} />
-  },
-  {
-    title: "The Roadmap",
-    description: "Every refraction ends with a Priority Roadmap. These are your actionable steps, ranked by urgency (High, Medium, Low).",
-    more: "The Roadmap ensures you don't just learn—you ACT. Seal the Prism to consolidate your gains into long-term memory.",
-    icon: <BarChart3 className="text-amber-500" size={48} />
-  },
-  {
-    title: "Sovereign Off-Ramp",
-    description: "The 'Mission Brief' consolidation ensures you leave the Prism with Peace, not just information. Reclaim your focus.",
-    more: "Every session ends with a clear summary. You don't just 'read' with the Prism; you 'conclude' and reclaim your peace.",
-    icon: <ShieldCheck className="text-emerald-400" size={48} />
-  }
-];
+const TUTORIAL_STEPS: Record<string, any[]> = {
+  core: [
+    {
+      title: "Welcome to the Prism",
+      description: "Hullo! I'm DJ. This is your Neural Prism—a sanctuary built to turn overwhelming 'Noise' into 'Divine Clarity.'",
+      more: "Dassah's-Prism was born from the idea that ADHD isn't a deficit, but a high-powered engine. We use AI to refract complex data into vibrant, manageable streams of insight.",
+      icon: <Sparkles className="text-blue-400" size={48} />
+    },
+    {
+      title: "Refraction & Modes",
+      description: "Use the slider above to see the magic. Switch between 'Dastastic' (stimulating) and 'Sovereign' (executive) modes to suit your mind.",
+      more: "Dastastic mode uses metaphors and hooks to keep you engaged. Sovereign mode uses 'Executive Distillation' for rapid, bottom-line decision making.",
+      icon: <Zap className="text-amber-500" size={48} />
+    },
+    {
+      title: "Neural Core & Levels",
+      description: "Paste your noise into the core. Choose your Discernment Level: 'Vibrant' for simple clarity, or 'Surgical' for expert precision.",
+      more: "Vibrant Level uses punchy metaphors—ideal for ADHD brains needing dopamine. Surgical Level provides technical depth for professional 'Mechanism Hunters.'",
+      icon: <Brain className="text-purple-400" size={48} />
+    },
+    {
+      title: "Neural Command",
+      description: "Click the gears! Control your environment with Soundscapes (Brown Noise), Bionic reading, and the Neural Bridge (Extension).",
+      more: "Neural Command is your cockpit. Use Bionic reading to guide your eyes, and Brown Noise to drown out external distractions during deep focus.",
+      icon: <Settings className="text-blue-500" size={48} />
+    },
+    {
+      title: "Neural Identity & Vault",
+      description: "Click the Crown. This is your Sovereignty: track your 'Bandwidth Reclaimed' and access your Achieving Vault (History).",
+      more: "Neural Identity turns your productivity into a visual testimony. Your history is stored securely in the Vault so you never lose a 'Refraction'.",
+      icon: <Crown className="text-yellow-500" size={48} />
+    },
+    {
+      title: "The Roadmap",
+      description: "Every refraction ends with a Priority Roadmap. These are your actionable steps, ranked by urgency (High, Medium, Low).",
+      more: "The Roadmap ensures you don't just learn—you ACT. Seal the Prism to consolidate your gains into long-term memory.",
+      icon: <BarChart3 className="text-amber-500" size={48} />
+    },
+    {
+      title: "Sovereign Off-Ramp",
+      description: "The 'Mission Brief' consolidation ensures you leave the Prism with Peace, not just information. Reclaim your focus.",
+      more: "Every session ends with a clear summary. You don't just 'read' with the Prism; you 'conclude' and reclaim your peace.",
+      icon: <ShieldCheck className="text-emerald-400" size={48} />
+    }
+  ],
+  parent: [
+    {
+      title: "Guardian Shield",
+      description: "As a Parent/Guardian, you can monitor the 'Noise' your child is refracting and ensure they stay focused.",
+      more: "The Parent Dashboard allows you to see 'Bandwidth Reclaimed' and 'Neural Milestones' for your linked accounts.",
+      icon: <Shield size={48} className="text-emerald-400" />
+    },
+    {
+      title: "Sharing Clarity",
+      description: "Use the 'Share with Parent' button in the Roadmap to receive instant updates on your child's missions.",
+      more: "This bridges the gap between study time and family alignment, celebrating every refraction together.",
+      icon: <Heart size={48} className="text-red-400" />
+    }
+  ],
+  ceo: [
+    {
+      title: "Executive Distillation",
+      description: "Focus on ROI. Sovereign Mode is your primary tool for rapid decision making and mechanism hunting.",
+      more: "Turn complex corporate reports into 3-minute executive summaries with clear action items and financial impact.",
+      icon: <Crown size={48} className="text-amber-500" />
+    },
+    {
+      title: "ROI Command Center",
+      description: "Track 'Value Reclaimed' across your team and optimize your institutional cognitive efficiency.",
+      more: "Marcus's ROI Decoder tracks time saved and translates it into quantifiable business value.",
+      icon: <BarChart3 size={48} className="text-blue-500" />
+    }
+  ],
+  uni: [
+    {
+      title: "Scholar Mode",
+      description: "Deep dive into First Principles. Use Surgical Level for high-density academic papers and lectures.",
+      more: "Helena's Logic Chain and Evidence Anchors (Citations) ensure your research is grounded and verifiable.",
+      icon: <Shield size={48} className="text-purple-400" />
+    },
+    {
+      title: "LTI 1.3 Integration",
+      description: "Connect Dassah's Prism directly to Canvas or Blackboard for seamless academic refraction.",
+      more: "Your assignments are automatically pulled into the Prism, and your insights can be exported back to the LMS.",
+      icon: <Code size={48} className="text-blue-400" />
+    }
+  ]
+};
 
-const TutorialModal = ({ step, onNext, onClose }: { step: number, onNext: () => void, onClose: () => void }) => {
-  const current = TUTORIAL_STEPS[step];
+const TutorialModal = ({ step, role, onNext, onClose }: { step: number, role: string, onNext: () => void, onClose: () => void }) => {
+  const steps = TUTORIAL_STEPS[role] || TUTORIAL_STEPS.core;
+  const current = steps[step];
   const [showMore, setShowMore] = useState(false);
 
-  useEffect(() => { setShowMore(false); }, [step]);
+  useEffect(() => { setShowMore(false); }, [step, role]);
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[1000] flex items-center justify-center p-4">
       <motion.div 
-        key={step}
+        key={`${role}-${step}`}
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: -20 }}
@@ -866,7 +921,7 @@ const TutorialModal = ({ step, onNext, onClose }: { step: number, onNext: () => 
           {current.icon}
         </div>
         <div className="space-y-3">
-          <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]">Node {step + 1} of {TUTORIAL_STEPS.length}</p>
+          <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]">Node {step + 1} of {steps.length} ({role.toUpperCase()})</p>
           <h2 className="text-3xl font-black text-white italic tracking-tighter">{current.title}</h2>
           <p className="text-slate-400 text-base leading-relaxed font-medium">{current.description}</p>
           
@@ -888,6 +943,23 @@ const TutorialModal = ({ step, onNext, onClose }: { step: number, onNext: () => 
                   <p className="mt-4 p-4 bg-white/5 rounded-2xl text-xs text-slate-500 leading-relaxed italic border border-white/5">
                     {current.more}
                   </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+        <div className="pt-4">
+          <button 
+            onClick={step === steps.length - 1 ? onClose : onNext}
+            className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] text-white shadow-xl transition-all active:scale-95"
+          >
+            {step === steps.length - 1 ? "Acknowledge" : "Next Point"}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
                 </motion.div>
               )}
             </AnimatePresence>
@@ -1088,6 +1160,35 @@ export default function Home() {
   const noiseNodeRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [lastActivity, setLastActivity] = useState(Date.now());
+  const AUTO_LOGOUT_TIME = 30 * 60 * 1000; // 30 Minutes
+
+  // --- AUTO-SEVER (AUTO-LOGOUT) ---
+  useEffect(() => {
+    if (!user) return;
+
+    const checkInactivity = () => {
+      if (Date.now() - lastActivity > AUTO_LOGOUT_TIME) {
+        handleLogout();
+        alert("Neural Link Severed: For your sovereignty and safety, you have been logged out due to inactivity.");
+      }
+    };
+
+    const interval = setInterval(checkInactivity, 60000); // Check every minute
+    const updateActivity = () => setLastActivity(Date.now());
+
+    window.addEventListener('mousemove', updateActivity);
+    window.addEventListener('keydown', updateActivity);
+    window.addEventListener('click', updateActivity);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('mousemove', updateActivity);
+      window.removeEventListener('keydown', updateActivity);
+      window.removeEventListener('click', updateActivity);
+    };
+  }, [user, lastActivity]);
+
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<SimplifiedData | null>(null);
   const [currentChunk, setCurrentChunk] = useState(-1);
@@ -1099,20 +1200,19 @@ export default function Home() {
   const [linkedUsers, setLinkedUsers] = useState<any[]>([]);
   const [isPaid, setIsPaid] = useState(false); 
   const [usageCount, setUsageCount] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string>('');
+  const [showVoiceSelector, setShowVoiceSelector] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [isBionic, setIsBionic] = useState(true);
-  const [mouseFocus, setMouseFocus] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
-  const [theme, setTheme] = useState<Theme>('midnight');
-  const [isScenic, setIsScenic] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
+  const [tutorialRole, setTutorialRole] = useState<'core' | 'parent' | 'ceo' | 'uni'>('core');
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
@@ -1143,22 +1243,105 @@ export default function Home() {
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
   const [simplicityLevel, setSimplicityLevel] = useState<'surgical' | 'vibrant'>('vibrant');
   const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
-  const brownNoiseRef = useRef<HTMLAudioElement | null>(null);
+  const brownNoiseRef = useRef<any>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const premiumAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [councilReviewActive, setCouncilReviewActive] = useState(false);
+  const [currentCouncilAgentIdx, setCurrentCouncilAgentIdx] = useState(0);
+  const [councilReviewStep, setCouncilReviewStep] = useState<'pros' | 'cons'>('pros');
+  const [councilResponse, setCouncilResponse] = useState<string>('');
+  const [councilLoading, setCouncilLoading] = useState(false);
+
+  const COUNCIL_AGENTS = ['Sarah', 'Dr. Helena', 'Marcus', 'Maya', 'Leo', 'DJ'];
+
+  const startCouncilReview = () => {
+    if (!input.trim()) return;
+    setCouncilReviewActive(true);
+    setCurrentCouncilAgentIdx(0);
+    setCouncilReviewStep('pros');
+    fetchCouncilReview('Sarah', 'pros');
+  };
+
+  const fetchCouncilReview = async (agent: string, step: 'pros' | 'cons') => {
+    setCouncilLoading(true);
+    try {
+      const res = await fetch('/api/simplify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          text: input, 
+          mode: 'council_review', 
+          agentName: agent, 
+          reviewStep: step 
+        })
+      });
+      const result = await res.json();
+      setCouncilResponse(result.answer);
+    } catch (e) {
+      setCouncilResponse("Neural link error.");
+    } finally {
+      setCouncilLoading(false);
+    }
+  };
+
+  const nextCouncilStep = () => {
+    if (councilReviewStep === 'pros') {
+      setCouncilReviewStep('cons');
+      fetchCouncilReview(COUNCIL_AGENTS[currentCouncilAgentIdx], 'cons');
+    } else {
+      if (currentCouncilAgentIdx < COUNCIL_AGENTS.length - 1) {
+        const nextIdx = currentCouncilAgentIdx + 1;
+        setCurrentCouncilAgentIdx(nextIdx);
+        setCouncilReviewStep('pros');
+        fetchCouncilReview(COUNCIL_AGENTS[nextIdx], 'pros');
+      } else {
+        setCouncilReviewActive(false);
+        handleSimplify(); // Finalize with full refraction
+      }
+    }
+  };
 
   useEffect(() => {
     if (brownNoisePlaying) {
-      if (!brownNoiseRef.current) {
-        brownNoiseRef.current = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); // Placeholder for brown noise
-        // Using a public URL for brown noise would be better, but let's assume local or a more stable source
-        // For now, let's use a generated noise or a common URL
-        brownNoiseRef.current.src = 'https://archive.org/download/BrownNoise10Hours/Brown_Noise_10_Hours.mp3';
-        brownNoiseRef.current.loop = true;
+      try {
+        const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+        const ctx = new AudioContextClass();
+        audioCtxRef.current = ctx;
+        
+        const bufferSize = 4096;
+        let lastOut = 0.0;
+        const node = ctx.createScriptProcessor(bufferSize, 1, 1);
+        
+        node.onaudioprocess = (e: any) => {
+          const out = e.outputBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            out[i] = (lastOut + (0.02 * white)) / 1.02;
+            lastOut = out[i];
+            out[i] *= 3.5; // Gain adjustment for brown noise
+          }
+        };
+        
+        node.connect(ctx.destination);
+        brownNoiseRef.current = node;
+      } catch (e) {
+        console.error("Neural Harmony (Brown Noise) failed to initialize:", e);
       }
-      brownNoiseRef.current.play().catch(e => console.error("Audio playback failed", e));
     } else {
-      brownNoiseRef.current?.pause();
+      if (brownNoiseRef.current) {
+        brownNoiseRef.current.disconnect();
+        brownNoiseRef.current = null;
+      }
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        audioCtxRef.current.close();
+        audioCtxRef.current = null;
+      }
     }
-    return () => brownNoiseRef.current?.pause();
+    return () => {
+      brownNoiseRef.current?.disconnect();
+      audioCtxRef.current?.close();
+    };
   }, [brownNoisePlaying]);
   const [dassahPoints, setDassahPoints] = useState(0);
   const [totalWordsRefracted, setTotalWordsRefracted] = useState(0);
@@ -1187,6 +1370,30 @@ export default function Home() {
   const [streakCount, setStreakCount] = useState(0);
   const [lastRefractDate, setLastRefractDate] = useState<string | null>(null);
   const [neuralRhythm, setNeuralRhythm] = useState(true);
+  const [isScholarMode, setIsScholarMode] = useState(false);
+  const [showGuardianCenter, setShowGuardianCenter] = useState(false);
+  const [ltiConnected, setLtiConnected] = useState(false);
+  const [showLogicRoot, setShowLogicRoot] = useState<Record<number, boolean>>({});
+
+  const toggleLogicRoot = (idx: number) => {
+    setShowLogicRoot(prev => ({ ...prev, [idx]: !prev[idx] }));
+  };
+
+  const toggleTask = (taskIndex: number) => {
+    const key = `${data?.id || 'current'}-${taskIndex}`;
+    setCheckedTasks(prev => ({ ...prev, [key]: !prev[key] }));
+    if (!completedTasks[key]) {
+      setDassahPoints(p => p + 5); // Reward for action
+    }
+  };
+
+  const sealMission = () => {
+    setRewardType('final');
+    setTimeout(() => {
+      setShowRecap(true);
+      handleReset();
+    }, 3000);
+  };
 
   // Neural Streak Logic
   useEffect(() => {
@@ -1518,6 +1725,17 @@ export default function Home() {
 
   const handleSimplify = async (textToSimplify = input) => {
      if (!textToSimplify.trim()) return; 
+
+    // --- SENSITIVITY CHECK ---
+    const ssnPattern = /\b\d{3}-\d{2}-\d{4}\b/;
+    const pwdKeyword = /password|secret|key|token/i;
+    
+    if (ssnPattern.test(textToSimplify) || (textToSimplify.length < 50 && pwdKeyword.test(textToSimplify))) {
+      if (!confirm("⚠️ SOVEREIGN WARNING: Sarah has detected potentially sensitive data (SSN or Password) in your noise. Refracting this through the Neural Bridge could compromise your privacy. Do you wish to proceed at your own risk?")) {
+        return;
+      }
+    }
+
     const limit = user ? 30 : 10;
     if (usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
     
@@ -1633,17 +1851,98 @@ export default function Home() {
     } catch (err: any) { alert(`Upload Failed: ${err.message}`); } finally { setLoading(false); }
   };
 
-  const handleReadAloud = (text: string) => {
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      setAvailableVoices(voices);
+      if (voices.length > 0 && !selectedVoiceId) {
+        const defaultVoice = voices.find(v => v.lang === 'en-US' || v.lang === 'en_US') || voices[0];
+        setSelectedVoiceId(defaultVoice.voiceURI);
+      }
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    return () => { window.speechSynthesis.onvoiceschanged = null; };
+  }, [selectedVoiceId]);
+
+  const handleReadAloud = async (text: string) => {
     if (isPlaying) {
       window.speechSynthesis.cancel();
+      if (premiumAudioRef.current) {
+        premiumAudioRef.current.pause();
+        premiumAudioRef.current = null;
+      }
       setIsPlaying(false);
       return;
     }
+
+    if (selectedVoiceId === 'dassah_premium') {
+      setIsPlaying(true);
+      try {
+        const res = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, voice: 'nova' })
+        });
+        if (!res.ok) throw new Error("Neural Premium offline");
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        premiumAudioRef.current = audio;
+        audio.onended = () => setIsPlaying(false);
+        audio.onerror = () => setIsPlaying(false);
+        audio.play();
+      } catch (e) {
+        alert("Neural Premium link failed. Reverting to basic.");
+        setIsPlaying(false);
+      }
+      return;
+    }
     
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.onend = () => setIsPlaying(false);
-    window.speechSynthesis.speak(utterance);
+    // ADHD-Optimized Rhythmic Pacing (The "DJ" Persona)
+    const sentences = text.split(/([.!?])/);
+    let index = 0;
     setIsPlaying(true);
+
+    const speakNext = () => {
+      if (index >= sentences.length || !isPlaying) {
+        setIsPlaying(false);
+        return;
+      }
+
+      const fragment = sentences[index] + (sentences[index+1] || '');
+      index += 2;
+
+      if (!fragment.trim()) {
+        speakNext();
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(fragment);
+      
+      // Apply Selected Voice
+      const voice = availableVoices.find(v => v.voiceURI === selectedVoiceId);
+      if (voice) utterance.voice = voice;
+      
+      // Variable pacing based on content type
+      if (fragment.includes('"') || fragment.includes('metaphor')) {
+        utterance.rate = 0.85; // Slower for metaphors/quotes to allow cognitive "soaking"
+        utterance.pitch = 1.1; // Slightly higher pitch for interest
+      } else {
+        utterance.rate = 1.05; // Slightly faster for standard facts
+        utterance.pitch = 1.0;
+      }
+
+      utterance.onend = () => {
+        // Rhythmic pause between fragments
+        setTimeout(speakNext, 300);
+      };
+
+      utterance.onerror = () => setIsPlaying(false);
+      window.speechSynthesis.speak(utterance);
+    };
+
+    speakNext();
   };
 
   const handleReset = () => {
@@ -1805,7 +2104,52 @@ export default function Home() {
 
   return (
     <>
-      <style>{themeStyles}</style>
+      <style>{`
+        ${themeStyles}
+        .scholar-mode {
+          filter: grayscale(0.2) contrast(1.1);
+        }
+        .scholar-mode main {
+          background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0) !important;
+          background-size: 40px 40px !important;
+        }
+      `}</style>
+      
+      <AnimatePresence>
+        {showGuardianCenter && (
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1100] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-xl w-full bg-slate-900 border-2 border-red-500/30 p-10 md:p-16 rounded-[4rem] shadow-[0_0_100px_rgba(239,68,68,0.2)] space-y-10">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-4 text-red-500 font-black uppercase tracking-widest text-xs">
+                  <ShieldCheck size={24} /> Guardian Control
+                </div>
+                <button onClick={() => setShowGuardianCenter(false)} className="p-2 hover:bg-white/5 rounded-full text-slate-500 transition-colors"><X size={24}/></button>
+              </div>
+              
+              <div className="space-y-6">
+                <h2 className="text-4xl font-black text-white italic tracking-tighter">Sarah&apos;s Sanctuary Control</h2>
+                <div className="space-y-4">
+                  <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-black text-white uppercase tracking-widest">Inactivity Severance</p>
+                      <p className="text-[9px] text-slate-500 font-bold uppercase">Auto-logout active (30m)</p>
+                    </div>
+                    <CheckCircle2 className="text-emerald-500" size={20} />
+                  </div>
+                  <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-black text-white uppercase tracking-widest">Sensitivity Shield</p>
+                      <p className="text-[9px] text-slate-500 font-bold uppercase">SSN & Password patterns blocked</p>
+                    </div>
+                    <CheckCircle2 className="text-emerald-500" size={20} />
+                  </div>
+                </div>
+              </div>
+              <button onClick={() => setShowGuardianCenter(false)} className="w-full bg-red-600 py-6 rounded-2xl font-black uppercase tracking-widest text-xs text-white shadow-xl">Seal Control Center</button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       
       <AnimatePresence>
         {showRecap && <CerebralRecap data={data} onFinish={() => { setShowRecap(false); handleReset(); }} />}
@@ -1860,7 +2204,11 @@ export default function Home() {
       {/* REMOVED: SUBTLE BRAND SIGNATURE */}
 
       {linkState === 'established' && (
-        <main onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} style={{ color: 'var(--color-text)', backgroundColor: focusMode === 'sovereign' ? '#000' : 'transparent' }}>
+      <main 
+        onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
+        className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isScholarMode ? 'scholar-mode' : ''} ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} 
+        style={{ color: 'var(--color-text)', backgroundColor: focusMode === 'sovereign' ? '#000' : 'transparent' }}
+      >
         <div className={`fixed inset-0 -z-10 transition-all duration-1000`} style={{ background: focusMode === 'sovereign' ? '#000' : `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
         {focusMode !== 'sovereign' ? (
           <div className="fixed inset-0 pointer-events-none opacity-[0.05] z-0">
@@ -1992,12 +2340,34 @@ export default function Home() {
                     <div className="grid grid-cols-2 gap-3">
                       <button onClick={() => { setIsBionic(!isBionic); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
                         <Type size={20} />
-                        <span className="text-[8px] font-black uppercase tracking-widest">Bionic Shield (T)</span>
+                        <span className="text-[8px] font-black uppercase tracking-widest">Bionic Shield</span>
+                      </button>
+                      <button onClick={() => { setIsScholarMode(!isScholarMode); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isScholarMode ? 'bg-slate-700/20 border-slate-500 text-slate-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
+                        <BookOpen size={20} />
+                        <span className="text-[8px] font-black uppercase tracking-widest">Scholar Mode</span>
                       </button>
                       <button onClick={() => { setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-purple-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
                         <Clock size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Neural Rhythm</span>
                       </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4 mt-6">Institutional Scaling (Tutorials)</p>
+                    <div className="grid grid-cols-2 gap-3">
+                       <button onClick={() => { setTutorialRole('parent'); setTutorialStep(0); setShowTutorial(true); setShowNeuralCommand(false); }} className="p-4 rounded-2xl bg-emerald-600/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-600 hover:text-white transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
+                         <Shield size={20} /> Parent Guide
+                       </button>
+                       <button onClick={() => { setTutorialRole('ceo'); setTutorialStep(0); setShowTutorial(true); setShowNeuralCommand(false); }} className="p-4 rounded-2xl bg-amber-600/10 border border-amber-500/30 text-amber-400 hover:bg-amber-600 hover:text-white transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
+                         <Crown size={20} /> CEO/ROI Guide
+                       </button>
+                       <button onClick={() => { setTutorialRole('uni'); setTutorialStep(0); setShowTutorial(true); setShowNeuralCommand(false); }} className="p-4 rounded-2xl bg-purple-600/10 border border-purple-500/30 text-purple-400 hover:bg-purple-600 hover:text-white transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
+                         <Code size={20} /> Uni/LTI Guide
+                       </button>
+                       <button onClick={() => { setTutorialRole('core'); setTutorialStep(0); setShowTutorial(true); setShowNeuralCommand(false); }} className="p-4 rounded-2xl bg-blue-600/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
+                         <Sparkles size={20} /> Core Review
+                       </button>
                     </div>
                   </div>
 
@@ -2132,6 +2502,66 @@ export default function Home() {
                         <p className="text-xs font-bold text-white">Achieving Vault</p>
                         <p className="text-[8px] font-black uppercase text-slate-500">Reading History</p>
                       </div>
+                    </button>
+                  </div>
+
+                  <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400">ROI Command Center (Marcus)</p>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-emerald-600/10 p-4 rounded-2xl border border-emerald-500/20">
+                        <p className="text-[8px] font-black text-emerald-400 uppercase mb-1">
+                          Value Reclaimed
+                        </p>
+                        <p className="text-xl font-black text-white italic">${(totalMinutesSaved * 0.5).toFixed(2)}</p>
+                        <p className="text-[6px] text-emerald-500/60 uppercase font-bold mt-1">Based on $30/hr avg</p>
+                      </div>
+                      <div className="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/20">
+                        <p className="text-[8px] font-black text-blue-400 uppercase mb-1">
+                           Focus Efficiency
+                        </p>
+                        <p className="text-xl font-black text-white italic">
+                          {((totalWordsRefracted / (totalMinutesSaved || 1)) / 10).toFixed(1)}x
+                        </p>
+                        <p className="text-[6px] text-blue-500/60 uppercase font-bold mt-1">vs Normal Reading</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <button className="w-full p-4 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-between group hover:bg-emerald-600 hover:border-emerald-400 transition-all">
+                        <div className="flex items-center gap-4">
+                          <Share2 size={20} className="text-emerald-400 group-hover:text-white" />
+                          <div className="text-left">
+                            <p className="text-xs font-black text-white uppercase tracking-widest">Sovereign Share</p>
+                            <p className="text-[8px] text-emerald-400/60 group-hover:text-emerald-100 font-bold uppercase tracking-tight">Beam clarity to your team</p>
+                          </div>
+                        </div>
+                        <ChevronRight size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400">Academic Bridge (LTI 1.3)</p>
+                    <button 
+                      onClick={() => {
+                        setLtiConnected(!ltiConnected);
+                        if (!ltiConnected) alert("Initiating LTI 1.3 Handshake... Synchronizing with LMS Environment.");
+                      }}
+                      className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between group ${ltiConnected ? 'bg-blue-600/20 border-blue-500' : 'bg-white/5 border-white/10 hover:border-blue-500/50'}`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <Code size={20} className={ltiConnected ? 'text-blue-400' : 'text-slate-500'} />
+                        <div className="text-left">
+                          <p className="text-xs font-black text-white uppercase tracking-widest">
+                            {ltiConnected ? 'Canvas Connected' : 'Connect to LMS'}
+                          </p>
+                          <p className="text-[8px] text-slate-500 group-hover:text-slate-300 font-bold uppercase tracking-tight">
+                            {ltiConnected ? 'LTI 1.3 Active' : 'Canvas / Blackboard / Moodle'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className={`w-2 h-2 rounded-full ${ltiConnected ? 'bg-blue-400 animate-pulse' : 'bg-white/10'}`} />
                     </button>
                   </div>
 
@@ -2349,8 +2779,39 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="max-w-2xl w-full bg-[var(--color-shadow)] border-2 border-blue-500/30 p-10 md:p-16 rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] relative max-h-[90vh] overflow-y-auto no-scrollbar">
             <button onClick={() => setShowMissionBrief(false)} className="absolute top-8 right-8 p-3 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
             <div className="space-y-12">
-              <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 w-fit flex items-center gap-3"><Rocket size={18}/> Mission Brief</div>
+              <div className="flex justify-between items-center">
+                <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 w-fit flex items-center gap-3"><Rocket size={18}/> Mission Brief</div>
+                <div className="flex -space-x-2">
+                  {[
+                    { n: 'Sarah', c: 'bg-red-500', t: 'Legal' },
+                    { n: 'Helena', c: 'bg-blue-500', t: 'Edu' },
+                    { n: 'Marcus', c: 'bg-emerald-500', t: 'ROI' },
+                    { n: 'Maya', c: 'bg-purple-500', t: 'Vault' },
+                    { n: 'Leo', c: 'bg-amber-500', t: 'Dopa' }
+                  ].map((a) => (
+                    <div key={a.n} title={`${a.n} (${a.t})`} className={`w-8 h-8 rounded-full border-2 border-slate-900 ${a.c} flex items-center justify-center text-[8px] font-black text-white shadow-lg`}>
+                      {a.n[0]}
+                    </div>
+                  ))}
+                </div>
+              </div>
               
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-4 border-y border-white/5">
+                {[
+                  { n: 'Sarah', r: 'Legal Shield' },
+                  { n: 'Dr. Helena', r: 'Mechanism Hunter' },
+                  { n: 'Marcus', r: 'ROI Decoder' },
+                  { n: 'Maya', r: 'Vault Librarian' },
+                  { n: 'Leo', r: 'Dopamine Architect' },
+                  { n: 'DJ', r: 'Sovereign Guide' }
+                ].map((a) => (
+                  <div key={a.n} className="p-3 bg-white/5 rounded-xl border border-white/5 text-center">
+                    <p className="text-[7px] font-black text-blue-400 uppercase tracking-tighter mb-1">{a.n}</p>
+                    <p className="text-[9px] font-bold text-slate-300 leading-none">{a.r}</p>
+                  </div>
+                ))}
+              </div>
+
               <div className="space-y-4">
                 <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2>
                 <p className="text-3xl md:text-5xl font-black leading-[1.1] text-white tracking-tight italic">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p>
@@ -2472,11 +2933,24 @@ export default function Home() {
               </div>
 
               <button 
+                onClick={() => startCouncilReview()} 
+                disabled={loading || !input.trim()} 
+                className="flex-1 max-w-[200px] bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-500 text-white py-3 md:py-4 rounded-full font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 text-xs md:text-sm flex items-center justify-center gap-2"
+              >
+                {councilLoading ? <Loader2 className="animate-spin" size={16} /> : <><ShieldCheck size={16} /> Council Review</>}
+              </button>
+
+              <button 
                 onClick={() => handleSimplify()} 
                 disabled={loading || !input.trim()} 
                 className="flex-1 max-w-[200px] bg-gradient-to-r from-fuchsia-600 to-purple-500 hover:from-fuchsia-500 hover:to-purple-400 text-white py-3 md:py-4 rounded-full font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 text-xs md:text-sm flex items-center justify-center gap-2"
               >
-                {loading ? <Loader2 className="animate-spin" size={16} /> : <><Disc size={16} /> Discern</>}
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="animate-spin" size={16} />
+                    <span className="text-[8px] animate-pulse">Neural Bridge Active...</span>
+                  </div>
+                ) : <><Disc size={16} /> Discern</>}
               </button>
 
               <div className="flex items-center gap-2 pr-2">
@@ -2504,11 +2978,94 @@ export default function Home() {
                 </div>
                 <button onClick={handleReset} className="absolute top-8 right-8 p-4 text-slate-600 hover:text-red-400 transition-all"><X size={20}/></button>
               </motion.div>
-            ) : currentChunk === data.chunks.length ? (              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden"><div className="space-y-4"><h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2><h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3></div><div className="space-y-6">{data.actions.map((action, i) => (<motion.div key={i} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-2xl bg-black/20 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"><div className="flex items-center gap-6"><div className={`w-3 h-3 rounded-full shadow-[0_0_15px] ${action.priority === 'high' ? 'bg-red-500 shadow-red-500' : action.priority === 'medium' ? 'bg-amber-500 shadow-amber-500' : 'bg-blue-500 shadow-blue-500'}`} /><p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">{action.task}</p></div><span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 'border-blue-500/50 text-blue-400 bg-blue-500/10'}`}>{action.priority}</span></motion.div>))}</div><div className="flex flex-col sm:flex-row gap-4 mt-12"><button onClick={() => { handleNext(); }} className="flex-1 bg-gradient-to-r from-blue-600 via-purple-600 to-amber-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4">Seal the Prism <CheckCircle2 size={28}/></button><button onClick={async () => { const summary = `DASSAH'S PRISM: Mission Accomplished! ⚡️\n\nObjective: ${missionGoal || 'Learning'}\nActions:\n${data.actions.map(a => `- ${a.task}`).join('\n')}\n\nReclaimed by Grace.`; await navigator.clipboard.writeText(summary); alert("Parent Update Copied! 📱 Send it to Mum or Dad."); }} className="p-8 bg-blue-500/10 border-2 border-blue-500/20 rounded-[2rem] text-blue-400 font-black uppercase tracking-widest text-xs hover:bg-blue-500/20 transition-all flex items-center justify-center gap-3"><MessageCircle size={20} /> Share with Parent</button></div>{isSunday && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-12 p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/20 text-center space-y-4"><p className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-500">Divine Insight: Sabbath Reflection</p><p className="text-xl font-black italic text-white leading-relaxed">&quot;{dailyInsight}&quot;</p><p className="text-[10px] text-slate-500 font-bold uppercase">Reclaimed by Grace. Powered by Him.</p></motion.div>)}</motion.div>            ) : (
+            ) : currentChunk === data.chunks.length ? (
+              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden">
+                <div className="flex justify-between items-center">
+                  <div className="space-y-4">
+                    <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2>
+                    <h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Marcus Approved</p>
+                    <p className="text-xs font-bold text-emerald-400 italic">ROI: {data.readingTime} saved</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {data.actions.map((action, i) => (
+                    <motion.div 
+                      key={i} 
+                      initial={{ x: -20, opacity: 0 }} 
+                      animate={{ x: 0, opacity: 1 }} 
+                      transition={{ delay: i * 0.1 }} 
+                      onClick={() => toggleTask(i)}
+                      className={`p-6 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
+                        completedTasks[`${data.id || 'current'}-${i}`] 
+                        ? 'bg-emerald-500/10 border-emerald-500/50 opacity-60' 
+                        : 'bg-black/20 border-white/5 hover:border-blue-500/30'
+                      }`}
+                    >
+                      <div className="flex items-center gap-6">
+                        <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                          completedTasks[`${data.id || 'current'}-${i}`] 
+                          ? 'bg-emerald-500 border-emerald-500 text-white' 
+                          : 'border-white/20 text-transparent'
+                        }`}>
+                          <Check size={14} strokeWidth={4} />
+                        </div>
+                        <p className={`text-lg font-bold transition-all ${
+                          completedTasks[`${data.id || 'current'}-${i}`] 
+                          ? 'text-slate-500 line-through' 
+                          : 'text-slate-300 group-hover:text-white'
+                        }`}>
+                          {action.task}
+                        </p>
+                      </div>
+                      <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${
+                        action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : 
+                        action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 
+                        'border-blue-500/50 text-blue-400 bg-blue-500/10'
+                      }`}>
+                        {action.priority}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 mt-12">
+                  <button 
+                    onClick={sealMission}
+                    className="flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4 group"
+                  >
+                    Seal the Mission <ShieldCheck size={24} className="group-hover:rotate-12 transition-transform" />
+                  </button>
+                  <button 
+                    onClick={async () => { 
+                      const summary = `DASSAH'S PRISM: Mission Accomplished! ⚡️\n\nObjective: ${missionGoal || 'Learning'}\nActions:\n${data.actions.map(a => `- ${a.task}`).join('\n')}\n\nReclaimed by Grace.`; 
+                      await navigator.clipboard.writeText(summary); 
+                      alert("Parent Update Copied! 📱 Send it to Mum or Dad."); 
+                    }} 
+                    className="p-8 bg-blue-500/10 border-2 border-blue-500/20 rounded-[2rem] text-blue-400 font-black uppercase tracking-widest text-xs hover:bg-blue-500/20 transition-all flex items-center justify-center gap-3"
+                  >
+                    <MessageCircle size={20} /> Share with Parent
+                  </button>
+                </div>
+                {isSunday && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-12 p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/20 text-center space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-500">Divine Insight: Sabbath Reflection</p>
+                    <p className="text-xl font-black italic text-white leading-relaxed">&quot;{dailyInsight}&quot;</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase">Reclaimed by Grace. Powered by Him.</p>
+                  </motion.div>
+                )}
+              </motion.div>
+            ) : (
               <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
                 <div className="absolute top-10 left-10 flex items-center gap-4">
                   <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div>
-                  <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`}><Volume2 size={16}/></button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`} title="Neural Playback"><Volume2 size={16}/></button>
+                    <button onClick={() => setShowVoiceSelector(true)} className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)] transition-all" title="Voice Settings"><Settings size={16}/></button>
+                  </div>
                 </div>
                 
                 <h2 className="text-4xl md:text-6xl font-black mb-4 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
@@ -2523,6 +3080,30 @@ export default function Home() {
                 </div>
                 <div className="space-y-8 flex-grow">
                   <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
+                  
+                  {/* HELENA'S LOGIC CHAIN & CITATIONS */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => toggleLogicRoot(currentChunk)}
+                      className={`p-6 rounded-3xl border transition-all text-left flex flex-col gap-2 ${showLogicRoot[currentChunk] ? 'bg-blue-500/10 border-blue-500/50' : 'bg-white/5 border-white/5 hover:border-blue-500/30'}`}
+                    >
+                      <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-blue-400">
+                        <Brain size={14}/> Neural Root (Logic Chain)
+                      </div>
+                      <p className="text-sm font-bold text-slate-300">
+                        {showLogicRoot[currentChunk] ? data.chunks[currentChunk].logicRoot : 'Click to reveal foundational logic'}
+                      </p>
+                    </button>
+                    
+                    <div className="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-2">
+                      <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-emerald-400">
+                        <Anchor size={14}/> Evidence Anchor (Citation)
+                      </div>
+                      <p className="text-sm font-bold text-slate-300">
+                        {data.chunks[currentChunk].citations || "Secured from context"}
+                      </p>
+                    </div>
+                  </div>
                   {/* Progress Prism at the bottom of content */}
                   <div className="pt-8">
                     <ProgressPrism current={currentChunk} total={data.chunks.length} />
@@ -2570,6 +3151,93 @@ export default function Home() {
           </AnimatePresence>
         </div>
       )}
+
+      <AnimatePresence>
+        {showVoiceSelector && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[1100] flex items-end justify-center sm:items-center p-0 sm:p-4">
+            <motion.div 
+              initial={{ y: "100%" }} 
+              animate={{ y: 0 }} 
+              exit={{ y: "100%" }} 
+              className="w-full max-w-2xl bg-slate-900 border-t sm:border border-white/10 rounded-t-[3rem] sm:rounded-[3rem] p-8 md:p-12 shadow-[0_-20px_100px_rgba(59,130,246,0.2)] max-h-[85vh] flex flex-col"
+            >
+              <div className="flex justify-between items-center mb-8">
+                <div className="space-y-1">
+                  <h2 className="text-3xl font-black text-white italic tracking-tighter">Neural Voice Selector</h2>
+                  <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]">Authentic Accents & Personas</p>
+                </div>
+                <button onClick={() => setShowVoiceSelector(false)} className="p-3 hover:bg-white/5 rounded-full text-slate-500 transition-colors"><X size={24}/></button>
+              </div>
+
+              <div className="flex-grow overflow-y-auto no-scrollbar space-y-8">
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 pb-2">Regional Personas (Simulated)</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {[
+                      { id: 'dassah_premium', label: 'Dassah (Premium)', icon: '✨', lang: 'en-US' },
+                      { id: 'kenyan_fem', label: 'Kenyan Lady', icon: '🇰🇪', lang: 'en-ZA' },
+                      { id: 'arab_male', label: 'Arab Male', icon: '🕌', lang: 'ar' },
+                      { id: 'aussie_male', label: 'Aussie Male', icon: '🦘', lang: 'en-AU' },
+                      { id: 'british_fem', label: 'British Female', icon: '🇬🇧', lang: 'en-GB' },
+                      { id: 'american_fem', label: 'US Female (Happy)', icon: '🇺🇸', lang: 'en-US' },
+                    ].map((p) => (
+                      <button 
+                        key={p.id}
+                        className={`p-4 rounded-2xl border transition-all text-left group ${selectedVoiceId === p.id ? 'bg-blue-600 border-blue-400 shadow-lg' : 'bg-white/5 border-white/5 hover:border-blue-500/50'}`}
+                        onClick={() => {
+                          if (p.id === 'dassah_premium') {
+                            setSelectedVoiceId('dassah_premium');
+                            alert(`Neural Premium locked: Dassah persona engaged.`);
+                            return;
+                          }
+                          const voice = availableVoices.find(v => v.lang.startsWith(p.lang));
+                          if (voice) {
+                            setSelectedVoiceId(voice.voiceURI);
+                            alert(`Neural Bridge locked: ${p.label} persona engaged.`);
+                          } else {
+                            alert(`No direct ${p.label} voice found on your system. Reverting to neural default.`);
+                          }
+                        }}
+                      >
+                        <span className="text-2xl mb-2 block">{p.icon}</span>
+                        <p className="text-xs font-black text-slate-200 group-hover:text-blue-400">{p.label}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 pb-2">Detected System Voices</p>
+                  <div className="space-y-2">
+                    {availableVoices.map((voice) => (
+                      <button 
+                        key={voice.voiceURI}
+                        onClick={() => setSelectedVoiceId(voice.voiceURI)}
+                        className={`w-full p-4 rounded-2xl border flex items-center justify-between transition-all ${selectedVoiceId === voice.voiceURI ? 'bg-blue-600 border-blue-400 shadow-lg' : 'bg-white/5 border-white/5 hover:bg-white/10'}`}
+                      >
+                        <div className="text-left">
+                          <p className={`text-sm font-black ${selectedVoiceId === voice.voiceURI ? 'text-white' : 'text-slate-300'}`}>{voice.name}</p>
+                          <p className="text-[10px] text-slate-500 font-bold uppercase">{voice.lang}</p>
+                        </div>
+                        {selectedVoiceId === voice.voiceURI && <CheckCircle2 size={18} className="text-white" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-8 border-t border-white/10">
+                <button 
+                  onClick={() => setShowVoiceSelector(false)}
+                  className="w-full bg-white text-black py-5 rounded-2xl font-black uppercase tracking-widest shadow-2xl hover:scale-[1.02] transition-all"
+                >
+                  Confirm Neural Link
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
       <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 bg-[var(--color-shadow)] backdrop-blur-3xl z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-[var(--color-glass)] hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
@@ -2661,12 +3329,102 @@ export default function Home() {
         {showTutorial && (
           <TutorialModal 
             step={tutorialStep} 
+            role={tutorialRole}
             onNext={() => setTutorialStep(s => s + 1)} 
             onClose={() => {
               setShowTutorial(false);
               localStorage.setItem('dassahs_prism_tutorial_complete', 'true');
             }} 
           />
+        )}
+      </AnimatePresence>
+    </main>
+      )}
+    </>
+  );
+}
+
+ewStep === 'pros' ? 'text-emerald-400' : 'text-red-400'}`}>
+                    Currently Reviewing: {councilReviewStep.toUpperCase()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="min-h-[300px] max-h-[40vh] overflow-y-auto no-scrollbar py-4">
+                {councilLoading ? (
+                  <div className="h-full flex flex-col items-center justify-center gap-4 opacity-50">
+                    <Loader2 className="animate-spin text-blue-500" size={48} />
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Syncing...</p>
+                  </div>
+                ) : (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 text-slate-300">
+                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10 prose prose-invert max-w-none">
+                      {councilResponse.split('\n').map((line, i) => (
+                        <p key={i} className="text-sm md:text-base leading-relaxed mb-2 last:mb-0">
+                          {isBionic ? <BionicText text={line} /> : line}
+                        </p>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setCouncilReviewActive(false)} 
+                  className="px-8 py-5 text-slate-500 font-black uppercase tracking-widest hover:text-red-400 transition-colors text-[10px]"
+                >
+                  Sever Link
+                </button>
+                <button 
+                  onClick={nextCouncilStep} 
+                  disabled={councilLoading}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-white shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                >
+                  {councilReviewStep === 'pros' ? (
+                    <>Next: View Cons <ArrowRight size={18} /></>
+                  ) : (
+                    currentCouncilAgentIdx === COUNCIL_AGENTS.length - 1 ? (
+                      <>Finalize Refraction <Disc size={18} /></>
+                    ) : (
+                      <>Next Agent: {COUNCIL_AGENTS[currentCouncilAgentIdx + 1]} <ArrowRight size={18} /></>
+                    )
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </main>
+      )}
+    </>
+  );
+}
+
+lick={() => setCouncilReviewActive(false)} 
+                  className="px-8 py-5 text-slate-500 font-black uppercase tracking-widest hover:text-red-400 transition-colors text-[10px]"
+                >
+                  Sever Link
+                </button>
+                <button 
+                  onClick={nextCouncilStep} 
+                  disabled={councilLoading}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-white shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                >
+                  {councilReviewStep === 'pros' ? (
+                    <>Next: View Cons <ArrowRight size={18} /></>
+                  ) : (
+                    currentCouncilAgentIdx === COUNCIL_AGENTS.length - 1 ? (
+                      <>Finalize Refraction <Disc size={18} /></>
+                    ) : (
+                      <>Next Agent: {COUNCIL_AGENTS[currentCouncilAgentIdx + 1]} <ArrowRight size={18} /></>
+                    )
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </main>
