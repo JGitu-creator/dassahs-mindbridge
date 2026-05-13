@@ -5,7 +5,7 @@ import {
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Ghost, Star, Settings, MoreHorizontal,
-  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc
+  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight
 } from 'lucide-react';
 
 const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
@@ -580,9 +580,21 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
   );
 };
 
+const DIVINE_INSIGHTS = [
+  "Commit your work to the Lord, and your plans will be established. - Proverbs 16:3",
+  "For I know the plans I have for you, declares the Lord. - Jeremiah 29:11",
+  "I can do all things through Christ who strengthens me. - Philippians 4:13",
+  "He gives power to the faint, and to him who has no might he increases strength. - Isaiah 40:29"
+];
+
+const getIsSunday = () => new Date().getDay() === 0;
+const getDailyInsight = () => DIVINE_INSIGHTS[new Date().getDate() % DIVINE_INSIGHTS.length];
+
 const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) => {
   if (!data) return null;
   const wordCount = data.chunks.reduce((acc: number, chunk: any) => acc + (chunk.original?.length || 0), 0) / 5; // Approx
+  const isSunday = getIsSunday();
+  const dailyInsight = getDailyInsight();
   
   return (
     <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1100] flex items-center justify-center p-4">
@@ -960,23 +972,6 @@ const TutorialModal = ({ step, role, onNext, onClose }: { step: number, role: st
     </div>
   );
 };
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-        <div className="pt-4">
-          <button 
-            onClick={step === TUTORIAL_STEPS.length - 1 ? onClose : onNext}
-            className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] text-white shadow-xl transition-all active:scale-95"
-          >
-            {step === TUTORIAL_STEPS.length - 1 ? "Establish Link" : "Next Point"}
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-};
 
 const RefractiveTagline = () => {
   const [phase, setPhase] = useState<'noise' | 'flash' | 'clarity'>('noise');
@@ -1032,7 +1027,7 @@ const RefractiveTagline = () => {
   );
 };
 
-const SnakeLightsBackground = ({ mousePos, theme, focusMode }: { mousePos: { x: number, y: number }, theme: Theme, focusMode: string }) => {
+const SnakeLightsBackground = ({ mousePos, theme, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: Theme, focusMode: string, isScenic: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const t = THEMES[theme] || THEMES.midnight;
 
@@ -1078,7 +1073,7 @@ const SnakeLightsBackground = ({ mousePos, theme, focusMode }: { mousePos: { x: 
         const dirs = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
         this.direction = dirs[Math.floor(Math.random() * dirs.length)];
         this.timer = 0;
-        this.speed = 8 + Math.random() * 12;
+        this.speed = (isScenic ? 4 : 8) + Math.random() * 12;
       }
 
       update() {
@@ -1098,7 +1093,7 @@ const SnakeLightsBackground = ({ mousePos, theme, focusMode }: { mousePos: { x: 
           };
 
           this.segments.unshift(newHead);
-          if (this.segments.length > 6) {
+          if (this.segments.length > (isScenic ? 10 : 6)) {
             this.segments.pop();
           }
 
@@ -1109,24 +1104,24 @@ const SnakeLightsBackground = ({ mousePos, theme, focusMode }: { mousePos: { x: 
           if (dist < 150) {
             this.speed = 3; // Speed up near mouse
           } else {
-            this.speed = 10 + Math.random() * 5;
+            this.speed = (isScenic ? 6 : 10) + Math.random() * 5;
           }
         }
       }
 
       draw() {
         this.segments.forEach((seg, i) => {
-          const alpha = (1 - (i / this.segments.length)) * 0.4;
+          const alpha = (1 - (i / this.segments.length)) * (isScenic ? 0.6 : 0.4);
           ctx!.fillStyle = this.color;
           ctx!.globalAlpha = alpha;
-          ctx!.shadowBlur = 15;
+          ctx!.shadowBlur = isScenic ? 25 : 15;
           ctx!.shadowColor = this.color;
           ctx!.fillRect(seg.x * gridSize + 4, seg.y * gridSize + 4, gridSize - 8, gridSize - 8);
         });
       }
     }
 
-    const snakes = [...Array(12)].map(() => new Snake());
+    const snakes = [...Array(isScenic ? 24 : 12)].map(() => new Snake());
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
@@ -1163,12 +1158,22 @@ export default function Home() {
   const [lastActivity, setLastActivity] = useState(Date.now());
   const AUTO_LOGOUT_TIME = 30 * 60 * 1000; // 30 Minutes
 
+  const [linkedUsers, setLinkedUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<SimplifiedData | null>(null);
+  const [currentChunk, setCurrentChunk] = useState(-1);
+  const [history, setHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [accountTier, setAccountTier] = useState<'individual' | 'family' | 'team' | 'university'>('individual');
+  const [isGuardian, setIsGuardian] = useState(false);
+
   // --- AUTO-SEVER (AUTO-LOGOUT) ---
   useEffect(() => {
     if (!user) return;
 
     const checkInactivity = () => {
-      if (Date.now() - lastActivity > AUTO_LOGOUT_TIME) {
+      if (Date.now() - lastActivity > 30 * 60 * 1000) { // 30 minutes
         handleLogout();
         alert("Neural Link Severed: For your sovereignty and safety, you have been logged out due to inactivity.");
       }
@@ -1188,16 +1193,6 @@ export default function Home() {
       window.removeEventListener('click', updateActivity);
     };
   }, [user, lastActivity]);
-
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<SimplifiedData | null>(null);
-  const [currentChunk, setCurrentChunk] = useState(-1);
-  const [history, setHistory] = useState<any[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [accountTier, setAccountTier] = useState<'individual' | 'family' | 'team' | 'university'>('individual');
-  const [isGuardian, setIsGuardian] = useState(false);
-  const [linkedUsers, setLinkedUsers] = useState<any[]>([]);
   const [isPaid, setIsPaid] = useState(false); 
   const [usageCount, setUsageCount] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -1215,6 +1210,9 @@ export default function Home() {
   const [tutorialRole, setTutorialRole] = useState<'core' | 'parent' | 'ceo' | 'uni'>('core');
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [theme, setTheme] = useState<Theme>('midnight');
+  const [mouseFocus, setMouseFocus] = useState(true);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [showAbout, setShowAbout] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [showNeuralCommand, setShowNeuralCommand] = useState(false);
@@ -1240,6 +1238,9 @@ export default function Home() {
   const [feedbackInput, setFeedbackInput] = useState('');
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
   const [showBreak, setShowBreak] = useState(false);
+  const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
+  const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
+  const [isScenic, setIsScenic] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
   const [simplicityLevel, setSimplicityLevel] = useState<'surgical' | 'vibrant'>('vibrant');
   const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
@@ -1382,7 +1383,7 @@ export default function Home() {
 
   const toggleTask = (taskIndex: number) => {
     const key = `${data?.id || 'current'}-${taskIndex}`;
-    setCheckedTasks(prev => ({ ...prev, [key]: !prev[key] }));
+    setCompletedTasks(prev => ({ ...prev, [key]: !prev[key] }));
     if (!completedTasks[key]) {
       setDassahPoints(p => p + 5); // Reward for action
     }
@@ -1821,14 +1822,8 @@ export default function Home() {
     URL.revokeObjectURL(url); 
   };
 
-  const isSunday = new Date().getDay() === 0;
-  const divineInsights = [
-    "Commit your work to the Lord, and your plans will be established. - Proverbs 16:3",
-    "For I know the plans I have for you, declares the Lord. - Jeremiah 29:11",
-    "I can do all things through Christ who strengthens me. - Philippians 4:13",
-    "He gives power to the faint, and to him who has no might he increases strength. - Isaiah 40:29"
-  ];
-  const dailyInsight = divineInsights[new Date().getDate() % divineInsights.length];
+  const isSunday = getIsSunday();
+  const dailyInsight = getDailyInsight();
 
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0]; if (!file) return; setLoading(true);
@@ -2221,7 +2216,25 @@ export default function Home() {
              <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)`, backgroundSize: '80px 80px' }} />
           </div>
         )}
-        <SnakeLightsBackground theme={theme} mousePos={mousePos} focusMode={focusMode} />
+        <SnakeLightsBackground theme={theme} mousePos={mousePos} focusMode={focusMode} isScenic={isScenic} />
+
+        {/* --- SCENIC READING GUIDE --- */}
+        <AnimatePresence>
+          {isScenic && (
+            <motion.div
+              style={{ x: mousePos.x, y: mousePos.y }}
+              className="fixed top-0 left-0 w-12 h-12 pointer-events-none z-[1000] -translate-x-1/2 -translate-y-1/2"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+            >
+              <div className="relative">
+                <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
+                <ArrowRight className="text-blue-400 rotate-90" size={32} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && focusMode !== 'sovereign' && (
           <NeuralAnchorSidebar data={data} isOpen={anchorsOpen} onToggle={() => setAnchorsOpen(!anchorsOpen)} />
@@ -2257,11 +2270,10 @@ export default function Home() {
             <div className="flex flex-col items-center">
               <p className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Bandwidth</p>
               <div className="flex items-center gap-1.5 md:gap-2">
-                <Clock className="text-blue-400" size={8} className="md:w-[10px] md:h-[10px]" />
+                <Clock className="text-blue-400 md:w-[10px] md:h-[10px]" size={8} />
                 <span className="font-black text-white text-[10px] md:text-xs tabular-nums">{totalMinutesSaved}m</span>
                 <span className="hidden xs:block w-[1px] h-3 bg-white/10 mx-0.5 md:mx-1" />
-                <Brain className="hidden xs:block text-purple-400" size={8} className="md:w-[10px] md:h-[10px]" />
-                <span className="hidden xs:block font-black text-white text-[10px] md:text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
+                <Brain className="hidden xs:block text-purple-400 md:w-[10px] md:h-[10px]" size={8} />                <span className="hidden xs:block font-black text-white text-[10px] md:text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
               </div>
             </div>
           </div>
@@ -2799,8 +2811,10 @@ export default function Home() {
                   { n: 'Leo', r: 'Dopamine Architect' },
                   { n: 'DJ', r: 'Sovereign Guide' }
                 ].map((a) => (
-                  <div key={a.n} className="p-3 bg-white/5 rounded-xl border border-white/5 text-center">
-                    <p className="text-[7px] font-black text-blue-400 uppercase tracking-tighter mb-1">{a.n}</p>
+                  <div key={a.n} className="p-3 bg-white/5 rounded-xl border border-white/5 text-center flex flex-col items-center justify-center gap-1">
+                    <p className="text-[7px] font-black text-blue-400 uppercase tracking-tighter flex items-center gap-1">
+                      {a.n} {a.n === 'DJ' && <Fish size={8} className="text-blue-400" />}
+                    </p>
                     <p className="text-[9px] font-bold text-slate-300 leading-none">{a.r}</p>
                   </div>
                 ))}
@@ -2936,8 +2950,7 @@ export default function Home() {
                   <Camera size={16} className="text-emerald-500" />
                 </button>
                 <div className="w-[1px] h-6 bg-white/10 mx-1" />
-                <button onClick={() => setIsScenic(!isScenic)} title={isScenic ? 'Scenic Route' : 'Quick Filter'} className={`p-2 md:p-3 rounded-full border transition-all ${isScenic ? 'bg-amber-500/20 border-amber-500/50 text-amber-500' : 'bg-white/5 border-transparent text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}</button>
-                <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}</button>
+                <button onClick={() => { setIsScenic(!isScenic); if (!isScenic && !brownNoisePlaying) setBrownNoisePlaying(true); }} title={isScenic ? 'Scenic Route' : 'Quick Filter'} className={`p-2 md:p-3 rounded-full border transition-all ${isScenic ? 'bg-amber-500/20 border-amber-500/50 text-amber-500' : 'bg-white/5 border-transparent text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}</button>                <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}</button>
               </div>
 
               <button 
@@ -3344,95 +3357,6 @@ export default function Home() {
               localStorage.setItem('dassahs_prism_tutorial_complete', 'true');
             }} 
           />
-        )}
-      </AnimatePresence>
-    </main>
-      )}
-    </>
-  );
-}
-
-ewStep === 'pros' ? 'text-emerald-400' : 'text-red-400'}`}>
-                    Currently Reviewing: {councilReviewStep.toUpperCase()}
-                  </p>
-                </div>
-              </div>
-
-              <div className="min-h-[300px] max-h-[40vh] overflow-y-auto no-scrollbar py-4">
-                {councilLoading ? (
-                  <div className="h-full flex flex-col items-center justify-center gap-4 opacity-50">
-                    <Loader2 className="animate-spin text-blue-500" size={48} />
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Syncing...</p>
-                  </div>
-                ) : (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 text-slate-300">
-                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10 prose prose-invert max-w-none">
-                      {councilResponse.split('\n').map((line, i) => (
-                        <p key={i} className="text-sm md:text-base leading-relaxed mb-2 last:mb-0">
-                          {isBionic ? <BionicText text={line} /> : line}
-                        </p>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => setCouncilReviewActive(false)} 
-                  className="px-8 py-5 text-slate-500 font-black uppercase tracking-widest hover:text-red-400 transition-colors text-[10px]"
-                >
-                  Sever Link
-                </button>
-                <button 
-                  onClick={nextCouncilStep} 
-                  disabled={councilLoading}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-white shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
-                >
-                  {councilReviewStep === 'pros' ? (
-                    <>Next: View Cons <ArrowRight size={18} /></>
-                  ) : (
-                    currentCouncilAgentIdx === COUNCIL_AGENTS.length - 1 ? (
-                      <>Finalize Refraction <Disc size={18} /></>
-                    ) : (
-                      <>Next Agent: {COUNCIL_AGENTS[currentCouncilAgentIdx + 1]} <ArrowRight size={18} /></>
-                    )
-                  )}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </main>
-      )}
-    </>
-  );
-}
-
-lick={() => setCouncilReviewActive(false)} 
-                  className="px-8 py-5 text-slate-500 font-black uppercase tracking-widest hover:text-red-400 transition-colors text-[10px]"
-                >
-                  Sever Link
-                </button>
-                <button 
-                  onClick={nextCouncilStep} 
-                  disabled={councilLoading}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-white shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
-                >
-                  {councilReviewStep === 'pros' ? (
-                    <>Next: View Cons <ArrowRight size={18} /></>
-                  ) : (
-                    currentCouncilAgentIdx === COUNCIL_AGENTS.length - 1 ? (
-                      <>Finalize Refraction <Disc size={18} /></>
-                    ) : (
-                      <>Next Agent: {COUNCIL_AGENTS[currentCouncilAgentIdx + 1]} <ArrowRight size={18} /></>
-                    )
-                  )}
-                </button>
-              </div>
-            </motion.div>
-          </div>
         )}
       </AnimatePresence>
     </main>

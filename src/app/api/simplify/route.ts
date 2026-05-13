@@ -61,11 +61,13 @@ export async function POST(req: Request) {
         CONTEXT: ${JSON.stringify(context)}
         USER REQUEST: ${question}
       `;
-    // Default Refraction Prompt
-    generationPrompt = `
+    } else {
+      // Default Refraction Prompt
+      generationPrompt = `
       You are the "Council of Agents." Transmute this Noise into Divine Clarity.
       Goal: ${missionGoal || 'Discovery'}
       Target: ${cognitiveMode}
+      ${isScenic ? 'MODE: THE SCENIC ROUTE. Provide richer, more descriptive content, immersive metaphors, and deeply engaging dopamine hooks. Do not over-simplify; instead, make the journey through the information stimulating and worthwhile.' : 'MODE: DIRECT REFRACTION. Be surgical, punchy, and prioritize maximum efficiency.'}
       
       For every segment (chunk), you MUST provide:
       1. "logicRoot": The specific "First Principle" or foundational truth used to distill this segment.
@@ -97,6 +99,7 @@ export async function POST(req: Request) {
       
       INPUT: ${text}
     `;
+    }
 
     // --- FAILOVER LOGIC ---
     const tryGemini = async () => {

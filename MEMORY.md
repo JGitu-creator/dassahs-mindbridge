@@ -18,6 +18,12 @@ The project has achieved "Neural Maturity" with high-quality TTS and institution
 - **ROI Dashboard:** Marcus's team savings dashboard enhanced with quantifiable "Value Reclaimed" metrics.
 - **One-Click Recap:** "Where was I?" Eye-icon active in the main navigation bar.
 
+### 4. Mobile & Integration Polish
+- **Mobile UI:** Optimized header/command bar size for small screens. Navigation is now persistent in Sovereign mode to prevent lockouts.
+- **Brown Noise Fix:** AudioContext now resumes correctly on mobile browsers (iOS/Android).
+- **Camera OCR:** Added high-visibility Camera button for environment capture and instant refraction.
+- **Voice Assistants:** Prepared metadata for Siri Shortcuts and Google Assistant integration.
+
 ### 5. Maintenance
 - **Reclaimed Space:** Deleted `prism-core` and cleared NPM cache.
 - **Protected:** `dchans-safespace` remains untouched as requested.

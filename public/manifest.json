@@ -18,5 +18,21 @@
       "sizes": "512x512",
       "type": "image/png"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Refract Noise",
+      "short_name": "Refract",
+      "description": "Instantly start a new neural refraction",
+      "url": "/?action=refract",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ask DJ",
+      "short_name": "Ask",
+      "description": "Open the neural assistant",
+      "url": "/?action=chat",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    }
   ]
 }
