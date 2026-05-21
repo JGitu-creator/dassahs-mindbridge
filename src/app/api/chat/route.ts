@@ -3,6 +3,8 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/ge
 
 const apiKey = process.env.GEMINI_API_KEY;
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   if (!apiKey) {
     return NextResponse.json(

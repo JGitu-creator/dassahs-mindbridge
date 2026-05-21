@@ -8,6 +8,8 @@ const openaiKey = process.env.OPENAI_API_KEY;
 const anthropicKey = process.env.ANTHROPIC_API_KEY;
 const deepseekKey = process.env.DEEPSEEK_API_KEY;
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   try {
     const { 

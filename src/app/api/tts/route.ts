@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
@@ -12,6 +10,13 @@ export async function POST(req: Request) {
     if (!text) {
       return NextResponse.json({ error: 'Text is required' }, { status: 400 });
     }
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Neural Voice Engine not configured (Missing Key)' }, { status: 500 });
+    }
+
+    const openai = new OpenAI({ apiKey });
 
     const mp3 = await openai.audio.speech.create({
       model: "tts-1",
