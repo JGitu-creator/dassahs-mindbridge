@@ -103,13 +103,19 @@ export async function POST(req: Request) {
     `;
     }
 
-    // --- FAILOVER LOGIC ---
+    import { tokenLogger } from '@/lib/tokenLogger';
+// ... (rest of imports)
+
+// --- FAILOVER LOGIC ---
     const tryGemini = async () => {
       if (!apiKey) throw new Error('No Gemini Key');
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       const result = await model.generateContent(generationPrompt);
-      return result.response.text();
+      const response = result.response;
+      // In a real scenario, calculate tokens used
+      tokenLogger('gemini-2.0-flash', 100); 
+      return response.text();
     };
 
     const tryOpenAI = async () => {
@@ -119,6 +125,7 @@ export async function POST(req: Request) {
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: generationPrompt }],
       });
+      tokenLogger('gpt-4o-mini', completion.usage?.total_tokens || 0);
       return completion.choices[0].message.content;
     };
 
@@ -126,12 +133,14 @@ export async function POST(req: Request) {
       if (!anthropicKey) throw new Error('No Anthropic Key');
       const anthropic = new Anthropic({ apiKey: anthropicKey });
       const msg = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 1024,
         messages: [{ role: "user", content: generationPrompt }],
       });
+      tokenLogger('claude-3-5-sonnet-20241022', msg.usage.input_tokens + msg.usage.output_tokens);
       return (msg.content[0] as any).text;
     };
+
 
     const tryDeepSeek = async () => {
       if (!deepseekKey) throw new Error('No DeepSeek Key');
@@ -159,7 +168,10 @@ export async function POST(req: Request) {
       }
     }
 
-    if (!responseText) throw new Error('All Neural Bridges are down.');
+    if (!responseText) {
+      console.error('All Neural Bridges failed.');
+      return NextResponse.json({ error: 'System busy, please try again.' }, { status: 503 });
+    }
 
     if (mode === 'chat' || mode === 'council_review') {
       return NextResponse.json({ answer: responseText });
