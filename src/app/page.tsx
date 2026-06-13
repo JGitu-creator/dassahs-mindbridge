@@ -32,72 +32,55 @@ const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
-type Theme = 'midnight' | 'neon' | 'electric' | 'gold' | 'emerald' | 'sunset' | 'nebula';
-
+type ThemeMode = 'light' | 'dark';
 interface ThemeConfig {
   name: string;
-  c1: string; c2: string;
-  text: string; accent: string;
-  glass: string; border: string;
-  shadow: string; mesh: string;
+  light: { background: string; text: string; accent: string; glass: string; border: string; };
+  dark: { background: string; text: string; accent: string; glass: string; border: string; };
   prism: string[];
 }
 
-const THEMES: Record<Theme, ThemeConfig> = {
+const THEMES: Record<string, ThemeConfig> = {
   midnight: {
     name: 'Midnight Sovereign',
-    c1: '#020617', c2: '#0f172a',
-    text: '#f8fafc', accent: '#3b82f6',
-    glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)',
-    shadow: 'rgba(0,0,0,0.5)', mesh: 'rgba(59, 130, 246, 0.1)',
+    light: { background: '#f8fafc', text: '#020617', accent: '#2563eb', glass: 'rgba(255,255,255,0.7)', border: 'rgba(0,0,0,0.1)' },
+    dark: { background: '#020617', text: '#f8fafc', accent: '#3b82f6', glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)' },
     prism: ['#3b82f6', '#8b5cf6', '#06b6d4']
   },
   neon: {
     name: 'Dastastic Neon',
-    c1: '#000000', c2: '#09090b',
-    text: '#ffffff', accent: '#22c55e',
-    glass: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)',
-    shadow: 'rgba(34, 197, 94, 0.2)', mesh: 'rgba(34, 197, 94, 0.05)',
+    light: { background: '#f0fdf4', text: '#064e3b', accent: '#16a34a', glass: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.2)' },
+    dark: { background: '#000000', text: '#ffffff', accent: '#22c55e', glass: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)' },
     prism: ['#22c55e', '#a855f7', '#3b82f6']
   },
   electric: {
     name: 'Electric Grace',
-    c1: '#020617', c2: '#1e1b4b',
-    text: '#ffffff', accent: '#f43f5e',
-    glass: 'rgba(244, 63, 94, 0.1)', border: 'rgba(244, 63, 94, 0.3)',
-    shadow: 'rgba(244, 63, 94, 0.2)', mesh: 'rgba(244, 63, 94, 0.05)',
+    light: { background: '#fff1f2', text: '#881337', accent: '#e11d48', glass: 'rgba(244, 63, 94, 0.2)', border: 'rgba(244, 63, 94, 0.2)' },
+    dark: { background: '#020617', text: '#ffffff', accent: '#f43f5e', glass: 'rgba(244, 63, 94, 0.1)', border: 'rgba(244, 63, 94, 0.3)' },
     prism: ['#f43f5e', '#fbbf24', '#2dd4bf']
   },
   gold: {
     name: 'Divine Gold',
-    c1: '#451a03', c2: '#000000',
-    text: '#fffbeb', accent: '#fbbf24',
-    glass: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.4)',
-    shadow: 'rgba(251, 191, 36, 0.2)', mesh: 'rgba(251, 191, 36, 0.05)',
+    light: { background: '#fffbeb', text: '#78350f', accent: '#d97706', glass: 'rgba(251, 191, 36, 0.2)', border: 'rgba(251, 191, 36, 0.3)' },
+    dark: { background: '#000000', text: '#fffbeb', accent: '#fbbf24', glass: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.4)' },
     prism: ['#fbbf24', '#f59e0b', '#ffffff']
   },
   emerald: {
     name: 'Hadassah Silk',
-    c1: '#064e3b', c2: '#022c22',
-    text: '#ecfdf5', accent: '#10b981',
-    glass: 'rgba(6, 78, 59, 0.4)', border: 'rgba(16, 185, 129, 0.2)',
-    shadow: 'rgba(2, 44, 34, 0.6)', mesh: 'rgba(16, 185, 129, 0.15)',
+    light: { background: '#ecfdf5', text: '#064e3b', accent: '#059669', glass: 'rgba(16, 185, 129, 0.2)', border: 'rgba(16, 185, 129, 0.2)' },
+    dark: { background: '#022c22', text: '#ecfdf5', accent: '#10b981', glass: 'rgba(6, 78, 59, 0.4)', border: 'rgba(16, 185, 129, 0.2)' },
     prism: ['#10b981', '#34d399', '#059669']
   },
   sunset: {
     name: 'Divine Glow',
-    c1: '#451a03', c2: '#78350f',
-    text: '#fff7ed', accent: '#f59e0b',
-    glass: 'rgba(120, 53, 15, 0.4)', border: 'rgba(245, 158, 11, 0.2)',
-    shadow: 'rgba(69, 26, 3, 0.6)', mesh: 'rgba(245, 158, 11, 0.15)',
+    light: { background: '#fff7ed', text: '#7c2d12', accent: '#d97706', glass: 'rgba(245, 158, 11, 0.2)', border: 'rgba(245, 158, 11, 0.2)' },
+    dark: { background: '#451a03', text: '#fff7ed', accent: '#f59e0b', glass: 'rgba(120, 53, 15, 0.4)', border: 'rgba(245, 158, 11, 0.2)' },
     prism: ['#f59e0b', '#fb923c', '#d97706']
   },
   nebula: {
     name: 'Sovereign Pulse',
-    c1: '#2e1065', c2: '#4c1d95',
-    text: '#f5f3ff', accent: '#8b5cf6',
-    glass: 'rgba(76, 29, 149, 0.4)', border: 'rgba(139, 92, 246, 0.2)',
-    shadow: 'rgba(46, 16, 101, 0.6)', mesh: 'rgba(139, 92, 246, 0.15)',
+    light: { background: '#f5f3ff', text: '#4c1d95', accent: '#7c3aed', glass: 'rgba(139, 92, 246, 0.2)', border: 'rgba(139, 92, 246, 0.2)' },
+    dark: { background: '#2e1065', text: '#f5f3ff', accent: '#8b5cf6', glass: 'rgba(76, 29, 149, 0.4)', border: 'rgba(139, 92, 246, 0.2)' },
     prism: ['#8b5cf6', '#a78bfa', '#7c3aed']
   }
 };
@@ -593,345 +576,10 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
   );
 };
 
-const MissionMandate = ({ onAccept, onCancel, linkState, syncProgress }: { onAccept: () => void, onCancel: () => void, linkState: 'pending' | 'syncing' | 'revealing' | 'established' | 'severed', syncProgress: number }) => {
-  return (
-    <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1000] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={linkState === 'revealing' ? { scale: 1.5, opacity: 0, filter: 'blur(20px)' } : { opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
-        className="max-w-2xl w-full bg-slate-900 border-2 border-blue-500/30 p-6 md:p-12 rounded-[2rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.2)] space-y-6 md:space-y-8 my-auto relative overflow-hidden"
-      >
-        {linkState === 'syncing' && (
-          <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-sm z-50 flex flex-col items-center justify-center space-y-6">
-            <div className="relative">
-              <div className="absolute inset-[-40px] border-4 border-dashed border-blue-500/30 rounded-full animate-[neural-gear_10s_linear_infinite]" />
-              <div className="absolute inset-[-20px] border-2 border-blue-400/20 rounded-full animate-[neural-gear_15s_linear_infinite_reverse]" />
-              <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-blue-500/30 shadow-2xl">
-                 <NeuralRefractionSlider />
-              </div>
-            </div>
-            <div className="w-48 md:w-64 h-1.5 md:h-2 bg-white/10 rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${syncProgress}%` }}
-                className="h-full bg-blue-500 shadow-[0_0_20px_#3b82f6]"
-              />
-            </div>
-            <p className="text-blue-400 font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-[10px] md:text-xs animate-pulse">Syncing Neural Link: {syncProgress}%</p>
-          </div>
-        )}
 
-        <div className="flex items-center gap-3 md:gap-4 text-blue-400 font-black uppercase tracking-widest text-[10px] md:text-xs">
-          <Shield size={16} className="animate-pulse" /> Mission Mandate: Sovereign Directive
-        </div>
-        
-        <div className="space-y-2">
-          <h2 className="text-2xl md:text-5xl font-black text-white italic leading-tight">Crush Noise. <span className="prism-text">Claim Focus.</span></h2>
-          <p className="text-xs md:text-sm text-slate-400 font-medium italic">Turn a 20-page document into a 3-minute mission.</p>
-        </div>
 
-        <div className="w-full my-4 hidden md:block">
-           <NeuralRefractionSlider />
-        </div>
-        
-        <div className="space-y-4 md:space-y-6 text-slate-300 overflow-y-auto max-h-[25vh] md:max-h-[30vh] pr-2 md:pr-4 custom-scrollbar">
-          <div className="p-3 md:p-4 bg-blue-500/5 rounded-xl md:rounded-2xl border border-blue-500/20 mb-4">
-             <p className="text-[8px] md:text-[10px] text-blue-300 font-black uppercase tracking-widest mb-1 italic">Parental Directive</p>
-             <p className="text-[10px] md:text-xs font-bold leading-relaxed text-blue-100 italic">"By establishing this link for a minor, you as a parent or guardian provide neural consent for their access to the Prism."</p>
-          </div>
 
-          <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
-            <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Lock size={10} className="text-blue-400" /> 1. The "Sensitive Data" Shield</h3>
-            <p className="text-xs md:text-sm leading-relaxed text-blue-100">Neural Guardrails: Do not input highly sensitive data (e.g., SSNs, passwords, or private health records). We are not liable for the exposure of data you choose to provide.</p>
-            <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: Keep your private secrets like passwords and IDs out of the Prism for your safety!]</p>
-          </div>
-          
-          <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
-            <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Zap size={10} className="text-amber-400" /> 2. Neural Resonance (Data Processing)</h3>
-            <p className="text-xs md:text-sm leading-relaxed text-blue-100">Your inputs are processed via Google's Gemini models to provide clarity. By using the Prism, you agree to their standard data handling protocols.</p>
-            <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: Google's smart robots help us clean the noise, and they follow strict rules to keep things safe.]</p>
-          </div>
-          
-          <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
-            <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Shield size={10} className="text-emerald-400" /> 3. "As-Is" Liability</h3>
-            <p className="text-xs md:text-sm leading-relaxed text-blue-100">Dassah's-Prism is provided "as is" without warranties. The creators shall not be liable for any direct or indirect damages resulting from your use of this tool.</p>
-            <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: We built this tool with love to help you, but we aren't responsible if things aren't perfect or if the noise is too loud today.]</p>
-          </div>
-          
-          <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
-            <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Brain size={10} className="text-purple-400" /> 4. Cerebral Guardianship (GDPR/CCPA)</h3>
-            <p className="text-xs md:text-sm leading-relaxed text-blue-100">You have the "Right to Erasure" (to have your data deleted) and we never sell your neural profile to third parties.</p>
-            <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: You own your brain data. You can ask us to delete it whenever you want! We never sell your thoughts.]</p>
-          </div>
 
-          <div className="space-y-2 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
-            <h3 className="text-white font-black uppercase text-[8px] md:text-[10px] tracking-widest flex items-center gap-2"><Anchor size={10} className="text-blue-400" /> 5. Functional Neural Anchors (Cookies)</h3>
-            <p className="text-xs md:text-sm leading-relaxed text-blue-100">We use essential cookies to keep your neural link active and save your preferences.</p>
-            <p className="text-[8px] md:text-[10px] text-slate-500 italic font-bold">[What this means: Small digital anchors help the Prism remember who you are so you don't have to sign in every time!]</p>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2 md:gap-4 pt-4 relative z-10">
-          <button 
-            onClick={onAccept}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-4 md:py-6 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.1em] md:tracking-[0.2em] transition-all active:scale-95 shadow-xl shadow-blue-500/20 group text-xs md:text-base"
-          >
-            <span className="flex items-center justify-center gap-2 md:gap-3">
-              Establish Neural Link <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
-            </span>
-          </button>
-          <button 
-            onClick={onCancel}
-            className="px-6 py-4 md:px-8 md:py-6 text-slate-500 font-black uppercase tracking-widest hover:text-red-400 transition-colors text-[10px] md:text-sm"
-          >
-            Sever Link
-          </button>
-        </div>
-
-        <div className="pt-6 flex justify-center gap-6 border-t border-white/5 mt-4">
-          <a href="/privacy" className="text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-blue-400 transition-colors">Privacy Shield</a>
-          <a href="/terms" className="text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-blue-400 transition-colors">Neural Terms</a>
-        </div>
-      </motion.div>
-    </div>
-  );
-};
-
-const PortalReveal = () => {
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[1500] flex flex-col items-center justify-center bg-black p-4"
-    >
-      <div className="relative flex flex-col items-center">
-        <svg width="160" height="80" viewBox="0 0 160 80" className="mb-8">
-          <motion.path
-            d="M10 40c30-30 90-30 130 0l20 15M10 40c30 30 90 30 130 0l20-15"
-            fill="none"
-            stroke="white"
-            strokeWidth="3"
-            strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-          />
-          <motion.path
-            d="M10 40c30-30 90-30 130 0l20 15M10 40c30 30 90 30 130 0l20-15"
-            fill="none"
-            stroke="url(#ichthys-grad)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0.5] }}
-            transition={{ delay: 1.5, duration: 1 }}
-          />
-          <defs>
-            <linearGradient id="ichthys-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#8b5cf6" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 1.8, duration: 0.5, ease: "easeOut" }}
-          className="text-center space-y-1"
-        >
-          <p className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.6em] md:tracking-[1em] text-blue-400/40 ml-[0.6em] md:ml-[1em]">entering</p>
-          <h2 className="text-3xl md:text-8xl font-black italic prism-text drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">Dassah&apos;s-Prism</h2>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-};
-
-const NeuralLinkSevered = () => {
-  return (
-    <div className="fixed inset-0 bg-black z-[2000] flex flex-col items-center justify-center p-8 text-center space-y-8">
-      <div className="absolute inset-0 opacity-20 pointer-events-none grayscale brightness-50" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
-      
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="space-y-6"
-      >
-        <div className="w-24 h-24 bg-red-600/10 rounded-full flex items-center justify-center mx-auto text-red-500 border-2 border-red-500/20 shadow-[0_0_50px_rgba(239,68,68,0.2)]">
-          <X size={48} />
-        </div>
-        <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic">Link Severed</h2>
-        <p className="text-slate-500 max-w-md mx-auto font-medium">Access to Dassah's Neural Prism requires acceptance of the Sovereign Directive. The connection has been terminated to protect your neural sovereignty.</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="mt-8 px-12 py-4 bg-white text-black font-black uppercase tracking-widest rounded-full hover:scale-105 transition-all"
-        >
-          Retry Authentication
-        </button>
-      </motion.div>
-    </div>
-  );
-};
-
-const TUTORIAL_STEPS: Record<string, any[]> = {
-  core: [
-    {
-      title: "Welcome to the Prism",
-      description: "Hullo! I'm DJ. This is your Neural Prism—a sanctuary built to turn overwhelming 'Noise' into 'Divine Clarity.'",
-      more: "Dassah's-Prism was born from the idea that ADHD isn't a deficit, but a high-powered engine. We use AI to refract complex data into vibrant, manageable streams of insight.",
-      icon: <Sparkles className="text-blue-400" size={48} />
-    },
-    {
-      title: "Refraction & Modes",
-      description: "Use the slider above to see the magic. Switch between 'Dastastic' (stimulating) and 'Sovereign' (executive) modes to suit your mind.",
-      more: "Dastastic mode uses metaphors and hooks to keep you engaged. Sovereign mode uses 'Executive Distillation' for rapid, bottom-line decision making.",
-      icon: <Zap className="text-amber-500" size={48} />
-    },
-    {
-      title: "Neural Core & Levels",
-      description: "Paste your noise into the core. Choose your Discernment Level: 'Vibrant' for simple clarity, or 'Surgical' for expert precision.",
-      more: "Vibrant Level uses punchy metaphors—ideal for ADHD brains needing dopamine. Surgical Level provides technical depth for professional 'Mechanism Hunters.'",
-      icon: <Brain className="text-purple-400" size={48} />
-    },
-    {
-      title: "Neural Command",
-      description: "Click the gears! Control your environment with Soundscapes (Brown Noise), Bionic reading, and the Neural Bridge (Extension).",
-      more: "Neural Command is your cockpit. Use Bionic reading to guide your eyes, and Brown Noise to drown out external distractions during deep focus.",
-      icon: <Settings className="text-blue-500" size={48} />
-    },
-    {
-      title: "Neural Identity & Vault",
-      description: "Click the Crown. This is your Sovereignty: track your 'Bandwidth Reclaimed' and access your Achieving Vault (History).",
-      more: "Neural Identity turns your productivity into a visual testimony. Your history is stored securely in the Vault so you never lose a 'Refraction'.",
-      icon: <Crown className="text-yellow-500" size={48} />
-    },
-    {
-      title: "The Roadmap",
-      description: "Every refraction ends with a Priority Roadmap. These are your actionable steps, ranked by urgency (High, Medium, Low).",
-      more: "The Roadmap ensures you don't just learn—you ACT. Seal the Prism to consolidate your gains into long-term memory.",
-      icon: <BarChart3 className="text-amber-500" size={48} />
-    },
-    {
-      title: "Sovereign Off-Ramp",
-      description: "The 'Mission Brief' consolidation ensures you leave the Prism with Peace, not just information. Reclaim your focus.",
-      more: "Every session ends with a clear summary. You don't just 'read' with the Prism; you 'conclude' and reclaim your peace.",
-      icon: <ShieldCheck className="text-emerald-400" size={48} />
-    }
-  ],
-  parent: [
-    {
-      title: "Guardian Shield",
-      description: "As a Parent/Guardian, you can monitor the 'Noise' your child is refracting and ensure they stay focused.",
-      more: "The Parent Dashboard allows you to see 'Bandwidth Reclaimed' and 'Neural Milestones' for your linked accounts.",
-      icon: <Shield size={48} className="text-emerald-400" />
-    },
-    {
-      title: "Sharing Clarity",
-      description: "Use the 'Share with Parent' button in the Roadmap to receive instant updates on your child's missions.",
-      more: "This bridges the gap between study time and family alignment, celebrating every refraction together.",
-      icon: <Heart size={48} className="text-red-400" />
-    }
-  ],
-  ceo: [
-    {
-      title: "Executive Distillation",
-      description: "Focus on ROI. Sovereign Mode is your primary tool for rapid decision making and mechanism hunting.",
-      more: "Turn complex corporate reports into 3-minute executive summaries with clear action items and financial impact.",
-      icon: <Crown size={48} className="text-amber-500" />
-    },
-    {
-      title: "ROI Command Center",
-      description: "Track 'Value Reclaimed' across your team and optimize your institutional cognitive efficiency.",
-      more: "Marcus's ROI Decoder tracks time saved and translates it into quantifiable business value.",
-      icon: <BarChart3 size={48} className="text-blue-500" />
-    }
-  ],
-  uni: [
-    {
-      title: "Scholar Mode",
-      description: "Deep dive into First Principles. Use Surgical Level for high-density academic papers and lectures.",
-      more: "Helena's Logic Chain and Evidence Anchors (Citations) ensure your research is grounded and verifiable.",
-      icon: <Shield size={48} className="text-purple-400" />
-    },
-    {
-      title: "LTI 1.3 Integration",
-      description: "Connect Dassah's Prism directly to Canvas or Blackboard for seamless academic refraction.",
-      more: "Your assignments are automatically pulled into the Prism, and your insights can be exported back to the LMS.",
-      icon: <Code size={48} className="text-blue-400" />
-    }
-  ]
-};
-
-const TutorialModal = ({ step, role, onNext, onClose }: { step: number, role: string, onNext: () => void, onClose: () => void }) => {
-  const steps = TUTORIAL_STEPS[role] || TUTORIAL_STEPS.core;
-  const current = steps[step];
-  const [showMore, setShowMore] = useState(false);
-
-  useEffect(() => { setShowMore(false); }, [step, role]);
-
-  return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[1000] flex items-center justify-center p-4">
-      <motion.div 
-        key={`${role}-${step}`}
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: -20 }}
-        className="max-w-md w-full bg-slate-900 border-2 border-blue-500/30 p-8 md:p-12 rounded-[4rem] text-center space-y-6 shadow-[0_0_150px_rgba(59,130,246,0.3)]"
-      >
-        <div className="mx-auto w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mb-2">
-          {current.icon}
-        </div>
-        <div className="space-y-3">
-          <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]">Node {step + 1} of {steps.length} ({role.toUpperCase()})</p>
-          <h2 className="text-3xl font-black text-white italic tracking-tighter">{current.title}</h2>
-          <p className="text-slate-400 text-base leading-relaxed font-medium">{current.description}</p>
-          
-          <div className="pt-2">
-            <button 
-              onClick={() => setShowMore(!showMore)} 
-              className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-500/60 hover:text-blue-400 transition-colors"
-            >
-              {showMore ? "- Show Less" : "+ Read Further"}
-            </button>
-            <AnimatePresence>
-              {showMore && (
-                <motion.div 
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
-                >
-                  <p className="mt-4 p-4 bg-white/5 rounded-2xl text-xs text-slate-500 leading-relaxed italic border border-white/5">
-                    {current.more}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-        <div className="pt-4">
-          <button 
-            onClick={step === steps.length - 1 ? onClose : onNext}
-            className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] text-white shadow-xl transition-all active:scale-95"
-          >
-            {step === steps.length - 1 ? "Acknowledge" : "Next Point"}
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-};
-
-const RefractiveTagline = () => {
-  const [phase, setPhase] = useState<'noise' | 'flash' | 'clarity'>('noise');
-
-  useEffect(() => {
-    const timer1 = setTimeout(() => setPhase('flash'), 1000);
-    const timer2 = setTimeout(() => setPhase('clarity'), 1300);
-    return () => { clearTimeout(timer1); clearTimeout(timer2); };
   }, []);
 
   const text = "Turn overwhelming noise into clear focus in seconds.";
@@ -3317,3 +2965,74 @@ export default function Home() {
   );
 }
 
+
+const AudioToggle = () => {
+  const [isOn, setIsOn] = useState(false);
+  return (
+    <button 
+      onClick={() => setIsOn(!isOn)}
+      className="fixed bottom-8 right-8 z-[500] p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-white font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:scale-105 transition-all"
+    >
+      Sound {isOn ? 'ON' : 'OFF'}
+    </button>
+  );
+};
+
+const ContextAnchor = ({ whyCare, isZenLocked, segmentIdx }: { whyCare: string, isZenLocked: boolean, segmentIdx: number }) => {
+  return (
+    <motion.div 
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -20, opacity: 0 }}
+      className={`fixed ${isZenLocked ? 'top-8' : 'top-24'} left-1/2 -translate-x-1/2 z-[105] w-full max-w-lg px-4 pointer-events-none transition-all duration-700`}
+    >
+      <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto flex items-center gap-6">
+        <div className="relative">
+          <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
+          <div className="relative p-3 rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-500/20 shadow-lg">
+            <Anchor size={16} />
+          </div>
+        </div>
+        <div className="flex-grow">
+          <div className="flex justify-between items-center mb-1">
+            <p className="text-[7px] font-black uppercase tracking-[0.4em] text-blue-400/60 leading-none">Mission Anchor {segmentIdx + 1}</p>
+            <div className="flex gap-1">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className={`w-1 h-1 rounded-full ${i === segmentIdx % 3 ? 'bg-blue-400 animate-pulse' : 'bg-white/10'}`} />
+              ))}
+            </div>
+          </div>
+          <p className="text-[11px] font-bold text-slate-100 leading-tight italic line-clamp-2">"{whyCare}"</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const ProgressPrism = ({ current, total }: { current: number, total: number }) => {
+  const percentage = ((current + 1) / total) * 100;
+  
+  return (
+    <div className="w-full h-4 bg-white/5 rounded-full relative overflow-hidden border border-white/10 shadow-inner">
+      <motion.div 
+        initial={{ width: 0 }}
+        animate={{ width: `${percentage}%` }}
+        transition={{ type: "spring", damping: 20, stiffness: 60 }}
+        className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-600 via-purple-500 to-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.5)] flex items-center"
+      >
+        <motion.div 
+          animate={{ x: ['-100%', '200%'] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]"
+        />
+      </motion.div>
+      {[...Array(total)].map((_, i) => (
+        <div 
+          key={i} 
+          className="absolute top-0 h-full w-[1px] bg-white/10"
+          style={{ left: `${(i / total) * 100}%` }}
+        />
+      ))}
+    </div>
+  );
+};
