@@ -1603,12 +1603,13 @@ export default function Home() {
   };
 
   const currentTheme = THEMES[theme];
+  const isDark = true;
+  const colors = isDark ? currentTheme.dark : currentTheme.light;
   const themeStyles = `
     :root {
-      --color-bg-1: ${currentTheme.c1}; --color-bg-2: ${currentTheme.c2};
-      --color-text: ${currentTheme.text}; --color-accent: ${currentTheme.accent};
-      --color-glass: ${currentTheme.glass}; --color-border: ${currentTheme.border};
-      --color-shadow: ${currentTheme.shadow};
+      --color-bg-1: ${colors.background}; --color-bg-2: ${colors.background};
+      --color-text: ${colors.text}; --color-accent: ${colors.accent};
+      --color-glass: ${colors.glass}; --color-border: ${colors.border};
       --prism-1: ${currentTheme.prism[0]}; --prism-2: ${currentTheme.prism[1]}; --prism-3: ${currentTheme.prism[2]};
     }
     @keyframes prism-refract { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
