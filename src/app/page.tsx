@@ -2547,29 +2547,7 @@ export default function Home() {
                 <div className="space-y-8 flex-grow">
                   <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
                   
-                  {/* HELENA'S LOGIC CHAIN & CITATIONS */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button 
-                      onClick={() => toggleLogicRoot(currentChunk)}
-                      className={`p-6 rounded-3xl border transition-all text-left flex flex-col gap-2 ${showLogicRoot[currentChunk] ? 'bg-blue-500/10 border-blue-500/50' : 'bg-white/5 border-white/5 hover:border-blue-500/30'}`}
-                    >
-                      <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-blue-400">
-                        <Brain size={14}/> Neural Root (Logic Chain)
-                      </div>
-                      <p className="text-sm font-bold text-slate-300">
-                        {showLogicRoot[currentChunk] ? data.chunks[currentChunk].logicRoot : 'Click to reveal foundational logic'}
-                      </p>
-                    </button>
-                    
-                    <div className="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-2">
-                      <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-emerald-400">
-                        <Anchor size={14}/> Evidence Anchor (Citation)
-                      </div>
-                      <p className="text-sm font-bold text-slate-300">
-                        {data.chunks[currentChunk].citations || "Secured from context"}
-                      </p>
-                    </div>
-                  </div>
+
                   {/* Progress Prism at the bottom of content */}
                   <div className="pt-8">
                     <ProgressPrism progress={(currentChunk + 1) / data.chunks.length} />
