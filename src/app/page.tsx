@@ -1702,14 +1702,6 @@ export default function Home() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {(linkState === 'pending' || linkState === 'syncing' || linkState === 'revealing') && (
-          <MissionMandate 
-            linkState={linkState}
-            syncProgress={syncProgress}
-            onAccept={handleEstablishLink}
-            onCancel={() => { setLinkState('severed'); }}
-          />
-        )}
       </AnimatePresence>
 
       <AnimatePresence>
