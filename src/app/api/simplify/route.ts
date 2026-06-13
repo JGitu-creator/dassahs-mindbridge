@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
+import { tokenLogger } from '@/lib/tokenLogger';
 
 const apiKey = process.env.GEMINI_API_KEY;
 const openaiKey = process.env.OPENAI_API_KEY;
@@ -102,9 +103,6 @@ export async function POST(req: Request) {
       INPUT: ${text}
     `;
     }
-
-    import { tokenLogger } from '@/lib/tokenLogger';
-// ... (rest of imports)
 
 // --- FAILOVER LOGIC ---
     const tryGemini = async () => {
