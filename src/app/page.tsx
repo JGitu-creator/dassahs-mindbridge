@@ -581,6 +581,20 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
 
 
 
+  );
+};
+
+const RefractiveTagline = () => {
+  const [phase, setPhase] = useState<'noise' | 'flash' | 'clarity'>('noise');
+
+  useEffect(() => {
+    const timer1 = setTimeout(() => setPhase('flash'), 1000);
+    const timer2 = setTimeout(() => setPhase('clarity'), 1300);
+    return () => { clearTimeout(timer1); clearTimeout(timer2); };
+  }, []);
+
+  const text = "Turn overwhelming noise into clear focus in seconds.";
+
   return (
     <div className="relative h-12 flex items-center justify-center overflow-hidden">
       <motion.p 
