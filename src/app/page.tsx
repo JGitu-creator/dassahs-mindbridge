@@ -29,10 +29,12 @@ const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
   );
 };
 
+import { ContextAnchor } from '@/components/prism/ContextAnchor';
+import { ProgressPrism } from '@/components/prism/ProgressPrism';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
-type ThemeMode = 'light' | 'dark';
+type ThemeMode = 'midnight' | 'neon' | 'electric' | 'gold' | 'emerald' | 'sunset' | 'nebula';
 interface ThemeConfig {
   name: string;
   light: { background: string; text: string; accent: string; glass: string; border: string; };
@@ -750,10 +752,10 @@ export default function Home() {
   const [chatLoading, setChatLoading] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
-  const [tutorialRole, setTutorialRole] = useState<'core' | 'parent' | 'ceo' | 'uni'>('core');
+  // Removed tutorialRole state
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [theme, setTheme] = useState<string>('midnight');
+  const [theme, setTheme] = useState<ThemeMode>('midnight');
   const [mouseFocus, setMouseFocus] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [showAbout, setShowAbout] = useState(false);
@@ -785,74 +787,6 @@ export default function Home() {
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
   const [isScenic, setIsScenic] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
-  const [simplicityLevel, setSimplicityLevel] = useState<'surgical' | 'vibrant'>('vibrant');
-  const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
-  const brownNoiseRef = useRef<any>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const premiumAudioRef = useRef<HTMLAudioElement | null>(null);
-
-  const [councilReviewActive, setCouncilReviewActive] = useState(false);
-  const [currentCouncilAgentIdx, setCurrentCouncilAgentIdx] = useState(0);
-  const [councilReviewStep, setCouncilReviewStep] = useState<'pros' | 'cons'>('pros');
-  const [councilResponse, setCouncilResponse] = useState<string>('');
-  const [councilLoading, setCouncilLoading] = useState(false);
-
-  const COUNCIL_AGENTS = ['Sarah', 'Dr. Helena', 'Marcus', 'Maya', 'Leo', 'DJ'];
-
-  const startCouncilReview = () => {
-    if (!input.trim()) return;
-    setCouncilReviewActive(true);
-    setCurrentCouncilAgentIdx(0);
-    setCouncilReviewStep('pros');
-    fetchCouncilReview('Sarah', 'pros');
-  };
-
-  const fetchCouncilReview = async (agent: string, step: 'pros' | 'cons') => {
-    setCouncilLoading(true);
-    try {
-      const res = await fetch('/api/simplify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          text: input, 
-          mode: 'council_review', 
-          agentName: agent, 
-          reviewStep: step 
-        })
-      });
-      const result = await res.json();
-      setCouncilResponse(result.answer);
-    } catch (e) {
-      setCouncilResponse("Neural link error.");
-    } finally {
-      setCouncilLoading(false);
-    }
-  };
-
-  const nextCouncilStep = () => {
-    if (councilReviewStep === 'pros') {
-      setCouncilReviewStep('cons');
-      fetchCouncilReview(COUNCIL_AGENTS[currentCouncilAgentIdx], 'cons');
-    } else {
-      if (currentCouncilAgentIdx < COUNCIL_AGENTS.length - 1) {
-        const nextIdx = currentCouncilAgentIdx + 1;
-        setCurrentCouncilAgentIdx(nextIdx);
-        setCouncilReviewStep('pros');
-        fetchCouncilReview(COUNCIL_AGENTS[nextIdx], 'pros');
-      } else {
-        setCouncilReviewActive(false);
-        handleSimplify(); // Finalize with full refraction
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (brownNoisePlaying) {
-      try {
-        const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-        const ctx = new AudioContextClass();
-        audioCtxRef.current = ctx;
-        if (ctx.state === 'suspended') ctx.resume();
         
         const bufferSize = 4096;
         let lastOut = 0.0;
@@ -868,12 +802,6 @@ export default function Home() {
           }
         };
         
-        node.connect(ctx.destination);
-        brownNoiseRef.current = node;
-      } catch (e) {
-        console.error("Neural Harmony (Brown Noise) failed to initialize:", e);
-      }
-    } else {
       if (brownNoiseRef.current) {
         brownNoiseRef.current.disconnect();
         brownNoiseRef.current = null;
@@ -1776,7 +1704,7 @@ export default function Home() {
         
         <AnimatePresence>
           {data && currentChunk >= 0 && currentChunk < data.chunks.length && (
-            <ContextAnchor whyCare={data.whyCare} isZenLocked={isZenLocked || focusMode === 'sovereign'} segmentIdx={currentChunk} />
+            <ContextAnchor data={data} isOpen={true} onToggle={() => {}} />
           )}
         </AnimatePresence>
 
@@ -1882,10 +1810,7 @@ export default function Home() {
                         <Type size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Bionic Shield</span>
                       </button>
-                      <button onClick={() => { setIsScholarMode(!isScholarMode); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isScholarMode ? 'bg-slate-700/20 border-slate-500 text-slate-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
-                        <BookOpen size={20} />
-                        <span className="text-[8px] font-black uppercase tracking-widest">Scholar Mode</span>
-                      </button>
+
                       <button onClick={() => { setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-purple-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
                         <Clock size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Neural Rhythm</span>
@@ -1893,23 +1818,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4 mt-6">Institutional Scaling (Tutorials)</p>
-                    <div className="grid grid-cols-2 gap-3">
-                       <button onClick={() => { setTutorialRole('parent'); setTutorialStep(0); setShowTutorial(true); setShowNeuralCommand(false); }} className="p-4 rounded-2xl bg-emerald-600/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-600 hover:text-white transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
-                         <Shield size={20} /> Parent Guide
-                       </button>
-                       <button onClick={() => { setTutorialRole('ceo'); setTutorialStep(0); setShowTutorial(true); setShowNeuralCommand(false); }} className="p-4 rounded-2xl bg-amber-600/10 border border-amber-500/30 text-amber-400 hover:bg-amber-600 hover:text-white transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
-                         <Crown size={20} /> CEO/ROI Guide
-                       </button>
-                       <button onClick={() => { setTutorialRole('uni'); setTutorialStep(0); setShowTutorial(true); setShowNeuralCommand(false); }} className="p-4 rounded-2xl bg-purple-600/10 border border-purple-500/30 text-purple-400 hover:bg-purple-600 hover:text-white transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
-                         <Code size={20} /> Uni/LTI Guide
-                       </button>
-                       <button onClick={() => { setTutorialRole('core'); setTutorialStep(0); setShowTutorial(true); setShowNeuralCommand(false); }} className="p-4 rounded-2xl bg-blue-600/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
-                         <Sparkles size={20} /> Core Review
-                       </button>
-                    </div>
-                  </div>
+
 
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4 mt-6">Neural Continuity</p>
@@ -1944,7 +1853,7 @@ export default function Home() {
                     <div className="grid grid-cols-2 gap-2">
                       {Object.entries(THEMES).map(([id, t]) => (
                         <button key={id} onClick={() => { setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
-                          <div className="w-5 h-5 rounded-md" style={{ backgroundColor: t.accent }} />
+                          <div className="w-3 h-3 rounded-md" style={{ backgroundColor: t.light.accent }} />
                           <span className="text-[9px] font-bold text-white truncate text-left" title={t.name}>{t.name}</span>
                         </button>
                       ))}
@@ -2661,7 +2570,7 @@ export default function Home() {
                   </div>
                   {/* Progress Prism at the bottom of content */}
                   <div className="pt-8">
-                    <ProgressPrism current={currentChunk} total={data.chunks.length} />
+                    <ProgressPrism progress={(currentChunk + 1) / data.chunks.length} />
                   </div>
                   {data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-amber-500/5 p-8 rounded-[2.5rem] border-2 border-amber-500/10 space-y-4 relative group/card overflow-hidden">
