@@ -301,36 +301,6 @@ const NeuroMirrorText = ({ text }: { text: string }) => {
   );
 };
 
-const ContextAnchor = ({ whyCare, isZenLocked, segmentIdx }: { whyCare: string, isZenLocked: boolean, segmentIdx: number }) => {
-  return (
-    <motion.div 
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: -20, opacity: 0 }}
-      className={`fixed ${isZenLocked ? 'top-8' : 'top-24'} left-1/2 -translate-x-1/2 z-[105] w-full max-w-lg px-4 pointer-events-none transition-all duration-700`}
-    >
-      <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto flex items-center gap-6">
-        <div className="relative">
-          <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
-          <div className="relative p-3 rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-500/20 shadow-lg">
-            <Anchor size={16} />
-          </div>
-        </div>
-        <div className="flex-grow">
-          <div className="flex justify-between items-center mb-1">
-            <p className="text-[7px] font-black uppercase tracking-[0.4em] text-blue-400/60 leading-none">Mission Anchor {segmentIdx + 1}</p>
-            <div className="flex gap-1">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className={`w-1 h-1 rounded-full ${i === segmentIdx % 3 ? 'bg-blue-400 animate-pulse' : 'bg-white/10'}`} />
-              ))}
-            </div>
-          </div>
-          <p className="text-[11px] font-bold text-slate-100 leading-tight italic line-clamp-2">"{whyCare}"</p>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
 
 const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: () => void }) => {
   const [seconds, setSeconds] = useState(level === 1 ? 15 : level === 2 ? 30 : 60);
@@ -388,36 +358,6 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
         </div>
       </div>
     </motion.div>
-  );
-};
-const ProgressPrism = ({ current, total }: { current: number, total: number }) => {
-  const percentage = ((current + 1) / total) * 100;
-  
-  return (
-    <div className="w-full h-4 bg-white/5 rounded-full relative overflow-hidden border border-white/10 shadow-inner">
-      {/* 3D Prism Glow effect */}
-      <motion.div 
-        initial={{ width: 0 }}
-        animate={{ width: `${percentage}%` }}
-        transition={{ type: "spring", damping: 20, stiffness: 60 }}
-        className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-600 via-purple-500 to-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.5)] flex items-center"
-      >
-        <motion.div 
-          animate={{ x: ['-100%', '200%'] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]"
-        />
-      </motion.div>
-      
-      {/* Segment Markers */}
-      {[...Array(total)].map((_, i) => (
-        <div 
-          key={i} 
-          className="absolute top-0 h-full w-[1px] bg-white/10"
-          style={{ left: `${(i / total) * 100}%` }}
-        />
-      ))}
-    </div>
   );
 };
 
@@ -2981,61 +2921,4 @@ const AudioToggle = () => {
   );
 };
 
-const ContextAnchor = ({ whyCare, isZenLocked, segmentIdx }: { whyCare: string, isZenLocked: boolean, segmentIdx: number }) => {
-  return (
-    <motion.div 
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: -20, opacity: 0 }}
-      className={`fixed ${isZenLocked ? 'top-8' : 'top-24'} left-1/2 -translate-x-1/2 z-[105] w-full max-w-lg px-4 pointer-events-none transition-all duration-700`}
-    >
-      <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto flex items-center gap-6">
-        <div className="relative">
-          <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
-          <div className="relative p-3 rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-500/20 shadow-lg">
-            <Anchor size={16} />
-          </div>
-        </div>
-        <div className="flex-grow">
-          <div className="flex justify-between items-center mb-1">
-            <p className="text-[7px] font-black uppercase tracking-[0.4em] text-blue-400/60 leading-none">Mission Anchor {segmentIdx + 1}</p>
-            <div className="flex gap-1">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className={`w-1 h-1 rounded-full ${i === segmentIdx % 3 ? 'bg-blue-400 animate-pulse' : 'bg-white/10'}`} />
-              ))}
-            </div>
-          </div>
-          <p className="text-[11px] font-bold text-slate-100 leading-tight italic line-clamp-2">"{whyCare}"</p>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
 
-const ProgressPrism = ({ current, total }: { current: number, total: number }) => {
-  const percentage = ((current + 1) / total) * 100;
-  
-  return (
-    <div className="w-full h-4 bg-white/5 rounded-full relative overflow-hidden border border-white/10 shadow-inner">
-      <motion.div 
-        initial={{ width: 0 }}
-        animate={{ width: `${percentage}%` }}
-        transition={{ type: "spring", damping: 20, stiffness: 60 }}
-        className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-600 via-purple-500 to-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.5)] flex items-center"
-      >
-        <motion.div 
-          animate={{ x: ['-100%', '200%'] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]"
-        />
-      </motion.div>
-      {[...Array(total)].map((_, i) => (
-        <div 
-          key={i} 
-          className="absolute top-0 h-full w-[1px] bg-white/10"
-          style={{ left: `${(i / total) * 100}%` }}
-        />
-      ))}
-    </div>
-  );
-};
