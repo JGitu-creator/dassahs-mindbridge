@@ -1696,7 +1696,6 @@ export default function Home() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {linkState === 'severed' && <NeuralLinkSevered />}
       </AnimatePresence>
 
       <AnimatePresence>
