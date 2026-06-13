@@ -756,6 +756,7 @@ export default function Home() {
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>('midnight');
+  const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
   const [mouseFocus, setMouseFocus] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [showAbout, setShowAbout] = useState(false);
