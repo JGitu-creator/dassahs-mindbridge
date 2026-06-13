@@ -572,9 +572,10 @@ const RefractiveTagline = () => {
   );
 };
 
-const SnakeLightsBackground = ({ mousePos, theme, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: ThemeMode, focusMode: string, isScenic: boolean }) => {
+const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: ThemeMode, themeMode: 'light' | 'dark', focusMode: string, isScenic: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const t = THEMES[theme] || THEMES['calm-light'];
+  const colors = themeMode === 'light' ? t.light : t.dark;
 
   useEffect(() => {
     if (focusMode === 'sovereign') return;
@@ -755,6 +756,7 @@ export default function Home() {
   // Removed tutorialRole state
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('dark');
   const [theme, setTheme] = useState<ThemeMode>('midnight');
   const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
   const [mouseFocus, setMouseFocus] = useState(true);
@@ -1686,7 +1688,7 @@ export default function Home() {
              <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)`, backgroundSize: '80px 80px' }} />
           </div>
         )}
-        <SnakeLightsBackground theme={theme} mousePos={mousePos} focusMode={focusMode} isScenic={isScenic} />
+        <SnakeLightsBackground theme={theme} themeMode={themeMode} mousePos={mousePos} focusMode={focusMode} isScenic={isScenic} />
 
         {/* --- SCENIC READING GUIDE --- */}
         <AnimatePresence>
@@ -1858,6 +1860,10 @@ export default function Home() {
 
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Visual Spectrum</p>
+                    <div className="flex gap-2 mb-4">
+                      <button onClick={() => setThemeMode('light')} className={`flex-1 p-2 rounded-xl text-[9px] font-bold uppercase ${themeMode === 'light' ? 'bg-white text-slate-900' : 'bg-white/5 text-white'}`}>Light</button>
+                      <button onClick={() => setThemeMode('dark')} className={`flex-1 p-2 rounded-xl text-[9px] font-bold uppercase ${themeMode === 'dark' ? 'bg-slate-900 text-white' : 'bg-white/5 text-white'}`}>Dark</button>
+                    </div>
                     <div className="grid grid-cols-2 gap-2">
                       {Object.entries(THEMES).map(([id, t]) => (
                         <button key={id} onClick={() => { setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
