@@ -787,9 +787,11 @@ export default function Home() {
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
   const [isScenic, setIsScenic] = useState(false);
+  const [simplicityLevel, setSimplicityLevel] = useState<'vibrant' | 'surgical'>('vibrant');
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
   const audioCtxRef = useRef<AudioContext | null>(null);
   const brownNoiseRef = useRef<any>(null);
+  const premiumAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!audioCtxRef.current) return;
@@ -2402,13 +2404,7 @@ export default function Home() {
                 <button onClick={() => { setIsScenic(!isScenic); if (!isScenic && !brownNoisePlaying) setBrownNoisePlaying(true); }} title={isScenic ? 'Scenic Route' : 'Quick Filter'} className={`p-2 md:p-3 rounded-full border transition-all ${isScenic ? 'bg-amber-500/20 border-amber-500/50 text-amber-500' : 'bg-white/5 border-transparent text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}</button>                <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}</button>
               </div>
 
-              <button 
-                onClick={() => startCouncilReview()} 
-                disabled={loading || !input.trim()} 
-                className="flex-1 max-w-[200px] bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-500 text-white py-3 md:py-4 rounded-full font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 text-xs md:text-sm flex items-center justify-center gap-2"
-              >
-                {councilLoading ? <Loader2 className="animate-spin" size={16} /> : <><ShieldCheck size={16} /> Council Review</>}
-              </button>
+
 
               <button 
                 onClick={() => handleSimplify()} 
@@ -2795,19 +2791,7 @@ export default function Home() {
         </div>
       </footer>
 
-      <AnimatePresence>
-        {showTutorial && (
-          <TutorialModal 
-            step={tutorialStep} 
-            role={tutorialRole}
-            onNext={() => setTutorialStep(s => s + 1)} 
-            onClose={() => {
-              setShowTutorial(false);
-              localStorage.setItem('dassahs_prism_tutorial_complete', 'true');
-            }} 
-          />
-        )}
-      </AnimatePresence>
+
     </main>
       )}
     </>
