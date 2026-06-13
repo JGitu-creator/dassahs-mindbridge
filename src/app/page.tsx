@@ -753,7 +753,7 @@ export default function Home() {
   const [tutorialRole, setTutorialRole] = useState<'core' | 'parent' | 'ceo' | 'uni'>('core');
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [theme, setTheme] = useState<Theme>('midnight');
+  const [theme, setTheme] = useState<string>('midnight');
   const [mouseFocus, setMouseFocus] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [showAbout, setShowAbout] = useState(false);
