@@ -580,9 +580,6 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
 
 
 
-  }, []);
-
-  const text = "Turn overwhelming noise into clear focus in seconds.";
 
   return (
     <div className="relative h-12 flex items-center justify-center overflow-hidden">
