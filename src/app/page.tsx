@@ -570,7 +570,7 @@ const RefractiveTagline = () => {
   );
 };
 
-const SnakeLightsBackground = ({ mousePos, theme, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: Theme, focusMode: string, isScenic: boolean }) => {
+const SnakeLightsBackground = ({ mousePos, theme, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: ThemeMode, focusMode: string, isScenic: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const t = THEMES[theme] || THEMES['calm-light'];
 
