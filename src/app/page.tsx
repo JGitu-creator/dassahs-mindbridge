@@ -1699,7 +1699,6 @@ export default function Home() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {linkState === 'revealing' && <PortalReveal />}
       </AnimatePresence>
 
       <AnimatePresence>
