@@ -576,14 +576,6 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
   );
 };
 
-
-
-
-
-
-  );
-};
-
 const RefractiveTagline = () => {
   const [phase, setPhase] = useState<'noise' | 'flash' | 'clarity'>('noise');
 
