@@ -788,6 +788,8 @@ export default function Home() {
   const [isScenic, setIsScenic] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
   useEffect(() => {
+    if (!audioCtxRef.current) return;
+    const ctx = audioCtxRef.current;
         const bufferSize = 4096;
         let lastOut = 0.0;
         const node = ctx.createScriptProcessor(bufferSize, 1, 1);
