@@ -805,35 +805,33 @@ export default function Home() {
   const premiumAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    if (!audioCtxRef.current) return;
-    const ctx = audioCtxRef.current;
-        const bufferSize = 4096;
-        let lastOut = 0.0;
-        const node = ctx.createScriptProcessor(bufferSize, 1, 1);
+    if (brownNoisePlaying) {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      const bufferSize = 4096;
+      let lastOut = 0.0;
+      const node = ctx.createScriptProcessor(bufferSize, 1, 1);
         
-        node.onaudioprocess = (e: any) => {
-          const out = e.outputBuffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) {
-            const white = Math.random() * 2 - 1;
-            out[i] = (lastOut + (0.02 * white)) / 1.02;
-            lastOut = out[i];
-            out[i] *= 3.5; // Gain adjustment for brown noise
-          }
-        };
-        
+      node.onaudioprocess = (e: any) => {
+        const out = e.outputBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          out[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = out[i];
+          out[i] *= 3.5;
+        }
+      };
+      node.connect(ctx.destination);
+      brownNoiseRef.current = node;
+    } else {
       if (brownNoiseRef.current) {
         brownNoiseRef.current.disconnect();
         brownNoiseRef.current = null;
       }
-      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
-        audioCtxRef.current.close();
-        audioCtxRef.current = null;
-      }
-
-    return () => {
-      brownNoiseRef.current?.disconnect();
-      audioCtxRef.current?.close();
-    };
+      // Note: We keep the audioCtx open so it can be reused.
+    }
   }, [brownNoisePlaying]);
   const [dassahPoints, setDassahPoints] = useState(0);
   const [totalWordsRefracted, setTotalWordsRefracted] = useState(0);
