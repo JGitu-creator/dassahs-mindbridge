@@ -791,6 +791,15 @@ export default function Home() {
   const [isScenic, setIsScenic] = useState(false);
   const [simplicityLevel, setSimplicityLevel] = useState<'vibrant' | 'surgical'>('vibrant');
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
+
+  useEffect(() => {
+    const hasSeenGuide = localStorage.getItem('hasSeenNeuralGuide');
+    if (!hasSeenGuide) {
+      setTutorialStep(0);
+      setShowTutorial(true);
+      localStorage.setItem('hasSeenNeuralGuide', 'true');
+    }
+  }, []);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const brownNoiseRef = useRef<any>(null);
   const premiumAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -1968,92 +1977,11 @@ export default function Home() {
                     </button>
                   </div>
 
-                  <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400">ROI Command Center (Marcus)</p>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-emerald-600/10 p-4 rounded-2xl border border-emerald-500/20">
-                        <p className="text-[8px] font-black text-emerald-400 uppercase mb-1">
-                          Value Reclaimed
-                        </p>
-                        <p className="text-xl font-black text-white italic">${(totalMinutesSaved * 0.5).toFixed(2)}</p>
-                        <p className="text-[6px] text-emerald-500/60 uppercase font-bold mt-1">Based on $30/hr avg</p>
-                      </div>
-                      <div className="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/20">
-                        <p className="text-[8px] font-black text-blue-400 uppercase mb-1">
-                           Focus Efficiency
-                        </p>
-                        <p className="text-xl font-black text-white italic">
-                          {((totalWordsRefracted / (totalMinutesSaved || 1)) / 10).toFixed(1)}x
-                        </p>
-                        <p className="text-[6px] text-blue-500/60 uppercase font-bold mt-1">vs Normal Reading</p>
-                      </div>
-                    </div>
 
-                    <div className="space-y-3">
-                      <button className="w-full p-4 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-between group hover:bg-emerald-600 hover:border-emerald-400 transition-all">
-                        <div className="flex items-center gap-4">
-                          <Share2 size={20} className="text-emerald-400 group-hover:text-white" />
-                          <div className="text-left">
-                            <p className="text-xs font-black text-white uppercase tracking-widest">Sovereign Share</p>
-                            <p className="text-[8px] text-emerald-400/60 group-hover:text-emerald-100 font-bold uppercase tracking-tight">Beam clarity to your team</p>
-                          </div>
-                        </div>
-                        <ChevronRight size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
-                    </div>
-                  </div>
 
-                  <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400">Academic Bridge (LTI 1.3)</p>
-                    <button 
-                      onClick={() => {
-                        setLtiConnected(!ltiConnected);
-                        if (!ltiConnected) alert("Initiating LTI 1.3 Handshake... Synchronizing with LMS Environment.");
-                      }}
-                      className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between group ${ltiConnected ? 'bg-blue-600/20 border-blue-500' : 'bg-white/5 border-white/10 hover:border-blue-500/50'}`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <Code size={20} className={ltiConnected ? 'text-blue-400' : 'text-slate-500'} />
-                        <div className="text-left">
-                          <p className="text-xs font-black text-white uppercase tracking-widest">
-                            {ltiConnected ? 'Canvas Connected' : 'Connect to LMS'}
-                          </p>
-                          <p className="text-[8px] text-slate-500 group-hover:text-slate-300 font-bold uppercase tracking-tight">
-                            {ltiConnected ? 'LTI 1.3 Active' : 'Canvas / Blackboard / Moodle'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className={`w-2 h-2 rounded-full ${ltiConnected ? 'bg-blue-400 animate-pulse' : 'bg-white/10'}`} />
-                    </button>
-                  </div>
 
-                  <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">
-                      {accountTier === 'family' ? 'Neural Guardian (Parent Dashboard)' : 
-                       accountTier === 'team' ? 'Corporate ROI (Command Dashboard)' : 
-                       accountTier === 'university' ? 'University Access (VC Dashboard)' : 
-                       'Corporate ROI (Team Potential)'}
-                    </p>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/20">
-                        <p className="text-[8px] font-black text-blue-400 uppercase mb-1">
-                          {accountTier === 'family' ? 'Family Progress' : 'Team Saved'}
-                        </p>
-                        <p className="text-xl font-black text-white italic">{(totalMinutesSaved * (accountTier === 'individual' ? 1 : 12)).toLocaleString()}m</p>
-                      </div>
-                      <div className="bg-purple-600/10 p-4 rounded-2xl border border-purple-500/20">
-                        <p className="text-[8px] font-black text-purple-400 uppercase mb-1">
-                           {accountTier === 'family' ? 'Active Missions' : 'Potential ROI'}
-                        </p>
-                        <p className="text-xl font-black text-white italic">
-                          {accountTier === 'family' ? linkedUsers.length + 1 : (totalWordsRefracted / 50).toFixed(0) + 'x'}
-                        </p>
-                      </div>
-                    </div>
 
-                    {isGuardian && (
+
                       <div className="space-y-4 pt-4 border-t border-white/5">
                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2"><Settings size={12}/> Manage {accountTier} Members</p>
                         <div className="flex gap-2">
@@ -2073,8 +2001,6 @@ export default function Home() {
                             Link
                           </button>
                         </div>
-                      </div>
-                    )}
 
                     <p className="text-[8px] text-slate-500 italic font-bold">
                       {accountTier === 'family' ? 'Guardian Shield: Link up to 5 family members. Managed by Grace.' : 
@@ -2771,6 +2697,12 @@ export default function Home() {
         </p>
         <div className="flex items-center gap-4">
           <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
+          
+          <div className="flex bg-white/5 p-1 rounded-full border border-white/10">
+            <button onClick={() => setThemeMode('light')} className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest transition-all ${themeMode === 'light' ? 'bg-white text-slate-900' : 'text-slate-500'}`}>Light</button>
+            <button onClick={() => setThemeMode('dark')} className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest transition-all ${themeMode === 'dark' ? 'bg-slate-900 text-white' : 'text-slate-500'}`}>Dark</button>
+          </div>
+
           <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
         </div>
       </footer>
