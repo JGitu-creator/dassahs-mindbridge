@@ -787,7 +787,7 @@ export default function Home() {
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
   const [isScenic, setIsScenic] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
-        
+  useEffect(() => {
         const bufferSize = 4096;
         let lastOut = 0.0;
         const node = ctx.createScriptProcessor(bufferSize, 1, 1);
@@ -810,7 +810,7 @@ export default function Home() {
         audioCtxRef.current.close();
         audioCtxRef.current = null;
       }
-    }
+
     return () => {
       brownNoiseRef.current?.disconnect();
       audioCtxRef.current?.close();
