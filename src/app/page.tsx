@@ -32,7 +32,7 @@ const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
-type Theme = 'midnight' | 'neon' | 'electric' | 'gold' | 'emerald' | 'sunset' | 'nebula' | 'bright';
+type Theme = 'calm-light' | 'calm-dark' | 'focus-light' | 'focus-dark' | 'vibrant-light' | 'vibrant-dark' | 'nebula';
 
 interface ThemeConfig {
   name: string;
@@ -44,53 +44,53 @@ interface ThemeConfig {
 }
 
 const THEMES: Record<Theme, ThemeConfig> = {
-  midnight: {
-    name: 'Midnight Sovereign',
-    c1: '#020617', c2: '#0f172a',
-    text: '#f8fafc', accent: '#3b82f6',
-    glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)',
-    shadow: 'rgba(0,0,0,0.5)', mesh: 'rgba(59, 130, 246, 0.1)',
-    prism: ['#3b82f6', '#8b5cf6', '#06b6d4']
+  'calm-light': {
+    name: 'Calm Light',
+    c1: '#f8fafc', c2: '#f1f5f9',
+    text: '#1e293b', accent: '#64748b',
+    glass: 'rgba(241, 245, 249, 0.7)', border: 'rgba(148, 163, 184, 0.2)',
+    shadow: 'rgba(0,0,0,0.05)', mesh: 'rgba(100, 116, 139, 0.05)',
+    prism: ['#94a3b8', '#cbd5e1', '#64748b']
   },
-  neon: {
-    name: 'Dastastic Neon',
-    c1: '#000000', c2: '#09090b',
-    text: '#ffffff', accent: '#22c55e',
-    glass: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)',
-    shadow: 'rgba(34, 197, 94, 0.2)', mesh: 'rgba(34, 197, 94, 0.05)',
-    prism: ['#22c55e', '#a855f7', '#3b82f6']
+  'calm-dark': {
+    name: 'Calm Dark',
+    c1: '#0f172a', c2: '#1e293b',
+    text: '#f1f5f9', accent: '#64748b',
+    glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(100, 116, 139, 0.2)',
+    shadow: 'rgba(0,0,0,0.3)', mesh: 'rgba(100, 116, 139, 0.05)',
+    prism: ['#64748b', '#475569', '#334155']
   },
-  electric: {
-    name: 'Electric Grace',
-    c1: '#020617', c2: '#1e1b4b',
-    text: '#ffffff', accent: '#f43f5e',
-    glass: 'rgba(244, 63, 94, 0.1)', border: 'rgba(244, 63, 94, 0.3)',
-    shadow: 'rgba(244, 63, 94, 0.2)', mesh: 'rgba(244, 63, 94, 0.05)',
-    prism: ['#f43f5e', '#fbbf24', '#2dd4bf']
+  'focus-light': {
+    name: 'Focus Light',
+    c1: '#f0fdf4', c2: '#dcfce7',
+    text: '#064e3b', accent: '#10b981',
+    glass: 'rgba(220, 252, 231, 0.7)', border: 'rgba(16, 185, 129, 0.2)',
+    shadow: 'rgba(6, 78, 59, 0.05)', mesh: 'rgba(16, 185, 129, 0.05)',
+    prism: ['#10b981', '#34d399', '#059669']
   },
-  gold: {
-    name: 'Divine Gold',
-    c1: '#451a03', c2: '#000000',
-    text: '#fffbeb', accent: '#fbbf24',
-    glass: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.4)',
-    shadow: 'rgba(251, 191, 36, 0.2)', mesh: 'rgba(251, 191, 36, 0.05)',
-    prism: ['#fbbf24', '#f59e0b', '#ffffff']
-  },
-  emerald: {
-    name: 'Hadassah Silk',
+  'focus-dark': {
+    name: 'Focus Dark',
     c1: '#064e3b', c2: '#022c22',
     text: '#ecfdf5', accent: '#10b981',
     glass: 'rgba(6, 78, 59, 0.4)', border: 'rgba(16, 185, 129, 0.2)',
     shadow: 'rgba(2, 44, 34, 0.6)', mesh: 'rgba(16, 185, 129, 0.15)',
     prism: ['#10b981', '#34d399', '#059669']
   },
-  sunset: {
-    name: 'Divine Glow',
-    c1: '#451a03', c2: '#78350f',
-    text: '#fff7ed', accent: '#f59e0b',
-    glass: 'rgba(120, 53, 15, 0.4)', border: 'rgba(245, 158, 11, 0.2)',
-    shadow: 'rgba(69, 26, 3, 0.6)', mesh: 'rgba(245, 158, 11, 0.15)',
-    prism: ['#f59e0b', '#fb923c', '#d97706']
+  'vibrant-light': {
+    name: 'Vibrant Light',
+    c1: '#fef2f2', c2: '#fee2e2',
+    text: '#7f1d1d', accent: '#ef4444',
+    glass: 'rgba(254, 226, 226, 0.7)', border: 'rgba(239, 68, 68, 0.2)',
+    shadow: 'rgba(153, 27, 27, 0.05)', mesh: 'rgba(239, 68, 68, 0.05)',
+    prism: ['#ef4444', '#f87171', '#b91c1c']
+  },
+  'vibrant-dark': {
+    name: 'Vibrant Dark',
+    c1: '#450a0a', c2: '#1a0505',
+    text: '#fef2f2', accent: '#ef4444',
+    glass: 'rgba(153, 27, 27, 0.4)', border: 'rgba(239, 68, 68, 0.2)',
+    shadow: 'rgba(69, 10, 10, 0.6)', mesh: 'rgba(239, 68, 68, 0.15)',
+    prism: ['#ef4444', '#f87171', '#991b1b']
   },
   nebula: {
     name: 'Sovereign Pulse',
@@ -99,14 +99,6 @@ const THEMES: Record<Theme, ThemeConfig> = {
     glass: 'rgba(76, 29, 149, 0.4)', border: 'rgba(139, 92, 246, 0.2)',
     shadow: 'rgba(46, 16, 101, 0.6)', mesh: 'rgba(139, 92, 246, 0.15)',
     prism: ['#8b5cf6', '#a78bfa', '#7c3aed']
-  },
-  bright: {
-    name: 'Vibrant Light',
-    c1: '#f0f9ff', c2: '#e0f2fe',
-    text: '#0f172a', accent: '#0284c7',
-    glass: 'rgba(255, 255, 255, 0.5)', border: 'rgba(2, 132, 199, 0.2)',
-    shadow: 'rgba(0,0,0,0.1)', mesh: 'rgba(2, 132, 199, 0.1)',
-    prism: ['#0284c7', '#0ea5e9', '#38bdf8']
   }
 };
 
@@ -989,7 +981,7 @@ const RefractiveTagline = () => {
 
 const SnakeLightsBackground = ({ mousePos, theme, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: Theme, focusMode: string, isScenic: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const t = THEMES[theme] || THEMES.midnight;
+  const t = THEMES[theme] || THEMES['calm-light'];
 
   useEffect(() => {
     if (focusMode === 'sovereign') return;
@@ -1170,7 +1162,7 @@ export default function Home() {
   const [tutorialRole, setTutorialRole] = useState<'core' | 'parent' | 'ceo' | 'uni'>('core');
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [theme, setTheme] = useState<Theme>('midnight');
+  const [theme, setTheme] = useState<Theme>('calm-light');
   const [mouseFocus, setMouseFocus] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [showAbout, setShowAbout] = useState(false);
