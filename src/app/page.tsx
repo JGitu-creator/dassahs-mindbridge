@@ -787,6 +787,9 @@ export default function Home() {
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
   const [isScenic, setIsScenic] = useState(false);
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const brownNoiseRef = useRef<any>(null);
+
   useEffect(() => {
     if (!audioCtxRef.current) return;
     const ctx = audioCtxRef.current;
