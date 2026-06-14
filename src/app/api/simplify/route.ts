@@ -67,17 +67,26 @@ export async function POST(req: Request) {
     } else {
       // Default Refraction Prompt
       generationPrompt = `
-      You are the "Council of Agents." Transmute this Noise into Divine Clarity.
-      Goal: ${missionGoal || 'Discovery'}
-      Target: ${cognitiveMode}
-      ${isScenic ? 'MODE: THE SCENIC ROUTE. Provide richer, more descriptive content, immersive metaphors, and deeply engaging dopamine hooks. Do not over-simplify; instead, make the journey through the information stimulating and worthwhile.' : 'MODE: DIRECT REFRACTION. Be surgical, punchy, and prioritize maximum efficiency.'}
+      You are the "Council of Agents." Your mission is to perform a Deep Neural Refraction on the provided Noise.
       
-      For every segment (chunk), you MUST provide:
-      1. "logicRoot": The specific "First Principle" or foundational truth used to distill this segment.
-      2. "citations": A specific "Evidence Anchor" (e.g., Clause #, Stakeholder Name, or Page Context).
-      3. Sarah's Audit: If a Legal Red Flag exists, prefix the heading with "⚠️ SARAH'S WARNING".
+      GOAL: ${missionGoal || 'Discovery'}
+      TARGET COGNITIVE MODE: ${cognitiveMode}
+      ENVIRONMENT: ${isScenic ? 'THE SCENIC ROUTE (Immersive, high-stimulation, metaphor-rich)' : 'DIRECT REFRACTION (Surgical, high-efficiency, minimalist)'}
 
-      Return a valid JSON object:
+      --- STEP 1: INTERNAL NEURAL SCAN (THOUGHT PROCESS) ---
+      Before generating the final output, perform a silent, deep analysis of the text. 
+      Identify:
+      1. The core "Signal" vs the "Noise".
+      2. The foundational "Logic Roots" (First Principles) for every key concept.
+      3. "Red Flags" (Legal, safety, or cognitive risks) that Sarah must flag.
+      4. "Dopamine Hooks" (The most interesting, high-interest elements) for Leo.
+      5. "Structural Anchors" (The most important facts) for Maya.
+
+      --- STEP 2: TRANSMUTATION (FINAL JSON OUTPUT) ---
+      Using the insights from your scan, output ONLY a valid JSON object. 
+      Do not include any text before or after the JSON.
+
+      The JSON must follow this structure:
       {
         "tldr": ["string", "string", "string"],
         "whyCare": "string",
@@ -99,8 +108,16 @@ export async function POST(req: Request) {
         ],
         "chartData": null
       }
-      
-      INPUT: ${text}
+
+      SPECIFIC INSTRUCTIONS FOR FIELDS:
+      - "heading": If Sarah detects a legal/safety/privacy risk, you MUST prefix this with "⚠️ SARAH'S WARNING: ".
+      - "logicRoot": Must be a deep "First Principle" (e.g., "Entropy", "Incentive Alignment", "Cognitive Load").
+      - "metaphor": For ${isScenic ? 'Scenic Mode' : 'Direct Mode'}, ensure these are high-impact.
+      - "dopamineHook": A high-interest "Aha!" moment or curiosity gap.
+      - "citations": The specific "Evidence Anchor" (e.g., Clause #, Stakeholder Name, or context).
+
+      INPUT NOISE:
+      ${text}
     `;
     }
 
@@ -142,16 +159,24 @@ export async function POST(req: Request) {
 
     const tryDeepSeek = async () => {
       if (!deepseekKey) throw new Error('No DeepSeek Key');
-      const res = await fetch('https://api.deepseek.com/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${deepseekKey}` },
-        body: JSON.stringify({
-          model: "deepseek-chat",
-          messages: [{ role: "user", content: generationPrompt }]
-        })
-      });
-      const data = await res.json();
-      return data.choices[0].message.content;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
+      
+      try {
+        const res = await fetch('https://api.deepseek.com/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${deepseekKey}` },
+          body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [{ role: "user", content: generationPrompt }]
+          }),
+          signal: controller.signal
+        });
+        const data = await res.json();
+        return data.choices[0].message.content;
+      } finally {
+        clearTimeout(timeout);
+      }
     };
 
     let responseText = '';
