@@ -5,7 +5,7 @@ import {
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Moon, Ghost, Star, Settings, MoreHorizontal,
-  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar
+  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit
 } from 'lucide-react';
 
 const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
@@ -1866,14 +1866,23 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Visual Spectrum</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {Object.entries(THEMES).map(([id, t]) => (
-                        <button key={id} onClick={() => { setTheme(id as any); }} className={`p-2 rounded-xl border-2 transition-all flex items-center gap-2 ${theme === id ? 'border-white bg-white/10' : 'border-transparent bg-white/5 opacity-60 hover:opacity-100'}`}>
-                          <div className="w-3 h-3 rounded-md" style={{ backgroundColor: t.light.accent }} />
-                          <span className="text-[9px] font-bold text-white truncate text-left" title={t.name}>{t.name}</span>
-                        </button>
-                      ))}
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Visual Spectrum</p>
+                      <div className="flex gap-1 bg-white/5 rounded-full p-1 border border-white/10">
+                        <button onClick={() => setThemeMode('light')} className={`p-1.5 rounded-full transition-all ${themeMode === 'light' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-500 hover:text-white'}`}><Sun size={12} /></button>
+                        <button onClick={() => setThemeMode('dark')} className={`p-1.5 rounded-full transition-all ${themeMode === 'dark' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}><Moon size={12} /></button>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      {Object.entries(THEMES).map(([id, t]) => {
+                        const Icon = { midnight: Moon, neon: Zap, electric: Flame, gold: Coins, emerald: Gem, sunset: Sun, nebula: Orbit }[id] || Palette;
+                        return (
+                          <button key={id} onClick={() => { setTheme(id as any); }} className={`relative p-3 rounded-full transition-all flex items-center justify-center ${theme === id ? 'border bg-white/10' : 'border border-transparent bg-white/5 opacity-60 hover:opacity-100'}`} style={theme === id ? { borderColor: t.dark.accent, boxShadow: `0 0 10px ${t.dark.accent}33` } : {}}>
+                            <Icon size={16} className="text-white" />
+                            {theme === id && <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: t.dark.accent }} />}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -2544,11 +2553,11 @@ export default function Home() {
              </div>
 
              <div className="grid grid-cols-2 gap-3 relative z-10">
-               <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+               <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6">
                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Time Saved</p>
                  <p className="text-xl font-black text-white">{data.readingTime}</p>
                </div>
-               <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+               <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6">
                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Efficiency</p>
                  <p className="text-xl font-black text-white">100%</p>
                </div>
