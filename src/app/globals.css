@@ -1,66 +1,61 @@
 @import "tailwindcss";
 
-/* Base Apple Liquid Glass Effect */
-.glass-base {
+/* --- Core Interaction --- */
+/* Custom Cursor Halo */
+.cursor-halo {
+  @apply pointer-events-none fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-[var(--accent)] opacity-50 transition-all duration-75 ease-out;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+
+/* --- Premium Theme Architecture --- */
+/* Force consistent application-wide styling */
+
+/* Sovereign (Cyber-Luxury) */
+.theme-sovereign {
+  --bg: #fdfaf6; --fg: #1c1917; --accent: #b45309; --glass-bg: rgba(255, 255, 255, 0.7); --glass-border: rgba(200, 180, 150, 0.3); --glass-shadow: 0 4px 12px rgba(180, 83, 9, 0.1);
+  background-color: var(--bg); color: var(--fg);
+}
+.theme-sovereign.dark {
+  --bg: #0f172a; --fg: #f1f5f9; --accent: #fbbf24; --glass-bg: rgba(15, 23, 42, 0.6); --glass-border: rgba(200, 180, 150, 0.2); --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Ethereal (Cloud-Fluidity) */
+.theme-ethereal {
+  --bg: #f8fafc; --fg: #0f172a; --accent: #3b82f6; --glass-bg: rgba(255, 255, 255, 0.85); --glass-border: rgba(147, 197, 253, 0.4); --glass-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+  background-color: var(--bg); color: var(--fg);
+}
+.theme-ethereal.dark {
+  --bg: #020617; --fg: #f8fafc; --accent: #60a5fa; --glass-bg: rgba(30, 41, 59, 0.3); --glass-border: rgba(147, 197, 253, 0.2); --glass-shadow: 0 8px 40px rgba(96, 165, 250, 0.2);
+}
+
+/* Obsidian (Deep-Focus) */
+.theme-obsidian {
+  --bg: #262626; --fg: #e5e5e5; --accent: #d4af37; --glass-bg: rgba(0, 0, 0, 0.5); --glass-border: rgba(255, 215, 0, 0.2); --glass-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+  background-color: var(--bg); color: var(--fg);
+}
+.theme-obsidian.dark {
+  --bg: #000000; --fg: #ffffff; --accent: #ffd700; --glass-bg: rgba(10, 10, 10, 0.7); --glass-border: rgba(218, 165, 32, 0.3); --glass-shadow: 0 15px 50px rgba(255, 215, 0, 0.3);
+}
+
+/* --- UI Components --- */
+/* Liquid Glass Depth-Layering */
+.glass-panel {
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   background-color: var(--glass-bg);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Theme 1: Sovereign (Cyber-Luxury) */
-:root {
-  --background: #fdfaf6; --foreground: #1c1917;
-  --glass-bg: rgba(255, 255, 255, 0.7); --glass-border: rgba(200, 180, 150, 0.3);
-  --glass-shadow: 0 4px 12px rgba(180, 83, 9, 0.1);
-  --accent: #b45309;
-}
-.dark:root {
-  --background: #0f172a; --foreground: #f1f5f9;
-  --glass-bg: rgba(15, 23, 42, 0.6); --glass-border: rgba(200, 180, 150, 0.2);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  --accent: #fbbf24;
-}
-
-/* Theme 2: Ethereal (Cloud-Fluidity) */
-.theme-ethereal {
-  --background: #f8fafc; --foreground: #0f172a;
-  --glass-bg: rgba(255, 255, 255, 0.85); --glass-border: rgba(147, 197, 253, 0.4);
-  --glass-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
-  --accent: #3b82f6; /* Iridescent Blue */
-}
-.dark .theme-ethereal {
-  --background: #020617; --foreground: #f8fafc;
-  --glass-bg: rgba(30, 41, 59, 0.3); --glass-border: rgba(147, 197, 253, 0.2);
-  --glass-shadow: 0 8px 40px rgba(96, 165, 250, 0.2);
-  --accent: #60a5fa;
-}
-
-/* Theme 3: Obsidian (Deep-Focus) */
-.theme-obsidian {
-  --background: #262626; --foreground: #e5e5e5;
-  --glass-bg: rgba(0, 0, 0, 0.5); --glass-border: rgba(255, 215, 0, 0.2);
-  --glass-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
-  --accent: #d4af37; /* Gold Veining */
-}
-.dark .theme-obsidian {
-  --background: #000000; --foreground: #ffffff;
-  --glass-bg: rgba(10, 10, 10, 0.7); --glass-border: rgba(218, 165, 32, 0.3);
-  --glass-shadow: 0 15px 50px rgba(255, 215, 0, 0.3);
-  --accent: #ffd700;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
+.glass-panel:hover {
+  transform: scale(1.01);
+  backdrop-filter: blur(28px) saturate(200%);
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
   font-family: 'Inter', sans-serif;
-  transition: background 0.3s, color 0.3s;
+  transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
