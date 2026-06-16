@@ -30,7 +30,7 @@ import { ContextAnchor } from '@/components/prism/ContextAnchor';
 import { ProgressPrism } from '@/components/prism/ProgressPrism';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-type ThemeMode = 'midnight' | 'neon' | 'electric' | 'gold' | 'emerald' | 'sunset' | 'nebula';
+type ThemeMode = "sovereign" | "ethereal" | "obsidian" | "midnight";
 interface ThemeConfig {
   name: string;
   light: { background: string; text: string; accent: string; glass: string; border: string; };
@@ -38,6 +38,12 @@ interface ThemeConfig {
   prism: string[];
 }
 const THEMES: Record<string, ThemeConfig> = {
+  midnight: {
+    name: "Legacy Sovereign",
+    light: { background: "#f8fafc", text: "#020617", accent: "#2563eb", glass: "rgba(255,255,255,0.4)", border: "rgba(255,255,255,0.3)" },
+    dark: { background: "#020617", text: "#f8fafc", accent: "#3b82f6", glass: "rgba(15, 23, 42, 0.6)", border: "rgba(255, 255, 255, 0.1)" },
+    prism: ["#3b82f6", "#8b5cf6", "#06b6d4"]
+  },
   sovereign: {
     name: 'Dastastic Sovereign',
     light: { background: '#fdfaf6', text: '#1c1917', accent: '#b45309', glass: 'rgba(255,255,255,0.7)', border: 'rgba(200,180,150,0.3)' },
