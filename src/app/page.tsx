@@ -5,8 +5,39 @@ import {
   Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Moon, Ghost, Star, Settings, MoreHorizontal,
-  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit
+  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit,
+  Hexagon
 } from 'lucide-react';
+
+const DastasticIcon = ({ ActiveIcon, themeAccent }: { ActiveIcon: any, themeAccent: string }) => (
+  <motion.div className="relative w-6 h-6 flex items-center justify-center">
+    <motion.div variants={{ idle: { opacity: 1, scale: 1, rotate: 0 }, hover: { opacity: 0, scale: 0.5, rotate: 180 } }} className="absolute inset-0 flex items-center justify-center">
+      <Hexagon size={24} style={{ color: themeAccent }} />
+    </motion.div>
+    <motion.div variants={{ idle: { opacity: 0, scale: 0.5, rotate: -180 }, hover: { opacity: 1, scale: 1, rotate: 0 } }} className="absolute inset-0 flex items-center justify-center">
+      <ActiveIcon size={24} style={{ color: themeAccent }} />
+    </motion.div>
+  </motion.div>
+);
+
+const DastasticShell = ({ children, themeConfig, themeMode }: { children: React.ReactNode, themeConfig: ThemeConfig, themeMode: 'light' | 'dark' }) => {
+  const t = themeMode === 'light' ? themeConfig.light : themeConfig.dark;
+  return (
+    <div 
+      className="min-h-screen transition-colors duration-700 ease-in-out relative"
+      style={{
+        backgroundColor: t.background,
+        color: t.text,
+        '--color-accent': t.accent,
+        '--color-glass': t.glass,
+        '--color-border': t.border,
+      } as React.CSSProperties}
+    >
+      <div className="fixed inset-0 pointer-events-none opacity-20" style={{ background: `radial-gradient(circle at 50% 50%, ${t.accent}20, transparent)` }} />
+      {children}
+    </div>
+  );
+};
 const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
   const isMobile = useIsMobile();
   if (isMobile) return null;
@@ -1521,11 +1552,10 @@ export default function Home() {
         )}
       </AnimatePresence>
       {/* REMOVED: SUBTLE BRAND SIGNATURE */}
-      {linkState === 'established' && (
+      <DastasticShell themeConfig={currentTheme} themeMode={themeMode}>
       <main 
         onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
-        className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-blue-500/40 transition-all duration-1000 bg-fixed ${isScholarMode ? 'scholar-mode' : ''} ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} 
-        style={{ color: 'var(--color-text)', backgroundColor: focusMode === 'sovereign' ? '#000' : 'transparent' }}
+        className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-[var(--color-accent)]/40 transition-all duration-1000 bg-fixed ${isScholarMode ? 'scholar-mode' : ''} ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} 
       >
         <div className={`fixed inset-0 -z-10 transition-all duration-1000`} style={{ background: focusMode === 'sovereign' ? '#000' : `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
         {focusMode !== 'sovereign' ? (
@@ -1539,7 +1569,7 @@ export default function Home() {
           </div>
         )}
         <SnakeLightsBackground theme={theme} themeMode={themeMode} mousePos={mousePos} focusMode={focusMode} isScenic={isScenic} />
-        {/* --- SCENIC READING GUIDE --- */}
+        {/* ... (rest of the content) */}
         <AnimatePresence>
           {isScenic && (
             <motion.div
@@ -2375,6 +2405,7 @@ export default function Home() {
         </div>
       </footer>
     </main>
+    </DastasticShell>
       )}
     </>
   );
