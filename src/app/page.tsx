@@ -44,7 +44,7 @@ const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
   return (
     <div className="fixed top-8 left-1/2 -translate-x-1/2 flex gap-4 z-[200] opacity-30 hover:opacity-100 transition-opacity pointer-events-none">
       {[0, 1].map((i) => (
-        <div key={i} className="w-10 h-10 bg-white/10 rounded-full border border-white/20 flex items-center justify-center relative overflow-hidden backdrop-blur-md">
+        <div key={i} className="w-10 h-10 bg-[var(--bg)]/10 rounded-full border border-white/20 flex items-center justify-center relative overflow-hidden backdrop-blur-md">
           <motion.div 
             animate={{ 
               x: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth / 2 : 0)) * 0.01,
@@ -191,8 +191,8 @@ const NeuralRefractionSlider = () => {
       className="relative w-full h-[300px] md:h-[400px] rounded-[3rem] overflow-hidden border-2 border-white/10 cursor-ew-resize group shadow-2xl"
     >
       {/* Noise Side (Left) */}
-      <div className="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-30">
-        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 mb-6">The Noise</p>
+      <div className="absolute inset-0 bg-[var(--bg)] flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-30">
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[var(--fg)] mb-6">The Noise</p>
         <p className="text-xl md:text-3xl text-slate-400 leading-relaxed blur-[1px]">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow.</p>
       </div>
       {/* Clarity Side (Right) - Use clipPath to reveal */}
@@ -201,22 +201,22 @@ const NeuralRefractionSlider = () => {
         style={{ clipPath: `polygon(${sliderPos}% 0, 100% 0, 100% 100%, ${sliderPos}% 100%)` }}
       >
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-400 mb-6">The Clarity</p>
-        <p className="text-xl md:text-3xl text-white font-black leading-relaxed italic">
+        <p className="text-xl md:text-3xl text-[var(--fg)] font-black leading-relaxed italic">
           <span className="text-blue-400">Thi</span>s <span className="text-blue-400">i</span>s <span className="text-blue-400">a</span> <span className="text-blue-400">shor</span>t, <span className="text-blue-400">Bioni</span>c <span className="text-blue-400">pat</span>h. <span className="text-blue-400">You</span>r <span className="text-blue-400">brai</span>n <span className="text-blue-400">lock</span>s <span className="text-blue-400">i</span>n <span className="text-blue-400">instan</span>tly.
         </p>
       </div>
       {/* Divider */}
       <div 
-        className="absolute top-0 bottom-0 w-[2px] bg-white z-20 shadow-[0_0_20px_rgba(255,255,255,0.5)]"
+        className="absolute top-0 bottom-0 w-[2px] bg-[var(--bg)] z-20 shadow-[0_0_20px_rgba(255,255,255,0.5)]"
         style={{ left: `${sliderPos}%` }}
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-[var(--bg)] rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
           <MoreHorizontal size={24} className="text-black rotate-90" />
         </div>
       </div>
       
       {/* Interaction Hint */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-[9px] font-black uppercase tracking-[0.3em] text-white/40 pointer-events-none group-hover:opacity-0 transition-opacity">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-[9px] font-black uppercase tracking-[0.3em] text-[var(--fg)]/40 pointer-events-none group-hover:opacity-0 transition-opacity">
         Slide to Refract
       </div>
     </div>
@@ -232,7 +232,7 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
       <div className="flex items-center">
         <button 
           onClick={onToggle}
-          className="w-10 h-20 bg-blue-600 rounded-l-2xl flex items-center justify-center text-white shadow-2xl border-y border-l border-white/20"
+          className="w-10 h-20 bg-blue-600 rounded-l-2xl flex items-center justify-center text-[var(--fg)] shadow-2xl border-y border-l border-white/20"
         >
           <Anchor size={20} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
@@ -247,7 +247,7 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
                 key={i} 
-                className="p-3 bg-white/5 rounded-xl border border-white/5 text-xs font-bold text-slate-300 hover:bg-white/10 transition-colors cursor-default"
+                className="p-3 bg-[var(--bg)]/5 rounded-xl border border-white/5 text-xs font-bold text-slate-300 hover:bg-[var(--bg)]/10 transition-colors cursor-default"
               >
                 {anchor}
               </motion.div>
@@ -278,7 +278,7 @@ const BionicText = ({ text }: { text: string }) => {
         const mid = Math.ceil(word.length / 2);
         const bold = word.slice(0, mid);
         const rest = word.slice(mid);
-        return <span key={i} className="inline-block mr-1"><span className="font-black text-white">{bold}</span><span className="opacity-70">{rest}</span></span>;
+        return <span key={i} className="inline-block mr-1"><span className="font-black text-[var(--fg)]">{bold}</span><span className="opacity-70">{rest}</span></span>;
       })}
     </>
   );
@@ -311,7 +311,7 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
       <div className="max-w-xl w-full text-center space-y-12">
         <div className="space-y-4">
           <p className="text-blue-400 font-black uppercase tracking-[0.5em] text-[10px]">Neural Rhythm: Level {level}</p>
-          <h2 className="text-5xl md:text-7xl font-black italic text-white tracking-tighter">
+          <h2 className="text-5xl md:text-7xl font-black italic text-[var(--fg)] tracking-tighter">
             {level === 1 ? "Neural Blink" : level === 2 ? "Sovereign Breath" : "Dopamine Anchor"}
           </h2>
         </div>
@@ -327,11 +327,11 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
            {level === 3 && (
              <div className="grid grid-cols-4 gap-3">
                {puzzleState.map((val, i) => (
-                 <motion.button whileHover={{ scale: 1.1 }} onClick={() => setSolvedCount(s => s + 1)} key={i} className="w-12 h-12 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center text-white font-black">{val}</motion.button>
+                 <motion.button whileHover={{ scale: 1.1 }} onClick={() => setSolvedCount(s => s + 1)} key={i} className="w-12 h-12 bg-[var(--bg)]/5 rounded-xl border border-white/10 flex items-center justify-center text-[var(--fg)] font-black">{val}</motion.button>
                ))}
              </div>
            )}
-           <div className="absolute text-6xl font-black tabular-nums text-white/20">{seconds}s</div>
+           <div className="absolute text-6xl font-black tabular-nums text-[var(--fg)]/20">{seconds}s</div>
         </div>
         <div className="space-y-6">
           <p className="text-slate-400 text-lg font-medium">
@@ -340,7 +340,7 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
              "Refresh your cognitive interest. Tap the numbers in any order to anchor your dopamine."}
           </p>
           {seconds === 0 && (
-            <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} onClick={onComplete} className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all">Resume Mission</motion.button>
+            <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} onClick={onComplete} className="w-full bg-[var(--bg)] text-black py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all">Resume Mission</motion.button>
           )}
         </div>
       </div>
@@ -409,9 +409,9 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
         y: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight/2 : 0)) * 0.02
       }} 
       transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
-      className={`relative mx-auto w-28 h-28 md:w-44 md:h-44 bg-gradient-to-br ${color} text-white rounded-[3rem] md:rounded-[5rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_100px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000 z-10`}
+      className={`relative mx-auto w-28 h-28 md:w-44 md:h-44 bg-gradient-to-br ${color} text-[var(--fg)] rounded-[3rem] md:rounded-[5rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_100px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000 z-10`}
     >
-      <Brain className={`w-16 h-16 md:w-24 md:h-24 ${isVictorious && user ? "text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" : "opacity-80"} text-[var(--accent)]`} />
+      <Brain className={`w-16 h-16 md:w-24 md:h-24 ${isVictorious && user ? "text-[var(--fg)] drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" : "opacity-80"} text-[var(--accent)]`} />
       {/* Refractive Shards around the core */}
       {[...Array(8)].map((_, i) => (
         <motion.div
@@ -424,7 +424,7 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
           className="absolute inset-0 pointer-events-none"
         >
           <div 
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-8 md:w-3 md:h-12 bg-white/20 blur-[1px] rounded-full"
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-8 md:w-3 md:h-12 bg-[var(--bg)]/20 blur-[1px] rounded-full"
             style={{ 
               transform: `translateY(-${isTyping ? 60 : 40}px) rotate(${i * 45}deg)`,
               opacity: focusMode === 'sovereign' ? 0.1 : 0.4
@@ -456,7 +456,7 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="max-w-md w-full bg-slate-900 border-2 border-amber-500/30 p-6 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] text-center space-y-6 md:space-y-8 max-h-[90dvh] overflow-y-auto no-scrollbar"
+        className="max-w-md w-full bg-[var(--bg)] border-2 border-amber-500/30 p-6 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] text-center space-y-6 md:space-y-8 max-h-[90dvh] overflow-y-auto no-scrollbar"
       >
         <div className="mx-auto w-16 h-16 md:w-24 md:h-24 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500">
           <Trophy size={32} />
@@ -464,16 +464,16 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
         
         <div className="space-y-1">
           <p className="text-amber-400 font-black uppercase tracking-[0.4em] text-[8px] md:text-[10px]">Mission Accomplished</p>
-          <h2 className="text-2xl md:text-5xl font-black text-white italic tracking-tighter leading-tight">CEREBRAL RECAP</h2>
+          <h2 className="text-2xl md:text-5xl font-black text-[var(--fg)] italic tracking-tighter leading-tight">CEREBRAL RECAP</h2>
         </div>
         <div className="grid grid-cols-2 gap-3 md:gap-4">
-          <div className="bg-white/5 p-3 md:p-4 rounded-2xl border border-white/10 text-left">
-            <p className="text-[7px] md:text-[8px] font-black uppercase text-slate-500 mb-1">Noise Crushed</p>
-            <p className="text-sm md:text-xl font-black text-white italic">~{Math.round(wordCount)} Words</p>
+          <div className="bg-[var(--bg)]/5 p-3 md:p-4 rounded-2xl border border-white/10 text-left">
+            <p className="text-[7px] md:text-[8px] font-black uppercase text-[var(--fg)] mb-1">Noise Crushed</p>
+            <p className="text-sm md:text-xl font-black text-[var(--fg)] italic">~{Math.round(wordCount)} Words</p>
           </div>
-          <div className="bg-white/5 p-3 md:p-4 rounded-2xl border border-white/10 text-left">
-            <p className="text-[7px] md:text-[8px] font-black uppercase text-slate-500 mb-1">Time Saved</p>
-            <p className="text-sm md:text-xl font-black text-white italic">{data.readingTime}</p>
+          <div className="bg-[var(--bg)]/5 p-3 md:p-4 rounded-2xl border border-white/10 text-left">
+            <p className="text-[7px] md:text-[8px] font-black uppercase text-[var(--fg)] mb-1">Time Saved</p>
+            <p className="text-sm md:text-xl font-black text-[var(--fg)] italic">{data.readingTime}</p>
           </div>
         </div>
         <div className="bg-amber-500/5 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-amber-500/20">
@@ -484,7 +484,7 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
         </div>
         <button 
           onClick={onFinish}
-          className="w-full bg-white text-black py-4 md:py-5 rounded-2xl md:rounded-3xl font-black uppercase tracking-[0.4em] text-[10px] md:text-sm hover:scale-105 transition-all active:scale-95 shadow-2xl"
+          className="w-full bg-[var(--bg)] text-black py-4 md:py-5 rounded-2xl md:rounded-3xl font-black uppercase tracking-[0.4em] text-[10px] md:text-sm hover:scale-105 transition-all active:scale-95 shadow-2xl"
         >
           Reclaim Bandwidth
         </button>
@@ -514,7 +514,7 @@ const RefractiveTagline = () => {
           filter: { duration: 0.5 },
           scale: { duration: 0.2 }
         }}
-        className={`text-lg md:text-xl font-bold italic tracking-tight text-center transition-colors duration-500 ${phase === 'clarity' ? 'text-blue-400' : 'text-slate-500'}`}
+        className={`text-lg md:text-xl font-bold italic tracking-tight text-center transition-colors duration-500 ${phase === 'clarity' ? 'text-blue-400' : 'text-[var(--fg)]'}`}
       >
         "{text}"
       </motion.p>
@@ -1484,34 +1484,34 @@ export default function Home() {
       <AnimatePresence>
         {showGuardianCenter && (
           <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-xl w-full bg-slate-900 border-2 border-red-500/30 p-10 md:p-16 rounded-[4rem] shadow-[0_0_100px_rgba(239,68,68,0.2)] space-y-10">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-xl w-full bg-[var(--bg)] border-2 border-red-500/30 p-10 md:p-16 rounded-[4rem] shadow-[0_0_100px_rgba(239,68,68,0.2)] space-y-10">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-4 text-red-500 font-black uppercase tracking-widest text-xs">
                   <ShieldCheck size={24} /> Guardian Control
                 </div>
-                <button onClick={() => setShowGuardianCenter(false)} className="p-2 hover:bg-white/5 rounded-full text-slate-500 transition-colors"><X size={24}/></button>
+                <button onClick={() => setShowGuardianCenter(false)} className="p-2 hover:bg-[var(--bg)]/5 rounded-full text-[var(--fg)] transition-colors"><X size={24}/></button>
               </div>
               
               <div className="space-y-6">
-                <h2 className="text-4xl font-black text-white italic tracking-tighter">Sarah&apos;s Sanctuary Control</h2>
+                <h2 className="text-4xl font-black text-[var(--fg)] italic tracking-tighter">Sarah&apos;s Sanctuary Control</h2>
                 <div className="space-y-4">
-                  <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+                  <div className="p-6 bg-[var(--bg)]/5 rounded-2xl border border-white/5 flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-black text-white uppercase tracking-widest">Inactivity Severance</p>
-                      <p className="text-[9px] text-slate-500 font-bold uppercase">Auto-logout active (30m)</p>
+                      <p className="text-xs font-black text-[var(--fg)] uppercase tracking-widest">Inactivity Severance</p>
+                      <p className="text-[9px] text-[var(--fg)] font-bold uppercase">Auto-logout active (30m)</p>
                     </div>
                     <CheckCircle2 className="text-emerald-500" size={20} />
                   </div>
-                  <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+                  <div className="p-6 bg-[var(--bg)]/5 rounded-2xl border border-white/5 flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-black text-white uppercase tracking-widest">Sensitivity Shield</p>
-                      <p className="text-[9px] text-slate-500 font-bold uppercase">SSN & Password patterns blocked</p>
+                      <p className="text-xs font-black text-[var(--fg)] uppercase tracking-widest">Sensitivity Shield</p>
+                      <p className="text-[9px] text-[var(--fg)] font-bold uppercase">SSN & Password patterns blocked</p>
                     </div>
                     <CheckCircle2 className="text-emerald-500" size={20} />
                   </div>
                 </div>
               </div>
-              <button onClick={() => setShowGuardianCenter(false)} className="w-full bg-red-600 py-6 rounded-2xl font-black uppercase tracking-widest text-xs text-white shadow-xl">Seal Control Center</button>
+              <button onClick={() => setShowGuardianCenter(false)} className="w-full bg-red-600 py-6 rounded-2xl font-black uppercase tracking-widest text-xs text-[var(--fg)] shadow-xl">Seal Control Center</button>
             </motion.div>
           </div>
         )}
@@ -1528,7 +1528,7 @@ export default function Home() {
       </AnimatePresence>
       <AnimatePresence>
         {oneClickRecap && (
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-[var(--color-glass)] apple-glass p-6 rounded-[2rem] border border-[var(--color-border)] shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0"><Eye size={20} className="text-white" /></div><p className="text-sm font-bold text-white leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
+          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-[var(--color-glass)] apple-glass p-6 rounded-[2rem] border border-[var(--color-border)] shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-[var(--bg)]/10 rounded-full flex items-center justify-center flex-shrink-0"><Eye size={20} className="text-[var(--fg)]" /></div><p className="text-sm font-bold text-[var(--fg)] leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
         )}
       </AnimatePresence>
       <AnimatePresence>
@@ -1541,8 +1541,8 @@ export default function Home() {
             onAnimationComplete={() => localStorage.setItem(`milestone_${usageCount}`, 'true')}
           >
             <div className="bg-gradient-to-br from-amber-400 to-yellow-600 p-10 rounded-[3rem] shadow-[0_0_100px_rgba(245,158,11,0.6)] border-4 border-white/20 flex flex-col items-center gap-4">
-              <Trophy size={80} className="text-white animate-bounce" />
-              <div className="text-center text-white">
+              <Trophy size={80} className="text-[var(--fg)] animate-bounce" />
+              <div className="text-center text-[var(--fg)]">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-80">Neural Milestone</p>
                 <h2 className="text-4xl font-black italic tracking-tighter">LEVEL UP!</h2>
                 <p className="text-sm font-bold opacity-90">Focus reclaimed {usageCount} times.</p>
@@ -1602,40 +1602,40 @@ export default function Home() {
         </AnimatePresence>
         {/* Background Overlay Removed (Moved to Main Layout) */}
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
-        <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Rank</p><p className="text-white font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Result</p><p className="text-white font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-white/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">&quot;Inhale clarity. Exhale the mission. Your sovereignty is established.&quot;</p></motion.div></div>)}</div></motion.div></>
+        <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-[var(--fg)] tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-[var(--fg)]/60 text-[8px] font-black uppercase">Rank</p><p className="text-[var(--fg)] font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-[var(--fg)]/60 text-[8px] font-black uppercase">Result</p><p className="text-[var(--fg)] font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-[var(--bg)]/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">&quot;Inhale clarity. Exhale the mission. Your sovereignty is established.&quot;</p></motion.div></div>)}</div></motion.div></>
       )}</AnimatePresence>
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-2 md:p-6 pointer-events-none">
         <nav className={`pointer-events-auto flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-2xl md:rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
-          <button onClick={() => { setShowNeuralCommand(true); }} title="Neural Command" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
+          <button onClick={() => { setShowNeuralCommand(true); }} title="Neural Command" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-[var(--bg)]/5 text-blue-400 hover:text-[var(--fg)] hover:bg-[var(--bg)]/10 transition-all group">
             <Compass size={18} className="md:w-5 md:h-5 group-hover:rotate-90 transition-transform duration-500" />
           </button>
           
-          <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
+          <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
           
           <div className="flex items-center gap-2 md:gap-4 px-1 md:px-2">
             <div className="flex flex-col items-center">
               <p className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Bandwidth</p>
               <div className="flex items-center gap-1.5 md:gap-2">
                 <Clock className="text-blue-400 md:w-[10px] md:h-[10px]" size={8} />
-                <span className="font-black text-white text-[10px] md:text-xs tabular-nums">{totalMinutesSaved}m</span>
-                <span className="hidden xs:block w-[1px] h-3 bg-white/10 mx-0.5 md:mx-1" />
-                <Brain className="hidden xs:block text-[var(--accent)] md:w-[10px] md:h-[10px]" size={8} />                <span className="hidden xs:block font-black text-white text-[10px] md:text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
+                <span className="font-black text-[var(--fg)] text-[10px] md:text-xs tabular-nums">{totalMinutesSaved}m</span>
+                <span className="hidden xs:block w-[1px] h-3 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
+                <Brain className="hidden xs:block text-[var(--accent)] md:w-[10px] md:h-[10px]" size={8} />                <span className="hidden xs:block font-black text-[var(--fg)] text-[10px] md:text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
               </div>
             </div>
           </div>
-          <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
+          <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
           {data && currentChunk >= 0 && (
-            <button onClick={handleOneClickRecap} title="Where was I? (Recap)" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-400 hover:text-white hover:bg-blue-500/20 transition-all flex items-center gap-2 group">
+            <button onClick={handleOneClickRecap} title="Where was I? (Recap)" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-400 hover:text-[var(--fg)] hover:bg-blue-500/20 transition-all flex items-center gap-2 group">
               <Eye size={18} className="md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
               <span className="hidden lg:block text-[10px] font-black uppercase tracking-widest">Recap</span>
             </button>
           )}
-          <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
-          <button onClick={() => setShowHistory(true)} title="Achieving Vault" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-white/5 text-amber-500 hover:text-white hover:bg-white/10 transition-all group">
+          <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
+          <button onClick={() => setShowHistory(true)} title="Achieving Vault" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-[var(--bg)]/5 text-amber-500 hover:text-[var(--fg)] hover:bg-[var(--bg)]/10 transition-all group">
             <Clock size={18} className="md:w-5 md:h-5 group-hover:rotate-[-20deg] transition-transform" />
           </button>
-          <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
-          <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-white'}`}>
+          <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
+          <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-[var(--fg)] shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-[var(--fg)]'}`}>
             {focusMode === 'sovereign' ? <Crown size={12} className="md:w-3.5 md:h-3.5" /> : <Zap size={12} className="md:w-3.5 md:h-3.5" />}
             <span className="hidden xs:block">{focusMode === 'sovereign' ? 'Sov' : 'Das'}</span>
           </button>
@@ -1656,14 +1656,14 @@ export default function Home() {
               )}
             </button>
           ) : (
-            <button onClick={handleLogin} className="px-4 md:px-6 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-[var(--color-accent)] text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-lg">
+            <button onClick={handleLogin} className="px-4 md:px-6 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-[var(--color-accent)] text-[var(--fg)] text-[8px] md:text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-lg">
               Join
             </button>
           )}
         </nav>
       </div>
       {/* Prism Link (Feedback) */}
-      <button onClick={() => setShowFeedback(true)} className={`fixed top-24 left-8 z-[120] p-4 rounded-2xl apple-glass text-slate-500 hover:text-white hover:bg-white/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl ${focusMode === 'sovereign' ? 'hidden' : ''}`}>
+      <button onClick={() => setShowFeedback(true)} className={`fixed top-24 left-8 z-[120] p-4 rounded-2xl apple-glass text-[var(--fg)] hover:text-[var(--fg)] hover:bg-[var(--bg)]/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl ${focusMode === 'sovereign' ? 'hidden' : ''}`}>
         <div className="absolute inset-0 bg-blue-500/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         <MessageSquare size={20} className="relative z-10 group-hover:scale-110 transition-transform" />
       </button>
@@ -1672,65 +1672,65 @@ export default function Home() {
           <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-2xl w-full max-h-[90dvh] overflow-y-auto no-scrollbar apple-glass p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-6 md:gap-8 relative">
               <div className="flex justify-between items-center sticky top-0 bg-transparent backdrop-blur-md z-10 pb-4">
-                <h2 className="text-xl md:text-2xl font-black text-white italic flex items-center gap-3 md:gap-4"><Compass className="text-blue-400" /> Neural Command</h2>
-                <button onClick={() => { setShowNeuralCommand(false); }} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
+                <h2 className="text-xl md:text-2xl font-black text-[var(--fg)] italic flex items-center gap-3 md:gap-4"><Compass className="text-blue-400" /> Neural Command</h2>
+                <button onClick={() => { setShowNeuralCommand(false); }} className="p-2 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className="space-y-6">
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Sovereign Controls</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Sovereign Controls</p>
                     <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => { setIsBionic(!isBionic); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
+                      <button onClick={() => { setIsBionic(!isBionic); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>
                         <Type size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Bionic Shield</span>
                       </button>
-                      <button onClick={() => { setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-[var(--accent)]' : 'bg-white/5 border-transparent text-slate-500'}`}>
+                      <button onClick={() => { setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-[var(--accent)]' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>
                         <Clock size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Neural Rhythm</span>
                       </button>
                     </div>
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4 mt-6">Neural Continuity</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4 mt-6">Neural Continuity</p>
                     <div className="space-y-3">
                       {localStorage.getItem('dassahs_neural_snapshot') && !data && (
                         <button onClick={() => { setShowNeuralCommand(false); handleResumeSnapshot(); }} className="w-full p-5 rounded-2xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-between group hover:bg-blue-600 hover:border-blue-400 transition-all">
                           <div className="flex items-center gap-4">
-                            <Anchor size={20} className="text-blue-400 group-hover:text-white" />
+                            <Anchor size={20} className="text-blue-400 group-hover:text-[var(--fg)]" />
                             <div className="text-left">
-                              <p className="text-xs font-black text-white uppercase tracking-widest">Resume Mission</p>
+                              <p className="text-xs font-black text-[var(--fg)] uppercase tracking-widest">Resume Mission</p>
                               <p className="text-[8px] text-blue-400/60 group-hover:text-blue-100 font-bold uppercase tracking-tight">Pick up where you left off</p>
                             </div>
                           </div>
-                          <ArrowRight size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ArrowRight size={16} className="text-[var(--fg)] opacity-0 group-hover:opacity-100 transition-opacity" />
                         </button>
                       )}
                       <a href="/dassahs-prism-extension.zip" download className="w-full p-5 rounded-2xl bg-purple-600/10 border border-purple-500/30 flex items-center justify-between group hover:bg-blue-600 hover:border-blue-400 transition-all">
                         <div className="flex items-center gap-4">
-                          <Rocket size={20} className="text-[var(--accent)] group-hover:text-white" />
+                          <Rocket size={20} className="text-[var(--accent)] group-hover:text-[var(--fg)]" />
                           <div className="text-left">
-                            <p className="text-xs font-black text-white uppercase tracking-widest">Neural Bridge</p>
+                            <p className="text-xs font-black text-[var(--fg)] uppercase tracking-widest">Neural Bridge</p>
                             <p className="text-[8px] text-[var(--accent)]/60 group-hover:text-purple-100 font-bold uppercase tracking-tight">Download Chrome Extension</p>
                           </div>
                         </div>
-                        <Download size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Download size={16} className="text-[var(--fg)] opacity-0 group-hover:opacity-100 transition-opacity" />
                       </a>
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Visual Spectrum</p>
-                      <div className="flex gap-1 bg-white/5 rounded-full p-1 border border-white/10">
-                        <button onClick={() => setThemeMode('light')} className={`p-1.5 rounded-full transition-all ${themeMode === 'light' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-500 hover:text-white'}`}><Sun size={12} /></button>
-                        <button onClick={() => setThemeMode('dark')} className={`p-1.5 rounded-full transition-all ${themeMode === 'dark' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}><Moon size={12} /></button>
+                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Visual Spectrum</p>
+                      <div className="flex gap-1 bg-[var(--bg)]/5 rounded-full p-1 border border-white/10">
+                        <button onClick={() => setThemeMode('light')} className={`p-1.5 rounded-full transition-all ${themeMode === 'light' ? 'bg-[var(--bg)] text-slate-900 shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}><Sun size={12} /></button>
+                        <button onClick={() => setThemeMode('dark')} className={`p-1.5 rounded-full transition-all ${themeMode === 'dark' ? 'bg-[var(--bg)] text-[var(--fg)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}><Moon size={12} /></button>
                       </div>
                     </div>
                     <div className="flex gap-2 flex-wrap">
                       {Object.entries(THEMES).map(([id, t]) => {
                         const Icon = { midnight: Moon, neon: Zap, electric: Flame, gold: Coins, emerald: Gem, sunset: Sun, nebula: Orbit }[id] || Palette;
                         return (
-                          <button key={id} onClick={() => { setTheme(id as any); }} className={`relative p-3 rounded-full transition-all flex items-center justify-center ${theme === id ? 'border bg-white/10' : 'border border-transparent bg-white/5 opacity-60 hover:opacity-100'}`} style={theme === id ? { borderColor: t.dark.accent, boxShadow: `0 0 10px ${t.dark.accent}33` } : {}}>
-                            <Icon size={16} className="text-white" />
+                          <button key={id} onClick={() => { setTheme(id as any); }} className={`relative p-3 rounded-full transition-all flex items-center justify-center ${theme === id ? 'border bg-[var(--bg)]/10' : 'border border-transparent bg-[var(--bg)]/5 opacity-60 hover:opacity-100'}`} style={theme === id ? { borderColor: t.dark.accent, boxShadow: `0 0 10px ${t.dark.accent}33` } : {}}>
+                            <Icon size={16} className="text-[var(--fg)]" />
                             {theme === id && <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: t.dark.accent }} />}
                           </button>
                         );
@@ -1740,34 +1740,34 @@ export default function Home() {
                 </div>
                 <div className="space-y-6">
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Neural Harmonies</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Neural Harmonies</p>
                     <button 
                       onClick={() => setBrownNoisePlaying(!brownNoisePlaying)} 
-                      className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center justify-between group ${brownNoisePlaying ? 'bg-amber-600/20 border-amber-500 text-amber-400' : 'bg-white/5 border-transparent text-slate-500'}`}
+                      className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center justify-between group ${brownNoisePlaying ? 'bg-amber-600/20 border-amber-500 text-amber-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
                     >
                       <div className="flex items-center gap-4">
                         <Volume2 size={20} className={brownNoisePlaying ? 'animate-pulse' : ''} />
                         <div className="text-left">
-                          <p className="text-xs font-black text-white uppercase tracking-widest">Brown Noise</p>
-                          <p className="text-[8px] text-slate-500 group-hover:text-slate-300 font-bold uppercase tracking-tight">Audio Focus Shield</p>
+                          <p className="text-xs font-black text-[var(--fg)] uppercase tracking-widest">Brown Noise</p>
+                          <p className="text-[8px] text-[var(--fg)] group-hover:text-slate-300 font-bold uppercase tracking-tight">Audio Focus Shield</p>
                         </div>
                       </div>
-                      <div className={`w-2 h-2 rounded-full ${brownNoisePlaying ? 'bg-amber-400 animate-pulse' : 'bg-white/10'}`} />
+                      <div className={`w-2 h-2 rounded-full ${brownNoisePlaying ? 'bg-amber-400 animate-pulse' : 'bg-[var(--bg)]/10'}`} />
                     </button>
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Discernment Level</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Discernment Level</p>
                     <div className="grid grid-cols-2 gap-3">
                       <button 
                         onClick={() => setSimplicityLevel('vibrant')} 
-                        className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${simplicityLevel === 'vibrant' ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}
+                        className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${simplicityLevel === 'vibrant' ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
                       >
                         <Sparkles size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Vibrant (Simple)</span>
                       </button>
                       <button 
                         onClick={() => setSimplicityLevel('surgical')} 
-                        className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${simplicityLevel === 'surgical' ? 'bg-red-600/20 border-red-500 text-red-400' : 'bg-white/5 border-transparent text-slate-500'}`}
+                        className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${simplicityLevel === 'surgical' ? 'bg-red-600/20 border-red-500 text-red-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
                       >
                         <Shield size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Surgical (Expert)</span>
@@ -1777,7 +1777,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex justify-center">
-                <button onClick={() => { setShowNeuralCommand(false); }} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
+                <button onClick={() => { setShowNeuralCommand(false); }} className="px-10 py-3 rounded-full bg-[var(--bg)] text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
               </div>
             </motion.div>
           </div>
@@ -1788,47 +1788,47 @@ export default function Home() {
           <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-4xl w-full max-h-[90vh] overflow-y-auto no-scrollbar bg-[var(--color-glass)] p-8 md:p-12 rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-10">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-black text-white italic flex items-center gap-4"><Crown className="text-amber-400" /> Neural Identity</h2>
+                <h2 className="text-2xl font-black text-[var(--fg)] italic flex items-center gap-4"><Crown className="text-amber-400" /> Neural Identity</h2>
                 <div className="flex gap-3">
                   <div className="bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-500/20 flex items-center gap-2">
-                    <Clock className="text-blue-400" size={12}/><span className="font-black text-white text-[10px]">{totalMinutesSaved}m</span>
+                    <Clock className="text-blue-400" size={12}/><span className="font-black text-[var(--fg)] text-[10px]">{totalMinutesSaved}m</span>
                   </div>
                   <div className="bg-purple-500/10 px-3 py-1.5 rounded-xl border border-purple-500/20 flex items-center gap-2">
-                    <Brain className="text-[var(--accent)]" size={12}/><span className="font-black text-white text-[10px]">{totalWordsRefracted.toLocaleString()} Words</span>
+                    <Brain className="text-[var(--accent)]" size={12}/><span className="font-black text-[var(--fg)] text-[10px]">{totalWordsRefracted.toLocaleString()} Words</span>
                   </div>
                 </div>
-                <button onClick={() => setShowNeuralIdentity(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
+                <button onClick={() => setShowNeuralIdentity(false)} className="p-2 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-8">
-                  <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Image</p>
+                  <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Neural Image</p>
                     <div className="flex flex-wrap gap-3">
                       {DEFAULT_AVATARS.map((av) => (
-                        <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-12 h-12 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-white/10 scale-110' : 'border-transparent bg-white/5 opacity-40 hover:opacity-100'}`}>
+                        <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-12 h-12 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-[var(--bg)]/10 scale-110' : 'border-transparent bg-[var(--bg)]/5 opacity-40 hover:opacity-100'}`}>
                           {av.icon}
                         </button>
                       ))}
-                      <label className="w-12 h-12 rounded-xl border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all">
+                      <label className="w-12 h-12 rounded-xl border-2 border-dashed border-white/20 bg-[var(--bg)]/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-[var(--bg)]/10 transition-all">
                         <Upload size={16} className="text-slate-400" />
                         <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
                       </label>
                     </div>
                   </div>
-                  <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Vault</p>
-                    <button onClick={() => { setShowNeuralIdentity(false); setShowHistory(true); }} className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all text-left flex items-center gap-4 group">
+                  <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Neural Vault</p>
+                    <button onClick={() => { setShowNeuralIdentity(false); setShowHistory(true); }} className="w-full p-4 rounded-2xl bg-[var(--bg)]/5 border border-white/10 hover:border-blue-500/50 transition-all text-left flex items-center gap-4 group">
                       <Clock className="text-blue-400 group-hover:rotate-[-20deg] transition-transform" size={20} />
                       <div>
-                        <p className="text-xs font-bold text-white">Achieving Vault</p>
-                        <p className="text-[8px] font-black uppercase text-slate-500">Reading History</p>
+                        <p className="text-xs font-bold text-[var(--fg)]">Achieving Vault</p>
+                        <p className="text-[8px] font-black uppercase text-[var(--fg)]">Reading History</p>
                       </div>
                     </button>
                   </div>
                 </div>
                 <div className="space-y-6">
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Dopamine Vault</p>
-                  <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 min-h-[300px] flex flex-col gap-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Dopamine Vault</p>
+                  <div className="bg-[var(--bg)]/5 p-6 rounded-[2.5rem] border border-white/10 min-h-[300px] flex flex-col gap-4">
                     {starredItems.length === 0 ? (
                       <div className="flex-grow flex flex-col items-center justify-center text-center p-8 opacity-40">
                         <Star size={40} className="mb-4 text-amber-500" />
@@ -1860,11 +1860,11 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} className="max-w-4xl w-full refractive-border p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto overflow-hidden">
             {[...Array(12)].map((_, i) => <GlassShard key={i} i={i} color={currentTheme.prism[i % 3]} mousePos={mousePos} />)}
             <motion.div initial={{ x: '-100%', skewX: -20 }} animate={{ x: '200%' }} transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }} className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-10" />
-            <button onClick={() => setShowAbout(false)} className="absolute top-8 right-8 p-4 hover:bg-white/10 rounded-full text-slate-400 transition-colors z-20"><X size={32}/></button>
+            <button onClick={() => setShowAbout(false)} className="absolute top-8 right-8 p-4 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors z-20"><X size={32}/></button>
             <div className="space-y-12 relative z-10">
               <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH&apos;S-PRISM</div>
-                <h2 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tight italic pb-6">The <span className="prism-text">Dastastical Founder 🧠✨</span></h2>
+                <h2 className="text-4xl md:text-7xl font-black text-[var(--fg)] leading-tight tracking-tight italic pb-6">The <span className="prism-text">Dastastical Founder 🧠✨</span></h2>
               </motion.header>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-8 text-slate-200 text-lg leading-relaxed font-medium">
@@ -1872,7 +1872,7 @@ export default function Home() {
                     <p>For as long as I can remember, the world hasn&apos;t just been loud; it has been a flood of raw, unfiltered data. From a young age, my mind and body processed every detail with profound intensity. For years, I navigated a world that felt like an overwhelming cacophony, battling the sheer exhaustion of a mind trying to process everything at once. I tried to manage this massive cognitive load on my own strength, but it only ever led to paralysis and defeat.</p>
                   </motion.div>
                   
-                  <motion.div style={{ y: (mousePos.y - 500) * 0.02, x: (mousePos.x - 1000) * 0.02 }} className="bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-blue-600/20 p-10 rounded-[3rem] border-2 border-white/10 italic text-white shadow-[0_0_50px_rgba(59,130,246,0.2)] relative overflow-hidden group">
+                  <motion.div style={{ y: (mousePos.y - 500) * 0.02, x: (mousePos.x - 1000) * 0.02 }} className="bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-blue-600/20 p-10 rounded-[3rem] border-2 border-white/10 italic text-[var(--fg)] shadow-[0_0_50px_rgba(59,130,246,0.2)] relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
                     <p className="relative z-10 text-xl md:text-2xl leading-relaxed">
                       The turning point was not a clever productivity hack or a sudden surge of willpower. When my mother and I surrendered our lives to Christ, He stepped into the absolute centre of that mental chaos. He didn&apos;t just quiet the room; He rescued me from the weight of my own mind. I realised then that my profound cognitive intensity was not a glitch. It was a high-powered engine that I had simply been running on the wrong fuel.
@@ -1883,7 +1883,7 @@ export default function Home() {
                   </motion.div>
                   
                   <motion.div style={{ y: (mousePos.y - 500) * 0.01, x: (mousePos.x - 1000) * 0.01 }} className="bg-gradient-to-br from-amber-500/10 to-transparent p-10 rounded-[3rem] border-2 border-amber-500/20 shadow-2xl">
-                    <p className="text-white font-bold text-xl leading-relaxed">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
+                    <p className="text-[var(--fg)] font-bold text-xl leading-relaxed">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
                     <p className="mt-8 text-3xl font-black italic prism-text">Stay Dastastic! 🌟✨</p>
                   </motion.div>
                 </div>
@@ -1900,13 +1900,13 @@ export default function Home() {
                       </p>
                       
                       <div className="border-l-4 border-blue-500 pl-6 space-y-2 group/jimmy">
-                        <p className="text-white font-black uppercase tracking-tighter text-xl group-hover:text-blue-400 transition-colors">Eng. Jimmy Njuguna</p>
+                        <p className="text-[var(--fg)] font-black uppercase tracking-tighter text-xl group-hover:text-blue-400 transition-colors">Eng. Jimmy Njuguna</p>
                         <p className="text-slate-400 text-sm font-bold">
                           The loving support of a brother who <span className="text-blue-400 uppercase">ALWAYS PUSHES FOR THE BEST</span> and challenged me to use my tech knowledge for a greater purpose.
                         </p>
                       </div>
                       <div className="border-l-4 border-purple-500 pl-6 space-y-2 group/kizzie">
-                        <p className="text-white font-black uppercase tracking-tighter text-xl group-hover:text-[var(--accent)] transition-colors">Dr. Kizzie Shako</p>
+                        <p className="text-[var(--fg)] font-black uppercase tracking-tighter text-xl group-hover:text-[var(--accent)] transition-colors">Dr. Kizzie Shako</p>
                         <p className="text-slate-400 text-sm font-bold">
                           The mentor encouragement that ignited the fire: <span className="text-[var(--accent)] font-black italic">&quot;THEN DO SOMETHING ABOUT IT!&quot;</span>
                         </p>
@@ -1918,19 +1918,19 @@ export default function Home() {
                     <p className="text-amber-500 font-black uppercase text-[10px] tracking-widest mb-6 relative z-10 flex items-center gap-2"><Trophy size={14} /> Dedication & Legacy</p>
                     <div className="space-y-8 relative z-10">
                       <div className="group border-b border-white/5 pb-4">
-                        <p className="text-white font-black text-sm uppercase tracking-wider mb-2 group-hover:text-amber-400 transition-colors flex items-center gap-2">DChan <Heart size={12} className="fill-red-500 stroke-red-500" /></p>
+                        <p className="text-[var(--fg)] font-black text-sm uppercase tracking-wider mb-2 group-hover:text-amber-400 transition-colors flex items-center gap-2">DChan <Heart size={12} className="fill-red-500 stroke-red-500" /></p>
                         <p className="text-slate-400 text-xs italic leading-relaxed">&quot;He who finds a wife finds a good thing&quot; — My anchor, who centred me and fixed my eyes on Him.</p>
                       </div>
                       <div className="group border-b border-white/5 pb-4">
-                        <p className="text-white font-black text-sm uppercase tracking-wider mb-2">Phido (Mum)</p>
+                        <p className="text-[var(--fg)] font-black text-sm uppercase tracking-wider mb-2">Phido (Mum)</p>
                         <p className="text-slate-400 text-xs leading-relaxed">My foundation, who rooted me in faith so I could stand back up when I fell.</p>
                       </div>
                       <div className="group border-b border-white/5 pb-4">
-                        <p className="text-white font-black text-sm uppercase tracking-wider mb-2">Old, old Cucu</p>
+                        <p className="text-[var(--fg)] font-black text-sm uppercase tracking-wider mb-2">Old, old Cucu</p>
                         <p className="text-slate-400 text-xs leading-relaxed">My roots.</p>
                       </div>
                       <div className="group">
-                        <p className="text-white font-black text-sm uppercase tracking-wider mb-2">Auntie Sisy</p>
+                        <p className="text-[var(--fg)] font-black text-sm uppercase tracking-wider mb-2">Auntie Sisy</p>
                         <p className="text-slate-400 text-xs leading-relaxed">My guide and tread-setter, who kept me grasped to the right path.</p>
                       </div>
                     </div>
@@ -1941,11 +1941,11 @@ export default function Home() {
                 <div className="flex items-center gap-6">
                   <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl relative group">
                     <div className="absolute -top-2 -right-2 bg-amber-500 text-black p-1 rounded-full shadow-lg group-hover:rotate-12 transition-transform"><Brain size={16} /></div>
-                    <span className="text-3xl font-black text-white italic">JG</span>
+                    <span className="text-3xl font-black text-[var(--fg)] italic">JG</span>
                   </div>
                   <div>
-                    <p className="text-white font-black uppercase text-sm tracking-widest">Founded by JGitu</p>
-                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <p className="text-[var(--fg)] font-black uppercase text-sm tracking-widest">Founded by JGitu</p>
+                    <p className="text-[var(--fg)] text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                        Powered by Grace <IchthysIcon size={14} className="text-blue-500" />
                     </p>
                   </div>
@@ -1953,8 +1953,8 @@ export default function Home() {
               </footer>
               
               <div className="pt-8 flex justify-center gap-8 border-t border-white/5 opacity-40 hover:opacity-100 transition-opacity">
-                <a href="/privacy" className="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-colors">Privacy Shield</a>
-                <a href="/terms" className="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-colors">Neural Terms</a>
+                <a href="/privacy" className="text-[9px] font-black uppercase tracking-widest text-[var(--fg)] hover:text-blue-400 transition-colors">Privacy Shield</a>
+                <a href="/terms" className="text-[9px] font-black uppercase tracking-widest text-[var(--fg)] hover:text-blue-400 transition-colors">Neural Terms</a>
               </div>
             </div>
           </motion.div>
@@ -1963,7 +1963,7 @@ export default function Home() {
       <AnimatePresence>{showMissionBrief && data && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="max-w-2xl w-full bg-[var(--color-shadow)] border-2 border-blue-500/30 p-10 md:p-16 rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] relative max-h-[90vh] overflow-y-auto no-scrollbar">
-            <button onClick={() => setShowMissionBrief(false)} className="absolute top-8 right-8 p-3 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
+            <button onClick={() => setShowMissionBrief(false)} className="absolute top-8 right-8 p-3 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
             <div className="space-y-12">
               <div className="flex justify-between items-center">
                 <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 w-fit flex items-center gap-3"><Rocket size={18}/> Mission Brief</div>
@@ -1975,7 +1975,7 @@ export default function Home() {
                     { n: 'Maya', c: 'bg-purple-500', t: 'Vault' },
                     { n: 'Leo', c: 'bg-amber-500', t: 'Dopa' }
                   ].map((a) => (
-                    <div key={a.n} title={`${a.n} (${a.t})`} className={`w-8 h-8 rounded-full border-2 border-slate-900 ${a.c} flex items-center justify-center text-[8px] font-black text-white shadow-lg`}>
+                    <div key={a.n} title={`${a.n} (${a.t})`} className={`w-8 h-8 rounded-full border-2 border-slate-900 ${a.c} flex items-center justify-center text-[8px] font-black text-[var(--fg)] shadow-lg`}>
                       {a.n[0]}
                     </div>
                   ))}
@@ -1991,7 +1991,7 @@ export default function Home() {
                   { n: 'Leo', r: 'Dopamine Architect' },
                   { n: 'DJ', r: 'Sovereign Guide' }
                 ].map((a) => (
-                  <div key={a.n} className="p-3 bg-white/5 rounded-xl border border-white/5 text-center flex flex-col items-center justify-center gap-1">
+                  <div key={a.n} className="p-3 bg-[var(--bg)]/5 rounded-xl border border-white/5 text-center flex flex-col items-center justify-center gap-1">
                     <p className="text-[7px] font-black text-blue-400 uppercase tracking-tighter flex items-center gap-1">
                       {a.n} {a.n === 'DJ' && <Fish size={8} className="text-blue-400" />}
                     </p>
@@ -2001,7 +2001,7 @@ export default function Home() {
               </div>
               <div className="space-y-4">
                 <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2>
-                <p className="text-3xl md:text-5xl font-black leading-[1.1] text-white tracking-tight italic">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p>
+                <p className="text-3xl md:text-5xl font-black leading-[1.1] text-[var(--fg)] tracking-tight italic">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p>
               </div>
               <div className="space-y-8">
                 <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">Core Refractions</h2>
@@ -2014,7 +2014,7 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-              <button onClick={() => setShowMissionBrief(false)} className="w-full bg-blue-600 py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-white shadow-xl hover:opacity-80 transition-all active:scale-95">Acknowledge & Return</button>
+              <button onClick={() => setShowMissionBrief(false)} className="w-full bg-blue-600 py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-[var(--fg)] shadow-xl hover:opacity-80 transition-all active:scale-95">Acknowledge & Return</button>
             </div>
           </motion.div>
         </div>
@@ -2022,15 +2022,15 @@ export default function Home() {
       <AnimatePresence>{showFeedback && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="max-w-md w-full bg-[var(--color-shadow)] border-2 border-amber-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] relative overflow-hidden">
-            <button onClick={() => setShowFeedback(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors"><X size={24}/></button>
+            <button onClick={() => setShowFeedback(false)} className="absolute top-6 right-6 text-[var(--fg)] hover:text-[var(--fg)] transition-colors"><X size={24}/></button>
             <div className="space-y-6">
               <div className="flex items-center gap-4 text-amber-400 font-black uppercase tracking-widest text-xs"><MessageSquare size={20} /> Feedback Vault</div>
-              <h2 className="text-3xl font-black text-white italic">How&apos;s the Prism?</h2>
+              <h2 className="text-3xl font-black text-[var(--fg)] italic">How&apos;s the Prism?</h2>
               {feedbackSuccess ? (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="py-12 text-center space-y-4"><div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400"><CheckCircle2 size={32} /></div><p className="text-white font-bold">Feedback Vaulted!</p></motion.div>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="py-12 text-center space-y-4"><div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400"><CheckCircle2 size={32} /></div><p className="text-[var(--fg)] font-bold">Feedback Vaulted!</p></motion.div>
               ) : (
                 <form onSubmit={handleFeedbackSubmit} className="space-y-6">
-                  <textarea value={feedbackInput} onChange={(e) => setFeedbackInput(e.target.value)} placeholder="Share your thoughts, bugs, or Grace moments..." className="w-full h-40 p-6 bg-black/20 rounded-2xl border border-[var(--color-border)] text-white focus:outline-none focus:border-amber-500/50 resize-none font-medium" />
+                  <textarea value={feedbackInput} onChange={(e) => setFeedbackInput(e.target.value)} placeholder="Share your thoughts, bugs, or Grace moments..." className="w-full h-40 p-6 bg-black/20 rounded-2xl border border-[var(--color-border)] text-[var(--fg)] focus:outline-none focus:border-amber-500/50 resize-none font-medium" />
                   <button type="submit" disabled={!feedbackInput.trim()} className="w-full bg-amber-600 hover:bg-amber-500 py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl transition-all active:scale-95 disabled:opacity-50">Submit to DJ</button>
                 </form>
               )}
@@ -2041,7 +2041,7 @@ export default function Home() {
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-6 md:space-y-10 z-10 px-4 pt-20 md:pt-24 pb-20">
           <header className="text-center space-y-4 md:space-y-8 relative">
-            <h1 className="text-5xl md:text-9xl font-black text-white leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text">Prism</span></h1>
+            <h1 className="text-5xl md:text-9xl font-black text-[var(--fg)] leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text">Prism</span></h1>
             <RefractiveTagline />
           </header>
           <NeuralRefractionSlider />
@@ -2057,9 +2057,9 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     className="flex flex-col items-center gap-3"
                   >
-                    <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/10 backdrop-blur-md">
+                    <div className="flex items-center gap-3 bg-[var(--bg)]/5 px-4 py-2 rounded-2xl border border-white/10 backdrop-blur-md">
                       <Clock size={14} className="text-blue-400 animate-pulse" />
-                      <span className="text-sm font-black text-white tabular-nums">
+                      <span className="text-sm font-black text-[var(--fg)] tabular-nums">
                         {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
                       </span>
                       <button 
@@ -2074,7 +2074,7 @@ export default function Home() {
                 ) : (
                   <button 
                     onClick={() => addTime(15)}
-                    className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 hover:text-blue-400 transition-colors opacity-40 hover:opacity-100 py-2"
+                    className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] hover:text-blue-400 transition-colors opacity-40 hover:opacity-100 py-2"
                   >
                     Engage Focus Timer
                   </button>
@@ -2089,7 +2089,7 @@ export default function Home() {
                   value={missionGoal} 
                   onChange={(e) => setMissionGoal(e.target.value)} 
                   placeholder="Focus Objective (Optional)" 
-                  className="w-full bg-white/5 border border-white/10 p-2 md:p-3 rounded-xl text-[10px] md:text-xs font-bold text-blue-200 placeholder:text-blue-300/20 italic focus:outline-none focus:border-blue-500/40 focus:bg-white/10 transition-all backdrop-blur-md"
+                  className="w-full bg-[var(--bg)]/5 border border-white/10 p-2 md:p-3 rounded-xl text-[10px] md:text-xs font-bold text-blue-200 placeholder:text-blue-300/20 italic focus:outline-none focus:border-blue-500/40 focus:bg-[var(--bg)]/10 transition-all backdrop-blur-md"
                 />
               </div>
               {showNeuroMirror ? (
@@ -2105,7 +2105,7 @@ export default function Home() {
             </div>
             <div className="w-full bg-[var(--color-glass)] p-3 md:p-4 rounded-3xl md:rounded-full flex items-center justify-between gap-2 md:gap-4 border border-white/10 shadow-2xl backdrop-blur-3xl">
               <div className="flex items-center gap-1 md:gap-2 pl-2">
-                <button onClick={() => { fileInputRef.current?.click(); }} title="Clean Document" className="p-2 md:p-3 text-slate-400 hover:text-white transition-colors bg-white/5 rounded-full"><Upload size={16} className="text-blue-500" /></button>
+                <button onClick={() => { fileInputRef.current?.click(); }} title="Clean Document" className="p-2 md:p-3 text-slate-400 hover:text-[var(--fg)] transition-colors bg-[var(--bg)]/5 rounded-full"><Upload size={16} className="text-blue-500" /></button>
                 <button 
                   onClick={() => { 
                     const input = document.createElement('input');
@@ -2116,17 +2116,17 @@ export default function Home() {
                     input.click();
                   }} 
                   title="Capture Neural Image" 
-                  className="p-2 md:p-3 text-slate-400 hover:text-white transition-colors bg-white/5 rounded-full"
+                  className="p-2 md:p-3 text-slate-400 hover:text-[var(--fg)] transition-colors bg-[var(--bg)]/5 rounded-full"
                 >
                   <Camera size={16} className="text-emerald-500" />
                 </button>
-                <div className="w-[1px] h-6 bg-white/10 mx-1" />
-                <button onClick={() => { setIsScenic(!isScenic); if (!isScenic && !brownNoisePlaying) setBrownNoisePlaying(true); }} title={isScenic ? 'Scenic Route' : 'Quick Filter'} className={`p-2 md:p-3 rounded-full border transition-all ${isScenic ? 'bg-amber-500/20 border-amber-500/50 text-amber-500' : 'bg-white/5 border-transparent text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}</button>                <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}</button>
+                <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-1" />
+                <button onClick={() => { setIsScenic(!isScenic); if (!isScenic && !brownNoisePlaying) setBrownNoisePlaying(true); }} title={isScenic ? 'Scenic Route' : 'Quick Filter'} className={`p-2 md:p-3 rounded-full border transition-all ${isScenic ? 'bg-amber-500/20 border-amber-500/50 text-amber-500' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}</button>                <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}</button>
               </div>
               <button 
                 onClick={() => handleSimplify()} 
                 disabled={loading || !input.trim()} 
-                className="flex-1 max-w-[200px] bg-gradient-to-r from-fuchsia-600 to-purple-500 hover:from-fuchsia-500 hover:to-purple-400 text-white py-3 md:py-4 rounded-full font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 text-xs md:text-sm flex items-center justify-center gap-2"
+                className="flex-1 max-w-[200px] bg-gradient-to-r from-fuchsia-600 to-purple-500 hover:from-fuchsia-500 hover:to-purple-400 text-[var(--fg)] py-3 md:py-4 rounded-full font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 text-xs md:text-sm flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -2136,7 +2136,7 @@ export default function Home() {
                 ) : <><Disc size={16} /> Discern</>}
               </button>
               <div className="flex items-center gap-2 pr-2">
-                 <p className="hidden md:block text-[8px] font-black uppercase text-slate-500 tracking-[0.2em]">Ready to Refract</p>
+                 <p className="hidden md:block text-[8px] font-black uppercase text-[var(--fg)] tracking-[0.2em]">Ready to Refract</p>
               </div>
             </div>
           </div>
@@ -2144,19 +2144,19 @@ export default function Home() {
       ) : (
         <div ref={resultRef} className="max-w-2xl lg:max-w-3xl w-full pt-24 md:pt-32 pb-20 z-10 px-4">
           <div className="mb-6 md:mb-8 flex justify-end gap-2 md:gap-4">
-            <button onClick={() => { setShowMissionBrief(true);  }} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-blue-400 hover:text-white transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Rocket size={16}/><span className="hidden xs:inline">Mission Brief</span></button>
-            <button onClick={handleDownloadSummary} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Download size={16}/><span className="hidden xs:inline">Save Summary</span></button>
+            <button onClick={() => { setShowMissionBrief(true);  }} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Rocket size={16}/><span className="hidden xs:inline">Mission Brief</span></button>
+            <button onClick={handleDownloadSummary} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-slate-400 hover:text-[var(--fg)] transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Download size={16}/><span className="hidden xs:inline">Save Summary</span></button>
           </div>          <AnimatePresence mode="wait">
             {currentChunk === -1 ? (
               <motion.div key="ready" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] text-center space-y-8 shadow-2xl relative overflow-hidden">
                 <div className="mx-auto w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse"><Zap size={48} /></div>
                 <div className="space-y-4">
-                  <h2 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter">Neural Refraction Complete</h2>
+                  <h2 className="text-4xl md:text-6xl font-black text-[var(--fg)] italic tracking-tighter">Neural Refraction Complete</h2>
                   <p className="text-slate-400 font-bold uppercase tracking-[0.4em] text-[10px]">Saved {data.readingTime} of Cognitive Noise</p>
                 </div>
                 <div className="flex flex-col gap-4">
                   <button onClick={() => { setCurrentChunk(0);  }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Prism <ArrowRight className="inline ml-4"/></button>
-                  <button onClick={() => { setShowMissionBrief(true);  }} className="w-full bg-white/5 py-4 rounded-xl font-black uppercase tracking-[0.3em] text-[10px] text-slate-400 hover:text-white transition-all">View Mission Brief</button>
+                  <button onClick={() => { setShowMissionBrief(true);  }} className="w-full bg-[var(--bg)]/5 py-4 rounded-xl font-black uppercase tracking-[0.3em] text-[10px] text-slate-400 hover:text-[var(--fg)] transition-all">View Mission Brief</button>
                 </div>
                 <button onClick={handleReset} className="absolute top-8 right-8 p-4 text-slate-600 hover:text-red-400 transition-all"><X size={20}/></button>
               </motion.div>
@@ -2165,10 +2165,10 @@ export default function Home() {
                 <div className="flex justify-between items-center">
                   <div className="space-y-4">
                     <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2>
-                    <h3 className="text-4xl md:text-5xl font-black text-white tracking-tight italic">Priority Overview</h3>
+                    <h3 className="text-4xl md:text-5xl font-black text-[var(--fg)] tracking-tight italic">Priority Overview</h3>
                   </div>
                   <div className="text-right">
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Marcus Approved</p>
+                    <p className="text-[8px] font-black text-[var(--fg)] uppercase tracking-widest">Marcus Approved</p>
                     <p className="text-xs font-bold text-emerald-400 italic">ROI: {data.readingTime} saved</p>
                   </div>
                 </div>
@@ -2189,15 +2189,15 @@ export default function Home() {
                       <div className="flex items-center gap-6">
                         <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                           completedTasks[`${data.id || 'current'}-${i}`] 
-                          ? 'bg-emerald-500 border-emerald-500 text-white' 
+                          ? 'bg-emerald-500 border-emerald-500 text-[var(--fg)]' 
                           : 'border-white/20 text-transparent'
                         }`}>
                           <Check size={14} strokeWidth={4} />
                         </div>
                         <p className={`text-lg font-bold transition-all ${
                           completedTasks[`${data.id || 'current'}-${i}`] 
-                          ? 'text-slate-500 line-through' 
-                          : 'text-slate-300 group-hover:text-white'
+                          ? 'text-[var(--fg)] line-through' 
+                          : 'text-slate-300 group-hover:text-[var(--fg)]'
                         }`}>
                           {action.task}
                         </p>
@@ -2215,7 +2215,7 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row gap-4 mt-12">
                   <button 
                     onClick={sealMission}
-                    className="flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-4 group"
+                    className="flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition-all active:scale-95 text-[var(--fg)] flex items-center justify-center gap-4 group"
                   >
                     Seal the Mission <ShieldCheck size={24} className="group-hover:rotate-12 transition-transform" />
                   </button>
@@ -2233,8 +2233,8 @@ export default function Home() {
                 {isSunday && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-12 p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/20 text-center space-y-4">
                     <p className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-500">Divine Insight: Sabbath Reflection</p>
-                    <p className="text-xl font-black italic text-white leading-relaxed">&quot;{dailyInsight}&quot;</p>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase">Reclaimed by Grace. Powered by Him.</p>
+                    <p className="text-xl font-black italic text-[var(--fg)] leading-relaxed">&quot;{dailyInsight}&quot;</p>
+                    <p className="text-[10px] text-[var(--fg)] font-bold uppercase">Reclaimed by Grace. Powered by Him.</p>
                   </motion.div>
                 )}
               </motion.div>
@@ -2243,12 +2243,12 @@ export default function Home() {
                 <div className="absolute top-10 left-10 flex items-center gap-4">
                   <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-white shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)]'}`} title="Neural Playback"><Volume2 size={16}/></button>
-                    <button onClick={() => setShowVoiceSelector(true)} className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-glass)] text-slate-500 hover:text-white border border-[var(--color-border)] transition-all" title="Voice Settings"><Settings size={16}/></button>
+                    <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-[var(--fg)] shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)]'}`} title="Neural Playback"><Volume2 size={16}/></button>
+                    <button onClick={() => setShowVoiceSelector(true)} className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)] transition-all" title="Voice Settings"><Settings size={16}/></button>
                   </div>
                 </div>
                 
-                <h2 className="text-4xl md:text-6xl font-black mb-4 text-white tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
+                <h2 className="text-4xl md:text-6xl font-black mb-4 text-[var(--fg)] tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
                 
                 {storyMode && showRecap && currentChunk > 0 && (
                   <SceneRecap chunk={data.chunks[currentChunk - 1]} />
@@ -2274,7 +2274,7 @@ export default function Home() {
                         <div className="flex items-center gap-3 text-amber-500 font-black uppercase tracking-[0.2em] text-[10px]"><Rocket size={16} className="animate-pulse" /> Dopamine Hook</div>
                         <button 
                           onClick={() => handleToggleStar({ heading: 'Dopamine Hook', content: data.chunks[currentChunk].dopamineHook, type: 'hook' })}
-                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook && i.type === 'hook') ? 'bg-amber-500 text-white scale-110 shadow-amber-500/40' : 'bg-white/5 text-slate-500 hover:text-amber-400 hover:bg-white/10'}`}
+                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook && i.type === 'hook') ? 'bg-amber-500 text-[var(--fg)] scale-110 shadow-amber-500/40' : 'bg-[var(--bg)]/5 text-[var(--fg)] hover:text-amber-400 hover:bg-[var(--bg)]/10'}`}
                         >
                           <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook && i.type === 'hook') ? "currentColor" : "none"} />
                         </button>
@@ -2290,7 +2290,7 @@ export default function Home() {
                         <div className="flex items-center gap-3 text-[var(--accent)] font-black uppercase tracking-[0.2em] text-[10px]"><Brain size={16} /> The Metaphor</div>
                         <button 
                           onClick={() => handleToggleStar({ heading: 'The Metaphor', content: data.chunks[currentChunk].metaphor, type: 'metaphor' })}
-                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? 'bg-purple-600 text-white scale-110 shadow-purple-500/40' : 'bg-white/5 text-slate-500 hover:text-[var(--accent)] hover:bg-white/10'}`}
+                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? 'bg-purple-600 text-[var(--fg)] scale-110 shadow-purple-500/40' : 'bg-[var(--bg)]/5 text-[var(--fg)] hover:text-[var(--accent)] hover:bg-[var(--bg)]/10'}`}
                         >
                           <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? "currentColor" : "none"} />
                         </button>
@@ -2300,8 +2300,8 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="mt-12 flex justify-between items-center">
-                  <button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all">Back</button>
-                  <button onClick={handleNext} className="bg-white text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Next Step' : 'Next Segment'}</button>
+                  <button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-[var(--fg)] hover:text-[var(--fg)] transition-all">Back</button>
+                  <button onClick={handleNext} className="bg-[var(--bg)] text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Next Step' : 'Next Segment'}</button>
                 </div>
               </motion.div>
             )}
@@ -2309,12 +2309,12 @@ export default function Home() {
         </div>
       )}
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
-      <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 apple-glass z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] apple-glass hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
+      <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 apple-glass z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-[var(--fg)]"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] apple-glass hover:bg-[var(--bg)]/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-[var(--fg)] mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
       <AnimatePresence>{showPaywall && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-md w-full bg-slate-900 border-2 border-[var(--color-accent)] p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] text-center space-y-6 shadow-[0_0_100px_rgba(59,130,246,0.3)] max-h-[90vh] overflow-y-auto no-scrollbar">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-md w-full bg-[var(--bg)] border-2 border-[var(--color-accent)] p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] text-center space-y-6 shadow-[0_0_100px_rgba(59,130,246,0.3)] max-h-[90vh] overflow-y-auto no-scrollbar">
             <div className="mx-auto w-20 h-20 bg-[var(--color-accent)]/10 rounded-full flex items-center justify-center text-[var(--color-accent)] animate-pulse"><Crown size={40} /></div>
-            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter italic">{user ? "Neural Capacity Reached" : "Neural Blueprint Fragmenting"}</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-[var(--fg)] tracking-tighter italic">{user ? "Neural Capacity Reached" : "Neural Blueprint Fragmenting"}</h2>
             <p className="text-slate-400 text-base md:text-lg leading-relaxed font-medium">
               {user 
                 ? "You have reached the edge of your current neural bandwidth. Your Executive Distillation has peaked. To maintain this flow without interruption, join DJ's Inner Circle to unlock unlimited neural capacity."
@@ -2328,12 +2328,12 @@ export default function Home() {
                 <div className="grid grid-cols-1 gap-4">
                   <button onClick={() => handleCheckout("architect_monthly")} className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
                     <p className="text-[10px] font-black uppercase text-blue-200">Prism Architect</p>
-                    <p className="text-xl font-black text-white">$9 / Monthly</p>
+                    <p className="text-xl font-black text-[var(--fg)]">$9 / Monthly</p>
                     <p className="text-xs text-blue-100 opacity-60 mt-1">Continuous Neural Support & Unlimited Capacity</p>
                   </button>
                   <button onClick={() => handleCheckout("sovereign_lifetime")} className="bg-gradient-to-r from-amber-500 to-yellow-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
                     <p className="text-[10px] font-black uppercase text-amber-200">Sovereign Master</p>
-                    <p className="text-xl font-black text-white">$99 / Lifetime</p>
+                    <p className="text-xl font-black text-[var(--fg)]">$99 / Lifetime</p>
                     <p className="text-xs text-amber-100 opacity-60 mt-1">Permanent Focus Anchor & Exclusive Resources</p>
                   </button>
                 </div>
@@ -2343,65 +2343,65 @@ export default function Home() {
           </motion.div>
         </div>
       )}</AnimatePresence>
-      <AnimatePresence>{isZenLocked && (<motion.button initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} onClick={handleToggleZenLock} className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"><X size={32} className="group-hover:rotate-90 transition-transform" /></motion.button>)}</AnimatePresence>
-      <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] apple-glass border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-white rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
+      <AnimatePresence>{isZenLocked && (<motion.button initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} onClick={handleToggleZenLock} className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-[var(--fg)] p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"><X size={32} className="group-hover:rotate-90 transition-transform" /></motion.button>)}</AnimatePresence>
+      <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] apple-glass border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-[var(--fg)] uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-[var(--fg)] hover:bg-[var(--bg)]/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-[var(--fg)] italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-[var(--fg)]' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-[var(--fg)]">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-[var(--fg)] focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-[var(--fg)] p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-[var(--fg)] rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-[var(--bg)]/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
       
       <AnimatePresence>{showVictory && data && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[700] flex items-center justify-center p-6">
           <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="max-w-md w-full apple-glass-dark border-2 border-white/10 p-8 md:p-12 rounded-[3rem] text-center space-y-8 shadow-[0_0_100px_rgba(59,130,246,0.3)] relative overflow-hidden">
              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.2)_0%,transparent_70%)] pointer-events-none" />
-             <button onClick={() => setShowVictory(false)} className="absolute top-6 right-6 p-2 hover:bg-white/10 rounded-full text-slate-500 hover:text-white transition-all z-20"><X size={20}/></button>
+             <button onClick={() => setShowVictory(false)} className="absolute top-6 right-6 p-2 hover:bg-[var(--bg)]/10 rounded-full text-[var(--fg)] hover:text-[var(--fg)] transition-all z-20"><X size={20}/></button>
              
              <div className="mx-auto w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse relative z-10"><Trophy size={32} /></div>
              
              <div className="space-y-2 relative z-10">
-               <h2 className="text-3xl font-black text-white tracking-tighter italic">NEURAL <span className="prism-text">VICTORY</span></h2>
+               <h2 className="text-3xl font-black text-[var(--fg)] tracking-tighter italic">NEURAL <span className="prism-text">VICTORY</span></h2>
                <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]">Sovereignty Reclaimed</p>
              </div>
              <div className="grid grid-cols-2 gap-3 relative z-10">
                <div className="apple-glass-dark rounded-3xl p-6">
-                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Time Saved</p>
-                 <p className="text-xl font-black text-white">{data.readingTime}</p>
+                 <p className="text-[8px] font-black text-[var(--fg)] uppercase tracking-widest mb-1">Time Saved</p>
+                 <p className="text-xl font-black text-[var(--fg)]">{data.readingTime}</p>
                </div>
                <div className="apple-glass-dark rounded-3xl p-6">
-                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Efficiency</p>
-                 <p className="text-xl font-black text-white">100%</p>
+                 <p className="text-[8px] font-black text-[var(--fg)] uppercase tracking-widest mb-1">Efficiency</p>
+                 <p className="text-xl font-black text-[var(--fg)]">100%</p>
                </div>
              </div>
              <div className="space-y-3 relative z-10 pt-4">
-               <button onClick={handleShare} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
+               <button onClick={handleShare} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-[var(--fg)] py-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
                  {isSharing ? <Loader2 className="animate-spin" size={18} /> : <Share2 size={18} />}
                  Share Victory
                </button>
-               <button onClick={handleReset} className="w-full text-slate-500 font-bold uppercase text-[9px] tracking-[0.4em] py-3 hover:text-slate-300 transition-colors">Return to Vault</button>
+               <button onClick={handleReset} className="w-full text-[var(--fg)] font-bold uppercase text-[9px] tracking-[0.4em] py-3 hover:text-slate-300 transition-colors">Return to Vault</button>
              </div>
           </motion.div>
         </div>
       )}</AnimatePresence>
       <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
-        <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
+        <p className="text-[var(--fg)] font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
           JG <IchthysIcon size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
         </p>
         <div className="flex items-center gap-4">
-          <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">About the Prism</button>
+          <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-[var(--bg)]/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-[var(--fg)] transition-all">About the Prism</button>
           
-          <div className="flex bg-white/5 p-1 rounded-full border border-white/10 mt-2">
+          <div className="flex bg-[var(--bg)]/5 p-1 rounded-full border border-white/10 mt-2">
             <button 
               onClick={() => setThemeMode('light')} 
               title="Light Mode"
-              className={`p-2 rounded-full transition-all ${themeMode === 'light' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-500 hover:text-white'}`}
+              className={`p-2 rounded-full transition-all ${themeMode === 'light' ? 'bg-[var(--bg)] text-slate-900 shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
             >
               <Sun size={14} />
             </button>
             <button 
               onClick={() => setThemeMode('dark')} 
               title="Dark Mode"
-              className={`p-2 rounded-full transition-all ${themeMode === 'dark' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}
+              className={`p-2 rounded-full transition-all ${themeMode === 'dark' ? 'bg-[var(--bg)] text-[var(--fg)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
             >
               <MoonStar size={14} />
             </button>
           </div>
-          <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
+          <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
         </div>
       </footer>
     </main>
@@ -2414,7 +2414,7 @@ const AudioToggle = () => {
   return (
     <button 
       onClick={() => setIsOn(!isOn)}
-      className="fixed bottom-8 right-8 z-[500] p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-white font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:scale-105 transition-all"
+      className="fixed bottom-8 right-8 z-[500] p-4 bg-[var(--bg)]/10 backdrop-blur-md rounded-2xl border border-white/10 text-[var(--fg)] font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:scale-105 transition-all"
     >
       Sound {isOn ? 'ON' : 'OFF'}
     </button>
