@@ -20,22 +20,26 @@ const DastasticIcon = ({ ActiveIcon, themeAccent }: { ActiveIcon: any, themeAcce
   </motion.div>
 );
 
+const ThemeContext = React.createContext<{ themeConfig: ThemeConfig, themeMode: 'light' | 'dark' } | null>(null);
+
 const DastasticShell = ({ children, themeConfig, themeMode }: { children: React.ReactNode, themeConfig: ThemeConfig, themeMode: 'light' | 'dark' }) => {
   const t = themeMode === 'light' ? themeConfig.light : themeConfig.dark;
   return (
-    <div 
-      className="min-h-screen transition-colors duration-700 ease-in-out relative"
-      style={{
-        backgroundColor: t.background,
-        color: t.text,
-        '--color-accent': t.accent,
-        '--color-glass': t.glass,
-        '--color-border': t.border,
-      } as React.CSSProperties}
-    >
-      <div className="fixed inset-0 pointer-events-none opacity-20" style={{ background: `radial-gradient(circle at 50% 50%, ${t.accent}20, transparent)` }} />
-      {children}
-    </div>
+    <ThemeContext.Provider value={{ themeConfig, themeMode }}>
+      <div 
+        className="min-h-screen transition-colors duration-700 ease-in-out relative"
+        style={{
+          backgroundColor: t.background,
+          color: t.text,
+          '--color-accent': t.accent,
+          '--color-glass': t.glass,
+          '--color-border': t.border,
+          '--color-shadow': t.shadow || 'rgba(0,0,0,0.1)'
+        } as React.CSSProperties}
+      >
+        {children}
+      </div>
+    </ThemeContext.Provider>
   );
 };
 const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
