@@ -195,7 +195,7 @@ export async function POST(req: Request) {
         responseText = await provider() || '';
         if (responseText) break;
       } catch (e) {
-        console.warn(`Provider failed, shifting focus...`);
+        console.error(`Provider ${provider.name} failed:`, e);
       }
     }
 
