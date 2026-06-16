@@ -38,47 +38,23 @@ interface ThemeConfig {
   prism: string[];
 }
 const THEMES: Record<string, ThemeConfig> = {
-  midnight: {
-    name: 'Midnight Sovereign',
-    light: { background: '#f8fafc', text: '#020617', accent: '#2563eb', glass: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.3)' },
-    dark: { background: '#020617', text: '#f8fafc', accent: '#3b82f6', glass: 'rgba(15, 23, 42, 0.6)', border: 'rgba(255, 255, 255, 0.1)' },
-    prism: ['#3b82f6', '#8b5cf6', '#06b6d4']
+  sovereign: {
+    name: 'Dastastic Sovereign',
+    light: { background: '#fdfaf6', text: '#1c1917', accent: '#b45309', glass: 'rgba(255,255,255,0.7)', border: 'rgba(200,180,150,0.3)' },
+    dark: { background: '#0f172a', text: '#f1f5f9', accent: '#fbbf24', glass: 'rgba(15,23,42,0.6)', border: 'rgba(200,180,150,0.2)' },
+    prism: ['#b45309', '#fbbf24', '#f59e0b']
   },
-  neon: {
-    name: 'Dastastic Neon',
-    light: { background: '#f0fdf4', text: '#064e3b', accent: '#16a34a', glass: 'rgba(255,255,255,0.7)', border: 'rgba(22, 163, 74, 0.3)' },
-    dark: { background: '#000000', text: '#ffffff', accent: '#22c55e', glass: 'rgba(6, 78, 59, 0.6)', border: 'rgba(34, 197, 94, 0.4)' },
-    prism: ['#22c55e', '#a855f7', '#3b82f6']
+  ethereal: {
+    name: 'Dastastic Ethereal',
+    light: { background: '#f8fafc', text: '#0f172a', accent: '#3b82f6', glass: 'rgba(255,255,255,0.85)', border: 'rgba(147,197,253,0.4)' },
+    dark: { background: '#020617', text: '#f8fafc', accent: '#60a5fa', glass: 'rgba(30,41,59,0.3)', border: 'rgba(147,197,253,0.2)' },
+    prism: ['#3b82f6', '#60a5fa', '#93c5fd']
   },
-  electric: {
-    name: 'Electric Grace',
-    light: { background: '#fff1f2', text: '#881337', accent: '#e11d48', glass: 'rgba(255,255,255,0.7)', border: 'rgba(225, 29, 72, 0.3)' },
-    dark: { background: '#020617', text: '#ffffff', accent: '#f43f5e', glass: 'rgba(153, 27, 27, 0.5)', border: 'rgba(244, 63, 94, 0.4)' },
-    prism: ['#f43f5e', '#fbbf24', '#2dd4bf']
-  },
-  gold: {
-    name: 'Divine Gold',
-    light: { background: '#fffbeb', text: '#78350f', accent: '#d97706', glass: 'rgba(255,255,255,0.8)', border: 'rgba(217, 119, 6, 0.3)' },
-    dark: { background: '#000000', text: '#fffbeb', accent: '#fbbf24', glass: 'rgba(120, 53, 15, 0.6)', border: 'rgba(251, 191, 36, 0.5)' },
-    prism: ['#fbbf24', '#f59e0b', '#ffffff']
-  },
-  emerald: {
-    name: 'Hadassah Silk',
-    light: { background: '#ecfdf5', text: '#064e3b', accent: '#059669', glass: 'rgba(255,255,255,0.7)', border: 'rgba(5, 150, 105, 0.3)' },
-    dark: { background: '#022c22', text: '#ecfdf5', accent: '#10b981', glass: 'rgba(6, 78, 59, 0.6)', border: 'rgba(16, 185, 129, 0.3)' },
-    prism: ['#10b981', '#34d399', '#059669']
-  },
-  sunset: {
-    name: 'Divine Glow',
-    light: { background: '#fff7ed', text: '#7c2d12', accent: '#d97706', glass: 'rgba(255,255,255,0.7)', border: 'rgba(217, 119, 6, 0.3)' },
-    dark: { background: '#451a03', text: '#fff7ed', accent: '#f59e0b', glass: 'rgba(120, 53, 15, 0.6)', border: 'rgba(245, 158, 11, 0.3)' },
-    prism: ['#f59e0b', '#fb923c', '#d97706']
-  },
-  nebula: {
-    name: 'Sovereign Pulse',
-    light: { background: '#f5f3ff', text: '#4c1d95', accent: '#7c3aed', glass: 'rgba(255,255,255,0.7)', border: 'rgba(124, 58, 237, 0.3)' },
-    dark: { background: '#2e1065', text: '#f5f3ff', accent: '#8b5cf6', glass: 'rgba(76, 29, 149, 0.6)', border: 'rgba(139, 92, 246, 0.3)' },
-    prism: ['#8b5cf6', '#a78bfa', '#7c3aed']
+  obsidian: {
+    name: 'Dastastic Obsidian',
+    light: { background: '#262626', text: '#e5e5e5', accent: '#d4af37', glass: 'rgba(0,0,0,0.5)', border: 'rgba(255,215,0,0.2)' },
+    dark: { background: '#000000', text: '#ffffff', accent: '#ffd700', glass: 'rgba(10,10,10,0.7)', border: 'rgba(218,165,32,0.3)' },
+    prism: ['#d4af37', '#ffd700', '#ffffff']
   }
 };
 const COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899'];
@@ -939,7 +915,7 @@ export default function Home() {
     { id: 'spark', icon: <Sparkles className="text-amber-400" />, label: 'The Spark' },
     { id: 'prism', icon: <Palette className="text-blue-400" />, label: 'The Prism' },
     { id: 'shield', icon: <Shield className="text-emerald-400" />, label: 'The Shield' },
-    { id: 'brain', icon: <Brain className="text-purple-400" />, label: 'The Core' },
+    { id: 'brain', icon: <Brain className="text-[var(--accent)]" />, label: 'The Core' },
     { id: 'crown', icon: <Crown className="text-yellow-500" />, label: 'The Sovereign' },
   ];
   const handleAvatarSelect = async (url: string) => {
@@ -1607,7 +1583,7 @@ export default function Home() {
                 <Clock className="text-blue-400 md:w-[10px] md:h-[10px]" size={8} />
                 <span className="font-black text-white text-[10px] md:text-xs tabular-nums">{totalMinutesSaved}m</span>
                 <span className="hidden xs:block w-[1px] h-3 bg-white/10 mx-0.5 md:mx-1" />
-                <Brain className="hidden xs:block text-purple-400 md:w-[10px] md:h-[10px]" size={8} />                <span className="hidden xs:block font-black text-white text-[10px] md:text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
+                <Brain className="hidden xs:block text-[var(--accent)] md:w-[10px] md:h-[10px]" size={8} />                <span className="hidden xs:block font-black text-white text-[10px] md:text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
               </div>
             </div>
           </div>
@@ -1672,7 +1648,7 @@ export default function Home() {
                         <Type size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Bionic Shield</span>
                       </button>
-                      <button onClick={() => { setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-purple-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
+                      <button onClick={() => { setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-[var(--accent)]' : 'bg-white/5 border-transparent text-slate-500'}`}>
                         <Clock size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Neural Rhythm</span>
                       </button>
@@ -1695,10 +1671,10 @@ export default function Home() {
                       )}
                       <a href="/dassahs-prism-extension.zip" download className="w-full p-5 rounded-2xl bg-purple-600/10 border border-purple-500/30 flex items-center justify-between group hover:bg-blue-600 hover:border-blue-400 transition-all">
                         <div className="flex items-center gap-4">
-                          <Rocket size={20} className="text-purple-400 group-hover:text-white" />
+                          <Rocket size={20} className="text-[var(--accent)] group-hover:text-white" />
                           <div className="text-left">
                             <p className="text-xs font-black text-white uppercase tracking-widest">Neural Bridge</p>
-                            <p className="text-[8px] text-purple-400/60 group-hover:text-purple-100 font-bold uppercase tracking-tight">Download Chrome Extension</p>
+                            <p className="text-[8px] text-[var(--accent)]/60 group-hover:text-purple-100 font-bold uppercase tracking-tight">Download Chrome Extension</p>
                           </div>
                         </div>
                         <Download size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -1782,7 +1758,7 @@ export default function Home() {
                     <Clock className="text-blue-400" size={12}/><span className="font-black text-white text-[10px]">{totalMinutesSaved}m</span>
                   </div>
                   <div className="bg-purple-500/10 px-3 py-1.5 rounded-xl border border-purple-500/20 flex items-center gap-2">
-                    <Brain className="text-purple-400" size={12}/><span className="font-black text-white text-[10px]">{totalWordsRefracted.toLocaleString()} Words</span>
+                    <Brain className="text-[var(--accent)]" size={12}/><span className="font-black text-white text-[10px]">{totalWordsRefracted.toLocaleString()} Words</span>
                   </div>
                 </div>
                 <button onClick={() => setShowNeuralIdentity(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
@@ -1894,9 +1870,9 @@ export default function Home() {
                         </p>
                       </div>
                       <div className="border-l-4 border-purple-500 pl-6 space-y-2 group/kizzie">
-                        <p className="text-white font-black uppercase tracking-tighter text-xl group-hover:text-purple-400 transition-colors">Dr. Kizzie Shako</p>
+                        <p className="text-white font-black uppercase tracking-tighter text-xl group-hover:text-[var(--accent)] transition-colors">Dr. Kizzie Shako</p>
                         <p className="text-slate-400 text-sm font-bold">
-                          The mentor encouragement that ignited the fire: <span className="text-purple-400 font-black italic">&quot;THEN DO SOMETHING ABOUT IT!&quot;</span>
+                          The mentor encouragement that ignited the fire: <span className="text-[var(--accent)] font-black italic">&quot;THEN DO SOMETHING ABOUT IT!&quot;</span>
                         </p>
                       </div>
                     </div>
@@ -2275,10 +2251,10 @@ export default function Home() {
                         <Brain size={120} />
                       </div>
                       <div className="flex justify-between items-center relative z-10">
-                        <div className="flex items-center gap-3 text-purple-400 font-black uppercase tracking-[0.2em] text-[10px]"><Brain size={16} /> The Metaphor</div>
+                        <div className="flex items-center gap-3 text-[var(--accent)] font-black uppercase tracking-[0.2em] text-[10px]"><Brain size={16} /> The Metaphor</div>
                         <button 
                           onClick={() => handleToggleStar({ heading: 'The Metaphor', content: data.chunks[currentChunk].metaphor, type: 'metaphor' })}
-                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? 'bg-purple-600 text-white scale-110 shadow-purple-500/40' : 'bg-white/5 text-slate-500 hover:text-purple-400 hover:bg-white/10'}`}
+                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? 'bg-purple-600 text-white scale-110 shadow-purple-500/40' : 'bg-white/5 text-slate-500 hover:text-[var(--accent)] hover:bg-white/10'}`}
                         >
                           <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? "currentColor" : "none"} />
                         </button>
