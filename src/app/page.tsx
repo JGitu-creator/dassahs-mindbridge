@@ -7,11 +7,9 @@ import {
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Moon, Ghost, Star, Settings, MoreHorizontal,
   Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit
 } from 'lucide-react';
-
 const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
   const isMobile = useIsMobile();
   if (isMobile) return null;
-
   return (
     <div className="fixed top-8 left-1/2 -translate-x-1/2 flex gap-4 z-[200] opacity-30 hover:opacity-100 transition-opacity pointer-events-none">
       {[0, 1].map((i) => (
@@ -28,12 +26,10 @@ const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
     </div>
   );
 };
-
 import { ContextAnchor } from '@/components/prism/ContextAnchor';
 import { ProgressPrism } from '@/components/prism/ProgressPrism';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-
 type ThemeMode = 'midnight' | 'neon' | 'electric' | 'gold' | 'emerald' | 'sunset' | 'nebula';
 interface ThemeConfig {
   name: string;
@@ -41,7 +37,6 @@ interface ThemeConfig {
   dark: { background: string; text: string; accent: string; glass: string; border: string; };
   prism: string[];
 }
-
 const THEMES: Record<string, ThemeConfig> = {
   midnight: {
     name: 'Midnight Sovereign',
@@ -86,9 +81,7 @@ const THEMES: Record<string, ThemeConfig> = {
     prism: ['#8b5cf6', '#a78bfa', '#7c3aed']
   }
 };
-
 const COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899'];
-
 interface SimplifiedData {
   id?: string;
   tldr: string[];
@@ -107,7 +100,6 @@ interface SimplifiedData {
   chartData: { type: 'bar' | 'line' | 'pie'; data: { name: string; value: number }[] } | null;
   actions: { task: string; priority: 'high' | 'medium' | 'low'; completed?: boolean }[];
 }
-
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -117,7 +109,6 @@ const useIsMobile = () => {
   }, []);
   return isMobile;
 };
-
 const IchthysIcon = ({ size = 24, className = "" }) => (
   <svg 
     width={size} 
@@ -133,7 +124,6 @@ const IchthysIcon = ({ size = 24, className = "" }) => (
     <path d="M2 12c4-8 14-8 19 0l3 3M2 12c4 8 14 8 19 0l3-3" />
   </svg>
 );
-
 const StarParticles = ({ count, isFinal }: { count: number, isFinal?: boolean }) => {
   const isMobile = useIsMobile();
   const mobileCount = isMobile ? Math.min(count, 20) : count;
@@ -149,9 +139,7 @@ const StarParticles = ({ count, isFinal }: { count: number, isFinal?: boolean })
       delay: Math.random() * 5
     }));
   }
-
   const activeParticles = particlesRef.current.slice(0, mobileCount);
-
   return (
     <div className="fixed inset-0 pointer-events-none z-[401]">
       {activeParticles.map((p, i) => (
@@ -173,18 +161,15 @@ const StarParticles = ({ count, isFinal }: { count: number, isFinal?: boolean })
     </div>
   );
 };
-
 const NeuralRefractionSlider = () => {
   const [sliderPos, setSliderPos] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
-
   const handleMove = (e: any) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
     setSliderPos(Math.max(0, Math.min(100, (x / rect.width) * 100)));
   };
-
   return (
     <div 
       ref={containerRef}
@@ -197,7 +182,6 @@ const NeuralRefractionSlider = () => {
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 mb-6">The Noise</p>
         <p className="text-xl md:text-3xl text-slate-400 leading-relaxed blur-[1px]">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow.</p>
       </div>
-
       {/* Clarity Side (Right) - Use clipPath to reveal */}
       <div 
         className="absolute inset-0 bg-blue-600/5 backdrop-blur-[2px] flex flex-col items-center justify-center p-8 md:p-16 text-center select-none z-10"
@@ -208,7 +192,6 @@ const NeuralRefractionSlider = () => {
           <span className="text-blue-400">Thi</span>s <span className="text-blue-400">i</span>s <span className="text-blue-400">a</span> <span className="text-blue-400">shor</span>t, <span className="text-blue-400">Bioni</span>c <span className="text-blue-400">pat</span>h. <span className="text-blue-400">You</span>r <span className="text-blue-400">brai</span>n <span className="text-blue-400">lock</span>s <span className="text-blue-400">i</span>n <span className="text-blue-400">instan</span>tly.
         </p>
       </div>
-
       {/* Divider */}
       <div 
         className="absolute top-0 bottom-0 w-[2px] bg-white z-20 shadow-[0_0_20px_rgba(255,255,255,0.5)]"
@@ -226,13 +209,11 @@ const NeuralRefractionSlider = () => {
     </div>
   );
 };
-
 const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData, isOpen: boolean, onToggle: () => void }) => {
   const anchors = useMemo(() => {
     const allTerms = data.chunks.flatMap(c => c.keyTerms);
     return Array.from(new Set(allTerms)).slice(0, 15);
   }, [data]);
-
   return (
     <div className={`fixed right-0 top-1/2 -translate-y-1/2 z-[450] transition-all duration-500 ${isOpen ? 'translate-x-0' : 'translate-x-[calc(100%-40px)]'}`}>
       <div className="flex items-center">
@@ -264,7 +245,6 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
     </div>
   );
 };
-
 const SceneRecap = ({ chunk }: { chunk: any }) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
@@ -277,7 +257,6 @@ const SceneRecap = ({ chunk }: { chunk: any }) => (
     <p className="text-slate-300 italic font-medium">"...{chunk.summary}"</p>
   </motion.div>
 );
-
 const BionicText = ({ text }: { text: string }) => {
   if (!text) return null;
   return (
@@ -291,7 +270,6 @@ const BionicText = ({ text }: { text: string }) => {
     </>
   );
 };
-
 const NeuroMirrorText = ({ text }: { text: string }) => {
   if (!text) return null;
   return (
@@ -302,13 +280,10 @@ const NeuroMirrorText = ({ text }: { text: string }) => {
     </div>
   );
 };
-
-
 const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: () => void }) => {
   const [seconds, setSeconds] = useState(level === 1 ? 15 : level === 2 ? 30 : 60);
   const [puzzleState, setLazyPuzzle] = useState<number[]>([]);
   const [solvedCount, setSolvedCount] = useState(0);
-
   useEffect(() => {
     const timer = setInterval(() => {
       setSeconds(s => (s <= 1 ? 0 : s - 1));
@@ -318,7 +293,6 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
     }
     return () => clearInterval(timer);
   }, [level]);
-
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[600] apple-glass-dark flex items-center justify-center p-4">
       <div className="max-w-xl w-full text-center space-y-12">
@@ -328,7 +302,6 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
             {level === 1 ? "Neural Blink" : level === 2 ? "Sovereign Breath" : "Dopamine Anchor"}
           </h2>
         </div>
-
         <div className="relative h-48 flex items-center justify-center">
            {level === 1 && (
              <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 4, repeat: Infinity }} className="w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
@@ -347,7 +320,6 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
            )}
            <div className="absolute text-6xl font-black tabular-nums text-white/20">{seconds}s</div>
         </div>
-
         <div className="space-y-6">
           <p className="text-slate-400 text-lg font-medium">
             {level === 1 ? "Look away from the screen. Find a distant object and focus on it for 15 seconds." : 
@@ -362,7 +334,6 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
     </motion.div>
   );
 };
-
 const GlassShard = ({ color, mousePos, i }: { color: string, mousePos: { x: number, y: number }, i: number }) => (
   <motion.div
     animate={{
@@ -387,7 +358,6 @@ const GlassShard = ({ color, mousePos, i }: { color: string, mousePos: { x: numb
     }}
   />
 );
-
 const NeuralSparks = ({ active }: { active: boolean }) => {
   if (!active) return null;
   return (
@@ -409,7 +379,6 @@ const NeuralSparks = ({ active }: { active: boolean }) => {
     </div>
   );
 };
-
 const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mousePos, focusMode }: { loading: boolean, inputLength: number, isVictorious: boolean, user: any, mousePos: {x:number, y:number}, focusMode: string }) => {
   const isTyping = inputLength > 0;
   const isLong = inputLength > 500;
@@ -450,23 +419,19 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
           />
         </motion.div>
       ))}
-
       <NeuralSparks active={loading || (isTyping && focusMode === 'dastastic')} />
       {isVictorious && user && (<motion.div animate={{ opacity: [0.5, 1, 0.5], scale: [1, 1.5, 1] }} transition={{ duration: 2, repeat: Infinity }} className="absolute inset-0 bg-amber-400/20 rounded-full blur-3xl -z-10" />)}
     </motion.div>
   );
 };
-
 const DIVINE_INSIGHTS = [
   "Commit your work to the Lord, and your plans will be established. - Proverbs 16:3",
   "For I know the plans I have for you, declares the Lord. - Jeremiah 29:11",
   "I can do all things through Christ who strengthens me. - Philippians 4:13",
   "He gives power to the faint, and to him who has no might he increases strength. - Isaiah 40:29"
 ];
-
 const getIsSunday = () => new Date().getDay() === 0;
 const getDailyInsight = () => DIVINE_INSIGHTS[new Date().getDate() % DIVINE_INSIGHTS.length];
-
 const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) => {
   if (!data) return null;
   const wordCount = data.chunks.reduce((acc: number, chunk: any) => acc + (chunk.original?.length || 0), 0) / 5; // Approx
@@ -488,7 +453,6 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
           <p className="text-amber-400 font-black uppercase tracking-[0.4em] text-[8px] md:text-[10px]">Mission Accomplished</p>
           <h2 className="text-2xl md:text-5xl font-black text-white italic tracking-tighter leading-tight">CEREBRAL RECAP</h2>
         </div>
-
         <div className="grid grid-cols-2 gap-3 md:gap-4">
           <div className="bg-white/5 p-3 md:p-4 rounded-2xl border border-white/10 text-left">
             <p className="text-[7px] md:text-[8px] font-black uppercase text-slate-500 mb-1">Noise Crushed</p>
@@ -499,14 +463,12 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
             <p className="text-sm md:text-xl font-black text-white italic">{data.readingTime}</p>
           </div>
         </div>
-
         <div className="bg-amber-500/5 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-amber-500/20">
           <p className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.3em] text-amber-400 mb-2 md:mb-3 italic">{isSunday ? "Sabbath Mode: Divine Insight" : "Divine Insight"}</p>
           <p className="text-xs md:text-sm text-amber-100 font-bold italic leading-relaxed">
             {isSunday ? dailyInsight : '"Inhale clarity. Your sovereignty is established."'}
           </p>
         </div>
-
         <button 
           onClick={onFinish}
           className="w-full bg-white text-black py-4 md:py-5 rounded-2xl md:rounded-3xl font-black uppercase tracking-[0.4em] text-[10px] md:text-sm hover:scale-105 transition-all active:scale-95 shadow-2xl"
@@ -517,18 +479,14 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
     </div>
   );
 };
-
 const RefractiveTagline = () => {
   const [phase, setPhase] = useState<'noise' | 'flash' | 'clarity'>('noise');
-
   useEffect(() => {
     const timer1 = setTimeout(() => setPhase('flash'), 1000);
     const timer2 = setTimeout(() => setPhase('clarity'), 1300);
     return () => { clearTimeout(timer1); clearTimeout(timer2); };
   }, []);
-
   const text = "Turn overwhelming noise into clear focus in seconds.";
-
   return (
     <div className="relative h-12 flex items-center justify-center overflow-hidden">
       <motion.p 
@@ -559,7 +517,6 @@ const RefractiveTagline = () => {
           />
         )}
       </AnimatePresence>
-
       {phase === 'clarity' && (
         <motion.div 
           initial={{ opacity: 0, scale: 0.5 }}
@@ -571,48 +528,39 @@ const RefractiveTagline = () => {
     </div>
   );
 };
-
 const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: ThemeMode, themeMode: 'light' | 'dark', focusMode: string, isScenic: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const t = THEMES[theme] || THEMES['calm-light'];
   const colors = themeMode === 'light' ? t.light : t.dark;
-
   useEffect(() => {
     if (focusMode === 'sovereign') return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
     let animationFrameId: number;
     let width = window.innerWidth;
     let height = window.innerHeight;
-
     const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
     };
-
     window.addEventListener('resize', resize);
     resize();
-
     const gridSize = 30;
     const cols = Math.ceil(width / gridSize);
     const rows = Math.ceil(height / gridSize);
-
     class Snake {
       segments!: {x: number, y: number}[];
       color!: string;
       direction!: {x: number, y: number};
       timer!: number;
       speed!: number;
-
       constructor() {
         this.reset();
       }
-
       reset() {
         this.segments = [{x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows)}];
         this.color = t.prism[Math.floor(Math.random() * t.prism.length)];
@@ -621,7 +569,6 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic
         this.timer = 0;
         this.speed = (isScenic ? 4 : 8) + Math.random() * 12;
       }
-
       update() {
         this.timer++;
         if (this.timer >= this.speed) {
@@ -632,17 +579,14 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic
              const dirs = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
              this.direction = dirs[Math.floor(Math.random() * dirs.length)];
           }
-
           const newHead = {
             x: (head.x + this.direction.x + cols) % cols,
             y: (head.y + this.direction.y + rows) % rows
           };
-
           this.segments.unshift(newHead);
           if (this.segments.length > (isScenic ? 10 : 6)) {
             this.segments.pop();
           }
-
           // React to mouse
           const dx = (newHead.x * gridSize) - mousePos.x;
           const dy = (newHead.y * gridSize) - mousePos.y;
@@ -654,7 +598,6 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic
           }
         }
       }
-
       draw() {
         this.segments.forEach((seg, i) => {
           const alpha = (1 - (i / this.segments.length)) * (isScenic ? 0.6 : 0.4);
@@ -666,9 +609,7 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic
         });
       }
     }
-
     const snakes = [...Array(isScenic ? 24 : 12)].map(() => new Snake());
-
     const render = () => {
       ctx.clearRect(0, 0, width, height);
       snakes.forEach(s => {
@@ -677,17 +618,13 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic
       });
       animationFrameId = requestAnimationFrame(render);
     };
-
     render();
-
     return () => {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
     };
   }, [focusMode, theme, mousePos]);
-
   if (focusMode === 'sovereign') return null;
-
   return (
     <canvas 
       ref={canvasRef}
@@ -695,15 +632,12 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic
     />
   );
 };
-
 export default function Home() {
   const [input, setInput] = useState('');
   const noiseNodeRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [lastActivity, setLastActivity] = useState(Date.now());
   const AUTO_LOGOUT_TIME = 30 * 60 * 1000; // 30 Minutes
-
   const [linkedUsers, setLinkedUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<SimplifiedData | null>(null);
@@ -713,25 +647,20 @@ export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [accountTier, setAccountTier] = useState<'individual' | 'family' | 'team' | 'university'>('individual');
   const [isGuardian, setIsGuardian] = useState(false);
-
   // --- AUTO-SEVER (AUTO-LOGOUT) ---
   useEffect(() => {
     if (!user) return;
-
     const checkInactivity = () => {
       if (Date.now() - lastActivity > 30 * 60 * 1000) { // 30 minutes
         handleLogout();
         alert("Neural Link Severed: For your sovereignty and safety, you have been logged out due to inactivity.");
       }
     };
-
     const interval = setInterval(checkInactivity, 60000); // Check every minute
     const updateActivity = () => setLastActivity(Date.now());
-
     window.addEventListener('mousemove', updateActivity);
     window.addEventListener('keydown', updateActivity);
     window.addEventListener('click', updateActivity);
-
     return () => {
       clearInterval(interval);
       window.removeEventListener('mousemove', updateActivity);
@@ -791,7 +720,6 @@ export default function Home() {
   const [isScenic, setIsScenic] = useState(false);
   const [simplicityLevel, setSimplicityLevel] = useState<'vibrant' | 'surgical'>('vibrant');
   const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
-
   useEffect(() => {
     const hasSeenGuide = localStorage.getItem('hasSeenNeuralGuide');
     if (!hasSeenGuide) {
@@ -803,7 +731,6 @@ export default function Home() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const brownNoiseRef = useRef<any>(null);
   const premiumAudioRef = useRef<HTMLAudioElement | null>(null);
-
   useEffect(() => {
     if (brownNoisePlaying) {
       if (!audioCtxRef.current) {
@@ -847,7 +774,6 @@ export default function Home() {
   const [breakLevel, setBreakLevel] = useState(1);
   const [showRecap, setShowRecap] = useState(false);
   const [oneClickRecap, setOneClickRecap] = useState<string | null>(null);
-
   const handleOneClickRecap = () => {
     if (!data || currentChunk < 0) return;
     const previousChunks = data.chunks.slice(Math.max(0, currentChunk - 1), currentChunk + 1);
@@ -864,11 +790,9 @@ export default function Home() {
   const [showGuardianCenter, setShowGuardianCenter] = useState(false);
   const [ltiConnected, setLtiConnected] = useState(false);
   const [showLogicRoot, setShowLogicRoot] = useState<Record<number, boolean>>({});
-
   const toggleLogicRoot = (idx: number) => {
     setShowLogicRoot(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
-
   const toggleTask = (taskIndex: number) => {
     const key = `${data?.id || 'current'}-${taskIndex}`;
     setCompletedTasks(prev => ({ ...prev, [key]: !prev[key] }));
@@ -876,7 +800,6 @@ export default function Home() {
       setDassahPoints(p => p + 5); // Reward for action
     }
   };
-
   const sealMission = () => {
     setRewardType('final');
     setTimeout(() => {
@@ -884,7 +807,6 @@ export default function Home() {
       handleReset();
     }, 3000);
   };
-
   // Neural Streak Logic
   useEffect(() => {
     const savedStreak = parseInt(localStorage.getItem('dassahs_neural_streak') || '0');
@@ -903,7 +825,6 @@ export default function Home() {
       }
     }
   }, []);
-
   const updateStreak = () => {
     const now = new Date();
     const today = now.toISOString().split('T')[0];
@@ -916,7 +837,6 @@ export default function Home() {
       localStorage.setItem('dassahs_last_refract_date', today);
     }
   };
-
   // Focus Timer Logic
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -930,12 +850,10 @@ export default function Home() {
     }
     return () => clearInterval(interval);
   }, [timerActive, timeLeft]);
-
   const addTime = (minutes: number) => {
     setTimeLeft(prev => prev + minutes * 60);
     setTimerActive(true);
   };
-
   useEffect(() => {
     const handleKeys = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
@@ -949,7 +867,6 @@ export default function Home() {
     window.addEventListener('keydown', handleKeys);
     return () => window.removeEventListener('keydown', handleKeys);
   }, []);
-
   const loadHistory = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -963,7 +880,6 @@ export default function Home() {
       console.error("Failed to load history:", e);
     }
   };
-
   const loadProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -983,7 +899,6 @@ export default function Home() {
       console.error("Failed to load profile:", e);
     }
   };
-
   const CATCHPHRASES = [
     "Neural Link Established",
     "Cognitive Clarity Achieved",
@@ -994,7 +909,6 @@ export default function Home() {
     "Sovereignty Restored"
   ];
   const currentCatchphrase = useMemo(() => CATCHPHRASES[Math.floor(Math.random() * CATCHPHRASES.length)], [rewardType]);
-
   // Neural Snapshot - Auto Save
   useEffect(() => {
     if (data && currentChunk >= -1) {
@@ -1008,7 +922,6 @@ export default function Home() {
       localStorage.setItem('dassahs_neural_snapshot', JSON.stringify(snapshot));
     }
   }, [data, currentChunk, input, missionGoal]);
-
   const handleResumeSnapshot = () => {
     
     const saved = localStorage.getItem('dassahs_neural_snapshot');
@@ -1022,7 +935,6 @@ export default function Home() {
       setTimeout(() => setRewardType('none'), 2000);
     }
   };
-
   const DEFAULT_AVATARS = [
     { id: 'spark', icon: <Sparkles className="text-amber-400" />, label: 'The Spark' },
     { id: 'prism', icon: <Palette className="text-blue-400" />, label: 'The Prism' },
@@ -1030,13 +942,11 @@ export default function Home() {
     { id: 'brain', icon: <Brain className="text-purple-400" />, label: 'The Core' },
     { id: 'crown', icon: <Crown className="text-yellow-500" />, label: 'The Sovereign' },
   ];
-
   const handleAvatarSelect = async (url: string) => {
     if (!user) return;
     setAvatarUrl(url);
     await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
   };
-
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
@@ -1050,7 +960,6 @@ export default function Home() {
       handleAvatarSelect(publicUrl);
     } catch (err) { alert("Failed to upload neural image."); } finally { setUploadingAvatar(false); }
   };
-
   const handleToggleStar = (item: {heading: string, content: string, type: 'metaphor' | 'hook'}) => {
     
     setStarredItems(prev => {
@@ -1059,7 +968,6 @@ export default function Home() {
       return [...prev, item];
     });
   };
-
   const handleEstablishLink = async () => {
     
     setLinkState('syncing');
@@ -1083,7 +991,6 @@ export default function Home() {
                 terms_accepted_at: new Date().toISOString() 
               }).eq('id', user.id);
             }
-
             setAcceptedTOS(true);
             setLinkState('established');
             setShowTOS(false);
@@ -1096,11 +1003,9 @@ export default function Home() {
       setSyncProgress(progress);
     }, 200);
   };
-
   useEffect(() => {
     localStorage.setItem('dassahs_neural_vault', JSON.stringify(starredItems));
   }, [starredItems]);
-
   useEffect(() => {
     if (linkState === 'established' && !localStorage.getItem('dassahs_prism_tutorial_seen')) {
       setTimeout(() => {
@@ -1109,7 +1014,6 @@ export default function Home() {
       }, 2000);
     }
   }, [linkState]);
-
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => { 
       if (session?.user && localStorage.getItem('dassahs_prism_tos_accepted') !== 'true') {
@@ -1125,7 +1029,6 @@ export default function Home() {
         loadProfile(session.user.id);
       }
     });
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user && localStorage.getItem('dassahs_prism_tos_accepted') !== 'true') {
         supabase.auth.signOut();
@@ -1143,12 +1046,10 @@ export default function Home() {
         setIsPaid(false);
       }
     });
-
     setUsageCount(parseInt(localStorage.getItem('dassahs_prism_usage') || '0'));
     const urlParams = new URLSearchParams(window.location.search);
     const textParam = urlParams.get('text');
     const shareIdParam = urlParams.get('share_id');
-
     if (textParam) { 
       setInput(decodeURIComponent(textParam)); 
       handleSimplify(decodeURIComponent(textParam)); 
@@ -1175,7 +1076,6 @@ export default function Home() {
     }
     return () => subscription.unsubscribe();
   }, []);
-
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!feedbackInput.trim()) return;
@@ -1196,7 +1096,6 @@ export default function Home() {
       alert("Feedback vault failed. Try again!");
     }
   };
-
   const handleLoadExample = () => {
     
     const exampleNoise = "This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text. It's filled with unnecessary jargon and complex clauses that are designed to overwhelm the reader rather than provide clarity. By the time you reach the end, you've forgotten how it started, and the 'Sovereign Core' of the message is lost in a sea of cognitive noise.";
@@ -1204,18 +1103,14 @@ export default function Home() {
     setRewardType('step');
     setTimeout(() => setRewardType('none'), 2000);
   };
-
   const resultRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (data && resultRef.current) {
       resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [data]);
-
   const handleSimplify = async (textToSimplify = input) => {
      if (!textToSimplify.trim()) return; 
-
     // --- SENSITIVITY CHECK ---
     const ssnPattern = /\b\d{3}-\d{2}-\d{4}\b/;
     const pwdKeyword = /password|secret|key|token/i;
@@ -1225,7 +1120,6 @@ export default function Home() {
         return;
       }
     }
-
     const limit = user ? 30 : 10;
     if (usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
     
@@ -1272,7 +1166,6 @@ export default function Home() {
       setCurrentChunk(-1);
     } catch (err: any) { alert(err.message || 'The Prism encountered a storm!'); } finally { setLoading(false); }
   };
-
   const handleShare = async () => { 
     if (!data) return; setIsSharing(true); 
     try { 
@@ -1295,7 +1188,6 @@ export default function Home() {
       await navigator.clipboard.writeText(shareText); alert("Victory shared! Link copied to clipboard. 🚀"); 
     } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); } 
   };
-
   const handleDownloadSummary = () => { 
     if (!data) return; 
     const content = `# DASSAH'S PRISM: NEURAL REFRACTION\n\n## THE VISION\n> ${data.whyCare}\n\n## CORE TL;DR\n${data.tldr.map(t => `* **${t}**`).join('\n')}\n\n## PRIORITY ROADMAP\n${data.actions.map(a => `* [ ] **[${a.priority.toUpperCase()}]** ${a.task}`).join('\n')}\n\n---\n*Refracted via Dassah's-Prism. Reclaim your focus.*`; 
@@ -1309,10 +1201,8 @@ export default function Home() {
     document.body.removeChild(a); 
     URL.revokeObjectURL(url); 
   };
-
   const isSunday = getIsSunday();
   const dailyInsight = getDailyInsight();
-
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0]; if (!file) return; setLoading(true);
     try {
@@ -1334,7 +1224,6 @@ export default function Home() {
       }
     } catch (err: any) { alert(`Upload Failed: ${err.message}`); } finally { setLoading(false); }
   };
-
   useEffect(() => {
     const loadVoices = () => {
       const voices = window.speechSynthesis.getVoices();
@@ -1348,7 +1237,6 @@ export default function Home() {
     window.speechSynthesis.onvoiceschanged = loadVoices;
     return () => { window.speechSynthesis.onvoiceschanged = null; };
   }, [selectedVoiceId]);
-
   const handleReadAloud = async (text: string) => {
     if (isPlaying) {
       window.speechSynthesis.cancel();
@@ -1359,7 +1247,6 @@ export default function Home() {
       setIsPlaying(false);
       return;
     }
-
     if (selectedVoiceId === 'dassah_premium') {
       setIsPlaying(true);
       try {
@@ -1387,21 +1274,17 @@ export default function Home() {
     const sentences = text.split(/([.!?])/);
     let index = 0;
     setIsPlaying(true);
-
     const speakNext = () => {
       if (index >= sentences.length || !isPlaying) {
         setIsPlaying(false);
         return;
       }
-
       const fragment = sentences[index] + (sentences[index+1] || '');
       index += 2;
-
       if (!fragment.trim()) {
         speakNext();
         return;
       }
-
       const utterance = new SpeechSynthesisUtterance(fragment);
       
       // Apply Selected Voice
@@ -1416,19 +1299,15 @@ export default function Home() {
         utterance.rate = 1.05; // Slightly faster for standard facts
         utterance.pitch = 1.0;
       }
-
       utterance.onend = () => {
         // Rhythmic pause between fragments
         setTimeout(speakNext, 300);
       };
-
       utterance.onerror = () => setIsPlaying(false);
       window.speechSynthesis.speak(utterance);
     };
-
     speakNext();
   };
-
   const handleReset = () => {
     
     setData(null);
@@ -1438,7 +1317,6 @@ export default function Home() {
     setRewardType('none');
     localStorage.removeItem('dassahs_neural_snapshot');
   };
-
   const handleToggleZenLock = () => {
     
     if (isZenLocked) {
@@ -1450,7 +1328,6 @@ export default function Home() {
       }
     } else { setIsZenLocked(true); document.documentElement.requestFullscreen().catch(() => {}); }
   };
-
   const handleChat = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || chatLoading) return;
@@ -1473,11 +1350,9 @@ export default function Home() {
       setChatLoading(false);
     }
   };
-
   const handleNext = () => {
     if (data && currentChunk < data.chunks.length) {
       const nextChunk = currentChunk + 1;
-
       // Infinite 3-6-9 Rhythm Logic
       if (nextChunk > 0 && nextChunk % 3 === 0 && nextChunk < data.chunks.length) {
         // level cycles 1, 2, 3, 1, 2, 3...
@@ -1487,7 +1362,6 @@ export default function Home() {
         setShowBreak(true);
         if (level >= 2) setShowRecap(true);
       }
-
       setCurrentChunk(nextChunk);
       setRewardType('step');
       setTimeout(() => setRewardType('none'), 2000);
@@ -1518,7 +1392,6 @@ export default function Home() {
       alert(`Handshake Failed: ${err.message}`);
     }
   };
-
   const handleLogin = async () => {
     
     const { error } = await supabase.auth.signInWithOAuth({
@@ -1532,13 +1405,11 @@ export default function Home() {
     });
     if (error) alert("Neural Link failed: " + error.message);
   };
-
   const handleInviteUser = async (email: string) => {
     if (!isGuardian) return;
     alert(`Establishing Neural Bridge for ${email}... This user will be linked to your ${accountTier} dashboard.`);
     // In production, this would send an invitation and create a Supabase entry
   };
-
   const handleLogout = async () => {
     
     await supabase.auth.signOut();
@@ -1546,7 +1417,6 @@ export default function Home() {
     setHistory([]);
     setIsPaid(false);
   };
-
   const currentTheme = THEMES[theme];
   const isDark = themeMode === 'dark';
   const colors = isDark ? currentTheme.dark : currentTheme.light;
@@ -1584,9 +1454,7 @@ export default function Home() {
       box-shadow: 0 0 10px var(--prism-1);
     }
   `;
-
   useEffect(() => { setMouseFocus(true); }, []);
-
   return (
     <>
       <style>{`
@@ -1639,22 +1507,17 @@ export default function Home() {
       <AnimatePresence>
         {showRecap && <CerebralRecap data={data} onFinish={() => { setShowRecap(false); handleReset(); }} />}
       </AnimatePresence>
-
       <AnimatePresence>
       </AnimatePresence>
-
       <AnimatePresence>
       </AnimatePresence>
-
       <AnimatePresence>
       </AnimatePresence>
-
       <AnimatePresence>
         {oneClickRecap && (
           <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-blue-600/40 apple-glass-dark p-6 rounded-[2rem] border border-white/20 shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0"><Eye size={20} className="text-white" /></div><p className="text-sm font-bold text-white leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
         )}
       </AnimatePresence>
-
       <AnimatePresence>
         {usageCount > 0 && usageCount % 5 === 0 && !localStorage.getItem(`milestone_${usageCount}`) && (
           <motion.div 
@@ -1675,9 +1538,7 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* REMOVED: SUBTLE BRAND SIGNATURE */}
-
       {linkState === 'established' && (
       <main 
         onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
@@ -1696,7 +1557,6 @@ export default function Home() {
           </div>
         )}
         <SnakeLightsBackground theme={theme} themeMode={themeMode} mousePos={mousePos} focusMode={focusMode} isScenic={isScenic} />
-
         {/* --- SCENIC READING GUIDE --- */}
         <AnimatePresence>
           {isScenic && (
@@ -1714,7 +1574,6 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
-
         {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && focusMode !== 'sovereign' && (
           <NeuralAnchorSidebar data={data} isOpen={anchorsOpen} onToggle={() => setAnchorsOpen(!anchorsOpen)} />
         )}
@@ -1724,19 +1583,15 @@ export default function Home() {
             <ContextAnchor data={data} isOpen={true} onToggle={() => {}} />
           )}
         </AnimatePresence>
-
         <AnimatePresence>
           {showBreak && focusMode !== 'sovereign' && (
             <NeuralRhythmBreak level={breakLevel} onComplete={() => {  setShowBreak(false); }} />
           )}
         </AnimatePresence>
-
         {/* Background Overlay Removed (Moved to Main Layout) */}
-
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
         <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-white tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Rank</p><p className="text-white font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-white/60 text-[8px] font-black uppercase">Result</p><p className="text-white font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-white/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">&quot;Inhale clarity. Exhale the mission. Your sovereignty is established.&quot;</p></motion.div></div>)}</div></motion.div></>
       )}</AnimatePresence>
-
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-2 md:p-6 pointer-events-none">
         <nav className={`pointer-events-auto flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-2xl md:rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
           <button onClick={() => { setShowNeuralCommand(true); }} title="Neural Command" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-white/5 text-blue-400 hover:text-white hover:bg-white/10 transition-all group">
@@ -1756,29 +1611,22 @@ export default function Home() {
               </div>
             </div>
           </div>
-
           <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
-
           {data && currentChunk >= 0 && (
             <button onClick={handleOneClickRecap} title="Where was I? (Recap)" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-400 hover:text-white hover:bg-blue-500/20 transition-all flex items-center gap-2 group">
               <Eye size={18} className="md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
               <span className="hidden lg:block text-[10px] font-black uppercase tracking-widest">Recap</span>
             </button>
           )}
-
           <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
-
           <button onClick={() => setShowHistory(true)} title="Achieving Vault" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-white/5 text-amber-500 hover:text-white hover:bg-white/10 transition-all group">
             <Clock size={18} className="md:w-5 md:h-5 group-hover:rotate-[-20deg] transition-transform" />
           </button>
-
           <div className="w-[1px] h-6 bg-white/10 mx-0.5 md:mx-1" />
-
           <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-white'}`}>
             {focusMode === 'sovereign' ? <Crown size={12} className="md:w-3.5 md:h-3.5" /> : <Zap size={12} className="md:w-3.5 md:h-3.5" />}
             <span className="hidden xs:block">{focusMode === 'sovereign' ? 'Sov' : 'Das'}</span>
           </button>
-
           {user ? (
             <button onClick={() => setShowNeuralIdentity(true)} className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl overflow-hidden border-2 border-blue-500/30 hover:border-blue-400 hover:scale-105 transition-all shadow-lg flex items-center justify-center bg-blue-500/10">
               {avatarUrl ? (
@@ -1802,13 +1650,11 @@ export default function Home() {
           )}
         </nav>
       </div>
-
       {/* Prism Link (Feedback) */}
       <button onClick={() => setShowFeedback(true)} className={`fixed top-24 left-8 z-[120] p-4 rounded-2xl apple-glass text-slate-500 hover:text-white hover:bg-white/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl ${focusMode === 'sovereign' ? 'hidden' : ''}`}>
         <div className="absolute inset-0 bg-blue-500/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         <MessageSquare size={20} className="relative z-10 group-hover:scale-110 transition-transform" />
       </button>
-
       <AnimatePresence>
         {showNeuralCommand && (
           <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
@@ -1817,7 +1663,6 @@ export default function Home() {
                 <h2 className="text-xl md:text-2xl font-black text-white italic flex items-center gap-3 md:gap-4"><Compass className="text-blue-400" /> Neural Command</h2>
                 <button onClick={() => { setShowNeuralCommand(false); }} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className="space-y-6">
                   <div>
@@ -1827,16 +1672,12 @@ export default function Home() {
                         <Type size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Bionic Shield</span>
                       </button>
-
                       <button onClick={() => { setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-purple-400' : 'bg-white/5 border-transparent text-slate-500'}`}>
                         <Clock size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Neural Rhythm</span>
                       </button>
                     </div>
                   </div>
-
-
-
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4 mt-6">Neural Continuity</p>
                     <div className="space-y-3">
@@ -1864,7 +1705,6 @@ export default function Home() {
                       </a>
                     </div>
                   </div>
-
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Visual Spectrum</p>
@@ -1886,7 +1726,6 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-
                 <div className="space-y-6">
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Neural Harmonies</p>
@@ -1904,7 +1743,6 @@ export default function Home() {
                       <div className={`w-2 h-2 rounded-full ${brownNoisePlaying ? 'bg-amber-400 animate-pulse' : 'bg-white/10'}`} />
                     </button>
                   </div>
-
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Discernment Level</p>
                     <div className="grid grid-cols-2 gap-3">
@@ -1926,7 +1764,6 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-
               <div className="flex justify-center">
                 <button onClick={() => { setShowNeuralCommand(false); }} className="px-10 py-3 rounded-full bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
               </div>
@@ -1934,7 +1771,6 @@ export default function Home() {
           </div>
         )}
       </AnimatePresence>
-
       <AnimatePresence>
         {showNeuralIdentity && (
           <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
@@ -1951,7 +1787,6 @@ export default function Home() {
                 </div>
                 <button onClick={() => setShowNeuralIdentity(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-8">
                   <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
@@ -1968,7 +1803,6 @@ export default function Home() {
                       </label>
                     </div>
                   </div>
-
                   <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Neural Vault</p>
                     <button onClick={() => { setShowNeuralIdentity(false); setShowHistory(true); }} className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all text-left flex items-center gap-4 group">
@@ -1979,15 +1813,7 @@ export default function Home() {
                       </div>
                     </button>
                   </div>
-
-
-
-
-
-
-
                 </div>
-
                 <div className="space-y-6">
                   <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Dopamine Vault</p>
                   <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 min-h-[300px] flex flex-col gap-4">
@@ -2008,7 +1834,6 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-
               {user && (
                 <div className="pt-4 border-t border-white/5">
                   <button onClick={handleLogout} className="text-red-400 text-[10px] font-black uppercase tracking-widest hover:text-red-300 flex items-center gap-2"><LogOut size={14}/> Disconnect Neural Link</button>
@@ -2018,7 +1843,6 @@ export default function Home() {
           </div>
         )}
       </AnimatePresence>
-
       <AnimatePresence>{showAbout && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
           <motion.div initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} className="max-w-4xl w-full refractive-border p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto overflow-hidden">
@@ -2030,7 +1854,6 @@ export default function Home() {
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH&apos;S-PRISM</div>
                 <h2 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tight italic pb-6">The <span className="prism-text">Dastastical Founder 🧠✨</span></h2>
               </motion.header>
-
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-8 text-slate-200 text-lg leading-relaxed font-medium">
                   <motion.div style={{ y: (mousePos.y - 500) * -0.01, x: (mousePos.x - 1000) * -0.01 }} className="bg-gradient-to-r from-blue-500/10 to-transparent p-8 border-l-4 border-blue-500 rounded-r-3xl shadow-xl">
@@ -2043,7 +1866,6 @@ export default function Home() {
                       The turning point was not a clever productivity hack or a sudden surge of willpower. When my mother and I surrendered our lives to Christ, He stepped into the absolute centre of that mental chaos. He didn&apos;t just quiet the room; He rescued me from the weight of my own mind. I realised then that my profound cognitive intensity was not a glitch. It was a high-powered engine that I had simply been running on the wrong fuel.
                     </p>
                   </motion.div>
-
                   <motion.div style={{ y: (mousePos.y - 500) * -0.015, x: (mousePos.x - 1000) * -0.015 }} className="bg-gradient-to-r from-purple-500/10 to-transparent p-8 border-l-4 border-purple-500 rounded-r-3xl shadow-xl">
                     <p>It was only through His strength that my greatest source of exhaustion was transformed into my most powerful gift. The victory wasn&apos;t that the world stopped being complex; the victory was that He gave me the peace to finally master it. Guided by His grace, I began to channel that intense processing power into &apos;systems thinking&apos;. Suddenly, I could look under the hood of chaotic environments—whether untangling complex partnerships or building outdoor communities—and build structures that brought clarity, all for His glory.</p>
                   </motion.div>
@@ -2053,7 +1875,6 @@ export default function Home() {
                     <p className="mt-8 text-3xl font-black italic prism-text">Stay Dastastic! 🌟✨</p>
                   </motion.div>
                 </div>
-
                 <div className="space-y-8">
                   <motion.div style={{ y: (mousePos.y - 500) * 0.05, x: (mousePos.x - 1000) * 0.03 }} className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-8 rounded-[2.5rem] border-2 border-blue-500/30 relative overflow-hidden group shadow-2xl">
                     <div className="absolute -right-8 -top-8 opacity-10 rotate-12 group-hover:scale-110 transition-transform duration-700"><Rocket size={120} /></div>
@@ -2072,7 +1893,6 @@ export default function Home() {
                           The loving support of a brother who <span className="text-blue-400 uppercase">ALWAYS PUSHES FOR THE BEST</span> and challenged me to use my tech knowledge for a greater purpose.
                         </p>
                       </div>
-
                       <div className="border-l-4 border-purple-500 pl-6 space-y-2 group/kizzie">
                         <p className="text-white font-black uppercase tracking-tighter text-xl group-hover:text-purple-400 transition-colors">Dr. Kizzie Shako</p>
                         <p className="text-slate-400 text-sm font-bold">
@@ -2081,7 +1901,6 @@ export default function Home() {
                       </div>
                     </div>
                   </motion.div>
-
                   <motion.div style={{ y: (mousePos.y - 500) * 0.08, x: (mousePos.x - 1000) * -0.02 }} className="bg-gradient-to-br from-amber-500/10 to-amber-600/10 p-8 rounded-[2.5rem] border-2 border-amber-500/20 shadow-2xl relative overflow-hidden">
                     <div className="absolute -right-6 -bottom-6 opacity-10 rotate-[-12deg]"><Crown size={100} /></div>
                     <p className="text-amber-500 font-black uppercase text-[10px] tracking-widest mb-6 relative z-10 flex items-center gap-2"><Trophy size={14} /> Dedication & Legacy</p>
@@ -2106,7 +1925,6 @@ export default function Home() {
                   </motion.div>
                 </div>
               </div>
-
               <footer className="pt-12 flex flex-col sm:flex-row items-center justify-between gap-8 border-t border-white/10">
                 <div className="flex items-center gap-6">
                   <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl relative group">
@@ -2130,7 +1948,6 @@ export default function Home() {
           </motion.div>
         </div>
       )}</AnimatePresence>
-
       <AnimatePresence>{showMissionBrief && data && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="max-w-2xl w-full bg-[var(--color-shadow)] border-2 border-blue-500/30 p-10 md:p-16 rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] relative max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -2170,12 +1987,10 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-
               <div className="space-y-4">
                 <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Vision</h2>
                 <p className="text-3xl md:text-5xl font-black leading-[1.1] text-white tracking-tight italic">{isBionic ? <BionicText text={data.whyCare} /> : data.whyCare}</p>
               </div>
-
               <div className="space-y-8">
                 <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">Core Refractions</h2>
                 <div className="space-y-6">
@@ -2187,13 +2002,11 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-
               <button onClick={() => setShowMissionBrief(false)} className="w-full bg-blue-600 py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-white shadow-xl hover:opacity-80 transition-all active:scale-95">Acknowledge & Return</button>
             </div>
           </motion.div>
         </div>
       )}</AnimatePresence>
-
       <AnimatePresence>{showFeedback && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="max-w-md w-full bg-[var(--color-shadow)] border-2 border-amber-500/30 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] relative overflow-hidden">
@@ -2213,16 +2026,13 @@ export default function Home() {
           </motion.div>
         </div>
       )}</AnimatePresence>
-
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-6 md:space-y-10 z-10 px-4 pt-20 md:pt-24 pb-20">
           <header className="text-center space-y-4 md:space-y-8 relative">
             <h1 className="text-5xl md:text-9xl font-black text-white leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text">Prism</span></h1>
             <RefractiveTagline />
           </header>
-
           <NeuralRefractionSlider />
-
           <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[2rem] md:rounded-[3rem] border-2 border-white/20 p-2 md:p-3 shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden relative group focus-within:border-blue-500/50 hover:border-white/30 transition-all flex flex-col items-center">
             <div className="pt-4 md:pt-6 pb-2 relative flex flex-col items-center gap-4">
               <RefractiveNeuralCore loading={loading} inputLength={input.length} isVictorious={false} user={user} mousePos={mousePos} focusMode={focusMode} />
@@ -2270,7 +2080,6 @@ export default function Home() {
                   className="w-full bg-white/5 border border-white/10 p-2 md:p-3 rounded-xl text-[10px] md:text-xs font-bold text-blue-200 placeholder:text-blue-300/20 italic focus:outline-none focus:border-blue-500/40 focus:bg-white/10 transition-all backdrop-blur-md"
                 />
               </div>
-
               {showNeuroMirror ? (
                 <div className="w-full h-48 md:h-80 bg-black/60 rounded-[1.5rem] md:rounded-[2.5rem] overflow-y-auto border border-white/10 pt-16"><NeuroMirrorText text={input || "Paste some text..."} /></div>
               ) : (
@@ -2282,7 +2091,6 @@ export default function Home() {
                 />
               )}
             </div>
-
             <div className="w-full bg-[var(--color-glass)] p-3 md:p-4 rounded-3xl md:rounded-full flex items-center justify-between gap-2 md:gap-4 border border-white/10 shadow-2xl backdrop-blur-3xl">
               <div className="flex items-center gap-1 md:gap-2 pl-2">
                 <button onClick={() => { fileInputRef.current?.click(); }} title="Clean Document" className="p-2 md:p-3 text-slate-400 hover:text-white transition-colors bg-white/5 rounded-full"><Upload size={16} className="text-blue-500" /></button>
@@ -2303,9 +2111,6 @@ export default function Home() {
                 <div className="w-[1px] h-6 bg-white/10 mx-1" />
                 <button onClick={() => { setIsScenic(!isScenic); if (!isScenic && !brownNoisePlaying) setBrownNoisePlaying(true); }} title={isScenic ? 'Scenic Route' : 'Quick Filter'} className={`p-2 md:p-3 rounded-full border transition-all ${isScenic ? 'bg-amber-500/20 border-amber-500/50 text-amber-500' : 'bg-white/5 border-transparent text-slate-500'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}</button>                <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-white/5 border-transparent text-slate-500'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}</button>
               </div>
-
-
-
               <button 
                 onClick={() => handleSimplify()} 
                 disabled={loading || !input.trim()} 
@@ -2318,7 +2123,6 @@ export default function Home() {
                   </div>
                 ) : <><Disc size={16} /> Discern</>}
               </button>
-
               <div className="flex items-center gap-2 pr-2">
                  <p className="hidden md:block text-[8px] font-black uppercase text-slate-500 tracking-[0.2em]">Ready to Refract</p>
               </div>
@@ -2356,7 +2160,6 @@ export default function Home() {
                     <p className="text-xs font-bold text-emerald-400 italic">ROI: {data.readingTime} saved</p>
                   </div>
                 </div>
-
                 <div className="space-y-6">
                   {data.actions.map((action, i) => (
                     <motion.div 
@@ -2397,7 +2200,6 @@ export default function Home() {
                     </motion.div>
                   ))}
                 </div>
-
                 <div className="flex flex-col sm:flex-row gap-4 mt-12">
                   <button 
                     onClick={sealMission}
@@ -2447,7 +2249,6 @@ export default function Home() {
                 <div className="space-y-8 flex-grow">
                   <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
                   
-
                   {/* Progress Prism at the bottom of content */}
                   <div className="pt-8">
                     <ProgressPrism progress={(currentChunk + 1) / data.chunks.length} />
@@ -2495,12 +2296,8 @@ export default function Home() {
           </AnimatePresence>
         </div>
       )}
-
-
-
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
       <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 apple-glass-dark z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] apple-glass hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
-
       <AnimatePresence>{showPaywall && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-md w-full bg-slate-900 border-2 border-[var(--color-accent)] p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] text-center space-y-6 shadow-[0_0_100px_rgba(59,130,246,0.3)] max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -2534,9 +2331,7 @@ export default function Home() {
           </motion.div>
         </div>
       )}</AnimatePresence>
-
       <AnimatePresence>{isZenLocked && (<motion.button initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} onClick={handleToggleZenLock} className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"><X size={32} className="group-hover:rotate-90 transition-transform" /></motion.button>)}</AnimatePresence>
-
       <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] apple-glass border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-slate-500 italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-slate-500">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-white focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-white rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
       
       <AnimatePresence>{showVictory && data && (
@@ -2551,7 +2346,6 @@ export default function Home() {
                <h2 className="text-3xl font-black text-white tracking-tighter italic">NEURAL <span className="prism-text">VICTORY</span></h2>
                <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]">Sovereignty Reclaimed</p>
              </div>
-
              <div className="grid grid-cols-2 gap-3 relative z-10">
                <div className="apple-glass-dark rounded-3xl p-6">
                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Time Saved</p>
@@ -2562,7 +2356,6 @@ export default function Home() {
                  <p className="text-xl font-black text-white">100%</p>
                </div>
              </div>
-
              <div className="space-y-3 relative z-10 pt-4">
                <button onClick={handleShare} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
                  {isSharing ? <Loader2 className="animate-spin" size={18} /> : <Share2 size={18} />}
@@ -2573,7 +2366,6 @@ export default function Home() {
           </motion.div>
         </div>
       )}</AnimatePresence>
-
       <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
         <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
           JG <IchthysIcon size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
@@ -2597,19 +2389,14 @@ export default function Home() {
               <MoonStar size={14} />
             </button>
           </div>
-
           <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
         </div>
       </footer>
-
-
     </main>
       )}
     </>
   );
 }
-
-
 const AudioToggle = () => {
   const [isOn, setIsOn] = useState(false);
   return (
@@ -2621,18 +2408,3 @@ const AudioToggle = () => {
     </button>
   );
 };
-
-
-};
-
-
->
-  );
-};
-
-
-};
-
-
-
-
