@@ -27,6 +27,14 @@ export async function POST(req: Request) {
       reviewStep // 'pros' | 'cons' | 'full'
     } = await req.json();
 
+    // --- CONTEXT WINDOW PROTECTION ---
+    const MAX_CHARS = 30000; // Approx 7-8k tokens
+    if (text.length > MAX_CHARS) {
+      return NextResponse.json({ 
+        error: 'Neural Link Overload: The document is too large for a single refraction. Please paste smaller segments or summarize the core noise first.' 
+      }, { status: 413 });
+    }
+
     if (!text && mode !== 'chat' && mode !== 'council_review') {
       return NextResponse.json({ error: 'Valid input is required.' }, { status: 400 });
     }
@@ -200,10 +208,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ answer: responseText });
     }
 
-    responseText = responseText.replace(/```json|```/gi, '').trim();
-    const parsedData = JSON.parse(responseText);
+    // --- ROBUST JSON EXTRACTION ---
+    const extractJSON = (text: string) => {
+      try {
+        const start = text.indexOf('{');
+        const end = text.lastIndexOf('}');
+        if (start === -1 || end === -1) throw new Error('No JSON object found in response');
+        return JSON.parse(text.slice(start, end + 1));
+      } catch (e) {
+        console.error('JSON Extraction Failed:', e);
+        throw new Error('The Neural Engine produced a malformed refraction. Please try again.');
+      }
+    };
+
+    if (mode === 'chat' || mode === 'council_review') {
+      return NextResponse.json({ answer: responseText });
+    }
+
+    const parsedData = extractJSON(responseText);
 
     // --- HELENA & SARAH VALIDATION ---
+
     const validatedData = {
       tldr: parsedData.tldr || ["No summary generated"],
       whyCare: parsedData.whyCare || "Focus was interrupted.",
