@@ -7,3 +7,12 @@ body {
   overflow-x: hidden;
 }
 
+/* Premium Apple Liquid Glass Effect */
+.apple-glass {
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background-color: var(--color-glass);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
