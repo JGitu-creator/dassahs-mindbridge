@@ -380,7 +380,7 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
       transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
       className={`relative mx-auto w-28 h-28 md:w-44 md:h-44 bg-gradient-to-br ${color} text-white rounded-[3rem] md:rounded-[5rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_100px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000 z-10`}
     >
-      <Brain className={`w-16 h-16 md:w-24 md:h-24 ${isVictorious && user ? "text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" : "opacity-80"}`} />
+      <Brain className={`w-16 h-16 md:w-24 md:h-24 ${isVictorious && user ? "text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" : "opacity-80"} text-[var(--accent)]`} />
       {/* Refractive Shards around the core */}
       {[...Array(8)].map((_, i) => (
         <motion.div
