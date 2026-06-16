@@ -51,38 +51,38 @@ const THEMES: Record<string, ThemeConfig> = {
   },
   neon: {
     name: 'Dastastic Neon',
-    light: { background: '#f0fdf4', text: '#064e3b', accent: '#16a34a', glass: 'rgba(255,255,255,0.4)', border: 'rgba(34, 197, 94, 0.2)' },
-    dark: { background: '#000000', text: '#ffffff', accent: '#22c55e', glass: 'rgba(6, 78, 59, 0.4)', border: 'rgba(34, 197, 94, 0.3)' },
+    light: { background: '#f0fdf4', text: '#064e3b', accent: '#16a34a', glass: 'rgba(255,255,255,0.7)', border: 'rgba(22, 163, 74, 0.3)' },
+    dark: { background: '#000000', text: '#ffffff', accent: '#22c55e', glass: 'rgba(6, 78, 59, 0.6)', border: 'rgba(34, 197, 94, 0.4)' },
     prism: ['#22c55e', '#a855f7', '#3b82f6']
   },
   electric: {
     name: 'Electric Grace',
-    light: { background: '#fff1f2', text: '#881337', accent: '#e11d48', glass: 'rgba(255,255,255,0.4)', border: 'rgba(244, 63, 94, 0.2)' },
-    dark: { background: '#020617', text: '#ffffff', accent: '#f43f5e', glass: 'rgba(153, 27, 27, 0.3)', border: 'rgba(244, 63, 94, 0.3)' },
+    light: { background: '#fff1f2', text: '#881337', accent: '#e11d48', glass: 'rgba(255,255,255,0.7)', border: 'rgba(225, 29, 72, 0.3)' },
+    dark: { background: '#020617', text: '#ffffff', accent: '#f43f5e', glass: 'rgba(153, 27, 27, 0.5)', border: 'rgba(244, 63, 94, 0.4)' },
     prism: ['#f43f5e', '#fbbf24', '#2dd4bf']
   },
   gold: {
     name: 'Divine Gold',
-    light: { background: '#fffbeb', text: '#78350f', accent: '#d97706', glass: 'rgba(255,255,255,0.4)', border: 'rgba(251, 191, 36, 0.3)' },
-    dark: { background: '#000000', text: '#fffbeb', accent: '#fbbf24', glass: 'rgba(120, 53, 15, 0.4)', border: 'rgba(251, 191, 36, 0.4)' },
+    light: { background: '#fffbeb', text: '#78350f', accent: '#d97706', glass: 'rgba(255,255,255,0.8)', border: 'rgba(217, 119, 6, 0.3)' },
+    dark: { background: '#000000', text: '#fffbeb', accent: '#fbbf24', glass: 'rgba(120, 53, 15, 0.6)', border: 'rgba(251, 191, 36, 0.5)' },
     prism: ['#fbbf24', '#f59e0b', '#ffffff']
   },
   emerald: {
     name: 'Hadassah Silk',
-    light: { background: '#ecfdf5', text: '#064e3b', accent: '#059669', glass: 'rgba(255,255,255,0.4)', border: 'rgba(16, 185, 129, 0.2)' },
-    dark: { background: '#022c22', text: '#ecfdf5', accent: '#10b981', glass: 'rgba(6, 78, 59, 0.4)', border: 'rgba(16, 185, 129, 0.2)' },
+    light: { background: '#ecfdf5', text: '#064e3b', accent: '#059669', glass: 'rgba(255,255,255,0.7)', border: 'rgba(5, 150, 105, 0.3)' },
+    dark: { background: '#022c22', text: '#ecfdf5', accent: '#10b981', glass: 'rgba(6, 78, 59, 0.6)', border: 'rgba(16, 185, 129, 0.3)' },
     prism: ['#10b981', '#34d399', '#059669']
   },
   sunset: {
     name: 'Divine Glow',
-    light: { background: '#fff7ed', text: '#7c2d12', accent: '#d97706', glass: 'rgba(255,255,255,0.4)', border: 'rgba(245, 158, 11, 0.2)' },
-    dark: { background: '#451a03', text: '#fff7ed', accent: '#f59e0b', glass: 'rgba(120, 53, 15, 0.4)', border: 'rgba(245, 158, 11, 0.2)' },
+    light: { background: '#fff7ed', text: '#7c2d12', accent: '#d97706', glass: 'rgba(255,255,255,0.7)', border: 'rgba(217, 119, 6, 0.3)' },
+    dark: { background: '#451a03', text: '#fff7ed', accent: '#f59e0b', glass: 'rgba(120, 53, 15, 0.6)', border: 'rgba(245, 158, 11, 0.3)' },
     prism: ['#f59e0b', '#fb923c', '#d97706']
   },
   nebula: {
     name: 'Sovereign Pulse',
-    light: { background: '#f5f3ff', text: '#4c1d95', accent: '#7c3aed', glass: 'rgba(255,255,255,0.4)', border: 'rgba(139, 92, 246, 0.2)' },
-    dark: { background: '#2e1065', text: '#f5f3ff', accent: '#8b5cf6', glass: 'rgba(76, 29, 149, 0.4)', border: 'rgba(139, 92, 246, 0.2)' },
+    light: { background: '#f5f3ff', text: '#4c1d95', accent: '#7c3aed', glass: 'rgba(255,255,255,0.7)', border: 'rgba(124, 58, 237, 0.3)' },
+    dark: { background: '#2e1065', text: '#f5f3ff', accent: '#8b5cf6', glass: 'rgba(76, 29, 149, 0.6)', border: 'rgba(139, 92, 246, 0.3)' },
     prism: ['#8b5cf6', '#a78bfa', '#7c3aed']
   }
 };
@@ -242,7 +242,7 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
         >
           <Anchor size={20} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
-        <div className="w-64 bg-slate-900/90 backdrop-blur-3xl border-l border-white/10 p-6 shadow-2xl h-[400px] overflow-y-auto no-scrollbar rounded-bl-3xl">
+        <div className="w-64 apple-glass-dark border-l border-white/10 p-6 shadow-2xl h-[400px] overflow-y-auto no-scrollbar rounded-bl-3xl">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-6 flex items-center gap-2">
             <Anchor size={12} /> Neural Anchors
           </p>
@@ -320,7 +320,7 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
   }, [level]);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[600] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[600] apple-glass-dark flex items-center justify-center p-4">
       <div className="max-w-xl w-full text-center space-y-12">
         <div className="space-y-4">
           <p className="text-blue-400 font-black uppercase tracking-[0.5em] text-[10px]">Neural Rhythm: Level {level}</p>
@@ -1548,7 +1548,7 @@ export default function Home() {
   };
 
   const currentTheme = THEMES[theme];
-  const isDark = true;
+  const isDark = themeMode === 'dark';
   const colors = isDark ? currentTheme.dark : currentTheme.light;
   const themeStyles = `
     :root {
@@ -1651,7 +1651,7 @@ export default function Home() {
 
       <AnimatePresence>
         {oneClickRecap && (
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-blue-600/90 backdrop-blur-2xl p-6 rounded-[2rem] border border-white/20 shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0"><Eye size={20} className="text-white" /></div><p className="text-sm font-bold text-white leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
+          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-blue-600/40 apple-glass-dark p-6 rounded-[2rem] border border-white/20 shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0"><Eye size={20} className="text-white" /></div><p className="text-sm font-bold text-white leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
         )}
       </AnimatePresence>
 
@@ -1804,7 +1804,7 @@ export default function Home() {
       </div>
 
       {/* Prism Link (Feedback) */}
-      <button onClick={() => setShowFeedback(true)} className={`fixed top-24 left-8 z-[120] p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 text-slate-500 hover:text-white hover:bg-white/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl ${focusMode === 'sovereign' ? 'hidden' : ''}`}>
+      <button onClick={() => setShowFeedback(true)} className={`fixed top-24 left-8 z-[120] p-4 rounded-2xl apple-glass text-slate-500 hover:text-white hover:bg-white/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl ${focusMode === 'sovereign' ? 'hidden' : ''}`}>
         <div className="absolute inset-0 bg-blue-500/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         <MessageSquare size={20} className="relative z-10 group-hover:scale-110 transition-transform" />
       </button>
@@ -2499,7 +2499,7 @@ export default function Home() {
 
 
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
-      <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 bg-[var(--color-shadow)] backdrop-blur-3xl z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] bg-[var(--color-glass)] hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
+      <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 apple-glass-dark z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-white"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] apple-glass hover:bg-white/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
 
       <AnimatePresence>{showPaywall && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
@@ -2541,7 +2541,7 @@ export default function Home() {
       
       <AnimatePresence>{showVictory && data && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[700] flex items-center justify-center p-6">
-          <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="max-w-md w-full bg-slate-900 border-2 border-white/10 p-8 md:p-12 rounded-[3rem] text-center space-y-8 shadow-[0_0_100px_rgba(59,130,246,0.3)] relative overflow-hidden">
+          <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="max-w-md w-full apple-glass-dark border-2 border-white/10 p-8 md:p-12 rounded-[3rem] text-center space-y-8 shadow-[0_0_100px_rgba(59,130,246,0.3)] relative overflow-hidden">
              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.2)_0%,transparent_70%)] pointer-events-none" />
              <button onClick={() => setShowVictory(false)} className="absolute top-6 right-6 p-2 hover:bg-white/10 rounded-full text-slate-500 hover:text-white transition-all z-20"><X size={20}/></button>
              
@@ -2553,11 +2553,11 @@ export default function Home() {
              </div>
 
              <div className="grid grid-cols-2 gap-3 relative z-10">
-               <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6">
+               <div className="apple-glass-dark rounded-3xl p-6">
                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Time Saved</p>
                  <p className="text-xl font-black text-white">{data.readingTime}</p>
                </div>
-               <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6">
+               <div className="apple-glass-dark rounded-3xl p-6">
                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Efficiency</p>
                  <p className="text-xl font-black text-white">100%</p>
                </div>
@@ -2621,5 +2621,18 @@ const AudioToggle = () => {
     </button>
   );
 };
+
+
+};
+
+
+>
+  );
+};
+
+
+};
+
+
 
 

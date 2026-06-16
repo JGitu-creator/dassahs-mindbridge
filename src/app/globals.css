@@ -5,7 +5,7 @@
   --foreground: #0f172a;
   --glass-bg: rgba(255, 255, 255, 0.6);
   --glass-border: rgba(255, 255, 255, 0.3);
-  --glass-blur: 24px;
+  --glass-blur: 40px;
 }
 
 @theme inline {
@@ -18,8 +18,23 @@
 .apple-glass {
   backdrop-filter: blur(var(--glass-blur)) saturate(180%);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-  background-color: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background-color: var(--color-glass, var(--glass-bg));
+  border: 1px solid var(--color-border, var(--glass-border));
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.apple-glass-dark {
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  background-color: var(--color-glass, var(--glass-bg));
+  border: 1px solid var(--color-border, var(--glass-border));
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
 }
 
 body {
