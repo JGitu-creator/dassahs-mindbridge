@@ -2435,12 +2435,18 @@ export default function Home() {
             >
               <MoonStar size={14} />
             </button>
+             <button 
+              onClick={() => setThemeMode('system')} 
+              title="System Mode"
+              className={`p-2 rounded-full transition-all ${themeMode === 'system' ? 'bg-[var(--bg)] text-[var(--prism-3)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
+            >
+              <Monitor size={14} />
+            </button>
           </div>
           <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
         </div>
       </footer>
     </main>
-    </DastasticShell>
     </>
   );
 }
