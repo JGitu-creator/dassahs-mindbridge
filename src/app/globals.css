@@ -63,15 +63,15 @@ body {
 
 /* Theme: Ethereal - Luminous Moss & Soft Cream */
 .theme-ethereal {
-  --color-bg: #fdfdfd;
+  --color-bg: #f1f5f9; /* Lighter slate, not harsh white */
   --bg: var(--color-bg);
-  --color-bg-1: #f8fafc;
-  --color-bg-2: #ffffff;
+  --color-bg-1: #e2e8f0;
+  --color-bg-2: #cbd5e1;
   --color-text: #0f172a;
   --color-fg: #020617;
   --fg: var(--color-fg);
-  --color-accent: #10b981;
-  --color-glass-rgb: 255, 255, 255;
+  --color-accent: #059669; /* Slightly darker green for contrast */
+  --color-glass-rgb: 241, 245, 249;
   --color-border-rgb: 16, 185, 129;
   --color-shadow: rgba(0, 0, 0, 0.05);
 }
@@ -85,7 +85,7 @@ body {
   --color-text: #ffffff;
   --color-fg: #f8fafc;
   --fg: var(--color-fg);
-  --color-accent: #0ea5e9;
+  --color-accent: #0284c7; /* Slightly darker blue for contrast */
   --color-glass-rgb: 10, 10, 10;
   --color-border-rgb: 14, 165, 233;
   --color-shadow: rgba(0, 0, 0, 0.9);

@@ -564,7 +564,7 @@ const RefractiveTagline = () => {
     </div>
   );
 };
-const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: ThemeMode, themeMode: 'light' | 'dark' | 'system', focusMode: string, isScenic: boolean }) => {
+const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mousePos: { x: number, y: number }, theme: ThemeMode, themeMode: 'light' | 'dark' | 'system', focusMode: string }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const t = THEMES[theme] || THEMES.bioluminescent;
   const isDark = themeMode === 'system' 
@@ -606,14 +606,14 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic
         const dirs = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
         this.direction = dirs[Math.floor(Math.random() * dirs.length)];
         this.timer = 0;
-        this.speed = (isScenic ? 4 : 8) + Math.random() * 12;
+        this.speed = 8 + Math.random() * 12;
       }
       update() {
         this.timer++;
         if (this.timer >= this.speed) {
           this.timer = 0;
           const head = this.segments[0];
-          
+
           if (Math.random() > 0.85) {
              const dirs = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
              this.direction = dirs[Math.floor(Math.random() * dirs.length)];
@@ -623,7 +623,7 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic
             y: (head.y + this.direction.y + rows) % rows
           };
           this.segments.unshift(newHead);
-          if (this.segments.length > (isScenic ? 10 : 6)) {
+          if (this.segments.length > 8) {
             this.segments.pop();
           }
           // React to mouse
@@ -633,22 +633,22 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic
           if (dist < 150) {
             this.speed = 3; // Speed up near mouse
           } else {
-            this.speed = (isScenic ? 6 : 10) + Math.random() * 5;
+            this.speed = 8 + Math.random() * 5;
           }
         }
       }
       draw() {
         this.segments.forEach((seg, i) => {
-          const alpha = (1 - (i / this.segments.length)) * (isScenic ? 0.6 : 0.4);
+          const alpha = (1 - (i / this.segments.length)) * 0.5;
           ctx!.fillStyle = this.color;
           ctx!.globalAlpha = alpha;
-          ctx!.shadowBlur = isScenic ? 25 : 15;
+          ctx!.shadowBlur = 20;
           ctx!.shadowColor = this.color;
           ctx!.fillRect(seg.x * gridSize + 4, seg.y * gridSize + 4, gridSize - 8, gridSize - 8);
         });
       }
     }
-    const snakes = [...Array(isScenic ? 24 : 12)].map(() => new Snake());
+    const snakes = [...Array(18)].map(() => new Snake());
     const render = () => {
       ctx.clearRect(0, 0, width, height);
       snakes.forEach(s => {
@@ -1604,7 +1604,6 @@ export default function Home() {
         )}
       </AnimatePresence>
       {/* REMOVED: SUBTLE BRAND SIGNATURE */}
-      <DastasticShell theme={theme} themeMode={themeMode}>
       <main 
         onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
         className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-[var(--color-accent)]/40 transition-all duration-1000 bg-fixed ${isScholarMode ? 'scholar-mode' : ''} ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} 
@@ -1620,24 +1619,7 @@ export default function Home() {
              <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)`, backgroundSize: '80px 80px' }} />
           </div>
         )}
-        <SnakeLightsBackground theme={theme} themeMode={themeMode} mousePos={mousePos} focusMode={focusMode} isScenic={isScenic} />
-        {/* ... (rest of the content) */}
-        <AnimatePresence>
-          {isScenic && (
-            <motion.div
-              style={{ x: mousePos.x, y: mousePos.y }}
-              className="fixed top-0 left-0 w-12 h-12 pointer-events-none z-[1000] -translate-x-1/2 -translate-y-1/2"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
-            >
-              <div className="relative">
-                <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
-                <ArrowRight className="text-blue-400 rotate-90" size={32} />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <SnakeLightsBackground theme={theme} themeMode={themeMode} mousePos={mousePos} focusMode={focusMode} />
         {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && focusMode !== 'sovereign' && (
           <NeuralAnchorSidebar data={data} isOpen={anchorsOpen} onToggle={() => setAnchorsOpen(!anchorsOpen)} />
         )}
@@ -2158,23 +2140,23 @@ export default function Home() {
             </div>
             <div className="w-full bg-[var(--color-glass)] p-3 md:p-4 rounded-3xl md:rounded-full flex items-center justify-between gap-2 md:gap-4 border border-white/10 shadow-2xl backdrop-blur-3xl">
               <div className="flex items-center gap-1 md:gap-2 pl-2">
-                <button onClick={() => { fileInputRef.current?.click(); }} title="Clean Document" className="p-2 md:p-3 text-slate-400 hover:text-[var(--fg)] transition-colors bg-[var(--bg)]/5 rounded-full"><Upload size={16} className="text-blue-500" /></button>
-                <button 
-                  onClick={() => { 
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'image/*';
-                    input.capture = 'environment';
-                    input.onchange = (e) => handleFileUpload(e);
-                    input.click();
-                  }} 
-                  title="Capture Neural Image" 
-                  className="p-2 md:p-3 text-slate-400 hover:text-[var(--fg)] transition-colors bg-[var(--bg)]/5 rounded-full"
-                >
-                  <Camera size={16} className="text-emerald-500" />
-                </button>
-                <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-1" />
-                <button onClick={() => { setIsScenic(!isScenic); if (!isScenic && !brownNoisePlaying) setBrownNoisePlaying(true); }} title={isScenic ? 'Scenic Route' : 'Quick Filter'} className={`p-2 md:p-3 rounded-full border transition-all ${isScenic ? 'bg-amber-500/20 border-amber-500/50 text-amber-500' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>{isScenic ? <Sparkles size={16}/> : <Zap size={16}/>}</button>                <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}</button>
+              <button onClick={() => { fileInputRef.current?.click(); }} title="Clean Document" className="p-2 md:p-3 text-slate-400 hover:text-[var(--fg)] transition-colors bg-[var(--bg)]/5 rounded-full"><Upload size={16} className="text-blue-500" /></button>
+              <button 
+                onClick={() => { 
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.capture = 'environment';
+                  input.onchange = (e) => handleFileUpload(e);
+                  input.click();
+                }} 
+                title="Capture Neural Image" 
+                className="p-2 md:p-3 text-slate-400 hover:text-[var(--fg)] transition-colors bg-[var(--bg)]/5 rounded-full"
+              >
+                <Camera size={16} className="text-emerald-500" />
+              </button>
+              <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-1" />
+              <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}</button>
               </div>
               <button 
                 onClick={() => handleSimplify()} 
