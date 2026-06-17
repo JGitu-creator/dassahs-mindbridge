@@ -34,9 +34,12 @@ const DastasticIcon = ({ ActiveIcon, themeAccent }: { ActiveIcon: any, themeAcce
   </motion.div>
 );
 
-const DastasticShell = ({ children, theme, themeMode }: { children: React.ReactNode, theme: string, themeMode: 'light' | 'dark' }) => {
+const DastasticShell = ({ children, theme, themeMode }: { children: React.ReactNode, theme: string, themeMode: 'light' | 'dark' | 'system' }) => {
+  const effectiveThemeMode = themeMode === 'system' 
+    ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+    : themeMode;
   return (
-    <div className={`theme-${theme} ${themeMode === 'dark' ? 'dark' : ''} min-h-screen transition-colors duration-700 ease-in-out`}>
+    <div className={`theme-${theme} ${effectiveThemeMode === 'dark' ? 'dark' : ''} min-h-screen transition-colors duration-700 ease-in-out`}>
       {children}
     </div>
   );
@@ -561,10 +564,13 @@ const RefractiveTagline = () => {
     </div>
   );
 };
-const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: ThemeMode, themeMode: 'light' | 'dark', focusMode: string, isScenic: boolean }) => {
+const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: ThemeMode, themeMode: 'light' | 'dark' | 'system', focusMode: string, isScenic: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const t = THEMES[theme] || THEMES.bioluminescent;
-  const colors = themeMode === 'light' ? t.light : t.dark;
+  const isDark = themeMode === 'system' 
+    ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    : themeMode === 'dark';
+  const colors = isDark ? t.dark : t.light;
   useEffect(() => {
     if (focusMode === 'sovereign') return;
     const canvas = canvasRef.current;
