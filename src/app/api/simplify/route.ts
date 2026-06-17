@@ -22,9 +22,7 @@ export async function POST(req: Request) {
       cognitiveMode, 
       missionGoal, 
       isStory, 
-      simplicityLevel,
-      agentName, // For sequential council review
-      reviewStep // 'pros' | 'cons' | 'full'
+      simplicityLevel
     } = await req.json();
 
     // --- CONTEXT WINDOW PROTECTION ---
@@ -178,7 +176,7 @@ export async function POST(req: Request) {
       return NextResponse.json(localMetrics, { status: 200 });
     }
 
-    if (mode === 'chat' || mode === 'council_review') {
+    if (mode === 'chat') {
       return NextResponse.json({ answer: responseText });
     }
 
@@ -195,13 +193,11 @@ export async function POST(req: Request) {
       }
     };
 
-    if (mode === 'chat' || mode === 'council_review') {
+    if (mode === 'chat') {
       return NextResponse.json({ answer: responseText });
     }
 
     const parsedData = extractJSON(responseText);
-
-    // --- HELENA & SARAH VALIDATION ---
 
     const validatedData = {
       tldr: parsedData.tldr || ["No summary generated"],
