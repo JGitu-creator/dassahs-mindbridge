@@ -68,33 +68,33 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, Pi
 type ThemeMode = "sovereign" | "ethereal" | "obsidian" | "midnight";
 interface ThemeConfig {
   name: string;
-  light: { background: string; text: string; accent: string; glass: string; border: string; };
-  dark: { background: string; text: string; accent: string; glass: string; border: string; };
+  light: { background: string; text: string; accent: string; glass: string; border: string; shadow: string; };
+  dark: { background: string; text: string; accent: string; glass: string; border: string; shadow: string; };
   prism: string[];
 }
 const THEMES: Record<string, ThemeConfig> = {
   midnight: {
     name: "Legacy Sovereign",
-    light: { background: "#f8fafc", text: "#020617", accent: "#2563eb", glass: "rgba(255,255,255,0.4)", border: "rgba(255,255,255,0.3)" },
-    dark: { background: "#020617", text: "#f8fafc", accent: "#3b82f6", glass: "rgba(15, 23, 42, 0.6)", border: "rgba(255, 255, 255, 0.1)" },
+    light: { background: "#f8fafc", text: "#020617", accent: "#2563eb", glass: "rgba(255,255,255,0.4)", border: "rgba(255,255,255,0.3)", shadow: "rgba(0,0,0,0.1)" },
+    dark: { background: "#020617", text: "#f8fafc", accent: "#3b82f6", glass: "rgba(15, 23, 42, 0.6)", border: "rgba(255, 255, 255, 0.1)", shadow: "rgba(0,0,0,0.3)" },
     prism: ["#3b82f6", "#8b5cf6", "#06b6d4"]
   },
   sovereign: {
     name: 'Dastastic Sovereign',
-    light: { background: '#fdfaf6', text: '#1c1917', accent: '#b45309', glass: 'rgba(255,255,255,0.7)', border: 'rgba(200,180,150,0.3)' },
-    dark: { background: '#0f172a', text: '#f1f5f9', accent: '#fbbf24', glass: 'rgba(15,23,42,0.6)', border: 'rgba(200,180,150,0.2)' },
+    light: { background: '#fdfaf6', text: '#1c1917', accent: '#b45309', glass: 'rgba(255,255,255,0.7)', border: 'rgba(200,180,150,0.3)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#0f172a', text: '#f1f5f9', accent: '#fbbf24', glass: 'rgba(15,23,42,0.6)', border: 'rgba(200,180,150,0.2)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#b45309', '#fbbf24', '#f59e0b']
   },
   ethereal: {
     name: 'Dastastic Ethereal',
-    light: { background: '#f8fafc', text: '#0f172a', accent: '#3b82f6', glass: 'rgba(255,255,255,0.85)', border: 'rgba(147,197,253,0.4)' },
-    dark: { background: '#020617', text: '#f8fafc', accent: '#60a5fa', glass: 'rgba(30,41,59,0.3)', border: 'rgba(147,197,253,0.2)' },
+    light: { background: '#f8fafc', text: '#0f172a', accent: '#3b82f6', glass: 'rgba(255,255,255,0.85)', border: 'rgba(147,197,253,0.4)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#020617', text: '#f8fafc', accent: '#60a5fa', glass: 'rgba(30,41,59,0.3)', border: 'rgba(147,197,253,0.2)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#3b82f6', '#60a5fa', '#93c5fd']
   },
   obsidian: {
     name: 'Dastastic Obsidian',
-    light: { background: '#262626', text: '#e5e5e5', accent: '#d4af37', glass: 'rgba(0,0,0,0.5)', border: 'rgba(255,215,0,0.2)' },
-    dark: { background: '#000000', text: '#ffffff', accent: '#ffd700', glass: 'rgba(10,10,10,0.7)', border: 'rgba(218,165,32,0.3)' },
+    light: { background: '#262626', text: '#e5e5e5', accent: '#d4af37', glass: 'rgba(0,0,0,0.5)', border: 'rgba(255,215,0,0.2)', shadow: "rgba(0,0,0,0.2)" },
+    dark: { background: '#000000', text: '#ffffff', accent: '#ffd700', glass: 'rgba(10,10,10,0.7)', border: 'rgba(218,165,32,0.3)', shadow: "rgba(0,0,0,0.5)" },
     prism: ['#d4af37', '#ffd700', '#ffffff']
   }
 };
