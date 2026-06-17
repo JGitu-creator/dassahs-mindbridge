@@ -77,33 +77,54 @@ interface ThemeConfig {
   prism: string[];
 }
 const THEMES: Record<string, ThemeConfig> = {
-  sovereign_purple: {
-    name: 'Sovereign Purple',
-    icon: Crown,
-    light: { background: '#f5f3ff', text: '#1e1b4b', accent: '#7c3aed', glass: 'rgba(237, 233, 254, 0.8)', border: 'rgba(124, 58, 237, 0.3)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#1e1b4b', text: '#ede9fe', accent: '#8b5cf6', glass: 'rgba(30, 27, 75, 0.6)', border: 'rgba(139, 92, 246, 0.2)', shadow: "rgba(0,0,0,0.4)" },
+  midnight_sovereign: {
+    name: 'Midnight Sovereign',
+    icon: Moon,
+    light: { background: '#e2e8f0', text: '#0f172a', accent: '#334155', glass: 'rgba(226, 232, 240, 0.8)', border: 'rgba(51, 65, 85, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#020617', text: '#f8fafc', accent: '#475569', glass: 'rgba(15, 23, 42, 0.6)', border: 'rgba(71, 85, 105, 0.2)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#334155', '#475569', '#64748b']
+  },
+  dastastic_neon: {
+    name: 'Dastastic Neon',
+    icon: Zap,
+    light: { background: '#fef3c7', text: '#78350f', accent: '#d97706', glass: 'rgba(254, 243, 199, 0.8)', border: 'rgba(217, 119, 6, 0.3)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#451a03', text: '#fef3c7', accent: '#d97706', glass: 'rgba(69, 26, 3, 0.6)', border: 'rgba(217, 119, 6, 0.2)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#d97706', '#f59e0b', '#fbbf24']
+  },
+  electric_grace: {
+    name: 'Electric Grace',
+    icon: Flame,
+    light: { background: '#fee2e2', text: '#7f1d1d', accent: '#ef4444', glass: 'rgba(254, 226, 226, 0.8)', border: 'rgba(239, 68, 68, 0.3)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#450a0a', text: '#fef2f2', accent: '#ef4444', glass: 'rgba(69, 10, 10, 0.6)', border: 'rgba(239, 68, 68, 0.2)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#ef4444', '#f87171', '#fca5a5']
+  },
+  divine_gold: {
+    name: 'Divine Gold',
+    icon: Coins,
+    light: { background: '#fefce8', text: '#713f12', accent: '#ca8a04', glass: 'rgba(254, 252, 232, 0.8)', border: 'rgba(202, 138, 4, 0.3)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#422006', text: '#fefce8', accent: '#ca8a04', glass: 'rgba(66, 32, 6, 0.6)', border: 'rgba(202, 138, 4, 0.2)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#ca8a04', '#eab308', '#facc15']
+  },
+  hadassah_silk: {
+    name: 'Hadassah Silk',
+    icon: Gem,
+    light: { background: '#f5f3ff', text: '#4c1d95', accent: '#7c3aed', glass: 'rgba(245, 243, 255, 0.8)', border: 'rgba(124, 58, 237, 0.3)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#2e1065', text: '#ede9fe', accent: '#7c3aed', glass: 'rgba(46, 16, 101, 0.6)', border: 'rgba(124, 58, 237, 0.2)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#7c3aed', '#8b5cf6', '#a78bfa']
   },
-  bioluminescent: {
-    name: 'Bioluminescent Pulse',
-    icon: Sparkles,
-    light: { background: '#f0fdfa', text: '#0f172a', accent: '#10b981', glass: 'rgba(255,255,255,0.8)', border: 'rgba(16, 185, 129, 0.3)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#064e3b', text: '#f0fdfa', accent: '#34d399', glass: 'rgba(6, 78, 59, 0.6)', border: 'rgba(52, 211, 153, 0.2)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#10b981', '#34d399', '#6ee7b7']
+  divine_glow: {
+    name: 'Divine Glow',
+    icon: Sun,
+    light: { background: '#fffbeb', text: '#78350f', accent: '#d97706', glass: 'rgba(255, 251, 235, 0.8)', border: 'rgba(217, 119, 6, 0.3)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#451a03', text: '#fffbeb', accent: '#d97706', glass: 'rgba(69, 26, 3, 0.6)', border: 'rgba(217, 119, 6, 0.2)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#d97706', '#f59e0b', '#fbbf24']
   },
-  deep_void: {
-    name: 'Deep Void',
+  sovereign_pulse: {
+    name: 'Sovereign Pulse',
     icon: Orbit,
-    light: { background: '#f8fafc', text: '#020617', accent: '#8b5cf6', glass: 'rgba(255,255,255,0.4)', border: 'rgba(139, 92, 246, 0.3)', shadow: "rgba(0,0,0,0.1)" },
-    dark: { background: '#050505', text: '#e5e5e5', accent: '#8b5cf6', glass: 'rgba(20, 20, 20, 0.7)', border: 'rgba(139, 92, 246, 0.3)', shadow: "rgba(0,0,0,0.6)" },
-    prism: ['#8b5cf6', '#a78bfa', '#c4b5fd']
-  },
-  solar_flare: {
-    name: 'Solar Flare',
-    icon: Flame,
-    light: { background: '#fff7ed', text: '#431407', accent: '#f59e0b', glass: 'rgba(255,255,255,0.7)', border: 'rgba(245, 158, 11, 0.3)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#431407', text: '#ffedd5', accent: '#f59e0b', glass: 'rgba(124, 45, 18, 0.6)', border: 'rgba(245, 158, 11, 0.2)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#f59e0b', '#fbbf24', '#fcd34d']
+    light: { background: '#f0f9ff', text: '#0c4a6e', accent: '#0284c7', glass: 'rgba(240, 249, 255, 0.8)', border: 'rgba(2, 132, 199, 0.3)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#082f49', text: '#f0f9ff', accent: '#0284c7', glass: 'rgba(8, 47, 73, 0.6)', border: 'rgba(2, 132, 199, 0.2)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#0284c7', '#0ea5e9', '#38bdf8']
   }
 };
 const COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899'];
