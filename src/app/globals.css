@@ -1,18 +1,27 @@
 @import "tailwindcss";
 
+:root {
+  /* Liquid Glass Variables */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 24px;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  background-color: #050505;
+  color: white;
 }
 
 /* Premium Apple Liquid Glass Effect */
 .apple-glass {
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  background-color: var(--color-glass);
-  border: 1px solid var(--color-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
