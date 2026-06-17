@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import Anthropic from '@anthropic-ai/sdk';
 
 /**
  * Intelligent Router: Classifies complexity, then routes to appropriate Tier.
@@ -68,11 +70,18 @@ async function callGroq(content: string) {
 }
 
 async function callGemini(content: string) {
-  // Placeholder: Implement with @google/generative-ai
-  return NextResponse.json({ tier: 'Analyst', status: 'Implemented' });
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const result = await model.generateContent(content);
+  return NextResponse.json({ tier: 'Analyst', response: result.response.text() });
 }
 
 async function callClaude(content: string) {
-  // Placeholder: Implement with @anthropic-ai/sdk
-  return NextResponse.json({ tier: 'Sovereign', status: 'Implemented' });
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const msg = await anthropic.messages.create({
+    model: 'claude-3-5-sonnet-20241022',
+    max_tokens: 1024,
+    messages: [{ role: 'user', content }],
+  });
+  return NextResponse.json({ tier: 'Sovereign', response: (msg.content[0] as any).text });
 }

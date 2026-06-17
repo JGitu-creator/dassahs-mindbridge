@@ -8,6 +8,10 @@ import {
   Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit,
   Hexagon
 } from 'lucide-react';
+import { NeuralCore } from '@/components/NeuralCore';
+import { CognitiveAscension } from '@/components/CognitiveAscension';
+import { MissionLog } from '@/components/MissionLog';
+import { Vault } from '@/components/Vault';
 
 const DastasticIcon = ({ ActiveIcon, themeAccent }: { ActiveIcon: any, themeAccent: string }) => (
   <motion.div 
@@ -184,10 +188,12 @@ const NeuralRefractionSlider = () => {
     setSliderPos(Math.max(0, Math.min(100, (x / rect.width) * 100)));
   };
   return (
-    <div 
+    <motion.div 
       ref={containerRef}
       onMouseMove={handleMove}
       onTouchMove={handleMove}
+      animate={{ boxShadow: ["0 0 0px rgba(139, 92, 246, 0)", "0 0 40px rgba(139, 92, 246, 0.2)", "0 0 0px rgba(139, 92, 246, 0)"] }}
+      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       className="relative w-full h-[300px] md:h-[400px] rounded-[3rem] overflow-hidden border-2 border-white/10 cursor-ew-resize group shadow-2xl"
     >
       {/* Noise Side (Left) */}
@@ -206,20 +212,22 @@ const NeuralRefractionSlider = () => {
         </p>
       </div>
       {/* Divider */}
-      <div 
+      <motion.div 
         className="absolute top-0 bottom-0 w-[2px] bg-[var(--bg)] z-20 shadow-[0_0_20px_rgba(255,255,255,0.5)]"
         style={{ left: `${sliderPos}%` }}
+        animate={{ boxShadow: ["0 0 5px white", "0 0 20px white", "0 0 5px white"] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
       >
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-[var(--bg)] rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
           <MoreHorizontal size={24} className="text-black rotate-90" />
         </div>
-      </div>
+      </motion.div>
       
       {/* Interaction Hint */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-[9px] font-black uppercase tracking-[0.3em] text-[var(--fg)]/40 pointer-events-none group-hover:opacity-0 transition-opacity">
         Slide to Refract
       </div>
-    </div>
+    </motion.div>
   );
 };
 const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData, isOpen: boolean, onToggle: () => void }) => {
@@ -236,8 +244,11 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
         >
           <Anchor size={20} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
-        <div className="w-64 apple-glass-dark border-l border-[var(--color-border)] p-6 shadow-2xl h-[400px] overflow-y-auto no-scrollbar rounded-bl-3xl">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-6 flex items-center gap-2">
+        <div className="w-64 apple-glass-dark border-l border-[var(--color-border)] p-6 shadow-2xl h-[400px] overflow-y-auto no-scrollbar rounded-bl-3xl flex flex-col gap-6">
+          <CognitiveAscension experience={500} />
+          <MissionLog />
+          <Vault />
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mt-2 mb-2 flex items-center gap-2">
             <Anchor size={12} /> Neural Anchors
           </p>
           <div className="space-y-3">
@@ -411,7 +422,13 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
       transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
       className={`relative mx-auto w-28 h-28 md:w-44 md:h-44 bg-gradient-to-br ${color} text-[var(--fg)] rounded-[3rem] md:rounded-[5rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_100px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000 z-10`}
     >
-      <Brain className={`w-16 h-16 md:w-24 md:h-24 ${isVictorious && user ? "text-[var(--fg)] drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" : "opacity-80"} text-[var(--accent)]`} />
+      <motion.div 
+        whileHover={{ scale: 1.1, rotate: 5 }}
+        whileTap={{ scale: 0.9 }}
+        className="cursor-pointer"
+      >
+        <NeuralCore state={isVictorious && user ? 'success' : 'dormant'} />
+      </motion.div>
       {/* Refractive Shards around the core */}
       {[...Array(8)].map((_, i) => (
         <motion.div

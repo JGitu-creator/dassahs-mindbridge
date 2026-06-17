@@ -1,34 +1,28 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Brain } from 'lucide-react';
 
 /**
  * The Neural Core - SVG Liquid Component
  * Represents the "Brain" of the ecosystem with 4 dynamic states.
  */
 export const NeuralCore = ({ state = 'dormant' }: { state: 'dormant' | 'intake' | 'processing' | 'success' }) => {
+  const variants = {
+    dormant: { scale: 1, opacity: 0.6, rotate: 0 },
+    intake: { scale: [1, 1.2, 1], opacity: 0.8, rotate: 10 },
+    processing: { scale: [1, 1.1, 1], opacity: 1, rotate: 360 },
+    success: { scale: [1, 1.3, 1], opacity: 1, rotate: 0 },
+  };
+
   return (
-    <div className="relative w-48 h-48 flex items-center justify-center">
-      <svg viewBox="0 0 200 200" className="w-full h-full">
-        <defs>
-          <filter id="liquid-refraction">
-            <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="25" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-        </defs>
-        <motion.circle
-          cx="100" cy="100" r="80"
-          className="fill-blue-500/20 stroke-blue-400 stroke-[3px]"
-          filter="url(#liquid-refraction)"
-          animate={{
-            scale: state === 'dormant' ? [1, 1.03, 1] : state === 'processing' ? 1.2 : 1,
-            opacity: state === 'dormant' ? 0.6 : 1,
-          }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </svg>
-      <div className="absolute text-center">
-        <span className="text-white font-bold text-sm uppercase tracking-widest">{state}</span>
-      </div>
-    </div>
+    <motion.div 
+      className="relative flex items-center justify-center p-4"
+      variants={variants}
+      animate={state}
+      transition={{ duration: 2, repeat: state !== 'dormant' ? Infinity : 0, ease: "easeInOut" }}
+    >
+      <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-2xl animate-pulse" />
+      <Brain className={`w-16 h-16 md:w-24 md:h-24 ${state === 'success' ? 'text-amber-400' : 'text-blue-400'}`} />
+    </motion.div>
   );
 };
