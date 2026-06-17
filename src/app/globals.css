@@ -96,7 +96,7 @@ body {
   --color-text: #ffffff;
   --color-fg: #f8fafc;
   --fg: var(--color-fg);
-  --color-accent: #0ea5e9;
+  --color-accent: #0284c7;
   --color-glass-rgb: 10, 10, 10;
   --color-border-rgb: 14, 165, 233;
 }
@@ -108,6 +108,14 @@ body {
   --fg: var(--color-fg);
   --color-accent: #0284c7;
   --color-glass-rgb: 186, 230, 253;
+}
+
+/* Snake Lights Blending */
+.snake-lights-canvas {
+  mix-blend-mode: multiply; /* Keeps neon lights vibrant against luminous backgrounds */
+}
+.dark .snake-lights-canvas {
+  mix-blend-mode: screen; /* Keeps neon lights vibrant against dark backgrounds */
 }
 
 /* --- Utility Classes --- */

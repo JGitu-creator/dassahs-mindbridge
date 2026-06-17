@@ -564,11 +564,13 @@ const RefractiveTagline = () => {
 };
 const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mousePos: { x: number, y: number }, theme: ThemeMode, themeMode: 'light' | 'dark' | 'system', focusMode: string }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const t = THEMES[theme] || THEMES.bioluminescent;
+  const t = THEMES[theme] || THEMES.midnight_sovereign;
   const isDark = themeMode === 'system' 
     ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
     : themeMode === 'dark';
-  const colors = isDark ? t.dark : t.light;
+  const colors = isDark 
+    ? (t.dark || { background: '#000', prism: ['#fff'] })
+    : (t.light || { background: '#fff', prism: ['#000'] });
   useEffect(() => {
     if (focusMode === 'sovereign') return;
     const canvas = canvasRef.current;
@@ -1491,7 +1493,7 @@ export default function Home() {
     setHistory([]);
     setIsPaid(false);
   };
-  const currentTheme = THEMES[theme] || THEMES.bioluminescent;
+  const currentTheme = THEMES[theme] || THEMES.midnight_sovereign;
   const isDark = themeMode === 'dark';
   const colors = isDark 
     ? (currentTheme.dark || { background: '#000', text: '#fff', accent: '#fff', glass: 'rgba(0,0,0,0.5)', border: 'rgba(255,255,255,0.1)', shadow: 'rgba(0,0,0,0.5)' }) 
@@ -1773,11 +1775,12 @@ export default function Home() {
                     </div>
                     <div className="flex gap-2 flex-wrap">
                       {Object.entries(THEMES).map(([id, t]) => {
-                        const Icon = { midnight: Moon, neon: Zap, electric: Flame, gold: Coins, emerald: Gem, sunset: Sun, nebula: Orbit }[id] || Palette;
+                        const Icon = t.icon || Palette;
+                        const accent = t.dark ? t.dark.accent : '#8b5cf6';
                         return (
-                          <button key={id} onClick={() => { setTheme(id as any); }} className={`relative p-3 rounded-full transition-all flex items-center justify-center ${theme === id ? 'border bg-[var(--bg)]/10' : 'border border-transparent bg-[var(--bg)]/5 opacity-60 hover:opacity-100'}`} style={theme === id ? { borderColor: t.dark.accent, boxShadow: `0 0 10px ${t.dark.accent}33` } : {}}>
+                          <button key={id} onClick={() => { setTheme(id as any); }} className={`relative p-3 rounded-full transition-all flex items-center justify-center ${theme === id ? 'border bg-[var(--bg)]/10' : 'border border-transparent bg-[var(--bg)]/5 opacity-60 hover:opacity-100'}`} style={theme === id ? { borderColor: accent, boxShadow: `0 0 10px ${accent}33` } : {}}>
                             <Icon size={16} className="text-[var(--fg)]" />
-                            {theme === id && <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: t.dark.accent }} />}
+                            {theme === id && <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: accent }} />}
                           </button>
                         );
                       })}
