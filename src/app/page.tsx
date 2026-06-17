@@ -6,7 +6,7 @@ import {
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Moon, Ghost, Star, Settings, MoreHorizontal,
   Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit,
-  Hexagon
+  Hexagon, Monitor
 } from 'lucide-react';
 import { NeuralCore } from '@/components/NeuralCore';
 import { CognitiveAscension } from '@/components/CognitiveAscension';
@@ -68,25 +68,36 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, Pi
 type ThemeMode = "sovereign" | "ethereal" | "obsidian" | "midnight";
 interface ThemeConfig {
   name: string;
+  icon: any;
   light: { background: string; text: string; accent: string; glass: string; border: string; shadow: string; };
   dark: { background: string; text: string; accent: string; glass: string; border: string; shadow: string; };
   prism: string[];
 }
 const THEMES: Record<string, ThemeConfig> = {
+  sovereign_purple: {
+    name: 'Sovereign Purple',
+    icon: Crown,
+    light: { background: '#f5f3ff', text: '#1e1b4b', accent: '#7c3aed', glass: 'rgba(237, 233, 254, 0.8)', border: 'rgba(124, 58, 237, 0.3)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#1e1b4b', text: '#ede9fe', accent: '#8b5cf6', glass: 'rgba(30, 27, 75, 0.6)', border: 'rgba(139, 92, 246, 0.2)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#7c3aed', '#8b5cf6', '#a78bfa']
+  },
   bioluminescent: {
     name: 'Bioluminescent Pulse',
+    icon: Sparkles,
     light: { background: '#f0fdfa', text: '#0f172a', accent: '#10b981', glass: 'rgba(255,255,255,0.8)', border: 'rgba(16, 185, 129, 0.3)', shadow: "rgba(0,0,0,0.05)" },
     dark: { background: '#064e3b', text: '#f0fdfa', accent: '#34d399', glass: 'rgba(6, 78, 59, 0.6)', border: 'rgba(52, 211, 153, 0.2)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#10b981', '#34d399', '#6ee7b7']
   },
   deep_void: {
     name: 'Deep Void',
+    icon: Orbit,
     light: { background: '#f8fafc', text: '#020617', accent: '#8b5cf6', glass: 'rgba(255,255,255,0.4)', border: 'rgba(139, 92, 246, 0.3)', shadow: "rgba(0,0,0,0.1)" },
     dark: { background: '#050505', text: '#e5e5e5', accent: '#8b5cf6', glass: 'rgba(20, 20, 20, 0.7)', border: 'rgba(139, 92, 246, 0.3)', shadow: "rgba(0,0,0,0.6)" },
     prism: ['#8b5cf6', '#a78bfa', '#c4b5fd']
   },
   solar_flare: {
     name: 'Solar Flare',
+    icon: Flame,
     light: { background: '#fff7ed', text: '#431407', accent: '#f59e0b', glass: 'rgba(255,255,255,0.7)', border: 'rgba(245, 158, 11, 0.3)', shadow: "rgba(0,0,0,0.05)" },
     dark: { background: '#431407', text: '#ffedd5', accent: '#f59e0b', glass: 'rgba(124, 45, 18, 0.6)', border: 'rgba(245, 158, 11, 0.2)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#f59e0b', '#fbbf24', '#fcd34d']
@@ -189,9 +200,9 @@ const NeuralRefractionSlider = () => {
       className="relative w-full h-[300px] md:h-[400px] rounded-[3rem] overflow-hidden border border-[var(--color-border)] cursor-ew-resize group apple-glass"
     >
       {/* Noise Side (Left) */}
-      <div className="absolute inset-0 bg-[var(--color-shadow)] flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-60">
+      <div className="absolute inset-0 bg-[var(--color-shadow)] flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-70">
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 mb-6">The Noise</p>
-        <p className="text-xl md:text-3xl text-slate-500 leading-relaxed blur-[1px]">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow.</p>
+        <p className="text-xl md:text-3xl text-slate-200 leading-relaxed blur-[1px]">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow.</p>
       </div>
       {/* Clarity Side (Right) - Use clipPath to reveal */}
       <div
@@ -707,7 +718,31 @@ export default function Home() {
   // Removed tutorialRole state
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('dark');
+  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('system');
+
+  useEffect(() => {
+    // Apply theme based on state or system preference
+    const applyTheme = () => {
+      const isDark = themeMode === 'system' 
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches
+        : themeMode === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+    };
+    applyTheme();
+    
+    // Add listener for system preference changes if in 'system' mode
+    if (themeMode === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = () => applyTheme();
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
+    }
+  }, [themeMode]);
+
+  // ... Update the UI buttons to include 'System'
+  // <button onClick={() => setThemeMode('light')}>Light</button>
+  // <button onClick={() => setThemeMode('dark')}>Dark</button>
+  // <button onClick={() => setThemeMode('system')}>System</button>
   const [theme, setTheme] = useState<ThemeMode>('midnight');
   const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
   const [mouseFocus, setMouseFocus] = useState(true);
@@ -1618,7 +1653,7 @@ export default function Home() {
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-2 md:p-6 pointer-events-none">
         <nav className={`pointer-events-auto flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-2xl md:rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
           <button onClick={() => { setShowNeuralCommand(true); }} title="Neural Command" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-[var(--bg)]/5 text-blue-400 hover:text-[var(--fg)] hover:bg-[var(--bg)]/10 transition-all group">
-            <Compass size={18} className="md:w-5 md:h-5 group-hover:rotate-90 transition-transform duration-500" />
+            <motion.div whileHover={{ scale: 1.2, rotate: 10 }}><Compass size={18} className="md:w-5 md:h-5 transition-transform duration-500" /></motion.div>
           </button>
           
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
@@ -1637,13 +1672,13 @@ export default function Home() {
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
           {data && currentChunk >= 0 && (
             <button onClick={handleOneClickRecap} title="Where was I? (Recap)" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-400 hover:text-[var(--fg)] hover:bg-blue-500/20 transition-all flex items-center gap-2 group">
-              <Eye size={18} className="md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
+              <motion.div whileHover={{ scale: 1.2 }}><Eye size={18} className="md:w-5 md:h-5 transition-transform" /></motion.div>
               <span className="hidden lg:block text-[10px] font-black uppercase tracking-widest">Recap</span>
             </button>
           )}
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
           <button onClick={() => setShowHistory(true)} title="Achieving Vault" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-[var(--bg)]/5 text-amber-500 hover:text-[var(--fg)] hover:bg-[var(--bg)]/10 transition-all group">
-            <Clock size={18} className="md:w-5 md:h-5 group-hover:rotate-[-20deg] transition-transform" />
+            <motion.div whileHover={{ scale: 1.2, rotate: -10 }}><Clock size={18} className="md:w-5 md:h-5 transition-transform" /></motion.div>
           </button>
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
           <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-[var(--fg)] shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-[var(--fg)]'}`}>
@@ -1734,6 +1769,7 @@ export default function Home() {
                       <div className="flex gap-1 bg-[var(--bg)]/5 rounded-full p-1 border border-white/10">
                         <button onClick={() => setThemeMode('light')} className={`p-1.5 rounded-full transition-all ${themeMode === 'light' ? 'bg-[var(--bg)] text-slate-900 shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}><Sun size={12} /></button>
                         <button onClick={() => setThemeMode('dark')} className={`p-1.5 rounded-full transition-all ${themeMode === 'dark' ? 'bg-[var(--bg)] text-[var(--fg)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}><Moon size={12} /></button>
+                        <button onClick={() => setThemeMode('system')} className={`p-1.5 rounded-full transition-all ${themeMode === 'system' ? 'bg-[var(--bg)] text-[var(--prism-3)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}><Monitor size={12} /></button>
                       </div>
                     </div>
                     <div className="flex gap-2 flex-wrap">

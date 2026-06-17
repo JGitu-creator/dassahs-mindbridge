@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Brain } from 'lucide-react';
 
 /**
  * The Reactive Neural Core
@@ -39,25 +40,10 @@ export const NeuralCore = ({ state = 'dormant' }: { state: 'dormant' | 'intake' 
         animate={state}
       />
       
-      {/* Core Liquid SVG */}
-      <svg width="120" height="120" viewBox="0 0 120 120" className="relative z-10">
-        <defs>
-          <linearGradient id="prismGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="var(--prism-1)" />
-            <stop offset="100%" stopColor="var(--prism-4)" />
-          </linearGradient>
-        </defs>
-        <motion.path
-          d="M60 10 C 20 10, 10 40, 10 60 C 10 80, 20 110, 60 110 C 100 110, 110 80, 110 60 C 110 40, 100 10, 60 10 Z"
-          fill="url(#prismGrad)"
-          animate={{
-            d: state === 'processing' 
-              ? "M60 5 C 30 5, 5 30, 5 60 C 5 90, 30 115, 60 115 C 90 115, 115 90, 115 60 C 115 30, 90 5, 60 5 Z"
-              : "M60 10 C 20 10, 10 40, 10 60 C 10 80, 20 110, 60 110 C 100 110, 110 80, 110 60 C 110 40, 100 10, 60 10 Z"
-          }}
-          transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
-        />
-      </svg>
+      {/* Brain Icon Core */}
+      <div className="relative z-10 p-4 bg-[var(--color-bg)] rounded-full">
+         <Brain size={48} className="text-[var(--prism-1)]" />
+      </div>
     </motion.div>
   );
 };

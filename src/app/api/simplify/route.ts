@@ -201,7 +201,26 @@ export async function POST(req: Request) {
 
     if (!responseText) {
       console.error('All Neural Bridges failed.');
-      return NextResponse.json({ error: 'System busy, please try again.' }, { status: 503 });
+      // Fallback: Scout Mode (Local Metrics)
+      const localMetrics = {
+        error: 'High-speed link saturated. Scout Mode active.',
+        tldr: ['Structural scan complete.'],
+        whyCare: 'API unavailable, showing local structural metrics.',
+        readingTime: `${Math.round(text.split(/\s+/).length / 200)}m`,
+        chunks: [{
+          heading: 'Structural Analysis',
+          content: text.substring(0, 500) + '...',
+          summary: 'Scout Mode active.',
+          keyTerms: text.split(/\s+/).slice(0, 5),
+          metaphor: 'N/A',
+          dopamineHook: 'N/A',
+          logicRoot: 'N/A',
+          citations: 'N/A'
+        }],
+        actions: [],
+        chartData: null
+      };
+      return NextResponse.json(localMetrics, { status: 200 });
     }
 
     if (mode === 'chat' || mode === 'council_review') {
