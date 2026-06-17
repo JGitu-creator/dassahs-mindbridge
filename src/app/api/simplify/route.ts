@@ -39,60 +39,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Valid input is required.' }, { status: 400 });
     }
 
-    const AGENT_ROLES: Record<string, string> = {
-      'Sarah': 'Legal & Family Shield. Focus on Red Flags, safety, and parental consent.',
-      'Dr. Helena': 'Institutional Mechanism Hunter. Focus on First Principles and academic/professional mastery.',
-      'Marcus': 'Corporate ROI & Social Decoder. Focus on implicit urgency, stakeholder vibe, and quantifiable value (time/money saved).',
-      'Maya': 'Markdown Librarian. Focus on high-density structure, the "Soul\'s Lesson," and long-term vaulting.',
-      'Leo': 'Dopamine Architect. Focus on "Aha! Moments," emotional core, and high-stimulation hooks.',
-      'DJ': 'Sovereign Guide. Orchestrates the flow and ensures alignment with the user\'s ultimate purpose.'
-    };
-
-    let generationPrompt = '';
-
-    if (mode === 'council_review' && agentName) {
-      generationPrompt = `
-        You are ${agentName.toUpperCase()} from the Council of Agents. 
-        Your role is: ${AGENT_ROLES[agentName]}
-        
-        Review the following Noise based EXCLUSIVELY on your role.
-        ${reviewStep === 'pros' ? 'Provide only the PROS (Strengths/Opportunities) from your perspective.' : ''}
-        ${reviewStep === 'cons' ? 'Provide only the CONS (Risks/Red Flags/Waste) from your perspective.' : ''}
-        ${!reviewStep ? 'Provide a brief summary of the Pros and Cons from your perspective.' : ''}
-
-        TEXT TO REVIEW:
-        ${text}
-
-        Respond in clean, punchy bullet points. Be fierce in your discernment.
-      `;
-    } else if (mode === 'chat') {
-      generationPrompt = `
-        You are an ADHD-friendly assistant called "Ask DJ." 
-        Based on the CONTEXT provided below, answer the user's question.
-        CONTEXT: ${JSON.stringify(context)}
-        USER REQUEST: ${question}
-      `;
-    } else {
-      // Default Refraction Prompt
-      generationPrompt = `
-      You are the "Council of Agents." Your mission is to perform a Deep Neural Refraction on the provided Noise.
+    // Unified Refraction Logic
+    const generationPrompt = `
+      You are "Ask DJ," a Sovereign Guide. Your mission is to perform a Deep Neural Refraction on the provided Noise.
       
       GOAL: ${missionGoal || 'Discovery'}
       TARGET COGNITIVE MODE: ${cognitiveMode}
-      ENVIRONMENT: ${isScenic ? 'THE SCENIC ROUTE (Immersive, high-stimulation, metaphor-rich)' : 'DIRECT REFRACTION (Surgical, high-efficiency, minimalist)'}
 
       --- STEP 1: INTERNAL NEURAL SCAN (THOUGHT PROCESS) ---
-      Before generating the final output, perform a silent, deep analysis of the text. 
+      Perform a silent, deep analysis of the text. 
       Identify:
       1. The core "Signal" vs the "Noise".
       2. The foundational "Logic Roots" (First Principles) for every key concept.
-      3. "Red Flags" (Legal, safety, or cognitive risks) that Sarah must flag.
-      4. "Dopamine Hooks" (The most interesting, high-interest elements) for Leo.
-      5. "Structural Anchors" (The most important facts) for Maya.
+      3. "Dopamine Hooks" (High-interest elements).
+      4. "Structural Anchors" (Important facts).
 
       --- STEP 2: TRANSMUTATION (FINAL JSON OUTPUT) ---
-      Using the insights from your scan, output ONLY a valid JSON object. 
-      Do not include any text before or after the JSON.
+      Output ONLY a valid JSON object. Do not include any text before or after the JSON.
 
       The JSON must follow this structure:
       {
@@ -117,17 +80,9 @@ export async function POST(req: Request) {
         "chartData": null
       }
 
-      SPECIFIC INSTRUCTIONS FOR FIELDS:
-      - "heading": If Sarah detects a legal/safety/privacy risk, you MUST prefix this with "⚠️ SARAH'S WARNING: ".
-      - "logicRoot": Must be a deep "First Principle" (e.g., "Entropy", "Incentive Alignment", "Cognitive Load").
-      - "metaphor": For ${isScenic ? 'Scenic Mode' : 'Direct Mode'}, ensure these are high-impact.
-      - "dopamineHook": A high-interest "Aha!" moment or curiosity gap.
-      - "citations": The specific "Evidence Anchor" (e.g., Clause #, Stakeholder Name, or context).
-
       INPUT NOISE:
       ${text}
     `;
-    }
 
 // --- FAILOVER LOGIC ---
     const tryGemini = async () => {
