@@ -1,39 +1,47 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
 
-export const dynamic = 'force-dynamic';
-
+/**
+ * Proxy route for xAI Text-to-Speech to keep API Key secure.
+ */
 export async function POST(req: Request) {
+  const { text, voice_id } = await req.json();
+
+  if (!process.env.XAI_API_KEY) {
+    return NextResponse.json({ error: 'XAI_API_KEY not configured' }, { status: 500 });
+  }
+
   try {
-    const { text, voice = 'nova' } = await req.json();
-
-    if (!text) {
-      return NextResponse.json({ error: 'Text is required' }, { status: 400 });
-    }
-
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Neural Voice Engine not configured (Missing Key)' }, { status: 500 });
-    }
-
-    const openai = new OpenAI({ apiKey });
-
-    const mp3 = await openai.audio.speech.create({
-      model: "tts-1",
-      voice: voice as any,
-      input: text,
+    const response = await fetch('https://api.x.ai/v1/tts', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.XAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text,
+        voice_id: voice_id || 'jpi39icg',
+        output_format: {
+          codec: 'mp3',
+          sample_rate: 44100,
+          bit_rate: 128000
+        },
+        language: 'en'
+      }),
     });
 
-    const buffer = Buffer.from(await mp3.arrayBuffer());
+    if (!response.ok) {
+      throw new Error(`xAI TTS API returned ${response.status}`);
+    }
 
-    return new Response(buffer, {
+    const audioBuffer = await response.arrayBuffer();
+    
+    return new NextResponse(audioBuffer, {
       headers: {
         'Content-Type': 'audio/mpeg',
-        'Content-Length': buffer.length.toString(),
       },
     });
-  } catch (error: any) {
-    console.error('TTS Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    console.error('xAI TTS Error:', error);
+    return NextResponse.json({ error: 'Failed to synthesize speech' }, { status: 500 });
   }
 }
