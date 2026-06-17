@@ -7,8 +7,15 @@ import Anthropic from '@anthropic-ai/sdk';
  */
 async function classifyComplexity(content: string): Promise<'light' | 'standard' | 'complex'> {
   const wordCount = content.split(/\s+/).length;
-  if (wordCount < 500) return 'light';
-  if (wordCount < 2500) return 'standard';
+  const sentenceCount = Math.max(1, content.split(/[.!?]+/).length);
+  const avgSentenceLength = wordCount / sentenceCount;
+  
+  // Complexity Heuristics
+  const isHighDensity = avgSentenceLength > 20; // Long, complex sentences
+  const isTechnical = /algorithm|framework|infrastructure|constitutional|regulatory/i.test(content); // Keywords
+  
+  if (wordCount < 500 && !isHighDensity && !isTechnical) return 'light';
+  if (wordCount < 2000 && !isHighDensity) return 'standard';
   return 'complex';
 }
 

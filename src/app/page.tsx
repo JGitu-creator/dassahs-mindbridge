@@ -182,43 +182,41 @@ const NeuralRefractionSlider = () => {
     setSliderPos(Math.max(0, Math.min(100, (x / rect.width) * 100)));
   };
   return (
-    <motion.div 
+    <motion.div
       ref={containerRef}
       onMouseMove={handleMove}
       onTouchMove={handleMove}
-      animate={{ boxShadow: ["0 0 0px rgba(139, 92, 246, 0)", "0 0 40px rgba(139, 92, 246, 0.2)", "0 0 0px rgba(139, 92, 246, 0)"] }}
-      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      className="relative w-full h-[300px] md:h-[400px] rounded-[3rem] overflow-hidden border-2 border-white/10 cursor-ew-resize group shadow-2xl"
+      className="relative w-full h-[300px] md:h-[400px] rounded-[3rem] overflow-hidden border border-[var(--color-border)] cursor-ew-resize group apple-glass"
     >
       {/* Noise Side (Left) */}
-      <div className="absolute inset-0 bg-[var(--bg)] flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-30">
-        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[var(--fg)] mb-6">The Noise</p>
-        <p className="text-xl md:text-3xl text-slate-400 leading-relaxed blur-[1px]">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow.</p>
+      <div className="absolute inset-0 bg-[var(--color-shadow)] flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-60">
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 mb-6">The Noise</p>
+        <p className="text-xl md:text-3xl text-slate-500 leading-relaxed blur-[1px]">This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow.</p>
       </div>
       {/* Clarity Side (Right) - Use clipPath to reveal */}
-      <div 
-        className="absolute inset-0 bg-blue-600/5 backdrop-blur-[2px] flex flex-col items-center justify-center p-8 md:p-16 text-center select-none z-10"
+      <div
+        className="absolute inset-0 apple-glass-dark flex flex-col items-center justify-center p-8 md:p-16 text-center select-none z-10"
         style={{ clipPath: `polygon(${sliderPos}% 0, 100% 0, 100% 100%, ${sliderPos}% 100%)` }}
       >
-        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-400 mb-6">The Clarity</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[var(--color-accent)] mb-6">The Clarity</p>
         <p className="text-xl md:text-3xl text-[var(--fg)] font-black leading-relaxed italic">
-          <span className="text-blue-400">Thi</span>s <span className="text-blue-400">i</span>s <span className="text-blue-400">a</span> <span className="text-blue-400">shor</span>t, <span className="text-blue-400">Bioni</span>c <span className="text-blue-400">pat</span>h. <span className="text-blue-400">You</span>r <span className="text-blue-400">brai</span>n <span className="text-blue-400">lock</span>s <span className="text-blue-400">i</span>n <span className="text-blue-400">instan</span>tly.
+          <span className="text-[var(--prism-1)]">Thi</span>s <span className="text-[var(--prism-2)]">i</span>s <span className="text-[var(--prism-3)]">a</span> <span className="text-[var(--prism-4)]">shor</span>t, <span className="text-[var(--color-accent)]">Bioni</span>c <span className="text-[var(--prism-1)]">pat</span>h. <span className="text-[var(--prism-2)]">You</span>r <span className="text-[var(--prism-3)]">brai</span>n <span className="text-[var(--prism-4)]">lock</span>s <span className="text-[var(--color-accent)]">i</span>n <span className="text-[var(--prism-1)]">instan</span>tly.
         </p>
       </div>
       {/* Divider */}
-      <motion.div 
-        className="absolute top-0 bottom-0 w-[2px] bg-[var(--bg)] z-20 shadow-[0_0_20px_rgba(255,255,255,0.5)]"
+      <motion.div
+        className="absolute top-0 bottom-0 w-[4px] bg-gradient-to-b from-[var(--prism-1)] via-[var(--prism-2)] to-[var(--prism-4)] z-20 shadow-[0_0_20px_var(--prism-2)]"
         style={{ left: `${sliderPos}%` }}
-        animate={{ boxShadow: ["0 0 5px white", "0 0 20px white", "0 0 5px white"] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ boxShadow: ["0 0 10px var(--prism-1)", "0 0 30px var(--prism-2)", "0 0 10px var(--prism-1)"] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-[var(--bg)] rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-          <MoreHorizontal size={24} className="text-black rotate-90" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-[var(--color-bg)] rounded-full flex items-center justify-center shadow-2xl border border-[var(--color-border)] group-hover:scale-110 transition-transform">
+          <MoreHorizontal size={28} className="text-[var(--fg)] rotate-90" />
         </div>
       </motion.div>
-      
+
       {/* Interaction Hint */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-[9px] font-black uppercase tracking-[0.3em] text-[var(--fg)]/40 pointer-events-none group-hover:opacity-0 transition-opacity">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2 apple-glass rounded-full border border-white/10 text-[9px] font-black uppercase tracking-[0.3em] text-[var(--fg)] pointer-events-none group-hover:opacity-0 transition-opacity">
         Slide to Refract
       </div>
     </motion.div>
@@ -554,7 +552,7 @@ const RefractiveTagline = () => {
 };
 const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode, isScenic }: { mousePos: { x: number, y: number }, theme: ThemeMode, themeMode: 'light' | 'dark', focusMode: string, isScenic: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const t = THEMES[theme] || THEMES['calm-light'];
+  const t = THEMES[theme] || THEMES.bioluminescent;
   const colors = themeMode === 'light' ? t.light : t.dark;
   useEffect(() => {
     if (focusMode === 'sovereign') return;
@@ -1441,9 +1439,11 @@ export default function Home() {
     setHistory([]);
     setIsPaid(false);
   };
-  const currentTheme = THEMES[theme];
+  const currentTheme = THEMES[theme] || THEMES.bioluminescent;
   const isDark = themeMode === 'dark';
-  const colors = isDark ? currentTheme.dark : currentTheme.light;
+  const colors = isDark 
+    ? (currentTheme.dark || { background: '#000', text: '#fff', accent: '#fff', glass: 'rgba(0,0,0,0.5)', border: 'rgba(255,255,255,0.1)', shadow: 'rgba(0,0,0,0.5)' }) 
+    : (currentTheme.light || { background: '#fff', text: '#000', accent: '#000', glass: 'rgba(255,255,255,0.5)', border: 'rgba(0,0,0,0.1)', shadow: 'rgba(0,0,0,0.1)' });
   const themeStyles = `
     :root {
       --color-bg-1: ${colors.background}; --color-bg-2: ${colors.background};
