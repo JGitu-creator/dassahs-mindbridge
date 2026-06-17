@@ -39,7 +39,7 @@ const DastasticShell = ({ children, theme, themeMode }: { children: React.ReactN
     ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     : themeMode;
   return (
-    <div className={`theme-${theme} ${effectiveThemeMode === 'dark' ? 'dark' : ''} min-h-screen transition-colors duration-700 ease-in-out`}>
+    <div className={`theme-${theme} ${effectiveThemeMode === 'dark' ? 'dark' : 'light'} min-h-screen transition-colors duration-700 ease-in-out`}>
       {children}
     </div>
   );
@@ -68,7 +68,7 @@ import { ProgressPrism } from '@/components/prism/ProgressPrism';
 import { ReadAloud } from '@/components/prism/ReadAloud';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-type ThemeMode = "sovereign" | "ethereal" | "obsidian" | "midnight";
+type ThemeMode = "sovereign_purple" | "sovereign" | "ethereal" | "obsidian" | "midnight";
 interface ThemeConfig {
   name: string;
   icon: any;
@@ -749,7 +749,7 @@ export default function Home() {
   // <button onClick={() => setThemeMode('light')}>Light</button>
   // <button onClick={() => setThemeMode('dark')}>Dark</button>
   // <button onClick={() => setThemeMode('system')}>System</button>
-  const [theme, setTheme] = useState<ThemeMode>('midnight');
+  const [theme, setTheme] = useState<ThemeMode>('sovereign_purple');
   const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
   const [mouseFocus, setMouseFocus] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });

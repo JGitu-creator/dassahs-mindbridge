@@ -50,8 +50,6 @@ body {
 .theme-sovereign {
   --color-bg: #050505;
   --bg: var(--color-bg);
-  --color-bg-1: #0a0a0a;
-  --color-bg-2: #000000;
   --color-text: #e5e5e5;
   --color-fg: #ffffff;
   --fg: var(--color-fg);
@@ -60,35 +58,56 @@ body {
   --color-border-rgb: 139, 92, 246;
   --color-shadow: rgba(0, 0, 0, 0.8);
 }
+.theme-sovereign.light {
+  --color-bg: #ede9fe; /* Luminous Violet Light */
+  --bg: var(--color-bg);
+  --color-text: #2e1065;
+  --color-fg: #1e1b4b;
+  --fg: var(--color-fg);
+  --color-accent: #7c3aed;
+  --color-glass-rgb: 237, 233, 254;
+}
 
 /* Theme: Ethereal - Luminous Moss & Soft Cream */
 .theme-ethereal {
-  --color-bg: #f1f5f9; /* Lighter slate, not harsh white */
+  --color-bg: #064e3b;
   --bg: var(--color-bg);
-  --color-bg-1: #e2e8f0;
-  --color-bg-2: #cbd5e1;
-  --color-text: #0f172a;
-  --color-fg: #020617;
+  --color-text: #ecfdf5;
+  --color-fg: #ffffff;
   --fg: var(--color-fg);
-  --color-accent: #059669; /* Slightly darker green for contrast */
-  --color-glass-rgb: 241, 245, 249;
+  --color-accent: #34d399;
+  --color-glass-rgb: 6, 78, 59;
   --color-border-rgb: 16, 185, 129;
-  --color-shadow: rgba(0, 0, 0, 0.05);
+}
+.theme-ethereal.light {
+  --color-bg: #ecfdf5; /* Luminous Moss Light */
+  --bg: var(--color-bg);
+  --color-text: #064e3b;
+  --color-fg: #065f46;
+  --fg: var(--color-fg);
+  --color-accent: #059669;
+  --color-glass-rgb: 209, 250, 229;
 }
 
 /* Theme: Obsidian - Electric Carbon & Vibrant Living Blue */
 .theme-obsidian {
   --color-bg: #000000;
   --bg: var(--color-bg);
-  --color-bg-1: #0a0a0a;
-  --color-bg-2: #050505;
   --color-text: #ffffff;
   --color-fg: #f8fafc;
   --fg: var(--color-fg);
-  --color-accent: #0284c7; /* Slightly darker blue for contrast */
+  --color-accent: #0ea5e9;
   --color-glass-rgb: 10, 10, 10;
   --color-border-rgb: 14, 165, 233;
-  --color-shadow: rgba(0, 0, 0, 0.9);
+}
+.theme-obsidian.light {
+  --color-bg: #e0f2fe; /* Luminous Sky Light */
+  --bg: var(--color-bg);
+  --color-text: #075985;
+  --color-fg: #0c4a6e;
+  --fg: var(--color-fg);
+  --color-accent: #0284c7;
+  --color-glass-rgb: 186, 230, 253;
 }
 
 /* --- Utility Classes --- */
