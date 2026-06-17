@@ -10,8 +10,18 @@ import {
 } from 'lucide-react';
 
 const DastasticIcon = ({ ActiveIcon, themeAccent }: { ActiveIcon: any, themeAccent: string }) => (
-  <motion.div className="relative w-6 h-6 flex items-center justify-center">
-    <motion.div variants={{ idle: { opacity: 1, scale: 1, rotate: 0 }, hover: { opacity: 0, scale: 0.5, rotate: 180 } }} className="absolute inset-0 flex items-center justify-center">
+  <motion.div 
+    animate="animate" 
+    className="relative w-6 h-6 flex items-center justify-center"
+  >
+    <motion.div 
+      variants={{
+        idle: { opacity: 1, scale: 1, rotate: 0 },
+        animate: { opacity: [1, 0, 1], scale: [1, 0.8, 1], rotate: [0, 180, 360] }
+      }}
+      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      className="absolute inset-0 flex items-center justify-center"
+    >
       <Hexagon size={24} style={{ color: themeAccent }} />
     </motion.div>
     <motion.div variants={{ idle: { opacity: 0, scale: 0.5, rotate: -180 }, hover: { opacity: 1, scale: 1, rotate: 0 } }} className="absolute inset-0 flex items-center justify-center">
@@ -20,26 +30,11 @@ const DastasticIcon = ({ ActiveIcon, themeAccent }: { ActiveIcon: any, themeAcce
   </motion.div>
 );
 
-const ThemeContext = React.createContext<{ themeConfig: ThemeConfig, themeMode: 'light' | 'dark' } | null>(null);
-
-const DastasticShell = ({ children, themeConfig, themeMode }: { children: React.ReactNode, themeConfig: ThemeConfig, themeMode: 'light' | 'dark' }) => {
-  const t = themeMode === 'light' ? themeConfig.light : themeConfig.dark;
+const DastasticShell = ({ children, theme, themeMode }: { children: React.ReactNode, theme: string, themeMode: 'light' | 'dark' }) => {
   return (
-    <ThemeContext.Provider value={{ themeConfig, themeMode }}>
-      <div 
-        className="min-h-screen transition-colors duration-700 ease-in-out relative"
-        style={{
-          backgroundColor: t.background,
-          color: t.text,
-          '--color-accent': t.accent,
-          '--color-glass': t.glass,
-          '--color-border': t.border,
-          '--color-shadow': t.shadow || 'rgba(0,0,0,0.1)'
-        } as React.CSSProperties}
-      >
-        {children}
-      </div>
-    </ThemeContext.Provider>
+    <div className={`theme-${theme} ${themeMode === 'dark' ? 'dark' : ''} min-h-screen transition-colors duration-700 ease-in-out`}>
+      {children}
+    </div>
   );
 };
 const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
