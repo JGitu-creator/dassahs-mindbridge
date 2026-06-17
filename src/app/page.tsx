@@ -721,7 +721,20 @@ export default function Home() {
   const [chatLoading, setChatLoading] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
-  // Removed tutorialRole state
+
+  // Scroll Hide Hook
+  const [navVisible, setNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setNavVisible(currentScrollY < lastScrollY.current || currentScrollY < 50);
+      lastScrollY.current = currentScrollY;
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('system');
