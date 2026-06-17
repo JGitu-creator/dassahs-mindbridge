@@ -63,6 +63,7 @@ const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
 };
 import { ContextAnchor } from '@/components/prism/ContextAnchor';
 import { ProgressPrism } from '@/components/prism/ProgressPrism';
+import { ReadAloud } from '@/components/prism/ReadAloud';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 type ThemeMode = "sovereign" | "ethereal" | "obsidian" | "midnight";

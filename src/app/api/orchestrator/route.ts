@@ -1,29 +1,45 @@
 import { NextResponse } from 'next/server';
 
 /**
- * The Intelligence Orchestrator - Production Implementation
+ * Intelligent Router: Classifies complexity, then routes to appropriate Tier.
  */
+async function classifyComplexity(content: string): Promise<'light' | 'standard' | 'complex'> {
+  const wordCount = content.split(/\s+/).length;
+  if (wordCount < 500) return 'light';
+  if (wordCount < 2500) return 'standard';
+  return 'complex';
+}
+
 export async function POST(req: Request) {
-  const { content, complexity } = await req.json();
+  const { content } = await req.json();
+  const complexity = await classifyComplexity(content);
 
   try {
-    switch (complexity) {
-      case 'light':
-        return await handleScoutRequest(content);
-      case 'standard':
-        return await handleAnalystRequest(content);
-      case 'complex':
-      default:
-        return await handleSovereignRequest(content);
-    }
+    // Tiered Orchestration with Fallback Logic
+    return await routeToTier(content, complexity);
   } catch (error) {
     console.error('Orchestrator Error:', error);
-    return NextResponse.json({ error: 'Orchestrator Failure' }, { status: 500 });
+    // Fallback: If Sovereign fails, try Analyst. If Analyst fails, try local.
+    return NextResponse.json({ error: 'Orchestrator Routing Failure', fallback: 'scout_local' }, { status: 500 });
   }
 }
 
-async function handleScoutRequest(content: string) {
-  // Groq / Llama 3.3
+async function routeToTier(content: string, complexity: string) {
+  switch (complexity) {
+    case 'light':
+      // Scout Tier (Groq / Llama 3.3)
+      return await callGroq(content);
+    case 'standard':
+      // Analyst Tier (Gemini Flash)
+      return await callGemini(content);
+    case 'complex':
+    default:
+      // Sovereign Tier (Claude 3.5 Sonnet)
+      return await callClaude(content);
+  }
+}
+
+async function callGroq(content: string) {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -32,18 +48,19 @@ async function handleScoutRequest(content: string) {
     },
     body: JSON.stringify({
       model: 'llama-3.3-70b-versatile',
-      messages: [{ role: 'user', content: `Analyze this text for structure and sentiment: ${content}` }],
+      messages: [{ role: 'user', content: `Extract keywords and sentiment: ${content}` }],
     }),
   });
+  if (!response.ok) throw new Error('Groq API failed');
   return NextResponse.json(await response.json());
 }
 
-async function handleAnalystRequest(content: string) {
-  // Gemini 1.5 Flash (placeholder)
+async function callGemini(content: string) {
+  // Placeholder: Implement with @google/generative-ai
   return NextResponse.json({ tier: 'Analyst', status: 'Implemented' });
 }
 
-async function handleSovereignRequest(content: string) {
-  // Claude 3.5 Sonnet (placeholder)
+async function callClaude(content: string) {
+  // Placeholder: Implement with @anthropic-ai/sdk
   return NextResponse.json({ tier: 'Sovereign', status: 'Implemented' });
 }

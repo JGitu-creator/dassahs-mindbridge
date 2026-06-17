@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Proxy route for xAI Text-to-Speech to keep API Key secure.
+ * Dynamic Proxy route for xAI Text-to-Speech
  */
 export async function POST(req: Request) {
-  const { text, voice_id } = await req.json();
+  const { text, voice_id, language } = await req.json();
 
   if (!process.env.XAI_API_KEY) {
     return NextResponse.json({ error: 'XAI_API_KEY not configured' }, { status: 500 });
@@ -19,13 +19,13 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         text,
-        voice_id: voice_id || 'jpi39icg',
+        voice_id: voice_id || 'jpi39icg', // Default to 'eve' if not provided
         output_format: {
           codec: 'mp3',
           sample_rate: 44100,
           bit_rate: 128000
         },
-        language: 'en'
+        language: language || 'en'
       }),
     });
 
