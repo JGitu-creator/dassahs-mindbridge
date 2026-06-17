@@ -1552,7 +1552,7 @@ export default function Home() {
         )}
       </AnimatePresence>
       {/* REMOVED: SUBTLE BRAND SIGNATURE */}
-      <DastasticShell themeConfig={currentTheme} themeMode={themeMode}>
+      <DastasticShell theme={theme} themeMode={themeMode}>
       <main 
         onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
         className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-[var(--color-accent)]/40 transition-all duration-1000 bg-fixed ${isScholarMode ? 'scholar-mode' : ''} ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} 

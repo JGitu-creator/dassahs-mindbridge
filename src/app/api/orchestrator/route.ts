@@ -10,17 +10,29 @@ async function classifyComplexity(content: string): Promise<'light' | 'standard'
   return 'complex';
 }
 
+/**
+ * Computes basic text metrics locally as a fallback.
+ */
+function computeLocalMetrics(content: string) {
+  const wordCount = content.split(/\s+/).length;
+  const sentenceCount = content.split(/[.!?]+/).length;
+  return {
+    wordCount,
+    readabilityEstimate: wordCount / sentenceCount > 20 ? 'High' : 'Moderate',
+    keywords: content.split(/\s+/).slice(0, 5),
+    error: 'API unavailable, showing local structural metrics.'
+  };
+}
+
 export async function POST(req: Request) {
   const { content } = await req.json();
   const complexity = await classifyComplexity(content);
 
   try {
-    // Tiered Orchestration with Fallback Logic
     return await routeToTier(content, complexity);
   } catch (error) {
     console.error('Orchestrator Error:', error);
-    // Fallback: If Sovereign fails, try Analyst. If Analyst fails, try local.
-    return NextResponse.json({ error: 'Orchestrator Routing Failure', fallback: 'scout_local' }, { status: 500 });
+    return NextResponse.json(computeLocalMetrics(content), { status: 200 }); // Return local info
   }
 }
 
