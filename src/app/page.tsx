@@ -2451,8 +2451,9 @@ const AudioToggle = () => {
       Sound {isOn ? 'ON' : 'OFF'}
     </button>
   );
-};
-== 'system' ? 'bg-[var(--bg)] text-[var(--prism-3)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
+            <button 
+              onClick={() => setThemeMode('system')} 
+              className={`p-1.5 rounded-full transition-all ${themeMode === 'system' ? 'bg-[var(--bg)] text-[var(--prism-3)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
             >
               <Monitor size={14} />
             </button>
