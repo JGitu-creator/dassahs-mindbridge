@@ -2451,28 +2451,4 @@ const AudioToggle = () => {
       Sound {isOn ? 'ON' : 'OFF'}
     </button>
   );
-            <button 
-              onClick={() => setThemeMode('system')} 
-              className={`p-1.5 rounded-full transition-all ${themeMode === 'system' ? 'bg-[var(--bg)] text-[var(--prism-3)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
-            >
-              <Monitor size={14} />
-            </button>
-          </div>
-          <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
-        </div>
-      </footer>
-    </main>
-    </>
-  );
-}
-const AudioToggle = () => {
-  const [isOn, setIsOn] = useState(false);
-  return (
-    <button 
-      onClick={() => setIsOn(!isOn)}
-      className="fixed bottom-8 right-8 z-[500] p-4 bg-[var(--bg)]/10 backdrop-blur-md rounded-2xl border border-white/10 text-[var(--fg)] font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:scale-105 transition-all"
-    >
-      Sound {isOn ? 'ON' : 'OFF'}
-    </button>
-  );
 };
