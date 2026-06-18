@@ -2,9 +2,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { 
-  Brain, Zap, Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
+  Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
-  Lock, Trophy, Sparkle, BarChart3, Fish, MessageSquare, Loader2, Type, Swords, Sun, Moon, Ghost, Star, Settings, MoreHorizontal,
+  Lock, Trophy, Sparkle, BarChart3, MessageSquare, Loader2, Type, Swords, Sun, Moon, Ghost, Star, Settings, MoreHorizontal,
   Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit,
   Hexagon, Monitor
 } from 'lucide-react';
@@ -68,7 +68,7 @@ import { ProgressPrism } from '@/components/prism/ProgressPrism';
 import { ReadAloud } from '@/components/prism/ReadAloud';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-type ThemeMode = "sovereign_purple" | "sovereign" | "ethereal" | "obsidian" | "midnight";
+type ThemeMode = "midnight_sovereign" | "dastastic_neon" | "electric_grace" | "divine_gold" | "hadassah_silk" | "sovereign_pulse";
 interface ThemeConfig {
   name: string;
   icon: any;
@@ -80,51 +80,44 @@ const THEMES: Record<string, ThemeConfig> = {
   midnight_sovereign: {
     name: 'Midnight Sovereign',
     icon: Moon,
-    light: { background: '#e2e8f0', text: '#0f172a', accent: '#334155', glass: 'rgba(226, 232, 240, 0.8)', border: 'rgba(51, 65, 85, 0.2)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#020617', text: '#f8fafc', accent: '#475569', glass: 'rgba(15, 23, 42, 0.6)', border: 'rgba(71, 85, 105, 0.2)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#334155', '#475569', '#64748b']
+    light: { background: '#e0e7ff', text: '#1e3a8a', accent: '#3b82f6', glass: 'rgba(255,255,255,0.7)', border: 'rgba(59, 130, 246, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#020617', text: '#f8fafc', accent: '#3b82f6', glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#3b82f6', '#8b5cf6', '#06b6d4']
   },
   dastastic_neon: {
     name: 'Dastastic Neon',
     icon: Zap,
-    light: { background: '#fef3c7', text: '#78350f', accent: '#d97706', glass: 'rgba(254, 243, 199, 0.8)', border: 'rgba(217, 119, 6, 0.3)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#451a03', text: '#fef3c7', accent: '#d97706', glass: 'rgba(69, 26, 3, 0.6)', border: 'rgba(217, 119, 6, 0.2)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#d97706', '#f59e0b', '#fbbf24']
+    light: { background: '#dcfce7', text: '#14532d', accent: '#16a34a', glass: 'rgba(255,255,255,0.7)', border: 'rgba(34, 197, 94, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#000000', text: '#ffffff', accent: '#22c55e', glass: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#22c55e', '#a855f7', '#3b82f6']
   },
   electric_grace: {
     name: 'Electric Grace',
     icon: Flame,
-    light: { background: '#fee2e2', text: '#7f1d1d', accent: '#ef4444', glass: 'rgba(254, 226, 226, 0.8)', border: 'rgba(239, 68, 68, 0.3)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#450a0a', text: '#fef2f2', accent: '#ef4444', glass: 'rgba(69, 10, 10, 0.6)', border: 'rgba(239, 68, 68, 0.2)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#ef4444', '#f87171', '#fca5a5']
+    light: { background: '#ffe4e6', text: '#881337', accent: '#e11d48', glass: 'rgba(255,255,255,0.7)', border: 'rgba(225, 29, 72, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#020617', text: '#ffffff', accent: '#f43f5e', glass: 'rgba(244, 63, 94, 0.1)', border: 'rgba(244, 63, 94, 0.3)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#f43f5e', '#fbbf24', '#2dd4bf']
   },
   divine_gold: {
     name: 'Divine Gold',
     icon: Coins,
-    light: { background: '#fefce8', text: '#713f12', accent: '#ca8a04', glass: 'rgba(254, 252, 232, 0.8)', border: 'rgba(202, 138, 4, 0.3)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#422006', text: '#fefce8', accent: '#ca8a04', glass: 'rgba(66, 32, 6, 0.6)', border: 'rgba(202, 138, 4, 0.2)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#ca8a04', '#eab308', '#facc15']
+    light: { background: '#fef3c7', text: '#78350f', accent: '#d97706', glass: 'rgba(255,255,255,0.7)', border: 'rgba(217, 119, 6, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#000000', text: '#fffbeb', accent: '#fbbf24', glass: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.4)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#fbbf24', '#f59e0b', '#ffffff']
   },
   hadassah_silk: {
     name: 'Hadassah Silk',
     icon: Gem,
-    light: { background: '#f5f3ff', text: '#4c1d95', accent: '#7c3aed', glass: 'rgba(245, 243, 255, 0.8)', border: 'rgba(124, 58, 237, 0.3)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#2e1065', text: '#ede9fe', accent: '#7c3aed', glass: 'rgba(46, 16, 101, 0.6)', border: 'rgba(124, 58, 237, 0.2)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#7c3aed', '#8b5cf6', '#a78bfa']
-  },
-  divine_glow: {
-    name: 'Divine Glow',
-    icon: Sun,
-    light: { background: '#fffbeb', text: '#78350f', accent: '#d97706', glass: 'rgba(255, 251, 235, 0.8)', border: 'rgba(217, 119, 6, 0.3)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#451a03', text: '#fffbeb', accent: '#d97706', glass: 'rgba(69, 26, 3, 0.6)', border: 'rgba(217, 119, 6, 0.2)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#d97706', '#f59e0b', '#fbbf24']
+    light: { background: '#d1fae5', text: '#064e3b', accent: '#059669', glass: 'rgba(255,255,255,0.7)', border: 'rgba(5, 150, 105, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#022c22', text: '#ecfdf5', accent: '#10b981', glass: 'rgba(6, 78, 59, 0.4)', border: 'rgba(16, 185, 129, 0.2)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#10b981', '#34d399', '#059669']
   },
   sovereign_pulse: {
     name: 'Sovereign Pulse',
     icon: Orbit,
-    light: { background: '#f0f9ff', text: '#0c4a6e', accent: '#0284c7', glass: 'rgba(240, 249, 255, 0.8)', border: 'rgba(2, 132, 199, 0.3)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#082f49', text: '#f0f9ff', accent: '#0284c7', glass: 'rgba(8, 47, 73, 0.6)', border: 'rgba(2, 132, 199, 0.2)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#0284c7', '#0ea5e9', '#38bdf8']
+    light: { background: '#f3e8ff', text: '#3b0764', accent: '#7c3aed', glass: 'rgba(255,255,255,0.7)', border: 'rgba(124, 58, 237, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#2e1065', text: '#f5f3ff', accent: '#8b5cf6', glass: 'rgba(76, 29, 149, 0.4)', border: 'rgba(139, 92, 246, 0.2)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#8b5cf6', '#a78bfa', '#7c3aed']
   }
 };
 const COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899'];
@@ -155,21 +148,10 @@ const useIsMobile = () => {
   }, []);
   return isMobile;
 };
-const IchthysIcon = ({ size = 24, className = "" }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2.5" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="M2 12c4-8 14-8 19 0l3 3M2 12c4 8 14 8 19 0l3-3" />
-  </svg>
-);
+import { StackedThemeSelector } from '@/components/morphing/StackedThemeSelector';
+import { MorphFish, MorphBrain, MorphZap, MorphRocket, MorphEye, MorphSettings } from '@/components/morphing/MorphIcons';
+
+const IchthysIcon = ({ size = 24, className = "" }) => <MorphFish className={className} />;
 const StarParticles = ({ count, isFinal }: { count: number, isFinal?: boolean }) => {
   const isMobile = useIsMobile();
   const mobileCount = isMobile ? Math.min(count, 20) : count;
@@ -280,7 +262,7 @@ const SceneRecap = ({ chunk }: { chunk: any }) => (
     className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-[2rem] mb-8"
   >
     <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-2 flex items-center gap-2">
-      <Zap size={14} /> Previously Refracted
+      <MorphZap size={14} /> Previously Refracted
     </p>
     <p className="text-slate-300 italic font-medium">"...{chunk.summary}"</p>
   </motion.div>
@@ -667,7 +649,7 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mous
   return (
     <canvas 
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0 opacity-10 transition-opacity duration-1000"
+      className={`fixed inset-0 pointer-events-none z-0 transition-opacity duration-1000 ${themeMode === 'light' ? 'opacity-40 mix-blend-multiply' : 'opacity-10'}`}
     />
   );
 };
@@ -762,7 +744,7 @@ export default function Home() {
   // <button onClick={() => setThemeMode('light')}>Light</button>
   // <button onClick={() => setThemeMode('dark')}>Dark</button>
   // <button onClick={() => setThemeMode('system')}>System</button>
-  const [theme, setTheme] = useState<ThemeMode>('sovereign_purple');
+  const [theme, setTheme] = useState<ThemeMode>('hadassah_silk');
   const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
   const [mouseFocus, setMouseFocus] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -1015,7 +997,7 @@ export default function Home() {
     { id: 'spark', icon: <Sparkles className="text-amber-400" />, label: 'The Spark' },
     { id: 'prism', icon: <Palette className="text-blue-400" />, label: 'The Prism' },
     { id: 'shield', icon: <Shield className="text-emerald-400" />, label: 'The Shield' },
-    { id: 'brain', icon: <Brain className="text-[var(--accent)]" />, label: 'The Core' },
+    { id: 'brain', icon: <MorphBrain className="text-[var(--accent)]" />, label: 'The Core' },
     { id: 'crown', icon: <Crown className="text-yellow-500" />, label: 'The Sovereign' },
   ];
   const handleAvatarSelect = async (url: string) => {
@@ -1593,7 +1575,7 @@ export default function Home() {
       </AnimatePresence>
       <AnimatePresence>
         {oneClickRecap && (
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-[var(--color-glass)] apple-glass p-6 rounded-[2rem] border border-[var(--color-border)] shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-[var(--bg)]/10 rounded-full flex items-center justify-center flex-shrink-0"><Eye size={20} className="text-[var(--fg)]" /></div><p className="text-sm font-bold text-[var(--fg)] leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
+          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-[var(--color-glass)] apple-glass p-6 rounded-[2rem] border border-[var(--color-border)] shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-[var(--bg)]/10 rounded-full flex items-center justify-center flex-shrink-0"><MorphEye size={20} className="text-[var(--fg)]" /></div><p className="text-sm font-bold text-[var(--fg)] leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
         )}
       </AnimatePresence>
       <AnimatePresence>
@@ -1666,14 +1648,14 @@ export default function Home() {
                 <Clock className="text-blue-400 md:w-[10px] md:h-[10px]" size={8} />
                 <span className="font-black text-[var(--fg)] text-[10px] md:text-xs tabular-nums">{totalMinutesSaved}m</span>
                 <span className="hidden xs:block w-[1px] h-3 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
-                <Brain className="hidden xs:block text-[var(--accent)] md:w-[10px] md:h-[10px]" size={8} />                <span className="hidden xs:block font-black text-[var(--fg)] text-[10px] md:text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
+                <MorphBrain className="hidden xs:block text-[var(--accent)] md:w-[10px] md:h-[10px]" size={8} />                <span className="hidden xs:block font-black text-[var(--fg)] text-[10px] md:text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
               </div>
             </div>
           </div>
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
           {data && currentChunk >= 0 && (
             <button onClick={handleOneClickRecap} title="Where was I? (Recap)" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-400 hover:text-[var(--fg)] hover:bg-blue-500/20 transition-all flex items-center gap-2 group">
-              <motion.div whileHover={{ scale: 1.2 }}><Eye size={18} className="md:w-5 md:h-5 transition-transform" /></motion.div>
+              <motion.div whileHover={{ scale: 1.2 }}><MorphEye size={18} className="md:w-5 md:h-5 transition-transform" /></motion.div>
               <span className="hidden lg:block text-[10px] font-black uppercase tracking-widest">Recap</span>
             </button>
           )}
@@ -1773,17 +1755,12 @@ export default function Home() {
                         <button onClick={() => setThemeMode('system')} className={`p-1.5 rounded-full transition-all ${themeMode === 'system' ? 'bg-[var(--bg)] text-[var(--prism-3)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}><Monitor size={12} /></button>
                       </div>
                     </div>
-                    <div className="flex gap-2 flex-wrap">
-                      {Object.entries(THEMES).map(([id, t]) => {
-                        const Icon = t.icon || Palette;
-                        const accent = t.dark ? t.dark.accent : '#8b5cf6';
-                        return (
-                          <button key={id} onClick={() => { setTheme(id as any); }} className={`relative p-3 rounded-full transition-all flex items-center justify-center ${theme === id ? 'border bg-[var(--bg)]/10' : 'border border-transparent bg-[var(--bg)]/5 opacity-60 hover:opacity-100'}`} style={theme === id ? { borderColor: accent, boxShadow: `0 0 10px ${accent}33` } : {}}>
-                            <Icon size={16} className="text-[var(--fg)]" />
-                            {theme === id && <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: accent }} />}
-                          </button>
-                        );
-                      })}
+                    <div className="py-8">
+                      <StackedThemeSelector 
+                        themes={Object.entries(THEMES).map(([id, t]) => ({ id, ...t, stroke: t.dark?.accent || '#8b5cf6' }))} 
+                        activeTheme={theme}
+                        onThemeSelect={(id) => setTheme(id as any)}
+                      />
                     </div>
                   </div>
                 </div>
@@ -2170,7 +2147,7 @@ export default function Home() {
                 <Camera size={16} className="text-emerald-500" />
               </button>
               <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-1" />
-              <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>{storyMode ? <Rocket size={16}/> : <Anchor size={16}/>}</button>
+              <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>{storyMode ? <MorphRocket size={16}/> : <Anchor size={16}/>}</button>
               </div>
               <button 
                 onClick={() => handleSimplify()} 
@@ -2293,7 +2270,7 @@ export default function Home() {
                   <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-[var(--fg)] shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)]'}`} title="Neural Playback"><Volume2 size={16}/></button>
-                    <button onClick={() => setShowVoiceSelector(true)} className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)] transition-all" title="Voice Settings"><Settings size={16}/></button>
+                    <button onClick={() => setShowVoiceSelector(true)} className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)] transition-all" title="Voice Settings"><MorphSettings size={16}/></button>
                   </div>
                 </div>
                 
@@ -2453,6 +2430,29 @@ export default function Home() {
               onClick={() => setThemeMode('system')} 
               title="System Mode"
               className={`p-2 rounded-full transition-all ${themeMode === 'system' ? 'bg-[var(--bg)] text-[var(--prism-3)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
+            >
+              <Monitor size={14} />
+            </button>
+          </div>
+          <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
+        </div>
+      </footer>
+    </main>
+    </>
+  );
+}
+const AudioToggle = () => {
+  const [isOn, setIsOn] = useState(false);
+  return (
+    <button 
+      onClick={() => setIsOn(!isOn)}
+      className="fixed bottom-8 right-8 z-[500] p-4 bg-[var(--bg)]/10 backdrop-blur-md rounded-2xl border border-white/10 text-[var(--fg)] font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:scale-105 transition-all"
+    >
+      Sound {isOn ? 'ON' : 'OFF'}
+    </button>
+  );
+};
+== 'system' ? 'bg-[var(--bg)] text-[var(--prism-3)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
             >
               <Monitor size={14} />
             </button>
