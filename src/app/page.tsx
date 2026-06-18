@@ -6,7 +6,7 @@ import {
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, MessageSquare, Loader2, Type, Swords, Sun, Moon, Ghost, Star, Settings, MoreHorizontal,
   Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit,
-  Hexagon, Monitor, Zap
+  Hexagon, Monitor, Zap, Brain
 } from 'lucide-react';
 import { NeuralCore } from '@/components/NeuralCore';
 import { CognitiveAscension } from '@/components/CognitiveAscension';
