@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
+type IconProps = { className?: string; size?: number };
+
 // Category A: Draw & Refract (Fish)
-export const MorphFish = ({ className = "" }) => (
-  <motion.svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={className}>
+export const MorphFish = ({ className = "", size = 24 }: IconProps) => (
+  <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
     <motion.path
       d="M2 12c4-8 14-8 19 0l3 3M2 12c4 8 14 8 19 0l3-3"
       stroke="currentColor"
@@ -18,8 +20,8 @@ export const MorphFish = ({ className = "" }) => (
 );
 
 // Category B: Primitive to Complex (Brain)
-export const MorphBrain = ({ className = "" }) => (
-  <motion.svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={className}>
+export const MorphBrain = ({ className = "", size = 24 }: IconProps) => (
+  <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
     <motion.path
       d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
       stroke="currentColor"
@@ -34,8 +36,8 @@ export const MorphBrain = ({ className = "" }) => (
 );
 
 // Category C: Expansion & Rotation
-export const MorphRocket = ({ className = "" }) => (
-  <motion.svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={className}>
+export const MorphRocket = ({ className = "", size = 24 }: IconProps) => (
+  <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
     <motion.path
       d="M12 2l7 10-7-2-7 2 7-10z"
       stroke="currentColor"
@@ -49,7 +51,7 @@ export const MorphRocket = ({ className = "" }) => (
   </motion.svg>
 );
 
-export const MorphZap = ({ className = "", size = 24 }: { className?: string, size?: number }) => (
+export const MorphZap = ({ className = "", size = 24 }: IconProps) => (
   <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
     <motion.path
       d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
@@ -64,8 +66,8 @@ export const MorphZap = ({ className = "", size = 24 }: { className?: string, si
   </motion.svg>
 );
 
-export const MorphEye = ({ className = "" }) => (
-  <motion.svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={className}>
+export const MorphEye = ({ className = "", size = 24 }: IconProps) => (
+  <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
     <motion.path
       d="M2 12h20"
       stroke="currentColor"
@@ -79,8 +81,8 @@ export const MorphEye = ({ className = "" }) => (
   </motion.svg>
 );
 
-export const MorphSettings = ({ className = "" }) => (
-  <motion.svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={className}>
+export const MorphSettings = ({ className = "", size = 24 }: IconProps) => (
+  <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
     <motion.circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" />
     <motion.path
       d="M12 12"
