@@ -49,8 +49,8 @@ export const MorphRocket = ({ className = "" }) => (
   </motion.svg>
 );
 
-export const MorphZap = ({ className = "" }) => (
-  <motion.svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={className}>
+export const MorphZap = ({ className = "", size = 24 }: { className?: string, size?: number }) => (
+  <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
     <motion.path
       d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
       stroke="currentColor"
