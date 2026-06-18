@@ -49,6 +49,21 @@ export const MorphRocket = ({ className = "" }) => (
   </motion.svg>
 );
 
+export const MorphZap = ({ className = "" }) => (
+  <motion.svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={className}>
+    <motion.path
+      d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      initial={{ pathLength: 0 }}
+      whileHover={{ pathLength: 1, filter: "drop-shadow(0 0 8px currentColor)" }}
+      transition={{ duration: 0.5 }}
+    />
+  </motion.svg>
+);
+
 export const MorphEye = ({ className = "" }) => (
   <motion.svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={className}>
     <motion.path
