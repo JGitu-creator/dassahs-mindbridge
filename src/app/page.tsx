@@ -193,27 +193,63 @@ const NeuralRefractionSlider = () => {
   const [sliderPos, setSliderPos] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
   
+  const handleMove = (e: any) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    setSliderPos(Math.max(0, Math.min(100, (x / rect.width) * 100)));
+  };
+
   return (
-    <div
+    <motion.div
       ref={containerRef}
-      className="relative w-full h-[300px] rounded-[3rem] overflow-hidden border border-[var(--color-border)] apple-glass"
+      onMouseMove={handleMove}
+      onTouchMove={handleMove}
+      className="relative w-full h-[320px] md:h-[400px] rounded-[3rem] overflow-hidden border border-[var(--color-border)] cursor-ew-resize group apple-glass shadow-2xl"
     >
-      {/* Noise Side (Left) - Using high-contrast dark overlay */}
-      <div className="absolute inset-0 bg-black/70 flex items-center justify-center p-12">
-        <p className="text-2xl font-black text-slate-400 italic blur-[1px]">The noisy, unstructured data blocks your focus.</p>
+      {/* Noise Side (Left) - Advanced Glassmorphism */}
+      <div className="absolute inset-0 bg-[var(--color-shadow)]/40 flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-80 backdrop-blur-sm">
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 mb-6">The Noise</p>
+        <p className="text-xl md:text-3xl text-slate-200 leading-relaxed blur-[0.5px]">
+          This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow.
+        </p>
       </div>
       
-      {/* Clarity Side (Right) - High Contrast reveal */}
+      {/* Clarity Side (Right) - Advanced Apple Liquid Glassmorphism */}
       <div
-        className="absolute inset-0 bg-[var(--color-bg)] flex items-center justify-center p-12 z-10"
+        className="absolute inset-0 apple-glass-dark flex flex-col items-center justify-center p-8 md:p-16 text-center select-none z-10"
         style={{ clipPath: `polygon(${sliderPos}% 0, 100% 0, 100% 100%, ${sliderPos}% 100%)` }}
       >
-        <p className="text-2xl font-black text-[var(--fg)] italic">This is the clear, actionable signal you need.</p>
+        <div className="absolute inset-0 bg-gradient-to-tr from-[var(--prism-1)]/10 via-transparent to-[var(--prism-4)]/10" />
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[var(--color-accent)] mb-6 z-20">The Clarity</p>
+        <p className="text-xl md:text-3xl text-[var(--fg)] font-black leading-relaxed italic z-20">
+          <span className="text-[var(--prism-1)]">Thi</span>s <span className="text-[var(--prism-2)]">i</span>s <span className="text-[var(--prism-3)]">a</span> <span className="text-[var(--prism-4)]">shor</span>t, <span className="text-[var(--color-accent)]">Bioni</span>c <span className="text-[var(--prism-1)]">pat</span>h. <span className="text-[var(--prism-2)]">You</span>r <span className="text-[var(--prism-3)]">brai</span>n <span className="text-[var(--prism-4)]">lock</span>s <span className="text-[var(--color-accent)]">i</span>n <span className="text-[var(--prism-1)]">instan</span>tly.
+        </p>
       </div>
 
-      {/* Slider Divider */}
-      <div className="absolute top-0 bottom-0 w-[4px] bg-[var(--prism-1)] z-20" style={{ left: `${sliderPos}%` }} />
-    </div>
+      {/* Slider Divider with Premium Liquid Glow */}
+      <motion.div
+        className="absolute top-0 bottom-0 w-[6px] bg-white/50 z-20 shadow-[0_0_40px_rgba(255,255,255,0.6)] backdrop-blur-md"
+        style={{ left: `${sliderPos}%` }}
+        animate={{ 
+          boxShadow: [
+            "0 0 20px rgba(59, 130, 246, 0.5)", 
+            "0 0 50px rgba(168, 85, 247, 0.5)", 
+            "0 0 20px rgba(236, 72, 153, 0.5)"
+          ] 
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+      >
+        <div className="absolute top-1/2 -translate-y-1/2 -left-2 w-10 h-10 rounded-full bg-white/30 backdrop-blur-xl border border-white/40 shadow-xl flex items-center justify-center">
+            <div className="w-4 h-4 rounded-full bg-white animate-pulse" />
+        </div>
+      </motion.div>
+
+      {/* Interaction Hint styled with Premium Glassmorphism */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2 bg-black/40 border border-white/10 text-[9px] font-black uppercase tracking-[0.3em] text-[var(--fg)] rounded-full z-30 pointer-events-none group-hover:opacity-0 transition-opacity duration-300 backdrop-blur-md">
+        Slide to Refract
+      </div>
+    </motion.div>
   );
 };
 const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData, isOpen: boolean, onToggle: () => void }) => {
