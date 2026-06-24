@@ -207,15 +207,18 @@ const NeuralRefractionSlider = () => {
       onTouchMove={handleMove}
       className="relative w-full h-[320px] md:h-[400px] rounded-[3rem] overflow-hidden border border-[var(--color-border)] cursor-ew-resize group apple-glass shadow-2xl"
     >
-      {/* Noise Side (Left) - Enhanced Contrast for both modes */}
-      <div className="absolute inset-0 bg-[var(--color-bg)]/80 dark:bg-[var(--color-shadow)]/60 flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-90 backdrop-blur-md">
+      {/* Noise Side (Left) - Enhanced Contrast and clipped by slider */}
+      <div 
+        className="absolute inset-0 bg-[var(--color-bg)]/80 dark:bg-[var(--color-shadow)]/60 flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-90 backdrop-blur-md"
+        style={{ clipPath: `polygon(0% 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0% 100%)` }}
+      >
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[var(--color-text)]/60 mb-6">The Noise</p>
         <p className="text-xl md:text-3xl text-[var(--color-text)] leading-relaxed blur-[0.2px] font-medium">
           This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow.
         </p>
       </div>
       
-      {/* Clarity Side (Right) - Advanced Apple Liquid Glassmorphism */}
+      {/* Clarity Side (Right) - Advanced Apple Liquid Glassmorphism, clipped by slider */}
       <div
         className="absolute inset-0 apple-glass-dark flex flex-col items-center justify-center p-8 md:p-16 text-center select-none z-10"
         style={{ clipPath: `polygon(${sliderPos}% 0, 100% 0, 100% 100%, ${sliderPos}% 100%)` }}
@@ -780,7 +783,7 @@ export default function Home() {
   // <button onClick={() => setThemeMode('light')}>Light</button>
   // <button onClick={() => setThemeMode('dark')}>Dark</button>
   // <button onClick={() => setThemeMode('system')}>System</button>
-  const [theme, setTheme] = useState<ThemeMode>('hadassah_silk');
+  const [theme, setTheme] = useState<ThemeMode>('sovereign_pulse');
   const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
   const [mouseFocus, setMouseFocus] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
