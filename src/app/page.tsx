@@ -269,21 +269,21 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
         >
           <Anchor size={20} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
-        <div className="w-64 apple-glass-dark border-l border-[var(--color-border)] p-6 shadow-2xl h-[400px] overflow-y-auto no-scrollbar rounded-bl-3xl flex flex-col gap-6">
+        <div className="w-40 apple-glass-dark border-l border-[var(--color-border)] p-4 shadow-2xl h-[400px] overflow-y-auto no-scrollbar rounded-bl-3xl flex flex-col gap-4">
           <CognitiveAscension experience={500} />
           <MissionLog />
           <Vault />
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mt-2 mb-2 flex items-center gap-2">
-            <Anchor size={12} /> Neural Anchors
+          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-400 mt-2 mb-2 flex items-center gap-2">
+            <Anchor size={10} /> Anchors
           </p>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {anchors.map((anchor, i) => (
               <motion.div 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
                 key={i} 
-                className="p-3 bg-[var(--bg)]/5 rounded-xl border border-white/5 text-xs font-bold text-slate-300 hover:bg-[var(--bg)]/10 transition-colors cursor-default"
+                className="p-2 bg-[var(--bg)]/5 rounded-xl border border-white/5 text-[10px] font-bold text-slate-300 hover:bg-[var(--bg)]/10 transition-colors cursor-default"
               >
                 {anchor}
               </motion.div>
@@ -1223,22 +1223,43 @@ export default function Home() {
     setLoading(true);
     setData(null); // CLEAR PREVIOUS DATA TO FORCE NEW DISCERNMENT UI
     setShareId(null);
+    
+    // --- AUTOMATIC CHUNKING ---
+    const MAX_CHUNK_SIZE = 2000;
+    const chunks = [];
+    for (let i = 0; i < textToSimplify.length; i += MAX_CHUNK_SIZE) {
+      chunks.push(textToSimplify.slice(i, i + MAX_CHUNK_SIZE));
+    }
+    
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
-      const res = await fetch('/api/simplify', { 
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ 
-          text: textToSimplify, 
-          isScenic, 
-          cognitiveMode, 
-          missionGoal, 
-          isStory: storyMode,
-          simplicityLevel 
-        }) 
-      });
-      if (!res.ok) { const errData = await res.json(); throw new Error(errData.error || "The Prism is blurry. Try again."); }
-      const result = await res.json(); setData(result);
+      
+      // Process chunks and reassemble
+      const results = await Promise.all(chunks.map(chunk => 
+        fetch('/api/simplify', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ 
+            text: chunk, 
+            isScenic, 
+            cognitiveMode, 
+            missionGoal, 
+            isStory: storyMode,
+            simplicityLevel 
+          }) 
+        }).then(res => res.json())
+      ));
+
+      // Reassemble the result
+      const result = results.reduce((acc, curr) => ({
+        ...curr,
+        tldr: [...(acc.tldr || []), ...(curr.tldr || [])],
+        chunks: [...(acc.chunks || []), ...(curr.chunks || [])],
+        actions: [...(acc.actions || []), ...(curr.actions || [])],
+        // Merge readingTime if applicable, etc.
+      }));
+
+      setData(result);
       
       // Update Bandwidth Stats
       const wordCount = textToSimplify.trim().split(/\s+/).length;
@@ -1738,7 +1759,7 @@ export default function Home() {
       <AnimatePresence>
         {showNeuralCommand && (
           <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-2xl w-full max-h-[90dvh] overflow-y-auto no-scrollbar apple-glass p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-6 md:gap-8 relative">
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-2xl w-full max-h-[90dvh] overflow-y-auto no-scrollbar apple-glass p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-6 md:gap-8 relative neural-command-bg">
               <div className="flex justify-between items-center sticky top-0 bg-transparent backdrop-blur-md z-10 pb-4">
                 <h2 className="text-xl md:text-2xl font-black text-[var(--fg)] italic flex items-center gap-3 md:gap-4"><Compass className="text-blue-400" /> Neural Command</h2>
                 <button onClick={() => { setShowNeuralCommand(false); }} className="p-2 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
