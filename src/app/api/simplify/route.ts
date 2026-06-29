@@ -88,7 +88,7 @@ export async function POST(req: Request) {
             }
           ],
           "actions": [
-            { "task": "string", "priority": "high" | "medium" | "low" }
+            { "task": "string", "priority": "high" | "medium" | "low", "estimatedMinutes": "number" }
           ],
           "chartData": null
         }

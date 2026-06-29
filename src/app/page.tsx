@@ -1819,20 +1819,31 @@ export default function Home() {
                 </div>
                 <div className="space-y-6">
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Neural Harmonies</p>
-                    <button 
-                      onClick={() => setBrownNoisePlaying(!brownNoisePlaying)} 
-                      className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center justify-between group ${brownNoisePlaying ? 'bg-amber-600/20 border-amber-500 text-amber-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <Volume2 size={20} className={brownNoisePlaying ? 'animate-pulse' : ''} />
-                        <div className="text-left">
-                          <p className="text-xs font-black text-[var(--fg)] uppercase tracking-widest">Brown Noise</p>
-                          <p className="text-[8px] text-[var(--fg)] group-hover:text-slate-300 font-bold uppercase tracking-tight">Audio Focus Shield</p>
-                        </div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Neural Harmonies & Voice</p>
+                    <details className="group">
+                      <summary className="cursor-pointer text-[10px] font-bold text-blue-400 hover:text-blue-300">Show Advanced Controls</summary>
+                      <div className="pt-4 space-y-4">
+                        <button 
+                          onClick={() => setBrownNoisePlaying(!brownNoisePlaying)} 
+                          className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center justify-between group ${brownNoisePlaying ? 'bg-amber-600/20 border-amber-500 text-amber-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
+                        >
+                          <div className="flex items-center gap-4">
+                            <Volume2 size={20} className={brownNoisePlaying ? 'animate-pulse' : ''} />
+                            <div className="text-left">
+                              <p className="text-xs font-black text-[var(--fg)] uppercase tracking-widest">Brown Noise</p>
+                              <p className="text-[8px] text-[var(--fg)] group-hover:text-slate-300 font-bold uppercase tracking-tight">Audio Focus Shield</p>
+                            </div>
+                          </div>
+                          <div className={`w-2 h-2 rounded-full ${brownNoisePlaying ? 'bg-amber-400 animate-pulse' : 'bg-[var(--bg)]/10'}`} />
+                        </button>
+                        <button onClick={() => setShowVoiceSelector(true)} className="w-full p-5 rounded-2xl flex items-center justify-between bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)] transition-all" title="Voice Settings">
+                          <div className="flex items-center gap-4">
+                            <MorphSettings size={20} />
+                            <p className="text-xs font-black text-[var(--fg)] uppercase tracking-widest">Voice Settings</p>
+                          </div>
+                        </button>
                       </div>
-                      <div className={`w-2 h-2 rounded-full ${brownNoisePlaying ? 'bg-amber-400 animate-pulse' : 'bg-[var(--bg)]/10'}`} />
-                    </button>
+                    </details>
                   </div>
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Adaptive Refraction</p>
@@ -1894,6 +1905,14 @@ export default function Home() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-8">
+                  <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Sensory Profile</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      {['Calm', 'Vibrant', 'Contrast'].map(profile => (
+                        <button key={profile} className="p-4 rounded-xl bg-[var(--bg)]/5 border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest">{profile}</button>
+                      ))}
+                    </div>
+                  </div>
                   <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Neural Image</p>
                     <div className="flex flex-wrap gap-3">
