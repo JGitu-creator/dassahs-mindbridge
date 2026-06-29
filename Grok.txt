@@ -1,1 +1,0 @@
-export XAI_API_KEY="xai-PtdMoMOhYLQ5PQYOudQhlJUP4vZSk13nO1fPF48CNfwpfxxxdNh0tZYUPlaKStekhxxTsRJUBYLoYDhf"

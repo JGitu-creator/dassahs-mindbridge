@@ -1350,15 +1350,14 @@ export default function Home() {
     window.speechSynthesis.onvoiceschanged = loadVoices;
     return () => { window.speechSynthesis.onvoiceschanged = null; };
   }, [selectedVoiceId]);
+  useEffect(() => {
+    document.documentElement.setAttribute('data-sensory-profile', sensoryProfile.toLowerCase());
+  }, [sensoryProfile]);
+
   const handleReadAloud = async (text: string) => {
+    // ... use voiceSetting state here
     if (isPlaying) {
-      window.speechSynthesis.cancel();
-      if (premiumAudioRef.current) {
-        premiumAudioRef.current.pause();
-        premiumAudioRef.current = null;
-      }
-      setIsPlaying(false);
-      return;
+      // ...
     }
     if (selectedVoiceId === 'dassah_premium') {
       setIsPlaying(true);
@@ -1366,8 +1365,13 @@ export default function Home() {
         const res = await fetch('/api/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, voice: 'nova' })
+          body: JSON.stringify({ text, voice_id: voiceSetting.toLowerCase() }) // Use voiceSetting
         });
+        // ...
+      }
+    }
+    // ...
+  };
         if (!res.ok) throw new Error("Neural Premium offline");
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
