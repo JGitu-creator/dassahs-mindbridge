@@ -97,9 +97,14 @@ export async function POST(req: Request) {
         ${chunkText}
       `;
       
-      const responseText = await callProvider(generationPrompt);
-      if (responseText) {
-        refractionResults.push(extractJSON(responseText));
+      try {
+        const responseText = await callProvider(generationPrompt);
+        if (responseText) {
+          refractionResults.push(extractJSON(responseText));
+        }
+      } catch (e) {
+        console.error(`Chunk refraction failed:`, e);
+        // Skip this chunk and continue with others
       }
     }
 
