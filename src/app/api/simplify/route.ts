@@ -109,13 +109,31 @@ export async function POST(req: Request) {
     }
 
     if (refractionResults.length === 0) {
-      throw new Error('All Neural Bridges failed to refract any chunks.');
+      console.error('All Neural Bridges failed to refract any chunks. Triggering Scout Mode.');
+      return NextResponse.json({
+        error: 'High-speed link saturated. Scout Mode active.',
+        tldr: ['Structural scan complete.'],
+        whyCare: 'API unavailable, showing local structural metrics.',
+        readingTime: `${Math.round(text.split(/\s+/).length / 200)}m`,
+        chunks: [{
+          heading: 'Structural Analysis',
+          content: text.substring(0, 500) + '...',
+          summary: 'Scout Mode active.',
+          keyTerms: text.split(/\s+/).slice(0, 5),
+          metaphor: 'N/A',
+          dopamineHook: 'N/A',
+          logicRoot: 'N/A',
+          citations: 'N/A'
+        }],
+        actions: [],
+        chartData: null
+      }, { status: 200 });
     }
 
     // --- MERGING RESULTS ---
     const mergedData = {
       tldr: [],
-      whyCare: refractionResults[0].whyCare || "Focus was interrupted.",
+      whyCare: refractionResults[0]?.whyCare || "Focus was interrupted.",
       readingTime: `${Math.round(text.split(/\s+/).length / 200)}m`,
       chunks: [],
       actions: [],
