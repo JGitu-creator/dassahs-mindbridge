@@ -1913,6 +1913,20 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Voice Settings</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {['Standard', 'Soothing', 'Energetic'].map(setting => (
+                        <button 
+                          key={setting} 
+                          onClick={() => setVoiceSetting(setting)}
+                          className={`p-4 rounded-xl border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceSetting === setting ? 'bg-blue-600/20 text-blue-400' : 'bg-[var(--bg)]/5'}`}
+                        >
+                          {setting}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Fidget Mode</p>
                     <button 
                       onClick={() => setIsFidgetModeActive(!isFidgetModeActive)}
