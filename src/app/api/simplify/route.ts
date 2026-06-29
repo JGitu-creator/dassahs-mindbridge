@@ -57,6 +57,7 @@ export async function POST(req: Request) {
         
         GOAL: ${missionGoal || 'Discovery'}
         TARGET COGNITIVE MODE: ${cognitiveMode}
+        SIMPLICITY LEVEL: ${simplicityLevel || 'Standard'}
 
         --- STEP 1: INTERNAL NEURAL SCAN (THOUGHT PROCESS) ---
         Perform a silent, deep analysis of the text. 

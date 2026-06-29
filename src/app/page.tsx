@@ -84,13 +84,6 @@ const THEMES: Record<string, ThemeConfig> = {
     dark: { background: '#020617', text: '#f8fafc', accent: '#3b82f6', glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#3b82f6', '#8b5cf6', '#06b6d4']
   },
-  neon_velocity: {
-    name: 'Neon Velocity',
-    icon: Zap,
-    light: { background: '#d1fae5', text: '#064e3b', accent: '#059669', glass: 'rgba(209, 250, 229, 0.7)', border: 'rgba(5, 150, 105, 0.2)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#000000', text: '#ffffff', accent: '#10b981', glass: 'rgba(0, 0, 0, 0.5)', border: 'rgba(16, 185, 129, 0.3)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#10b981', '#34d399', '#059669']
-  },
   electric_grace: {
     name: 'Electric Grace',
     icon: Flame,
@@ -1842,7 +1835,21 @@ export default function Home() {
                     </button>
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Discernment Level</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Adaptive Refraction</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['Concise', 'Standard', 'Detailed'].map(mode => (
+                        <button 
+                          key={mode} 
+                          onClick={() => setSimplicityLevel(mode.toLowerCase() as any)} 
+                          className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${simplicityLevel === mode.toLowerCase() ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
+                        >
+                          <span className="text-[8px] font-black uppercase tracking-tight">{mode}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4 mt-6">Discernment Level</p>
                     <div className="grid grid-cols-2 gap-3">
                       <button 
                         onClick={() => setSimplicityLevel('vibrant')} 
