@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       }, { status: 413 });
     }
 
-    if (!text && mode !== 'chat' && mode !== 'council_review') {
+    if (!text && mode !== 'chat') {
       return NextResponse.json({ error: 'Valid input is required.' }, { status: 400 });
     }
 

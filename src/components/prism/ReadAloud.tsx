@@ -4,7 +4,7 @@ import { Volume2, Loader2, Play, Pause } from 'lucide-react';
 const VOICES = [
   { id: 'eve', name: 'Eve (Energetic)' },
   { id: 'ara', name: 'Ara (Warm)' },
-  { id: 'leo', name: 'Leo (Authoritative)' },
+  { id: 'standard', name: 'Standard (Authoritative)' },
   { id: 'rex', name: 'Rex (Confident)' },
   { id: 'sal', name: 'Sal (Smooth)' },
 ];

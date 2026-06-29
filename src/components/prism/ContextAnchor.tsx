@@ -1,14 +1,33 @@
-import React from 'react';
-import { Anchor, Zap, Shield, Heart } from 'lucide-react';
+import React, { useState } from 'react';
+import { Anchor, X, Maximize2 } from 'lucide-react';
 
 export const ContextAnchor = ({ data, isOpen, onToggle }: { data: any, isOpen: boolean, onToggle: () => void }) => {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return (
+      <button 
+        onClick={onToggle}
+        className="fixed bottom-6 right-6 bg-blue-600 p-3 rounded-full shadow-lg hover:scale-110 transition-all z-[300]"
+        title="Open Neural Anchors"
+      >
+        <Anchor size={20} className="text-white" />
+      </button>
+    );
+  }
+
   return (
-    <div className="fixed right-0 top-0 h-full w-80 bg-slate-900/90 backdrop-blur-xl border-l border-white/10 p-6 z-[300] overflow-y-auto">
-      <h2 className="text-white font-black uppercase tracking-widest flex items-center gap-2 mb-6">
-        <Anchor size={16} /> Neural Anchors
-      </h2>
-      {/* Anchors content based on data */}
+    <div className="fixed bottom-6 right-6 w-72 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl z-[300]">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-white font-black uppercase tracking-widest flex items-center gap-2">
+          <Anchor size={14} /> Anchors
+        </h2>
+        <button onClick={onToggle} className="text-slate-400 hover:text-white">
+          <X size={16} />
+        </button>
+      </div>
+      <div className="max-h-60 overflow-y-auto">
+        {/* Anchors content based on data */}
+        <p className="text-slate-400 text-xs">Anchor content here...</p>
+      </div>
     </div>
   );
 };

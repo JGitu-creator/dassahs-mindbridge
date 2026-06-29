@@ -863,6 +863,8 @@ export default function Home() {
   const [anchorsOpen, setAnchorsOpen] = useState(false);
   const [breakLevel, setBreakLevel] = useState(1);
   const [showRecap, setShowRecap] = useState(false);
+  const [sensoryProfile, setSensoryProfile] = useState('Calm');
+  const [voiceSetting, setVoiceSetting] = useState('Standard');
   const [oneClickRecap, setOneClickRecap] = useState<string | null>(null);
   const handleOneClickRecap = () => {
     if (!data || currentChunk < 0) return;
@@ -1206,7 +1208,7 @@ export default function Home() {
     const pwdKeyword = /password|secret|key|token/i;
     
     if (ssnPattern.test(textToSimplify) || (textToSimplify.length < 50 && pwdKeyword.test(textToSimplify))) {
-      if (!confirm("⚠️ SOVEREIGN WARNING: Sarah has detected potentially sensitive data (SSN or Password) in your noise. Refracting this through the Neural Bridge could compromise your privacy. Do you wish to proceed at your own risk?")) {
+      if (!confirm("⚠️ SOVEREIGN WARNING: Security has detected potentially sensitive data (SSN or Password) in your noise. Refracting this through the Neural Bridge could compromise your privacy. Do you wish to proceed at your own risk?")) {
         return;
       }
     }
@@ -1593,7 +1595,7 @@ export default function Home() {
               </div>
               
               <div className="space-y-6">
-                <h2 className="text-4xl font-black text-[var(--fg)] italic tracking-tighter">Sarah&apos;s Sanctuary Control</h2>
+                <h2 className="text-4xl font-black text-[var(--fg)] italic tracking-tighter">Sanctuary Control</h2>
                 <div className="space-y-4">
                   <div className="p-6 bg-[var(--bg)]/5 rounded-2xl border border-white/5 flex items-center justify-between">
                     <div>
@@ -1890,22 +1892,28 @@ export default function Home() {
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Sensory Profile</p>
                     <div className="grid grid-cols-3 gap-3">
                       {['Calm', 'Vibrant', 'Contrast'].map(profile => (
-                        <button key={profile} className="p-4 rounded-xl bg-[var(--bg)]/5 border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest">{profile}</button>
+                        <button 
+                          key={profile} 
+                          onClick={() => setSensoryProfile(profile)}
+                          className={`p-4 rounded-xl border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${sensoryProfile === profile ? 'bg-blue-600/20 text-blue-400' : 'bg-[var(--bg)]/5'}`}
+                        >
+                          {profile}
+                        </button>
                       ))}
                     </div>
                   </div>
                   <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Neural Image</p>
-                    <div className="flex flex-wrap gap-3">
-                      {DEFAULT_AVATARS.map((av) => (
-                        <button key={av.id} onClick={() => handleAvatarSelect(av.id)} className={`w-12 h-12 rounded-xl border-2 transition-all flex items-center justify-center ${avatarUrl === av.id ? 'border-white bg-[var(--bg)]/10 scale-110' : 'border-transparent bg-[var(--bg)]/5 opacity-40 hover:opacity-100'}`}>
-                          {av.icon}
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Voice Settings</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {['Standard', 'Soothing', 'Energetic'].map(setting => (
+                        <button 
+                          key={setting} 
+                          onClick={() => setVoiceSetting(setting)}
+                          className={`p-4 rounded-xl border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceSetting === setting ? 'bg-blue-600/20 text-blue-400' : 'bg-[var(--bg)]/5'}`}
+                        >
+                          {setting}
                         </button>
                       ))}
-                      <label className="w-12 h-12 rounded-xl border-2 border-dashed border-white/20 bg-[var(--bg)]/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-[var(--bg)]/10 transition-all">
-                        <Upload size={16} className="text-slate-400" />
-                        <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
-                      </label>
                     </div>
                   </div>
                   <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
@@ -2060,33 +2068,14 @@ export default function Home() {
             <div className="space-y-12">
               <div className="flex justify-between items-center">
                 <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 w-fit flex items-center gap-3"><Rocket size={18}/> Mission Brief</div>
-                <div className="flex -space-x-2">
-                  {[
-                    { n: 'Sarah', c: 'bg-red-500', t: 'Legal' },
-                    { n: 'Helena', c: 'bg-blue-500', t: 'Edu' },
-                    { n: 'Marcus', c: 'bg-emerald-500', t: 'ROI' },
-                    { n: 'Maya', c: 'bg-purple-500', t: 'Vault' },
-                    { n: 'Leo', c: 'bg-amber-500', t: 'Dopa' }
-                  ].map((a) => (
-                    <div key={a.n} title={`${a.n} (${a.t})`} className={`w-8 h-8 rounded-full border-2 border-slate-900 ${a.c} flex items-center justify-center text-[8px] font-black text-[var(--fg)] shadow-lg`}>
-                      {a.n[0]}
-                    </div>
-                  ))}
-                </div>
-              </div>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-4 border-y border-white/5">
                 {[
-                  { n: 'Sarah', r: 'Legal Shield' },
-                  { n: 'Dr. Helena', r: 'Mechanism Hunter' },
-                  { n: 'Marcus', r: 'ROI Decoder' },
-                  { n: 'Maya', r: 'Vault Librarian' },
-                  { n: 'Leo', r: 'Dopamine Architect' },
                   { n: 'DJ', r: 'Sovereign Guide' }
                 ].map((a) => (
                   <div key={a.n} className="p-3 bg-[var(--bg)]/5 rounded-xl border border-white/5 text-center flex flex-col items-center justify-center gap-1">
                     <p className="text-[7px] font-black text-blue-400 uppercase tracking-tighter flex items-center gap-1">
-                      {a.n} {a.n === 'DJ' && <Fish size={8} className="text-blue-400" />}
+                      {a.n} <Fish size={8} className="text-blue-400" />
                     </p>
                     <p className="text-[9px] font-bold text-slate-300 leading-none">{a.r}</p>
                   </div>
@@ -2261,9 +2250,9 @@ export default function Home() {
                     <h3 className="text-4xl md:text-5xl font-black text-[var(--fg)] tracking-tight italic">Priority Overview</h3>
                   </div>
                   <div className="text-right">
-                    <p className="text-[8px] font-black text-[var(--fg)] uppercase tracking-widest">Marcus Approved</p>
-                    <p className="text-xs font-bold text-emerald-400 italic">ROI: {data.readingTime} saved</p>
+                   <p className="text-xs font-bold text-emerald-400 italic">ROI: {data.readingTime} saved</p>
                   </div>
+
                 </div>
                 <div className="space-y-6">
                   {data.actions.map((action, i) => (
