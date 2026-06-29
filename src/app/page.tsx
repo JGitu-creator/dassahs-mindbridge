@@ -1326,6 +1326,20 @@ export default function Home() {
   const dailyInsight = getDailyInsight();
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0]; if (!file) return; setLoading(true);
+    
+    // Multi-modal image handling
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result as string;
+        // Temporary placeholder for multi-modal logic
+        console.log('Image ready for refraction');
+        setLoading(false);
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
     try {
       if (file.name.endsWith('.pdf')) {
         const pdfjs = await import('pdfjs-dist');
