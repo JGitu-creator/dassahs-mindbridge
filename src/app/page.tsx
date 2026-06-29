@@ -77,7 +77,6 @@ interface ThemeConfig {
   prism: string[];
 }
 const THEMES: Record<string, ThemeConfig> = {
-const THEMES: Record<string, ThemeConfig> = {
   midnight_sovereign: {
     name: 'Midnight Sovereign',
     icon: Moon,
