@@ -56,8 +56,11 @@ const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
               x: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth / 2 : 0)) * 0.01,
               y: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight / 2 : 0)) * 0.01 
             }}
-            className="w-4 h-4 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.8)]"
-          />
+            className="flex items-center justify-center"
+          >
+            <Eye size={24} className="text-blue-500" />
+            <div className="absolute w-2 h-2 bg-slate-900 rounded-full" />
+          </motion.div>
         </div>
       ))}
     </div>
