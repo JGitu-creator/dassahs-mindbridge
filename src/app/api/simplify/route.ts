@@ -128,7 +128,14 @@ export async function POST(req: Request) {
     }
 
     // --- MERGING RESULTS ---
-    const mergedData = {
+    const mergedData: {
+      tldr: string[];
+      whyCare: string;
+      readingTime: string;
+      chunks: any[];
+      actions: any[];
+      chartData: any;
+    } = {
       tldr: [],
       whyCare: refractionResults[0]?.whyCare || "Focus was interrupted.",
       readingTime: `${Math.round(text.split(/\s+/).length / 200)}m`,
