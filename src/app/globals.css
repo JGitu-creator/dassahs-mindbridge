@@ -94,25 +94,48 @@ body {
   --color-glass-rgb: 209, 250, 229;
 }
 
-/* Theme: Obsidian - Electric Carbon & Vibrant Living Blue */
-.theme-obsidian {
+/* Theme: Neon Velocity - Electric Carbon & Vibrant Emerald */
+.theme-neon_velocity {
   --color-bg: #000000;
   --bg: var(--color-bg);
   --color-text: #ffffff;
   --color-fg: #f8fafc;
   --fg: var(--color-fg);
-  --color-accent: #0284c7;
-  --color-glass-rgb: 10, 10, 10;
-  --color-border-rgb: 14, 165, 233;
+  --color-accent: #10b981; /* Emerald */
+  --color-glass-rgb: 0, 0, 0;
+  --color-border-rgb: 16, 185, 129;
+  --color-shadow: rgba(0, 0, 0, 0.9);
 }
-.theme-obsidian.light {
-  --color-bg: #e0f2fe; /* Luminous Sky Light */
+.theme-neon_velocity.light {
+  --color-bg: #d1fae5; 
   --bg: var(--color-bg);
-  --color-text: #075985;
-  --color-fg: #0c4a6e;
+  --color-text: #064e3b;
+  --color-fg: #065f46;
   --fg: var(--color-fg);
-  --color-accent: #0284c7;
-  --color-glass-rgb: 186, 230, 253;
+  --color-accent: #059669;
+  --color-glass-rgb: 209, 250, 229;
+}
+
+/* Theme: Electric Grace - Deep Abyss & Vibrant Crimson */
+.theme-electric_grace {
+  --color-bg: #0f0505;
+  --bg: var(--color-bg);
+  --color-text: #ffe4e6;
+  --color-fg: #ffffff;
+  --fg: var(--color-fg);
+  --color-accent: #e11d48; /* Rose */
+  --color-glass-rgb: 20, 5, 5;
+  --color-border-rgb: 225, 29, 72;
+  --color-shadow: rgba(0, 0, 0, 0.8);
+}
+.theme-electric_grace.light {
+  --color-bg: #ffe4e6;
+  --bg: var(--color-bg);
+  --color-text: #881337;
+  --color-fg: #4c0519;
+  --fg: var(--color-fg);
+  --color-accent: #e11d48;
+  --color-glass-rgb: 255, 228, 230;
 }
 
 /* Snake Lights Blending */

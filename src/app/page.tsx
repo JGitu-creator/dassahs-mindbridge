@@ -77,6 +77,7 @@ interface ThemeConfig {
   prism: string[];
 }
 const THEMES: Record<string, ThemeConfig> = {
+const THEMES: Record<string, ThemeConfig> = {
   midnight_sovereign: {
     name: 'Midnight Sovereign',
     icon: Moon,
@@ -84,19 +85,19 @@ const THEMES: Record<string, ThemeConfig> = {
     dark: { background: '#020617', text: '#f8fafc', accent: '#3b82f6', glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#3b82f6', '#8b5cf6', '#06b6d4']
   },
-  dastastic_neon: {
-    name: 'Dastastic Neon',
+  neon_velocity: {
+    name: 'Neon Velocity',
     icon: Zap,
-    light: { background: '#dcfce7', text: '#14532d', accent: '#16a34a', glass: 'rgba(255,255,255,0.7)', border: 'rgba(34, 197, 94, 0.2)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#000000', text: '#ffffff', accent: '#22c55e', glass: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#22c55e', '#a855f7', '#3b82f6']
+    light: { background: '#d1fae5', text: '#064e3b', accent: '#059669', glass: 'rgba(209, 250, 229, 0.7)', border: 'rgba(5, 150, 105, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#000000', text: '#ffffff', accent: '#10b981', glass: 'rgba(0, 0, 0, 0.5)', border: 'rgba(16, 185, 129, 0.3)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#10b981', '#34d399', '#059669']
   },
   electric_grace: {
     name: 'Electric Grace',
     icon: Flame,
-    light: { background: '#ffe4e6', text: '#881337', accent: '#e11d48', glass: 'rgba(255,255,255,0.7)', border: 'rgba(225, 29, 72, 0.2)', shadow: "rgba(0,0,0,0.05)" },
-    dark: { background: '#020617', text: '#ffffff', accent: '#f43f5e', glass: 'rgba(244, 63, 94, 0.1)', border: 'rgba(244, 63, 94, 0.3)', shadow: "rgba(0,0,0,0.4)" },
-    prism: ['#f43f5e', '#fbbf24', '#2dd4bf']
+    light: { background: '#ffe4e6', text: '#881337', accent: '#e11d48', glass: 'rgba(255, 228, 230, 0.7)', border: 'rgba(225, 29, 72, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#0f0505', text: '#ffe4e6', accent: '#e11d48', glass: 'rgba(20, 5, 5, 0.5)', border: 'rgba(225, 29, 72, 0.3)', shadow: "rgba(0,0,0,0.4)" },
+    prism: ['#e11d48', '#fbbf24', '#2dd4bf']
   },
   divine_gold: {
     name: 'Divine Gold',
@@ -1635,7 +1636,7 @@ export default function Home() {
       </AnimatePresence>
       <AnimatePresence>
         {oneClickRecap && (
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-[var(--color-glass)] apple-glass p-6 rounded-[2rem] border border-[var(--color-border)] shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-[var(--bg)]/10 rounded-full flex items-center justify-center flex-shrink-0"><MorphEye size={20} className="text-[var(--fg)]" /></div><p className="text-sm font-bold text-[var(--fg)] leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
+          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-[var(--color-glass)] apple-glass p-6 rounded-[2rem] border border-[var(--color-border)] shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-[var(--bg)]/10 rounded-full flex items-center justify-center flex-shrink-0"><MorphEye size={20} className="text-[var(--fg)]" morphing={!!oneClickRecap} /></div><p className="text-sm font-bold text-[var(--fg)] leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
         )}
       </AnimatePresence>
       <AnimatePresence>
