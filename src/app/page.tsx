@@ -261,15 +261,9 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
     return Array.from(new Set(allTerms)).slice(0, 15);
   }, [data]);
   return (
-    <div className={`fixed right-0 top-1/2 -translate-y-1/2 z-[450] transition-all duration-500 ${isOpen ? 'translate-x-0' : 'translate-x-[calc(100%-40px)]'}`}>
-      <div className="flex items-center">
-        <button 
-          onClick={onToggle}
-          className="w-10 h-20 bg-blue-600 rounded-l-2xl flex items-center justify-center text-[var(--fg)] shadow-2xl border-y border-l border-white/20"
-        >
-          <Anchor size={20} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
-        </button>
-        <div className="w-40 apple-glass-dark border-l border-[var(--color-border)] p-4 shadow-2xl h-[400px] overflow-y-auto no-scrollbar rounded-bl-3xl flex flex-col gap-4">
+    <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[450] flex items-center">
+      <div className={`transition-all duration-500 ease-in-out ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'}`}>
+        <div className="w-48 apple-glass-dark border-r border-t border-b border-[var(--color-border)] p-4 shadow-2xl h-[400px] overflow-y-auto no-scrollbar rounded-l-3xl flex flex-col gap-4">
           <CognitiveAscension experience={500} />
           <MissionLog />
           <Vault />
@@ -291,6 +285,12 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
           </div>
         </div>
       </div>
+      <button 
+        onClick={onToggle}
+        className="w-10 h-20 bg-blue-600 rounded-l-2xl flex items-center justify-center text-[var(--fg)] shadow-2xl border-y border-l border-white/20 z-50"
+      >
+        <Anchor size={20} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
     </div>
   );
 };
