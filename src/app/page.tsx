@@ -1751,7 +1751,7 @@ export default function Home() {
       </button>
       <AnimatePresence>
         {showNeuralCommand && (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-[var(--bg)]/80 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-2xl w-full max-h-[90dvh] overflow-y-auto no-scrollbar apple-glass p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-6 md:gap-8 relative">
               <div className="flex justify-between items-center sticky top-0 bg-transparent backdrop-blur-md z-10 pb-4">
                 <h2 className="text-xl md:text-2xl font-black text-[var(--fg)] italic flex items-center gap-3 md:gap-4"><Compass className="text-blue-400" /> Neural Command</h2>
@@ -1859,25 +1859,6 @@ export default function Home() {
                       ))}
                     </div>
                   </div>
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4 mt-6">Discernment Level</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button 
-                        onClick={() => setSimplicityLevel('vibrant')} 
-                        className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${simplicityLevel === 'vibrant' ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
-                      >
-                        <Sparkles size={20} />
-                        <span className="text-[8px] font-black uppercase tracking-widest">Vibrant (Simple)</span>
-                      </button>
-                      <button 
-                        onClick={() => setSimplicityLevel('surgical')} 
-                        className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${simplicityLevel === 'surgical' ? 'bg-red-600/20 border-red-500 text-red-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
-                      >
-                        <Shield size={20} />
-                        <span className="text-[8px] font-black uppercase tracking-widest">Surgical (Expert)</span>
-                      </button>
-                    </div>
-                  </div>
                 </div>
               </div>
               <div className="flex justify-center">
@@ -1889,7 +1870,7 @@ export default function Home() {
       </AnimatePresence>
       <AnimatePresence>
         {showNeuralIdentity && (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-[var(--bg)]/80 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-4xl w-full max-h-[90vh] overflow-y-auto no-scrollbar apple-glass p-8 md:p-12 rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-10">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-black text-[var(--fg)] italic flex items-center gap-4"><Crown className="text-amber-400" /> Neural Identity</h2>
