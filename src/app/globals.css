@@ -112,13 +112,6 @@ body {
   --color-glass-rgb: 186, 230, 253;
 }
 
-/* Neural Command Fix - Ensure visibility */
-.neural-command-bg {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-}
-
 /* Snake Lights Blending */
 .snake-lights-canvas {
   mix-blend-mode: multiply; /* Keeps neon lights vibrant against luminous backgrounds */
