@@ -45,14 +45,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ answer: responseText });
     }
 
-    // --- CHUNKED REFRACTION LOGIC ---
+    // --- PARALLEL CHUNKED REFRACTION LOGIC ---
     const chunksOfText = [];
     for (let i = 0; i < text.length; i += CHUNK_SIZE) {
       chunksOfText.push(text.substring(i, i + CHUNK_SIZE));
     }
 
-    const refractionResults = [];
-    for (const chunkText of chunksOfText) {
+    const refractionPromises = chunksOfText.map(async (chunkText) => {
       const generationPrompt = `
         You are "Ask DJ," a Sovereign Guide. Your mission is to perform a Deep Neural Refraction on the provided Noise.
         
@@ -96,17 +95,15 @@ export async function POST(req: Request) {
         INPUT NOISE:
         ${chunkText}
       `;
-      
-      try {
-        const responseText = await callProvider(generationPrompt);
-        if (responseText) {
-          refractionResults.push(extractJSON(responseText));
-        }
-      } catch (e) {
-        console.error(`Chunk refraction failed:`, e);
-        // Skip this chunk and continue with others
-      }
-    }
+      const responseText = await callProvider(generationPrompt);
+      if (!responseText) throw new Error('No response from providers');
+      return extractJSON(responseText);
+    });
+
+    const settledResults = await Promise.allSettled(refractionPromises);
+    const refractionResults = settledResults
+      .filter((res): res is PromiseFulfilledResult<any> => res.status === 'fulfilled')
+      .map(res => res.value);
 
     if (refractionResults.length === 0) {
       console.error('All Neural Bridges failed to refract any chunks. Triggering Scout Mode.');
