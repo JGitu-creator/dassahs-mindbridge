@@ -66,6 +66,7 @@ const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
 import { ContextAnchor } from '@/components/prism/ContextAnchor';
 import { ProgressPrism } from '@/components/prism/ProgressPrism';
 import { ReadAloud } from '@/components/prism/ReadAloud';
+import { PrismWeaver } from '@/components/prism/PrismWeaver';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 type ThemeMode = "midnight_sovereign" | "dastastic_neon" | "electric_grace" | "divine_gold" | "hadassah_silk" | "sovereign_pulse";
@@ -879,6 +880,7 @@ export default function Home() {
   const [lastRefractDate, setLastRefractDate] = useState<string | null>(null);
   const [neuralRhythm, setNeuralRhythm] = useState(true);
   const [isScholarMode, setIsScholarMode] = useState(false);
+  const [isFidgetModeActive, setIsFidgetModeActive] = useState(false);
   const [showGuardianCenter, setShowGuardianCenter] = useState(false);
   const [ltiConnected, setLtiConnected] = useState(false);
   const [showLogicRoot, setShowLogicRoot] = useState<Record<number, boolean>>({});
@@ -1908,18 +1910,13 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Voice Settings</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {['Standard', 'Soothing', 'Energetic'].map(setting => (
-                        <button 
-                          key={setting} 
-                          onClick={() => setVoiceSetting(setting)}
-                          className={`p-4 rounded-xl border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceSetting === setting ? 'bg-blue-600/20 text-blue-400' : 'bg-[var(--bg)]/5'}`}
-                        >
-                          {setting}
-                        </button>
-                      ))}
-                    </div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Fidget Mode</p>
+                    <button 
+                      onClick={() => setIsFidgetModeActive(!isFidgetModeActive)}
+                      className={`w-full p-4 rounded-xl border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${isFidgetModeActive ? 'bg-blue-600/20 text-blue-400' : 'bg-[var(--bg)]/5'}`}
+                    >
+                      {isFidgetModeActive ? 'Prism Weaver Active' : 'Activate Prism Weaver'}
+                    </button>
                   </div>
                   <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Neural Vault</p>
@@ -2499,6 +2496,7 @@ export default function Home() {
           <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
         </div>
       </footer>
+      {isFidgetModeActive && <PrismWeaver />}
     </main>
     </>
   );
