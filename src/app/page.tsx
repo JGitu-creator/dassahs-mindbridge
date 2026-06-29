@@ -431,16 +431,18 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
   const color = isVictorious && user ? "from-amber-400 via-yellow-300 to-amber-500" : (focusMode === 'sovereign' ? "from-slate-700 via-slate-800 to-slate-900" : "from-blue-500 via-purple-600 to-blue-400");
   
   return (
-    <motion.div 
-      animate={{ 
-        rotate: loading ? [0, 10, -10, 0] : [0, 5, -5, 0], 
-        scale: scale,
-        x: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth/2 : 0)) * 0.02,
-        y: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight/2 : 0)) * 0.02
-      }} 
-      transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
-      className={`relative mx-auto w-28 h-28 md:w-44 md:h-44 bg-gradient-to-br ${color} text-[var(--fg)] rounded-[3rem] md:rounded-[5rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_100px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000 z-10`}
-    >
+    <div className="relative">
+      <NeuralEyes mousePos={mousePos} />
+      <motion.div 
+        animate={{ 
+          rotate: loading ? [0, 10, -10, 0] : [0, 5, -5, 0], 
+          scale: scale,
+          x: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth/2 : 0)) * 0.02,
+          y: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight/2 : 0)) * 0.02
+        }} 
+        transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
+        className={`relative mx-auto w-28 h-28 md:w-44 md:h-44 bg-gradient-to-br ${color} text-[var(--fg)] rounded-[3rem] md:rounded-[5rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_100px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000 z-10`}
+      >
       <motion.div 
         whileHover={{ scale: 1.1, rotate: 5 }}
         whileTap={{ scale: 0.9 }}
@@ -471,7 +473,8 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
       <NeuralSparks active={loading || (isTyping && focusMode === 'dastastic')} />
       {isVictorious && user && (<motion.div animate={{ opacity: [0.5, 1, 0.5], scale: [1, 1.5, 1] }} transition={{ duration: 2, repeat: Infinity }} className="absolute inset-0 bg-amber-400/20 rounded-full blur-3xl -z-10" />)}
     </motion.div>
-  );
+  </div>
+);
 };
 const DIVINE_INSIGHTS = [
   "Commit your work to the Lord, and your plans will be established. - Proverbs 16:3",
