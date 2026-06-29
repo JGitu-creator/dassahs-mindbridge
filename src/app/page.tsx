@@ -1355,23 +1355,24 @@ export default function Home() {
   }, [sensoryProfile]);
 
   const handleReadAloud = async (text: string) => {
-    // ... use voiceSetting state here
     if (isPlaying) {
-      // ...
+      window.speechSynthesis.cancel();
+      if (premiumAudioRef.current) {
+        premiumAudioRef.current.pause();
+        premiumAudioRef.current = null;
+      }
+      setIsPlaying(false);
+      return;
     }
+
     if (selectedVoiceId === 'dassah_premium') {
       setIsPlaying(true);
       try {
         const res = await fetch('/api/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, voice_id: voiceSetting.toLowerCase() }) // Use voiceSetting
+          body: JSON.stringify({ text, voice_id: voiceSetting.toLowerCase() })
         });
-        // ...
-      }
-    }
-    // ...
-  };
         if (!res.ok) throw new Error("Neural Premium offline");
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
