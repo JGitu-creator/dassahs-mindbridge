@@ -2068,6 +2068,7 @@ export default function Home() {
             <div className="space-y-12">
               <div className="flex justify-between items-center">
                 <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 w-fit flex items-center gap-3"><Rocket size={18}/> Mission Brief</div>
+              </div>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-4 border-y border-white/5">
                 {[
