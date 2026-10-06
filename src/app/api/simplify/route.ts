@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 
 function cleanBaseUrl(url?: string): string {
   if (!url) return 'https://openrouter.ai/api/v1';
-  // Extracts clean http(s) URL even if wrapped in markdown [url](url) or quotes
   const match = url.match(/https?:\/\/[^\s\)\]\"\']+/);
   if (match) return match[0].replace(/\/+$/, '');
   return 'https://openrouter.ai/api/v1';
@@ -24,29 +23,23 @@ export async function POST(req: Request) {
       );
     }
 
-    const rawBaseUrl = process.env.ROUTER_BASE_URL || process.env.OPENROUTER_BASE_URL;
-    const baseURL = cleanBaseUrl(rawBaseUrl);
-    const rawApiKey = process.env.ROUTER_API_KEY || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
-    const apiKey = cleanApiKey(rawApiKey);
+    const baseURL = cleanBaseUrl(process.env.ROUTER_BASE_URL || process.env.OPENROUTER_BASE_URL);
+    const apiKey = cleanApiKey(process.env.ROUTER_API_KEY || process.env.OPENROUTER_API_KEY);
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'OpenRouter API key is missing. Please configure ROUTER_API_KEY in Vercel Environment Variables.' },
+        { error: 'API key is missing in Vercel Environment Variables.' },
         { status: 500 }
       );
     }
 
     const isStory = Boolean(storyMode);
     const systemPrompt = isStory
-      ? "You are Dassah's Prism in Story Mode. Transform the provided text into an engaging, vivid narrative or conceptual analogy that makes the core insights unforgettable for neurodivergent minds (ADHD/ASD), while strictly preserving every vital fact, number, and key takeaway."
-      : "You are Dassah's Prism in Strict Fact Mode. Refract the provided text into crystal-clear, structured clarity: high-signal bullet points, explicit takeaways, key definitions, and actionable next steps. Cut through clutter and cognitive fatigue without losing crucial technical or legal precision.";
+      ? "You are Dassah's Prism in Story Mode. Transform the provided text into an engaging, memorable narrative or conceptual analogy for neurodivergent minds (ADHD/ASD), preserving all essential facts and takeaways."
+      : "You are Dassah's Prism in Strict Fact Mode. Refract the provided text into crystal-clear, structured bullet points, key takeaways, and actionable next steps.";
 
     const model = process.env.ROUTER_MODEL || 'openrouter/free';
 
-    // Support large documents up to 30,000 characters
-    const contentPayload = text.slice(0, 30000);
-
-    // Direct HTTP fetch to OpenRouter: 100% immune to SDK type errors
     const response = await fetch(`${baseURL}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -59,24 +52,22 @@ export async function POST(req: Request) {
         model,
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Please refract this text:\n\n${contentPayload}` },
+          { role: 'user', content: `Text to refract:\n\n${text.slice(0, 25000)}` },
         ],
+        // Exactly 2 fallback models (OpenRouter allows max 3)
         models: [
           'openrouter/free',
-          'apodex/apodex-1.1-mini:free',
           'meta-llama/llama-3.2-3b-instruct:free',
-          'google/gemini-2.0-flash-exp:free',
         ],
         temperature: isStory ? 0.7 : 0.2,
-        max_tokens: 3000,
+        max_tokens: 2500,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenRouter HTTP error:', response.status, errorText);
       return NextResponse.json(
-        { error: `OpenRouter returned status ${response.status}: ${errorText.slice(0, 250)}` },
+        { error: `OpenRouter returned status ${response.status}: ${errorText.slice(0, 200)}` },
         { status: response.status }
       );
     }
@@ -91,9 +82,8 @@ export async function POST(req: Request) {
       text: refracted,
     });
   } catch (err: any) {
-    console.error('Refraction API error:', err);
     return NextResponse.json(
-      { error: err?.message || 'Failed to refract text. Please verify your OpenRouter configuration.' },
+      { error: err?.message || 'Refraction failed.' },
       { status: 500 }
     );
   }
