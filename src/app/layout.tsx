@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import SessionSync from "@/components/SessionSync";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -47,6 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className={`${inter.className} h-full`}>
+        <SessionSync />
         {children}
       </body>
     </html>
