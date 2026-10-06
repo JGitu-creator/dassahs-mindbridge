@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-// Initialize the single OpenRouter client
 const client = new OpenAI({
   baseURL: process.env.ROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
   apiKey: process.env.ROUTER_API_KEY,
@@ -14,15 +13,11 @@ const client = new OpenAI({
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-/**
- * Intelligent Router: Classifies complexity, then routes to appropriate Tier.
- */
 async function classifyComplexity(content: string): Promise<'light' | 'standard' | 'complex'> {
   const wordCount = content.split(/\s+/).length;
   const sentenceCount = Math.max(1, content.split(/[.!?]+/).length);
   const avgSentenceLength = wordCount / sentenceCount;
 
-  // Complexity Heuristics
   const isHighDensity = avgSentenceLength > 20;
   const isTechnical = /algorithm|framework|infrastructure|constitutional|regulatory/i.test(content);
 
@@ -31,9 +26,6 @@ async function classifyComplexity(content: string): Promise<'light' | 'standard'
   return 'complex';
 }
 
-/**
- * Computes basic text metrics locally as an absolute emergency fallback.
- */
 function computeLocalMetrics(content: string) {
   const wordCount = content.split(/\s+/).length;
   const sentenceCount = Math.max(1, content.split(/[.!?]+/).length);
@@ -65,8 +57,6 @@ async function routeToTier(content: string, complexity: 'light' | 'standard' | '
   let primaryModel = 'anthropic/claude-3.5-sonnet';
   let tierName = 'Sovereign';
   let promptText = content;
-
-  // Tier configuration with zero-cost fallback tail
   let fallbackModels: string[] = [];
 
   switch (complexity) {
@@ -77,6 +67,8 @@ async function routeToTier(content: string, complexity: 'light' | 'standard' | '
       fallbackModels = [
         'meta-llama/llama-3.3-70b-instruct',
         'google/gemini-2.0-flash-001',
+        'apodex/apodex-1.1-mini:free',
+        'inclusionai/ling-3.0-flash-sante:free',
         'openrouter/free',
         'meta-llama/llama-3.3-70b-instruct:free',
       ];
@@ -88,6 +80,8 @@ async function routeToTier(content: string, complexity: 'light' | 'standard' | '
       fallbackModels = [
         'google/gemini-2.0-flash-001',
         'anthropic/claude-3.5-sonnet',
+        'apodex/apodex-1.1-mini:free',
+        'inclusionai/ling-3.0-flash-sante:free',
         'openrouter/free',
         'meta-llama/llama-3.3-70b-instruct:free',
       ];
@@ -101,13 +95,16 @@ async function routeToTier(content: string, complexity: 'light' | 'standard' | '
         'anthropic/claude-3.5-sonnet',
         'openai/gpt-4o',
         'google/gemini-2.0-flash-001',
+        'apodex/apodex-1.1-mini:free',
+        'inclusionai/ling-3.0-flash-sante:free',
         'openrouter/free',
         'meta-llama/llama-3.3-70b-instruct:free',
       ];
       break;
   }
 
-  const completion = await client.chat.completions.create({
+  // Type-cast with 'as any' so TypeScript accepts OpenRouter's fallback models parameter
+  const completion = (await client.chat.completions.create({
     model: primaryModel,
     messages: [
       {
@@ -120,14 +117,13 @@ async function routeToTier(content: string, complexity: 'light' | 'standard' | '
         content: promptText,
       },
     ],
-    extraBody: {
+    ...({
       models: fallbackModels,
-    },
-  });
+    } as any),
+  } as any)) as any;
 
   const responseText = completion.choices?.[0]?.message?.content || '';
 
-  // Returns both frontend-friendly formats so all UI components and TTS receive data
   return NextResponse.json({
     tier: tierName,
     response: responseText,
