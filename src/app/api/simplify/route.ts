@@ -1,57 +1,61 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-export const runtime = 'nodejs';
-
-function getCleanBaseUrl() {
-  const envUrl = process.env.ROUTER_BASE_URL || process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
-  return envUrl.replace(/['"]/g, '').trim().replace(/\/+$/, '');
+function cleanBaseUrl(url?: string): string {
+  if (!url) return 'https://openrouter.ai/api/v1';
+  // Extracts clean http(s) URL even if wrapped in markdown [url](url) or quotes
+  const match = url.match(/https?:\/\/[^\s\)\]\"\']+/);
+  if (match) return match[0].replace(/\/+$/, '');
+  return 'https://openrouter.ai/api/v1';
 }
 
-function getCleanApiKey() {
-  const envKey = process.env.ROUTER_API_KEY || process.env.OPENROUTER_API_KEY || '';
-  return envKey.replace(/['"]/g, '').trim();
+function cleanApiKey(key?: string): string {
+  if (!key) return '';
+  return key.replace(/['"\s]/g, '');
 }
 
 export async function POST(req: Request) {
   try {
-    const { text, isScenic, cognitiveMode, missionGoal, isStory, simplicityLevel } = await req.json();
+    const { text, mode, storyMode } = await req.json();
 
     if (!text || typeof text !== 'string') {
-      return NextResponse.json({ error: 'Text input is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Text is required for refraction.' },
+        { status: 400 }
+      );
     }
 
-    const baseURL = getCleanBaseUrl();
-    const apiKey = getCleanApiKey();
+    const rawBaseUrl = process.env.ROUTER_BASE_URL || process.env.OPENROUTER_BASE_URL;
+    const baseURL = cleanBaseUrl(rawBaseUrl);
+    const rawApiKey = process.env.ROUTER_API_KEY || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+    const apiKey = cleanApiKey(rawApiKey);
+
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'OpenRouter API key is missing. Please configure ROUTER_API_KEY in Vercel Environment Variables.' },
+        { status: 500 }
+      );
+    }
 
     const openai = new OpenAI({
+      apiKey,
       baseURL,
-      apiKey: apiKey || 'dummy-key',
+      defaultHeaders: {
+        'HTTP-Referer': 'https://dassahs-mindbridge.vercel.app',
+        'X-Title': "Dassah's Prism",
+      },
     });
 
-    const systemPrompt = `You are Dassah's Prism Neural Core. Transform noisy, overwhelming text into structured clarity for executive function and ADHD focus.
-Output ONLY valid JSON matching this schema:
-{
-  "tldr": ["Key point 1", "Key point 2", "Key point 3"],
-  "whyCare": "Short punchy statement why this matters",
-  "readingTime": "X min",
-  "chunks": [
-    {
-      "heading": "Section Heading",
-      "content": "Clear distilled content",
-      "summary": "1-sentence summary",
-      "keyTerms": ["term1", "term2"],
-      "metaphor": "Relatable metaphor",
-      "dopamineHook": "Engaging hook"
-    }
-  ],
-  "actions": [
-    { "task": "Actionable task", "priority": "high" }
-  ]
-}`;
+    const isStory = Boolean(storyMode);
+    const systemPrompt = isStory
+      ? "You are Dassah's Prism in Story Mode. Transform the given complex text into an engaging, vivid narrative or conceptual analogy that makes the core insights unforgettable and accessible for neurodivergent minds (ADHD/ASD), while keeping essential factual accuracy."
+      : "You are Dassah's Prism in Strict Fact Mode. Refract the given text into crystal-clear, structured clarity: high-signal bullet points, explicit takeaways, key definitions, and actionable next steps. Cut through clutter and cognitive fatigue without losing crucial technical or legal precision.";
 
-    const completion = await openai.chat.completions.create({
-      model: 'openrouter/free',
+    const model = process.env.ROUTER_MODEL || 'openrouter/free';
+
+    // (openai.chat.completions.create as any) bypasses strict TS type checks for extra_body fallback models
+    const completion = await (openai.chat.completions.create as any)({
+      model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Text to refract:\n${text.slice(0, 4000)}` },
@@ -60,21 +64,26 @@ Output ONLY valid JSON matching this schema:
         models: [
           'openrouter/free',
           'apodex/apodex-1.1-mini:free',
-          'inclusionai/ling-3.0-flash-sante:free',
-          'meta-llama/llama-3.3-70b-instruct:free',
+          'meta-llama/llama-3.2-3b-instruct:free',
+          'google/gemini-2.0-flash-exp:free',
         ],
-      } as any,
+      },
+      temperature: isStory ? 0.7 : 0.2,
+      max_tokens: 1500,
     });
 
-    const rawContent = completion.choices[0]?.message?.content || '{}';
-    const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
-    const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(rawContent);
+    const refracted = completion.choices?.[0]?.message?.content || 'No refraction generated.';
 
-    return NextResponse.json(parsed);
-  } catch (error: any) {
-    console.error('Refraction API error:', error);
+    return NextResponse.json({
+      simplified: refracted,
+      result: refracted,
+      refractedText: refracted,
+      text: refracted,
+    });
+  } catch (err: any) {
+    console.error('Refraction API error:', err);
     return NextResponse.json(
-      { error: error?.message || 'Failed to process refraction' },
+      { error: err?.message || 'Failed to refract text. Please verify your OpenRouter configuration.' },
       { status: 500 }
     );
   }
