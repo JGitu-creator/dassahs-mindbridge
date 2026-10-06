@@ -125,6 +125,8 @@ const THEMES: Record<string, ThemeConfig> = {
   }
 };
 
+const COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899'];
+
 interface SimplifiedData {
   id?: string;
   tldr: string[];
@@ -279,7 +281,8 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
     <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1100] flex items-center justify-center p-4">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
         className="max-w-md w-full bg-[var(--color-bg-1)] border-2 border-amber-500/30 p-6 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] text-center space-y-6 md:space-y-8 max-h-[90dvh] overflow-y-auto no-scrollbar"
       >
         <div className="mx-auto w-16 h-16 md:w-24 md:h-24 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500">
@@ -1202,7 +1205,7 @@ export default function Home() {
               >
                 <div className="flex justify-between items-center pb-4 border-b border-[var(--color-border)]">
                   <div className="flex items-center gap-3">
-                    <Sparkles className="text-amber-500" size={26} />
+                    <Sparkles className="text-[var(--color-accent)] animate-pulse" size={26} />
                     <h2 className="text-2xl md:text-3xl font-black text-[var(--fg)] italic tracking-tight">About Dassah&apos;s Prism</h2>
                   </div>
                   <button onClick={() => setShowAbout(false)} className="p-2 hover:bg-black/10 dark:hover:bg-white/10 rounded-full text-[var(--fg)] transition-colors">
@@ -1212,29 +1215,37 @@ export default function Home() {
                 
                 <div className="space-y-6 text-sm font-medium text-[var(--fg)] opacity-95 leading-relaxed">
                   {/* Personal Testimony */}
-                  <div className="p-6 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-amber-500/10 rounded-3xl border border-[var(--color-border)] space-y-4">
-                    <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-black uppercase tracking-widest text-xs">
-                      <Church size={16} /> Faith & Testimony
+                  <div className="p-6 md:p-8 bg-gradient-to-br from-[var(--prism-1)]/15 via-[var(--prism-2)]/10 to-[var(--prism-3)]/15 rounded-3xl border border-[var(--color-border)] space-y-4 shadow-inner">
+                    <div className="flex items-center gap-2 text-[var(--color-accent)] font-black uppercase tracking-widest text-xs">
+                      <Church size={16} /> Faith & Personal Testimony
                     </div>
-                    <p className="italic text-base leading-relaxed">
-                      &ldquo;Dassah&apos;s Prism was born out of a personal journey through cognitive fatigue, sensory noise, and the reality of navigating life with an ADHD, neurodivergent mind. In moments of overwhelming noise and exhaustion, God provided the vision: to create a sanctuary of executive clarity.&rdquo;
+                    <p className="italic text-base md:text-lg leading-relaxed text-[var(--fg)] font-bold">
+                      &ldquo;Dassah&apos;s Prism was born from my own journey through cognitive fatigue, ADHD, sensory overload, and the intense battle to find focus. When noise threatened to drown out purpose, God granted the vision: to forge a sovereign sanctuary where overwhelming complexity is refracted into pure, bionic clarity.&rdquo;
                     </p>
-                    <p className="font-bold text-xs opacity-90">
-                      Rooted in Christ, this tool exists to restore sovereignty over your focus, turning chaotic information into structured, bite-sized clarity. Every line of code, every bionic fixation point, and every cognitive anchor was built with the conviction that focus is not a battle to fight alone, but bandwidth to reclaim by grace.
+                    <p className="text-xs md:text-sm font-medium opacity-90 leading-relaxed">
+                      Rooted in Christ, this platform is living proof that clarity is not an impossible uphill struggle, but cognitive bandwidth reclaimed by grace. Every bionic anchor, dopamine hook, and sound frequency is crafted to help minds lock in and thrive without apology.
                     </p>
                   </div>
 
-                  {/* Gratitude & Dedication */}
-                  <div className="p-6 bg-amber-500/10 rounded-3xl border border-amber-500/30 space-y-3">
-                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-black uppercase tracking-widest text-xs">
-                      <Heart size={16} /> Dedication & Gratitude
+                  {/* Gratitude & Dedications */}
+                  <div className="p-6 md:p-8 bg-gradient-to-tr from-[var(--prism-2)]/15 via-transparent to-[var(--prism-1)]/15 rounded-3xl border border-[var(--color-border)] space-y-4">
+                    <div className="flex items-center gap-2 text-rose-500 font-black uppercase tracking-widest text-xs">
+                      <Heart size={16} /> Heartfelt Gratitude & Dedications
                     </div>
-                    <p className="text-sm font-bold leading-relaxed">
-                      Dedicated with deepest love, honor, and admiration to <strong>Dchan (Chantal Hadassah)</strong> — whose brilliance, strength, and grace inspire every single refraction in this Prism.
-                    </p>
-                    <p className="text-xs opacity-80 leading-relaxed">
-                      With profound gratitude to our families, our mentors, youth leadership teams at Camp Winning Ways, and everyone who stood in faith and encouraged this work from Karen, Nairobi to the world.
-                    </p>
+                    <div className="space-y-3 text-xs md:text-sm leading-relaxed">
+                      <p>
+                        <strong className="text-[var(--color-accent)]">To Dchan (Chantal Hadassah):</strong> The beating heart, muse, and inspiration behind this Prism. Your grace, steadfast belief, and light shine through every refracted word.
+                      </p>
+                      <p>
+                        <strong className="text-blue-500">To my beloved Mum (Phido):</strong> For your unconditional love, prayers, sacrifices, and unwavering support through every season.
+                      </p>
+                      <p>
+                        <strong className="text-amber-500">To Cucu & Aunt Sisy:</strong> The pillars of wisdom, warmth, and enduring family grace whose blessings anchor my steps.
+                      </p>
+                      <p>
+                        <strong className="text-emerald-500">To Eng. Jimmy & Dr. Kizzie:</strong> For your mentorship, intellectual guidance, inspiration, and for believing in the capacity of this vision to impact lives.
+                      </p>
+                    </div>
                   </div>
 
                   {/* Core Architecture */}
@@ -1250,7 +1261,7 @@ export default function Home() {
                   </div>
 
                   <p className="text-center text-xs opacity-75 font-bold uppercase tracking-widest pt-2">
-                    JG (Jim Louie Njuguna Gitu) &bull; Rooted in Christ &bull; Nairobi, Kenya
+                    JG (Jim Louie Njuguna Gitu) &bull; Rooted in Christ
                   </p>
                 </div>
 
