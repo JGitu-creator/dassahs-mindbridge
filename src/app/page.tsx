@@ -509,6 +509,38 @@ export default function Home() {
   const [timerActive, setTimerActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
 
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const brownNoiseRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (brownNoisePlaying) {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      const bufferSize = 4096;
+      let lastOut = 0.0;
+      const node = ctx.createScriptProcessor(bufferSize, 1, 1);
+        
+      node.onaudioprocess = (e: any) => {
+        const out = e.outputBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          out[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = out[i];
+          out[i] *= 3.5;
+        }
+      };
+      node.connect(ctx.destination);
+      brownNoiseRef.current = node;
+    } else {
+      if (brownNoiseRef.current) {
+        brownNoiseRef.current.disconnect();
+        brownNoiseRef.current = null;
+      }
+    }
+  }, [brownNoisePlaying]);
+
   const toggleTask = (taskIndex: number) => {
     const key = `${data?.id || 'current'}-${taskIndex}`;
     setCompletedTasks(prev => ({ ...prev, [key]: !prev[key] }));
@@ -597,7 +629,8 @@ export default function Home() {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
       
       const responses = await Promise.all(chunks.map(async (chunk) => {
-        const res = await fetch('/api/simplify', { 
+        const endpoint = typeof window !== 'undefined' ? `${window.location.origin}/api/simplify` : '/api/simplify';
+        const res = await fetch(endpoint, { 
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' }, 
           body: JSON.stringify({ 
@@ -843,7 +876,7 @@ export default function Home() {
         {/* Top Floating Navigation */}
         <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-2 md:p-6 pointer-events-none">
           <nav className={`pointer-events-auto flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-2xl md:rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.12)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
-            <button onClick={() => setShowNeuralCommand(true)} title="Neural Command" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-black/5 dark:bg-white/5 text-blue-600 dark:text-blue-400 hover:text-[var(--fg)] hover:bg-black/10 dark:hover:bg-white/10 transition-all">
+            <button onClick={() => setShowNeuralCommand(true)} title="Neural Command" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-black/5 dark:bg-white/5 text-blue-600 dark:text-blue-400 hover:text-[var(--fg)] hover:bg-black/10 dark:hover:bg-white/10 transition-all cursor-pointer">
               <Compass size={18} className="md:w-5 md:h-5" />
             </button>
             
@@ -959,6 +992,28 @@ export default function Home() {
                 <div className="flex items-center gap-1 md:gap-2 pl-2">
                   <button onClick={() => fileInputRef.current?.click()} title="Clean Document (PDF/Word/Text)" className="p-2 md:p-3 text-[var(--fg)] opacity-70 hover:opacity-100 transition-colors bg-black/5 dark:bg-white/5 rounded-full">
                     <Upload size={16} className="text-blue-500" />
+                  </button>
+                  <button 
+                    onClick={() => { 
+                      const fileInput = document.createElement('input');
+                      fileInput.type = 'file';
+                      fileInput.accept = 'image/*';
+                      fileInput.capture = 'environment';
+                      fileInput.onchange = (e) => handleFileUpload(e);
+                      fileInput.click();
+                    }} 
+                    title="Capture Neural Image" 
+                    className="p-2 md:p-3 text-[var(--fg)] opacity-70 hover:opacity-100 transition-colors bg-black/5 dark:bg-white/5 rounded-full"
+                  >
+                    <Camera size={16} className="text-emerald-500" />
+                  </button>
+                  <div className="w-[1px] h-6 bg-[var(--color-border)] mx-1" />
+                  <button 
+                    onClick={() => setStoryMode(!storyMode)} 
+                    title={storyMode ? 'Story Mode (Creative & Narrative)' : 'Strict Mode (Direct Executive Fact)'} 
+                    className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-500' : 'bg-black/5 dark:bg-white/5 border-transparent text-[var(--fg)] opacity-70 hover:opacity-100'}`}
+                  >
+                    {storyMode ? <MorphRocket size={16}/> : <Anchor size={16}/>}
                   </button>
                 </div>
                 
@@ -1097,46 +1152,105 @@ export default function Home() {
 
         <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
 
-        {/* About the Prism Modal */}
+        {/* Neural Command Modal */}
+        <AnimatePresence>
+          {showNeuralCommand && (
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-2xl w-full max-h-[90dvh] overflow-y-auto no-scrollbar bg-[var(--color-glass)] p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-[var(--color-border)] shadow-2xl flex flex-col gap-6 relative">
+                <div className="flex justify-between items-center pb-4 border-b border-[var(--color-border)]">
+                  <h2 className="text-xl md:text-2xl font-black text-[var(--fg)] italic flex items-center gap-3"><Compass className="text-blue-500" /> Neural Command</h2>
+                  <button onClick={() => setShowNeuralCommand(false)} className="p-2 hover:bg-black/10 dark:hover:bg-white/10 rounded-full text-[var(--fg)] transition-colors"><X size={24}/></button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] opacity-70">Focus Controls</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button onClick={() => setIsBionic(!isBionic)} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-600 dark:text-blue-400' : 'bg-black/5 dark:bg-white/5 border-transparent text-[var(--fg)]'}`}>
+                        <Type size={20} />
+                        <span className="text-[8px] font-black uppercase tracking-widest">Bionic Shield</span>
+                      </button>
+                      <button onClick={() => setBrownNoisePlaying(!brownNoisePlaying)} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${brownNoisePlaying ? 'bg-amber-600/20 border-amber-500 text-amber-500' : 'bg-black/5 dark:bg-white/5 border-transparent text-[var(--fg)]'}`}>
+                        <Volume2 size={20} />
+                        <span className="text-[8px] font-black uppercase tracking-widest">Brown Noise</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] opacity-70">Visual Palette</p>
+                    <StackedThemeSelector 
+                      themes={Object.entries(THEMES).map(([id, t]) => ({ id, ...t, stroke: t.dark?.accent || '#8b5cf6' }))} 
+                      activeTheme={theme}
+                      onThemeSelect={(id) => setTheme(id as any)}
+                    />
+                  </div>
+                </div>
+                <button onClick={() => setShowNeuralCommand(false)} className="w-full py-4 rounded-2xl bg-[var(--color-accent)] text-white font-black uppercase tracking-widest text-xs">Close</button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* About the Prism Modal with Full Personal Testimony & Gratitude */}
         <AnimatePresence>
           {showAbout && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/85 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="max-w-xl w-full max-h-[85dvh] overflow-y-auto no-scrollbar bg-[var(--color-bg-1)] p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] border border-[var(--color-border)] shadow-2xl space-y-6"
+                className="max-w-2xl w-full max-h-[90dvh] overflow-y-auto no-scrollbar bg-[var(--color-bg-1)] p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-[var(--color-border)] shadow-2xl space-y-8"
               >
                 <div className="flex justify-between items-center pb-4 border-b border-[var(--color-border)]">
                   <div className="flex items-center gap-3">
-                    <Sparkles className="text-blue-500" size={24} />
-                    <h2 className="text-2xl font-black text-[var(--fg)] italic tracking-tight">About Dassah&apos;s Prism</h2>
+                    <Sparkles className="text-amber-500" size={26} />
+                    <h2 className="text-2xl md:text-3xl font-black text-[var(--fg)] italic tracking-tight">About Dassah&apos;s Prism</h2>
                   </div>
                   <button onClick={() => setShowAbout(false)} className="p-2 hover:bg-black/10 dark:hover:bg-white/10 rounded-full text-[var(--fg)] transition-colors">
-                    <X size={20} />
+                    <X size={22} />
                   </button>
                 </div>
                 
-                <div className="space-y-4 text-sm font-medium text-[var(--fg)] opacity-90 leading-relaxed">
-                  <p>
-                    <strong className="text-blue-500 dark:text-blue-400">Dassah&apos;s Prism</strong> was built to transform overwhelming cognitive noise, dense documents, and scattered information into clear, bionic focus in seconds.
-                  </p>
-                  <p>
-                    Engineered specifically for high-capacity thinkers, ADHD, and executive function support, it refracts long texts into structured, bite-sized mental anchors, dopamine hooks, and actionable priorities.
-                  </p>
-                  
-                  <div className="p-4 bg-black/5 dark:bg-white/5 rounded-2xl border border-[var(--color-border)] space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[var(--color-accent)]">Core Pillars</p>
-                    <ul className="text-xs space-y-1.5 list-disc list-inside opacity-80">
-                      <li><strong>Bionic Refraction:</strong> Eye fixation anchors that accelerate reading comprehension.</li>
-                      <li><strong>Cognitive Anchors:</strong> Memorable metaphors and dopamine hooks that lock key concepts.</li>
-                      <li><strong>Soundscape & Brown Noise:</strong> Frequency masking to shield your attention span.</li>
-                      <li><strong>Sovereign Privacy:</strong> Your text and thoughts belong exclusively to you.</li>
+                <div className="space-y-6 text-sm font-medium text-[var(--fg)] opacity-95 leading-relaxed">
+                  {/* Personal Testimony */}
+                  <div className="p-6 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-amber-500/10 rounded-3xl border border-[var(--color-border)] space-y-4">
+                    <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-black uppercase tracking-widest text-xs">
+                      <Church size={16} /> Faith & Testimony
+                    </div>
+                    <p className="italic text-base leading-relaxed">
+                      &ldquo;Dassah&apos;s Prism was born out of a personal journey through cognitive fatigue, sensory noise, and the reality of navigating life with an ADHD, neurodivergent mind. In moments of overwhelming noise and exhaustion, God provided the vision: to create a sanctuary of executive clarity.&rdquo;
+                    </p>
+                    <p className="font-bold text-xs opacity-90">
+                      Rooted in Christ, this tool exists to restore sovereignty over your focus, turning chaotic information into structured, bite-sized clarity. Every line of code, every bionic fixation point, and every cognitive anchor was built with the conviction that focus is not a battle to fight alone, but bandwidth to reclaim by grace.
+                    </p>
+                  </div>
+
+                  {/* Gratitude & Dedication */}
+                  <div className="p-6 bg-amber-500/10 rounded-3xl border border-amber-500/30 space-y-3">
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-black uppercase tracking-widest text-xs">
+                      <Heart size={16} /> Dedication & Gratitude
+                    </div>
+                    <p className="text-sm font-bold leading-relaxed">
+                      Dedicated with deepest love, honor, and admiration to <strong>Dchan (Chantal Hadassah)</strong> — whose brilliance, strength, and grace inspire every single refraction in this Prism.
+                    </p>
+                    <p className="text-xs opacity-80 leading-relaxed">
+                      With profound gratitude to our families, our mentors, youth leadership teams at Camp Winning Ways, and everyone who stood in faith and encouraged this work from Karen, Nairobi to the world.
+                    </p>
+                  </div>
+
+                  {/* Core Architecture */}
+                  <div className="p-6 bg-black/5 dark:bg-white/5 rounded-3xl border border-[var(--color-border)] space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[var(--color-accent)]">The Cognitive Architecture</p>
+                    <ul className="text-xs space-y-2 list-disc list-inside opacity-85">
+                      <li><strong>Bionic Fixation:</strong> Accelerates reading speed by guiding the eye to saccadic anchor letters.</li>
+                      <li><strong>Cognitive Metaphors & Dopamine Hooks:</strong> Bridges working memory deficits by connecting ideas to vivid imagery.</li>
+                      <li><strong>Story & Strict Modes:</strong> Morph effortlessly between creative narrative absorption and sharp executive fact.</li>
+                      <li><strong>Auditory Masking:</strong> Tuned brown noise frequencies to shield your sensory field from distraction.</li>
+                      <li><strong>Sovereign Privacy:</strong> Your text, thoughts, and documents belong solely to you.</li>
                     </ul>
                   </div>
 
-                  <p className="text-xs opacity-70 italic pt-2">
-                    Crafted by JG (Louie Gitu) &bull; Rooted in Christ &bull; Dedicated with love to Dchan.
+                  <p className="text-center text-xs opacity-75 font-bold uppercase tracking-widest pt-2">
+                    JG (Jim Louie Njuguna Gitu) &bull; Rooted in Christ &bull; Nairobi, Kenya
                   </p>
                 </div>
 
@@ -1348,13 +1462,41 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {/* Footer */}
+        {/* Footer with About, Theme Mode Capsule (Sun/Moon/System), and Neural Guide */}
         <footer className="w-full py-12 px-4 border-t border-[var(--color-border)] z-10 flex flex-col items-center gap-4 text-center opacity-70 hover:opacity-100 transition-opacity">
           <p className="text-[var(--fg)] font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
             JG <IchthysIcon size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
           </p>
-          <div className="flex items-center gap-4">
-            <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-black/5 dark:bg-white/5 border border-[var(--color-border)] rounded-full text-[8px] font-black uppercase tracking-widest text-[var(--fg)] opacity-70 hover:opacity-100 transition-all">About the Prism</button>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <button onClick={() => setShowAbout(true)} className="px-6 py-2 bg-black/5 dark:bg-white/5 border border-[var(--color-border)] rounded-full text-[8px] font-black uppercase tracking-widest text-[var(--fg)] opacity-70 hover:opacity-100 transition-all">About the Prism</button>
+            
+            <div className="flex bg-black/5 dark:bg-white/5 p-1 rounded-full border border-[var(--color-border)]">
+              <button 
+                onClick={() => setThemeMode('light')} 
+                title="Light Mode"
+                className={`p-2 rounded-full transition-all ${themeMode === 'light' ? 'bg-white text-slate-900 shadow-md' : 'text-[var(--fg)] opacity-70 hover:opacity-100'}`}
+              >
+                <Sun size={14} />
+              </button>
+              <button 
+                onClick={() => setThemeMode('dark')} 
+                title="Dark Mode"
+                className={`p-2 rounded-full transition-all ${themeMode === 'dark' ? 'bg-slate-900 text-white shadow-md' : 'text-[var(--fg)] opacity-70 hover:opacity-100'}`}
+              >
+                <MoonStar size={14} />
+              </button>
+              <button 
+                onClick={() => setThemeMode('system')} 
+                title="System Mode"
+                className={`p-2 rounded-full transition-all ${themeMode === 'system' ? 'bg-blue-600 text-white shadow-md' : 'text-[var(--fg)] opacity-70 hover:opacity-100'}`}
+              >
+                <Monitor size={14} />
+              </button>
+            </div>
+            
+            <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2">
+              <Sparkles size={10}/> Neural Guide
+            </button>
           </div>
         </footer>
       </main>
