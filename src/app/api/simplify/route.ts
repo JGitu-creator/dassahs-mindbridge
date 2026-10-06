@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
 
 function cleanBaseUrl(url?: string): string {
   if (!url) return 'https://openrouter.ai/api/v1';
@@ -37,42 +36,53 @@ export async function POST(req: Request) {
       );
     }
 
-    const openai = new OpenAI({
-      apiKey,
-      baseURL,
-      defaultHeaders: {
-        'HTTP-Referer': 'https://dassahs-mindbridge.vercel.app',
-        'X-Title': "Dassah's Prism",
-      },
-    });
-
     const isStory = Boolean(storyMode);
     const systemPrompt = isStory
-      ? "You are Dassah's Prism in Story Mode. Transform the given complex text into an engaging, vivid narrative or conceptual analogy that makes the core insights unforgettable and accessible for neurodivergent minds (ADHD/ASD), while keeping essential factual accuracy."
-      : "You are Dassah's Prism in Strict Fact Mode. Refract the given text into crystal-clear, structured clarity: high-signal bullet points, explicit takeaways, key definitions, and actionable next steps. Cut through clutter and cognitive fatigue without losing crucial technical or legal precision.";
+      ? "You are Dassah's Prism in Story Mode. Transform the provided text into an engaging, vivid narrative or conceptual analogy that makes the core insights unforgettable for neurodivergent minds (ADHD/ASD), while strictly preserving every vital fact, number, and key takeaway."
+      : "You are Dassah's Prism in Strict Fact Mode. Refract the provided text into crystal-clear, structured clarity: high-signal bullet points, explicit takeaways, key definitions, and actionable next steps. Cut through clutter and cognitive fatigue without losing crucial technical or legal precision.";
 
     const model = process.env.ROUTER_MODEL || 'openrouter/free';
 
-    // (openai.chat.completions.create as any) bypasses strict TS type checks for extra_body fallback models
-    const completion = await (openai.chat.completions.create as any)({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Text to refract:\n${text.slice(0, 4000)}` },
-      ],
-      extra_body: {
+    // Support large documents up to 30,000 characters
+    const contentPayload = text.slice(0, 30000);
+
+    // Direct HTTP fetch to OpenRouter: 100% immune to SDK type errors
+    const response = await fetch(`${baseURL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://dassahs-mindbridge.vercel.app',
+        'X-Title': "Dassah's Prism",
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `Please refract this text:\n\n${contentPayload}` },
+        ],
         models: [
           'openrouter/free',
           'apodex/apodex-1.1-mini:free',
           'meta-llama/llama-3.2-3b-instruct:free',
           'google/gemini-2.0-flash-exp:free',
         ],
-      },
-      temperature: isStory ? 0.7 : 0.2,
-      max_tokens: 1500,
+        temperature: isStory ? 0.7 : 0.2,
+        max_tokens: 3000,
+      }),
     });
 
-    const refracted = completion.choices?.[0]?.message?.content || 'No refraction generated.';
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenRouter HTTP error:', response.status, errorText);
+      return NextResponse.json(
+        { error: `OpenRouter returned status ${response.status}: ${errorText.slice(0, 250)}` },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+    const refracted = data.choices?.[0]?.message?.content || 'No refraction generated.';
 
     return NextResponse.json({
       simplified: refracted,
