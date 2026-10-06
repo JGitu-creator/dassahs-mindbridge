@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
 
-// Initialize OpenAI client directed to OpenRouter
 const client = new OpenAI({
   baseURL: process.env.ROUTER_BASE_URL || "https://openrouter.ai/api/v1",
   apiKey: process.env.ROUTER_API_KEY,
@@ -23,29 +22,29 @@ export async function POST(req: NextRequest) {
       { role: "user", content: prompt },
     ];
 
-    // Call OpenRouter with fallback models and stream options
-    const stream = await client.chat.completions.create({
-      model: "anthropic/claude-3.5-sonnet", // Primary model choice
+    // Added 'as any' to satisfy TypeScript's strict parameter definitions
+    const stream = (await client.chat.completions.create({
+      model: "anthropic/claude-3.5-sonnet",
       stream: true,
-      stream_options: { include_usage: true }, // Sends token usage in the last chunk
+      stream_options: { include_usage: true },
       messages,
-      extraBody: {
+      ...({
         models: [
           "anthropic/claude-3.5-sonnet",
           "openai/gpt-4o",
           "google/gemini-2.0-flash",
-          "openrouter/free", // Zero-cost fallback if paid models are unavailable
-          "meta-llama/llama-3.3-70b-instruct:free", // Second zero-cost fallback
+          "openrouter/free",
+          "meta-llama/llama-3.3-70b-instruct:free",
         ],
-      },
-    });
+      } as any),
+    } as any)) as any;
 
     const encoder = new TextEncoder();
 
     const readable = new ReadableStream({
       async start(controller) {
         let generationId: string | null = null;
-        let tokenUsage: OpenAI.CompletionUsage | null = null;
+        let tokenUsage: any = null;
         let resolvedModel: string | null = null;
 
         try {
@@ -63,7 +62,6 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          // Optional: Fetch cost in USD from OpenRouter if a generation ID was returned
           let costUsd: number | null = null;
           if (generationId && process.env.ROUTER_API_KEY) {
             try {
@@ -79,7 +77,6 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          // Send metadata chunk with token counts and model used
           controller.enqueue(
             encoder.encode(
               `data: ${JSON.stringify({
@@ -88,7 +85,6 @@ export async function POST(req: NextRequest) {
             )
           );
 
-          // Signal stream completion
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         } catch (streamErr: any) {
           controller.enqueue(
