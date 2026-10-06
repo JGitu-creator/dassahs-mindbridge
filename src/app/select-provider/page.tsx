@@ -21,6 +21,10 @@ export default function SelectProviderPage() {
     setCreditsVisible(visible);
     const doc = sessionStorage.getItem('prism_pending_document');
     setPendingDoc(doc);
+    // Extension v1.4.0 may inject the document after this page mounted.
+    const onPendingDoc = () => setPendingDoc(sessionStorage.getItem('prism_pending_document'));
+    window.addEventListener('prism:pending-document', onPendingDoc);
+    return () => window.removeEventListener('prism:pending-document', onPendingDoc);
   }, []);
 
   useEffect(() => {
@@ -52,6 +56,14 @@ export default function SelectProviderPage() {
 
   const handleContinue = () => {
     sessionStorage.setItem('prism_selected_provider', selected);
+    const doc = sessionStorage.getItem('prism_pending_document');
+    if (doc) {
+      // The homepage (unchanged) still ingests documents via its existing `?text=` reader.
+      // This is a same-origin, in-app hop; the extension itself no longer uses URL params.
+      sessionStorage.removeItem('prism_pending_document');
+      router.push(`/?text=${encodeURIComponent(doc.slice(0, 3000))}`);
+      return;
+    }
     router.push('/');
   };
 

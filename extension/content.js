@@ -111,10 +111,8 @@ const injectPrismAlert = (wordCount) => {
 
   alertDiv.addEventListener('click', () => {
     const text = document.body.innerText;
-    const encodedText = encodeURIComponent(text.slice(0, 3000));
-    // Use the production URL identified in popup.js
-    const appUrl = `https://dassahs-mindbridge.vercel.app/?text=${encodedText}`;
-    window.open(appUrl, '_blank');
+    // v1.4.0: sessionStorage handoff instead of URL params (handled by background.js)
+    chrome.runtime.sendMessage({ action: "openPrismWithDocument", text });
     alertDiv.style.opacity = '0';
     setTimeout(() => alertDiv.remove(), 500);
   });
