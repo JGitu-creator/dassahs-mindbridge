@@ -22,20 +22,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No content provided' }, { status: 400 });
     }
 
-    const completion = await client.chat.completions.create({
+    // Added 'as any' so TypeScript accepts OpenRouter's fallback models parameter
+    const completion = (await client.chat.completions.create({
       model: 'google/gemini-2.0-flash-001',
       messages: [
         {
           role: 'system',
           content:
-            'You are an expert cognitive simplifier in Dassah\'s Prism. Simplify and structure the provided text into clear, digestible, executive insights with zero unnecessary fluff.',
+            "You are an expert cognitive simplifier in Dassah's Prism. Simplify and structure the provided text into clear, digestible, executive insights with zero unnecessary fluff.",
         },
         {
           role: 'user',
           content: content,
         },
       ],
-      extraBody: {
+      ...({
         models: [
           'google/gemini-2.0-flash-001',
           'apodex/apodex-1.1-mini:free',
@@ -43,8 +44,8 @@ export async function POST(req: Request) {
           'openrouter/free',
           'meta-llama/llama-3.3-70b-instruct:free',
         ],
-      },
-    });
+      } as any),
+    } as any)) as any;
 
     const simplifiedText = completion.choices?.[0]?.message?.content || '';
 
