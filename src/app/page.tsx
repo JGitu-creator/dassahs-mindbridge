@@ -89,36 +89,36 @@ const THEMES: Record<string, ThemeConfig> = {
   midnight_sovereign: {
     name: 'Midnight Sovereign',
     icon: Moon,
-    light: { background: '#e0e7ff', text: '#1e3a8a', accent: '#3b82f6', glass: 'rgba(255,255,255,0.85)', border: 'rgba(59, 130, 246, 0.3)', shadow: "rgba(0,0,0,0.08)" },
-    dark: { background: '#020617', text: '#f8fafc', accent: '#3b82f6', glass: 'rgba(15, 23, 42, 0.75)', border: 'rgba(255, 255, 255, 0.15)', shadow: "rgba(0,0,0,0.5)" },
+    light: { background: '#e0e7ff', text: '#1e3a8a', accent: '#3b82f6', glass: 'rgba(255,255,255,0.7)', border: 'rgba(59, 130, 246, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#020617', text: '#f8fafc', accent: '#3b82f6', glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#3b82f6', '#8b5cf6', '#06b6d4']
   },
   electric_grace: {
     name: 'Electric Grace',
     icon: Flame,
-    light: { background: '#ffe4e6', text: '#881337', accent: '#e11d48', glass: 'rgba(255, 255, 255, 0.85)', border: 'rgba(225, 29, 72, 0.3)', shadow: "rgba(0,0,0,0.08)" },
-    dark: { background: '#0f0505', text: '#ffe4e6', accent: '#e11d48', glass: 'rgba(20, 5, 5, 0.75)', border: 'rgba(225, 29, 72, 0.35)', shadow: "rgba(0,0,0,0.5)" },
+    light: { background: '#ffe4e6', text: '#881337', accent: '#e11d48', glass: 'rgba(255, 228, 230, 0.7)', border: 'rgba(225, 29, 72, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#0f0505', text: '#ffe4e6', accent: '#e11d48', glass: 'rgba(20, 5, 5, 0.5)', border: 'rgba(225, 29, 72, 0.3)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#e11d48', '#fbbf24', '#2dd4bf']
   },
   divine_gold: {
     name: 'Divine Gold',
     icon: Coins,
-    light: { background: '#fef3c7', text: '#78350f', accent: '#d97706', glass: 'rgba(255,255,255,0.85)', border: 'rgba(217, 119, 6, 0.3)', shadow: "rgba(0,0,0,0.08)" },
-    dark: { background: '#000000', text: '#fffbeb', accent: '#fbbf24', glass: 'rgba(20, 16, 5, 0.75)', border: 'rgba(251, 191, 36, 0.45)', shadow: "rgba(0,0,0,0.5)" },
+    light: { background: '#fef3c7', text: '#78350f', accent: '#d97706', glass: 'rgba(255,255,255,0.7)', border: 'rgba(217, 119, 6, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#000000', text: '#fffbeb', accent: '#fbbf24', glass: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.4)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#fbbf24', '#f59e0b', '#ffffff']
   },
   hadassah_silk: {
     name: 'Hadassah Silk',
     icon: Gem,
-    light: { background: '#d1fae5', text: '#064e3b', accent: '#059669', glass: 'rgba(255,255,255,0.85)', border: 'rgba(5, 150, 105, 0.3)', shadow: "rgba(0,0,0,0.08)" },
-    dark: { background: '#022c22', text: '#ecfdf5', accent: '#10b981', glass: 'rgba(6, 78, 59, 0.65)', border: 'rgba(16, 185, 129, 0.3)', shadow: "rgba(0,0,0,0.5)" },
+    light: { background: '#d1fae5', text: '#064e3b', accent: '#059669', glass: 'rgba(255,255,255,0.7)', border: 'rgba(5, 150, 105, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#022c22', text: '#ecfdf5', accent: '#10b981', glass: 'rgba(6, 78, 59, 0.4)', border: 'rgba(16, 185, 129, 0.2)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#10b981', '#34d399', '#059669']
   },
   sovereign_pulse: {
     name: 'Sovereign Pulse',
     icon: Orbit,
-    light: { background: '#f3e8ff', text: '#3b0764', accent: '#7c3aed', glass: 'rgba(255,255,255,0.85)', border: 'rgba(124, 58, 237, 0.3)', shadow: "rgba(0,0,0,0.08)" },
-    dark: { background: '#1c0c38', text: '#f5f3ff', accent: '#8b5cf6', glass: 'rgba(46, 16, 101, 0.65)', border: 'rgba(139, 92, 246, 0.35)', shadow: "rgba(0,0,0,0.5)" },
+    light: { background: '#f3e8ff', text: '#3b0764', accent: '#7c3aed', glass: 'rgba(255,255,255,0.7)', border: 'rgba(124, 58, 237, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    dark: { background: '#2e1065', text: '#f5f3ff', accent: '#8b5cf6', glass: 'rgba(76, 29, 149, 0.4)', border: 'rgba(139, 92, 246, 0.2)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#8b5cf6', '#a78bfa', '#7c3aed']
   }
 };
@@ -216,8 +216,7 @@ const BionicText = ({ text }: { text: string }) => {
 
 const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mousePos, focusMode }: { loading: boolean, inputLength: number, isVictorious: boolean, user: any, mousePos: {x:number, y:number}, focusMode: string }) => {
   const isTyping = inputLength > 0;
-  const isLong = inputLength > 500;
-  const duration = loading ? 0.3 : isTyping ? (isLong ? 0.5 : 1) : 3;
+  const duration = loading ? 0.3 : isTyping ? 0.5 : 3;
   const scale = loading ? [1, 1.3, 1] : isTyping ? [1, 1.15, 1] : [1, 1.05, 1];
   const glowOpacity = isVictorious && user ? 0.8 : (loading || isTyping ? 0.5 : 0.2);
   const color = isVictorious && user ? "from-amber-400 via-yellow-300 to-amber-500" : (focusMode === 'sovereign' ? "from-slate-700 via-slate-800 to-slate-900" : "from-blue-500 via-purple-600 to-blue-400");
@@ -285,6 +284,7 @@ export default function Home() {
     document.documentElement.classList.toggle('dark', isDark);
   }, [themeMode]);
 
+  // FIX 1: Set TOS accepted flag before OAuth redirect so user is never logged out
   const handleLogin = async () => {
     localStorage.setItem('dassahs_prism_tos_accepted', 'true');
     await supabase.auth.signInWithOAuth({
@@ -300,7 +300,7 @@ export default function Home() {
     setUser(null);
   };
 
-  // Fixed PDF Upload handler using Cloudflare CDN (No unpkg errors)
+  // FIX 2: Fixed PDF Worker using reliable Cloudflare CDN (No unpkg fake worker failure)
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0]; 
     if (!file) return; 
@@ -309,7 +309,6 @@ export default function Home() {
     try {
       if (file.name.endsWith('.pdf')) {
         const pdfjs = await import('pdfjs-dist');
-        // Reliable Cloudflare CDN worker (eliminates unpkg fake worker failure)
         pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version || '3.11.174'}/pdf.worker.min.js`;
         
         const arrayBuffer = await file.arrayBuffer(); 
@@ -342,7 +341,7 @@ export default function Home() {
     }
   };
 
-  // Refract Handler with full fallback safety for r.tldr
+  // FIX 3: Safe Refraction with fallback for r.tldr
   const handleSimplify = async (textToSimplify = input) => {
     if (!textToSimplify.trim()) return;
     setLoading(true);
@@ -363,7 +362,7 @@ export default function Home() {
 
       const raw = await res.json();
 
-      // Guarantee r.tldr exists so r.tldr[0].slice never throws
+      // Safe TLDR check: prevents undefined is not an object ('r.tldr[0].slice')
       const safeTldr = Array.isArray(raw?.tldr) && raw.tldr.length > 0 
         ? raw.tldr 
         : [raw?.summary || raw?.simplified || raw?.result || textToSimplify.slice(0, 200)];
