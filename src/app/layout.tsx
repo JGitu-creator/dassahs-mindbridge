@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Dassah's-Prism",
   description: "Refract overwhelming noise into divine clarity. Your cognitive architecture, optimized.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dassahs-mindbridge.vercel.app"),
   manifest: "/manifest.json",
   icons: {
     icon: "/logo.png",
