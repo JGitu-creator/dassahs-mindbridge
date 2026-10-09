@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
   const orderId = String(event?.data?.id ?? '');
   const userEmail = event?.data?.attributes?.user_email ?? '';
   const variantName = event?.data?.attributes?.first_order_item?.variant_name ?? '';
+  const customData = event?.meta?.custom_data ?? {};
   // Check longer keys first so bigger packs win if a name contains both numbers
   const creditsKey = Object.keys(CREDIT_PACK_MAP)
     .sort((a, b) => b.length - a.length)
@@ -45,14 +46,28 @@ export async function POST(req: NextRequest) {
   const amountCents = event?.data?.attributes?.total ?? 0;
 
   const supabase = createServiceClient();
+  const requestedUserId = typeof customData.user_id === 'string' ? customData.user_id : '';
   const { data: userList } = await supabase.auth.admin.listUsers({ perPage: 1000 });
   const user = userList?.users?.find(
-    (u: { email?: string }) => u.email?.toLowerCase() === String(userEmail).toLowerCase()
+    (u: { id?: string; email?: string }) => (requestedUserId && u.id === requestedUserId) || u.email?.toLowerCase() === String(userEmail).toLowerCase()
   );
 
   if (!user) {
     console.error('Webhook: user not found for email', userEmail);
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  const planType = typeof customData.plan_type === 'string' ? customData.plan_type : '';
+  if (planType) {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ is_paid: true, plan_type: planType === 'architect_monthly' ? 'architect' : 'sovereign' })
+      .eq('id', user.id);
+    if (error) {
+      console.error('Webhook: plan unlock failed', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ received: true, plan_unlocked: planType });
   }
 
   const { error } = await supabase.rpc('topup_credits', {

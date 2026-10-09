@@ -69,6 +69,8 @@ const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
 import { ContextAnchor } from '@/components/prism/ContextAnchor';
 import { ProgressPrism } from '@/components/prism/ProgressPrism';
 import { ReadAloud } from '@/components/prism/ReadAloud';
+import { AIUsageControl } from '@/components/AIUsageControl';
+import type { ProviderPreference } from '@/lib/ai-usage';
 import { PrismWeaver } from '@/components/prism/PrismWeaver';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
@@ -730,6 +732,8 @@ export default function Home() {
   }, [user, lastActivity]);
   const [isPaid, setIsPaid] = useState(false); 
   const [usageCount, setUsageCount] = useState(0);
+  const [providerPreference, setProviderPreference] = useState<ProviderPreference>('auto');
+  const [aiUsage, setAiUsage] = useState({ totalTokens: 0, provider: 'automatic', model: 'not used yet' });
   const [isPlaying, setIsPlaying] = useState(false);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>('');
@@ -872,6 +876,7 @@ export default function Home() {
   const [showRecap, setShowRecap] = useState(false);
   const [sensoryProfile, setSensoryProfile] = useState('Calm');
   const [voiceSetting, setVoiceSetting] = useState('Standard');
+  const [voiceMood, setVoiceMood] = useState('focused');
   const [oneClickRecap, setOneClickRecap] = useState<string | null>(null);
   const handleOneClickRecap = () => {
     if (!data || currentChunk < 0) return;
@@ -1147,6 +1152,8 @@ export default function Home() {
       }
     });
     setUsageCount(parseInt(localStorage.getItem('dassahs_prism_usage') || '0'));
+    setProviderPreference((localStorage.getItem('dassahs_provider_preference') as ProviderPreference) || 'auto');
+    setAiUsage({ totalTokens: parseInt(localStorage.getItem('dassahs_ai_tokens') || '0'), provider: localStorage.getItem('dassahs_ai_provider') || 'automatic', model: localStorage.getItem('dassahs_ai_model') || 'not used yet' });
     const urlParams = new URLSearchParams(window.location.search);
     const textParam = urlParams.get('text');
     const shareIdParam = urlParams.get('share_id');
@@ -1248,7 +1255,8 @@ export default function Home() {
             cognitiveMode, 
             missionGoal, 
             isStory: storyMode,
-            simplicityLevel 
+            simplicityLevel,
+            preferredProvider: providerPreference
           }) 
         }).then(res => res.json())
       ));
@@ -1393,7 +1401,7 @@ export default function Home() {
         const res = await fetch('/api/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, voice_id: voiceSetting.toLowerCase() })
+          body: JSON.stringify({ text, voice_id: voiceSetting.toLowerCase(), mood: voiceMood })
         });
         if (!res.ok) throw new Error("Neural Premium offline");
         const blob = await res.blob();
@@ -1432,13 +1440,10 @@ export default function Home() {
       if (voice) utterance.voice = voice;
       
       // Variable pacing based on content type
-      if (fragment.includes('"') || fragment.includes('metaphor')) {
-        utterance.rate = 0.85; // Slower for metaphors/quotes to allow cognitive "soaking"
-        utterance.pitch = 1.1; // Slightly higher pitch for interest
-      } else {
-        utterance.rate = 1.05; // Slightly faster for standard facts
-        utterance.pitch = 1.0;
-      }
+      const moodSettings = { focused: { rate: 1.0, pitch: 1.0 }, soothing: { rate: 0.82, pitch: 0.92 }, energetic: { rate: 1.12, pitch: 1.08 }, encouraging: { rate: 1.04, pitch: 1.12 } };
+      const mood = moodSettings[voiceMood as keyof typeof moodSettings] || moodSettings.focused;
+      utterance.rate = fragment.includes('"') || fragment.includes('metaphor') ? Math.min(mood.rate, 0.86) : mood.rate;
+      utterance.pitch = mood.pitch;
       utterance.onend = () => {
         // Rhythmic pause between fragments
         setTimeout(speakNext, 300);
@@ -1480,9 +1485,18 @@ export default function Home() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: chatInput, history: chatHistory, data })
+        body: JSON.stringify({ message: chatInput, history: chatHistory, data, preferredProvider: providerPreference })
       });
       const result = await res.json();
+      if (result.usage) {
+        setAiUsage(prev => {
+          const next = { totalTokens: prev.totalTokens + Number(result.usage.totalTokens || 0), provider: result.usage.provider || prev.provider, model: result.usage.model || prev.model };
+          localStorage.setItem('dassahs_ai_tokens', next.totalTokens.toString());
+          localStorage.setItem('dassahs_ai_provider', next.provider);
+          localStorage.setItem('dassahs_ai_model', next.model);
+          return next;
+        });
+      }
       setChatHistory(prev => [...prev, { role: 'ai' as const, text: result.text }]);
     } catch (err) {
       setChatHistory(prev => [...prev, { role: 'ai' as const, text: "The Neural Link is flickering. Try again." }]);
@@ -1520,7 +1534,7 @@ export default function Home() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lookup_key: lookupKey, userId: user.id }),
+        body: JSON.stringify({ lookup_key: lookupKey, userId: user.id, email: user.email }),
       });
       const result = await res.json();
       if (result.url) {
@@ -1734,6 +1748,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+          <AIUsageControl preference={providerPreference} onPreferenceChange={(value) => { setProviderPreference(value); localStorage.setItem('dassahs_provider_preference', value); }} usage={aiUsage} isPaid={isPaid} />
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
           {data && currentChunk >= 0 && (
             <button onClick={handleOneClickRecap} title="Where was I? (Recap)" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-400 hover:text-[var(--fg)] hover:bg-blue-500/20 transition-all flex items-center gap-2 group">
@@ -1935,11 +1950,14 @@ export default function Home() {
                       {['Standard', 'Soothing', 'Energetic'].map(setting => (
                         <button 
                           key={setting} 
-                          onClick={() => setVoiceSetting(setting)}
+                          onClick={() => { setVoiceSetting(setting); setVoiceMood(setting === 'Standard' ? 'focused' : setting.toLowerCase()); }}
                           className={`p-4 rounded-xl border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceSetting === setting ? 'bg-blue-600/20 text-blue-400' : 'bg-[var(--bg)]/5'}`}
                         >
                           {setting}
                         </button>
+                      ))}
+                      {['focused', 'encouraging'].map(mood => (
+                        <button key={mood} onClick={() => setVoiceMood(mood)} className={`p-4 rounded-xl border border-white/10 hover:border-amber-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceMood === mood ? 'bg-amber-500/20 text-amber-400' : 'bg-[var(--bg)]/5'}`}>{mood}</button>
                       ))}
                     </div>
                   </div>
