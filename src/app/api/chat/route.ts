@@ -37,7 +37,7 @@ async function callProvider(message: string, history: any[], systemInstruction: 
       { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
       { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
       { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-    ] }).startChat({ history: history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'model', parts: [{ text: item.text }] })), systemInstruction });
+    ] }).startChat({ history: history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'model', parts: [{ text: item.text }] })), systemInstruction: { role: 'system', parts: [{ text: systemInstruction }] } });
     const response = await (await chat.sendMessage(message)).response;
     const metadata: any = response.usageMetadata;
     const promptTokens = Number(metadata?.promptTokenCount || 0);

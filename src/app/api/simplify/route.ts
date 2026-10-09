@@ -65,7 +65,8 @@ export async function POST(req: Request) {
     const refractionResults = settledResults.filter((res): res is PromiseFulfilledResult<{ data: any; usage: AiUsage }> => res.status === 'fulfilled').map(res => res.value);
     const usage = mergeUsage(refractionResults.map(result => result.usage));
     if (refractionResults.length === 0) {
-      return NextResponse.json({ error: 'High-speed link saturated. Scout Mode active.', tldr: ['Structural scan complete.'], whyCare: 'API unavailable, showing local structural metrics.', readingTime: `${Math.round(text.split(/\s+/).length / 200)}m`, chunks: [{ heading: 'Structural Analysis', content: `${text.substring(0, 500)}...`, summary: 'Scout Mode active.', keyTerms: text.split(/\s+/).slice(0, 5), metaphor: 'N/A', dopamineHook: 'N/A', logicRoot: 'N/A', citations: 'N/A' }], actions: [], chartData: null, usage }, { status: 200 });
+      const local = createLocalRefraction(text, simplicityLevel, cognitiveMode);
+      return NextResponse.json({ ...local, usage: { provider: 'local', model: 'structural-refraction', promptTokens: 0, completionTokens: 0, totalTokens: 0 } }, { status: 200 });
     }
 
     const mergedData = { tldr: [] as string[], whyCare: refractionResults[0]?.data?.whyCare || 'Focus was interrupted.', readingTime: `${Math.round(text.split(/\s+/).length / 200)}m`, chunks: [] as any[], actions: [] as any[], chartData: null as any };
@@ -157,4 +158,29 @@ const extractJSON = (text: string) => {
   const end = text.lastIndexOf('}');
   if (start === -1 || end === -1) throw new Error('The Neural Engine produced a malformed refraction. Please try again.');
   return JSON.parse(text.slice(start, end + 1));
+};
+
+const createLocalRefraction = (text: string, level = 'standard', cognitiveMode = 'adhd') => {
+  const sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean);
+  const words = text.match(/[A-Za-z][A-Za-z'-]*/g) || [];
+  const keyTerms = Array.from(new Set(words.filter(word => word.length > 4).map(word => word.toLowerCase()))).slice(0, 6);
+  const lead = sentences[0] || text.slice(0, 240);
+  const detail = level === 'concise' ? 'Keep only the next essential step.' : level === 'detailed' ? 'Break the idea into smaller parts and check each part before moving on.' : 'Find the main point first, then take one clear next step.';
+  return {
+    tldr: [lead.slice(0, 180)],
+    whyCare: `This ${cognitiveMode === 'ceo' ? 'decision or document' : 'piece of information'} becomes easier to act on when the main signal is separated from the surrounding noise.`,
+    readingTime: `${Math.max(1, Math.round(words.length / 200))}m`,
+    chunks: [{
+      heading: 'Local Structural Refraction',
+      content: text.slice(0, 1200),
+      summary: detail,
+      keyTerms,
+      metaphor: 'Think of this as a tangled set of earphones: find the one visible end, then loosen one knot at a time.',
+      dopamineHook: 'You do not need to solve the whole document now—complete the next small move and let momentum do the rest.',
+      logicRoot: `Core signal: ${lead.slice(0, 220)}`,
+      citations: 'Generated locally from the supplied text while external AI providers are unavailable.',
+    }],
+    actions: [{ task: detail, priority: 'high', estimatedMinutes: '5' }],
+    chartData: null,
+  };
 };

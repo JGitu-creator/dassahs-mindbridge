@@ -819,8 +819,17 @@ export default function Home() {
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
   const [isScenic, setIsScenic] = useState(false);
-  const [simplicityLevel, setSimplicityLevel] = useState<'vibrant' | 'surgical'>('vibrant');
-  const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>('dastastic');
+  const [simplicityLevel, setSimplicityLevel] = useState<'concise' | 'standard' | 'detailed'>(() => {
+    if (typeof window === 'undefined') return 'standard';
+    const saved = localStorage.getItem('dassahs_simplicity_level');
+    return saved === 'concise' || saved === 'detailed' ? saved : 'standard';
+  });
+  const [focusMode, setFocusMode] = useState<'dastastic' | 'sovereign'>(() => {
+    if (typeof window === 'undefined') return 'dastastic';
+    return localStorage.getItem('dassahs_focus_mode') === 'sovereign' ? 'sovereign' : 'dastastic';
+  });
+  useEffect(() => { localStorage.setItem('dassahs_simplicity_level', simplicityLevel); }, [simplicityLevel]);
+  useEffect(() => { localStorage.setItem('dassahs_focus_mode', focusMode); }, [focusMode]);
   useEffect(() => {
     const hasSeenGuide = localStorage.getItem('hasSeenNeuralGuide');
     if (!hasSeenGuide) {
@@ -1122,11 +1131,9 @@ export default function Home() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => { 
       if (session?.user && localStorage.getItem('dassahs_prism_tos_accepted') !== 'true') {
-        supabase.auth.signOut();
         setAcceptedTOS(false);
         setShowTOS(true);
         setLinkState('pending');
-        return;
       }
       setUser(session?.user ?? null); 
       if (session?.user) {
@@ -1136,11 +1143,9 @@ export default function Home() {
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user && localStorage.getItem('dassahs_prism_tos_accepted') !== 'true') {
-        supabase.auth.signOut();
         setAcceptedTOS(false);
         setShowTOS(true);
         setLinkState('pending');
-        return;
       }
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -1794,6 +1799,19 @@ export default function Home() {
         <MessageSquare size={20} className="relative z-10 group-hover:scale-110 transition-transform" />
       </button>
       <AnimatePresence>
+        {showTOS && user && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[700] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0, y: 18, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="max-w-lg w-full apple-glass p-7 md:p-10 rounded-[2rem] shadow-2xl">
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400 mb-3">Neural Link Ready</p>
+              <h2 className="text-2xl md:text-3xl font-black italic text-[var(--fg)] mb-4">Confirm your Inner Circle access</h2>
+              <p className="text-sm leading-relaxed text-[var(--fg)]/80 mb-6">Your account is connected. Review the <a href="/terms" target="_blank" rel="noreferrer" className="text-blue-400 underline underline-offset-4">Neural Terms</a> and <a href="/privacy" target="_blank" rel="noreferrer" className="text-blue-400 underline underline-offset-4">Privacy Shield</a> before continuing.</p>
+              <button onClick={handleEstablishLink} className="w-full rounded-2xl bg-[var(--color-accent)] text-[var(--fg)] py-4 text-[10px] font-black uppercase tracking-[0.3em] shadow-lg hover:scale-[1.02] transition-transform">Accept and establish link</button>
+              <button onClick={handleLogout} className="w-full mt-3 rounded-2xl border border-white/10 text-[var(--fg)]/70 py-3 text-[9px] font-black uppercase tracking-[0.25em] hover:text-[var(--fg)] transition-colors">Cancel and disconnect</button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
         {showNeuralCommand && (
           <div className="fixed inset-0 bg-[var(--bg)]/80 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-2xl w-full max-h-[90dvh] overflow-y-auto no-scrollbar apple-glass p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-6 md:gap-8 relative">
@@ -1864,7 +1882,7 @@ export default function Home() {
                 <div className="space-y-6">
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Neural Harmonies & Voice</p>
-                    <details className="group">
+                    <details open className="group">
                       <summary className="cursor-pointer text-[10px] font-bold text-blue-400 hover:text-blue-300">Show Advanced Controls</summary>
                       <div className="pt-4 space-y-4">
                         <button 
