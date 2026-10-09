@@ -15,10 +15,8 @@ document.getElementById('simplifyBtn').addEventListener('click', async () => {
 
     statusEl.innerText = "Refracting Web...";
 
-    const encodedText = encodeURIComponent(text.slice(0, 3000));
-    const appUrl = `https://dassahs-mindbridge.vercel.app/?text=${encodedText}`;
-    
-    chrome.tabs.create({ url: appUrl });
+    // v1.4.0: sessionStorage handoff instead of URL params (handled by background.js)
+    await chrome.runtime.sendMessage({ action: "openPrismWithDocument", text });
     window.close(); 
 
   } catch (err) {
