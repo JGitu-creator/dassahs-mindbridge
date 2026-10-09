@@ -1,153 +1,96 @@
-import { NextRequest } from "next/server";
-import { getAIClient, getModelForProvider, type Provider } from "@/lib/server/ai-provider";
-import { getInternalToken } from "@/lib/server/internal-auth";
+import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { tokenLogger } from '@/lib/tokenLogger';
+import { usageFromOpenRouter, type AiUsage, type ProviderPreference } from '@/lib/ai-usage';
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+const geminiKey = process.env.GEMINI_API_KEY;
+// Preserve compatibility with the existing deployment variable while preferring the explicit name.
+const openrouterKey = process.env.OPENROUTER_API_KEY || process.env.ROUTER_API_KEY;
+const openaiKey = process.env.OPENAI_API_KEY;
+const anthropicKey = process.env.ANTHROPIC_API_KEY;
+const deepseekKey = process.env.DEEPSEEK_API_KEY;
 
-const CREDITS_PER_REQUEST = parseInt(process.env.PRISM_CREDITS_PER_REQUEST ?? "10", 10) || 10;
+export const dynamic = 'force-dynamic';
 
-function jsonResponse(body: unknown, status: number) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
+type ProviderResult = { text: string; usage: AiUsage };
 
-/** Best-effort refund; never throws. */
-async function refundCredits(origin: string, cookieHeader: string, amount: number) {
+export async function POST(req: Request) {
   try {
-    await fetch(`${origin}/api/user/credits/refund`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        cookie: cookieHeader,
-        "x-prism-internal": getInternalToken(),
-      },
-      body: JSON.stringify({ amount }),
-    });
-  } catch (err) {
-    console.warn("Credit refund failed:", err);
+    const { message = '', history = [], data, preferredProvider = 'auto' } = await req.json();
+    if (!message.trim()) return NextResponse.json({ error: 'A message is required.' }, { status: 400 });
+    const systemInstruction = `You are an ADHD-friendly assistant called "Ask DJ" inside Dassah's Prism. Help the user navigate their Refracted Noise. Be simple, encouraging, and clear. Use bullet points for lists. If asked to do a task based on the document context, perform it fully. Respond only with clean plain text. CONTEXT OF CURRENT REFRACTION: ${JSON.stringify(data)}`;
+    const result = await callProvider(message, history, systemInstruction, preferredProvider);
+    if (!result.text) return NextResponse.json({ error: 'Ask DJ is currently unavailable.' }, { status: 500 });
+    return NextResponse.json({ text: result.text, usage: result.usage });
+  } catch (error) {
+    console.error('Chat API Error:', error);
+    return NextResponse.json({ error: 'Ask DJ is currently unavailable.' }, { status: 500 });
   }
 }
 
-export async function POST(req: NextRequest) {
-  const origin = req.nextUrl.origin;
-  const cookieHeader = req.headers.get("cookie") ?? "";
-  const hasAuthCookie = Boolean(req.cookies.get("sb-access-token")?.value);
-  let creditsCharged = 0;
-
-  try {
-    const { prompt, messages: incomingMessages, provider: rawProvider } = await req.json();
-    const provider: Provider = rawProvider === "abacus" ? "abacus" : "openrouter";
-
-    const messages = incomingMessages || [
-      { role: "system", content: "You are an assistant in Dassah's Mindbridge." },
-      { role: "user", content: prompt },
-    ];
-
-    // --- Credits: deduct BEFORE generation (skipped for guests unless auth is required) ---
-    if (hasAuthCookie) {
-      const deductRes = await fetch(`${origin}/api/user/credits/deduct`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", cookie: cookieHeader },
-        body: JSON.stringify({ amount: CREDITS_PER_REQUEST }),
-      });
-      if (deductRes.status === 402) {
-        return jsonResponse({ error: "Insufficient credits", balance: 0 }, 402);
-      }
-      if (deductRes.ok) {
-        creditsCharged = CREDITS_PER_REQUEST;
-      } else {
-        // Credits service unavailable/misconfigured: don't block the homepage.
-        console.warn("Credit deduction skipped, status:", deductRes.status);
-      }
-    } else if (process.env.PRISM_REQUIRE_AUTH_FOR_AI === "true") {
-      return jsonResponse({ error: "Sign in required" }, 401);
-    }
-
-    const client = getAIClient(provider);
-    const model = getModelForProvider(provider);
-
-    const stream = (await client.chat.completions.create({
-      model,
-      stream: true,
-      stream_options: { include_usage: true },
-      messages,
-    } as any)) as any;
-
-    const encoder = new TextEncoder();
-
-    const readable = new ReadableStream({
-      async start(controller) {
-        let generationId: string | null = null;
-        let tokenUsage: any = null;
-        let resolvedModel: string | null = null;
-
-        try {
-          for await (const chunk of stream) {
-            if (chunk.id && !generationId) generationId = chunk.id;
-            if (chunk.model && !resolvedModel) resolvedModel = chunk.model;
-
-            const delta = chunk.choices?.[0]?.delta?.content || "";
-            if (delta) {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: delta })}\n\n`));
-            }
-
-            if (chunk.usage) {
-              tokenUsage = chunk.usage;
-            }
-          }
-
-          let costUsd: number | null = null;
-          const openRouterKey = process.env.OPENROUTER_API_KEY ?? process.env.ROUTER_API_KEY;
-          if (provider === "openrouter" && generationId && openRouterKey) {
-            try {
-              const res = await fetch(`https://openrouter.ai/api/v1/generation?id=${generationId}`, {
-                headers: { Authorization: `Bearer ${openRouterKey}` },
-              });
-              if (res.ok) {
-                const data = await res.json();
-                costUsd = data?.data?.total_cost ?? null;
-              }
-            } catch (err) {
-              console.warn("Cost lookup failed:", err);
-            }
-          }
-
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                meta: { generationId, model: resolvedModel, tokens: tokenUsage, costUsd },
-              })}\n\n`
-            )
-          );
-
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        } catch (streamErr: any) {
-          if (creditsCharged > 0) {
-            await refundCredits(origin, cookieHeader, creditsCharged);
-          }
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ error: streamErr.message })}\n\n`)
-          );
-        } finally {
-          controller.close();
-        }
-      },
-    });
-
-    return new Response(readable, {
-      headers: {
-        "Content-Type": "text/event-stream; charset=utf-8",
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-      },
-    });
-  } catch (error: any) {
-    if (creditsCharged > 0) {
-      await refundCredits(origin, cookieHeader, creditsCharged);
-    }
-    return jsonResponse({ error: error.message }, 500);
+async function callProvider(message: string, history: any[], systemInstruction: string, preferredProvider: ProviderPreference): Promise<ProviderResult> {
+  const tryGemini = async (): Promise<ProviderResult> => {
+    if (!geminiKey) throw new Error('No Gemini key');
+    const model = 'gemini-2.0-flash';
+    const chat = new GoogleGenerativeAI(geminiKey).getGenerativeModel({ model, safetySettings: [
+      { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+      { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+      { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+      { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    ] }).startChat({ history: history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'model', parts: [{ text: item.text }] })), systemInstruction: { role: 'system', parts: [{ text: systemInstruction }] } });
+    const response = await (await chat.sendMessage(message)).response;
+    const metadata: any = response.usageMetadata;
+    const promptTokens = Number(metadata?.promptTokenCount || 0);
+    const completionTokens = Number(metadata?.candidatesTokenCount || 0);
+    const usage = { provider: 'gemini', model, promptTokens, completionTokens, totalTokens: Number(metadata?.totalTokenCount || promptTokens + completionTokens) };
+    tokenLogger(model, usage.totalTokens);
+    return { text: response.text(), usage };
+  };
+  const tryOpenRouter = async (model = process.env.OPENROUTER_MODEL || 'openrouter/free'): Promise<ProviderResult> => {
+    if (!openrouterKey) throw new Error('No OpenRouter key');
+    const messages = [{ role: 'system', content: systemInstruction }, ...history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'assistant', content: item.text })), { role: 'user', content: message }];
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-mindbridge.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages, temperature: 0.4 }) });
+    if (!response.ok) throw new Error(`OpenRouter returned ${response.status}`);
+    const result = await response.json();
+    const usage = usageFromOpenRouter(result.usage, result.model || model);
+    tokenLogger(usage.model, usage.totalTokens);
+    return { text: result.choices?.[0]?.message?.content || '', usage };
+  };
+  const tryOpenAI = async (): Promise<ProviderResult> => {
+    if (!openaiKey) throw new Error('No OpenAI key');
+    const model = 'gpt-4o-mini';
+    const response = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${openaiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: systemInstruction }, ...history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'assistant', content: item.text })), { role: 'user', content: message }] }) });
+    if (!response.ok) throw new Error(`OpenAI returned ${response.status}`);
+    const result = await response.json();
+    const usage = { provider: 'openai', model, promptTokens: result.usage?.prompt_tokens || 0, completionTokens: result.usage?.completion_tokens || 0, totalTokens: result.usage?.total_tokens || 0 };
+    tokenLogger(model, usage.totalTokens);
+    return { text: result.choices?.[0]?.message?.content || '', usage };
+  };
+  const tryAnthropic = async (): Promise<ProviderResult> => {
+    if (!anthropicKey) throw new Error('No Anthropic key');
+    const model = 'claude-3-5-sonnet-20241022';
+    const response = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' }, body: JSON.stringify({ model, max_tokens: 1024, system: systemInstruction, messages: [...history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'assistant', content: item.text })), { role: 'user', content: message }] }) });
+    if (!response.ok) throw new Error(`Anthropic returned ${response.status}`);
+    const result = await response.json();
+    const usage = { provider: 'anthropic', model, promptTokens: result.usage?.input_tokens || 0, completionTokens: result.usage?.output_tokens || 0, totalTokens: (result.usage?.input_tokens || 0) + (result.usage?.output_tokens || 0) };
+    tokenLogger(model, usage.totalTokens);
+    return { text: result.content?.[0]?.text || '', usage };
+  };
+  const tryDeepSeek = async (): Promise<ProviderResult> => {
+    if (!deepseekKey) throw new Error('No DeepSeek key');
+    const model = 'deepseek-chat';
+    const response = await fetch('https://api.deepseek.com/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${deepseekKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: systemInstruction }, ...history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'assistant', content: item.text })), { role: 'user', content: message }] }) });
+    if (!response.ok) throw new Error(`DeepSeek returned ${response.status}`);
+    const result = await response.json();
+    const usage = { provider: 'deepseek', model, promptTokens: result.usage?.prompt_tokens || 0, completionTokens: result.usage?.completion_tokens || 0, totalTokens: result.usage?.total_tokens || 0 };
+    tokenLogger(model, usage.totalTokens);
+    return { text: result.choices?.[0]?.message?.content || '', usage };
+  };
+  const openRouterModelFor = (provider: ProviderPreference) => ({ gpt: 'openai/gpt-4o-mini', claude: 'anthropic/claude-3.5-sonnet', deepseek: 'deepseek/deepseek-chat' } as Record<string, string>)[provider];
+  const model = openRouterModelFor(preferredProvider);
+  const providers: (() => Promise<ProviderResult>)[] = preferredProvider === 'openrouter' ? [() => tryOpenRouter(), tryGemini, tryOpenAI, tryAnthropic, tryDeepSeek] : preferredProvider === 'gpt' ? [tryOpenAI, () => tryOpenRouter(model), tryGemini, tryAnthropic, tryDeepSeek] : preferredProvider === 'claude' ? [tryAnthropic, () => tryOpenRouter(model), tryGemini, tryOpenAI, tryDeepSeek] : preferredProvider === 'deepseek' ? [tryDeepSeek, () => tryOpenRouter(model), tryGemini, tryOpenAI, tryAnthropic] : [tryGemini, () => tryOpenRouter(), tryOpenAI, tryAnthropic, tryDeepSeek];
+  for (const provider of providers) {
+    try { const result = await provider(); if (result.text) return result; } catch (error) { console.error('Chat provider failed:', error); }
   }
+  return { text: '', usage: { provider: 'none', model: 'none', promptTokens: 0, completionTokens: 0, totalTokens: 0 } };
 }
