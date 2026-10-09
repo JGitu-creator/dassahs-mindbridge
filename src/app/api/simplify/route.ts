@@ -9,7 +9,8 @@ const apiKey = process.env.GEMINI_API_KEY;
 const openaiKey = process.env.OPENAI_API_KEY;
 const anthropicKey = process.env.ANTHROPIC_API_KEY;
 const deepseekKey = process.env.DEEPSEEK_API_KEY;
-const openrouterKey = process.env.OPENROUTER_API_KEY;
+// Preserve compatibility with the existing deployment variable while preferring the explicit name.
+const openrouterKey = process.env.OPENROUTER_API_KEY || process.env.ROUTER_API_KEY;
 const openrouterModel = process.env.OPENROUTER_MODEL || 'openrouter/free';
 
 export const dynamic = 'force-dynamic';
