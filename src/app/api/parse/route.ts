@@ -12,11 +12,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    const fileName = file.name.toLowerCase();
+    const allowedExtension = /\.(pdf|docx|txt|csv)$/i.test(fileName);
+    const allowedMime = !file.type || ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/csv'].includes(file.type);
+    const maxBytes = 10 * 1024 * 1024;
+    if (!allowedExtension || !allowedMime) {
+      return NextResponse.json({ error: 'Unsupported document type. Please upload a PDF, DOCX, TXT, or CSV file.' }, { status: 415 });
+    }
+    if (file.size > maxBytes) {
+      return NextResponse.json({ error: 'This document is larger than 10 MB. Please split it into smaller parts.' }, { status: 413 });
+    }
+
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     let text = '';
 
-    if (file.name.endsWith('.pdf')) {
+    if (fileName.endsWith('.pdf')) {
       try {
         // Use standard pdf-parse with direct buffer to avoid worker issues
         const pdf = require('pdf-parse');
@@ -26,7 +37,7 @@ export async function POST(req: NextRequest) {
         console.error('PDF Parse Error:', pdfErr);
         throw new Error(`PDF Parsing failed: ${pdfErr.message}`);
       }
-    } else if (file.name.endsWith('.docx')) {
+    } else if (fileName.endsWith('.docx')) {
       const result = await mammoth.extractRawText({ buffer });
       text = result.value;
     } else {

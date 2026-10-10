@@ -713,6 +713,7 @@ export default function Home() {
   const [usageCount, setUsageCount] = useState(0);
   const [providerPreference, setProviderPreference] = useState<ProviderPreference>('auto');
   const [aiUsage, setAiUsage] = useState({ totalTokens: 0, provider: 'automatic', model: 'not used yet' });
+  const [pendingImage, setPendingImage] = useState<{ data: string; mime: string } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const isPlayingRef = useRef(false);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -1195,13 +1196,14 @@ export default function Home() {
     }
   }, [data]);
   const handleSimplify = async (textToSimplify = input) => {
-     if (!textToSimplify.trim()) return; 
+     if (!textToSimplify.trim() && !pendingImage) return;
     // --- SENSITIVITY CHECK ---
     const ssnPattern = /\b\d{3}-\d{2}-\d{4}\b/;
-    const pwdKeyword = /password|secret|key|token/i;
+    const privateKeyPattern = /-----BEGIN [A-Z ]*PRIVATE KEY-----|sk-[a-zA-Z0-9_-]{20,}|AIza[a-zA-Z0-9_-]{20,}/;
+    const sensitiveKeyword = /password|secret|api key|access token|bank account|medical record|患者|diagnosis/i;
     
-    if (ssnPattern.test(textToSimplify) || (textToSimplify.length < 50 && pwdKeyword.test(textToSimplify))) {
-      if (!confirm("⚠️ SOVEREIGN WARNING: Security has detected potentially sensitive data (SSN or Password) in your noise. Refracting this through the Neural Bridge could compromise your privacy. Do you wish to proceed at your own risk?")) {
+    if (!pendingImage && (ssnPattern.test(textToSimplify) || privateKeyPattern.test(textToSimplify) || (textToSimplify.length < 120 && sensitiveKeyword.test(textToSimplify)))) {
+      if (!confirm("SOVEREIGN PRIVACY WARNING: This text may contain a password, API key, identity number, financial detail, or medical information. It will be sent to the configured AI provider for refraction. Remove secrets first, or choose Cancel.")) {
         return;
       }
     }
@@ -1216,9 +1218,8 @@ export default function Home() {
     // --- AUTOMATIC CHUNKING ---
     const MAX_CHUNK_SIZE = 2000;
     const chunks = [];
-    for (let i = 0; i < textToSimplify.length; i += MAX_CHUNK_SIZE) {
-      chunks.push(textToSimplify.slice(i, i + MAX_CHUNK_SIZE));
-    }
+    if (pendingImage) chunks.push('Image input');
+    else for (let i = 0; i < textToSimplify.length; i += MAX_CHUNK_SIZE) chunks.push(textToSimplify.slice(i, i + MAX_CHUNK_SIZE));
     
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
@@ -1235,7 +1236,9 @@ export default function Home() {
             missionGoal,
             isStory: storyMode,
             simplicityLevel,
-            preferredProvider: providerPreference
+            preferredProvider: providerPreference,
+            imageData: pendingImage?.data,
+            imageMimeType: pendingImage?.mime
           })
         });
         const payload = await res.json().catch(() => ({}));
@@ -1253,6 +1256,7 @@ export default function Home() {
       }));
 
       setData(result);
+      setPendingImage(null);
       
       // Update Bandwidth Stats
       const wordCount = textToSimplify.trim().split(/\s+/).length;
@@ -1316,14 +1320,15 @@ export default function Home() {
   const dailyInsight = getDailyInsight();
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0]; if (!file) return; setLoading(true);
+    if (file.size > 10 * 1024 * 1024) { alert('This file is larger than 10 MB. Please split it into smaller parts.'); setLoading(false); return; }
     
     // Multi-modal image handling
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64Image = reader.result as string;
-        // Temporary placeholder for multi-modal logic
-        console.log('Image ready for refraction');
+        setPendingImage({ data: base64Image, mime: file.type });
+        setInput('Image ready — add an optional goal, then open the Prism to refract it.');
         setLoading(false);
       };
       reader.readAsDataURL(file);
@@ -1778,6 +1783,12 @@ export default function Home() {
             </button>
           )}
         </nav>
+      </div>
+      <div className="fixed bottom-4 left-4 z-[125] flex items-center gap-1 rounded-2xl border border-[var(--color-border)] bg-[var(--color-glass)] p-1.5 shadow-xl backdrop-blur-xl" aria-label="Reading appearance">
+        <span className="sr-only">Reading appearance</span>
+        <button aria-label="Use light reading mode" aria-pressed={themeMode === 'light'} onClick={() => setThemeMode('light')} className={`rounded-xl p-2 transition ${themeMode === 'light' ? 'bg-[var(--bg)] text-[var(--fg)] shadow' : 'text-[var(--fg)]/70 hover:text-[var(--fg)]'}`}><Sun size={14} /></button>
+        <button aria-label="Use dark reading mode" aria-pressed={themeMode === 'dark'} onClick={() => setThemeMode('dark')} className={`rounded-xl p-2 transition ${themeMode === 'dark' ? 'bg-[var(--bg)] text-[var(--fg)] shadow' : 'text-[var(--fg)]/70 hover:text-[var(--fg)]'}`}><Moon size={14} /></button>
+        <button aria-label="Follow device reading mode" aria-pressed={themeMode === 'system'} onClick={() => setThemeMode('system')} className={`rounded-xl p-2 transition ${themeMode === 'system' ? 'bg-[var(--bg)] text-[var(--fg)] shadow' : 'text-[var(--fg)]/70 hover:text-[var(--fg)]'}`}><Monitor size={14} /></button>
       </div>
       {/* Prism Link (Feedback) */}
       <button onClick={() => setShowFeedback(true)} className={`fixed top-24 left-8 z-[120] p-4 rounded-2xl apple-glass text-[var(--fg)] hover:text-[var(--fg)] hover:bg-[var(--bg)]/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl ${focusMode === 'sovereign' ? 'hidden' : ''}`}>
@@ -2514,10 +2525,12 @@ export default function Home() {
         <p className="text-[var(--fg)] font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
           JG <IchthysIcon size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
         </p>
+        <p className="max-w-xl text-[10px] leading-relaxed text-[var(--fg)]/70">Privacy first: remove passwords, API keys, identity numbers, and private medical or financial details before sending material for AI refraction.</p>
         <div className="flex items-center gap-4">
           <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-[var(--bg)]/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-[var(--fg)] transition-all">About the Prism</button>
           
           <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
+          <a href="/dassahs-prism-extension.zip" download className="mt-2 px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-emerald-500 hover:text-[var(--fg)] transition-all">Browser Extension</a>
         </div>
       </footer>
       {isFidgetModeActive && <PrismWeaver />}

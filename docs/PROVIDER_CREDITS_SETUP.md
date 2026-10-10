@@ -18,6 +18,12 @@ This guide covers everything needed to run the provider selection page (`/select
 
 > The migration is not re-runnable as-is (policies/trigger use `CREATE`). If you need to re-run it, drop the policies and the `user_credits_updated_at` trigger first.
 
+### Usage ledger and fair-use enforcement
+
+After the original credit migration has been applied, run `supabase/migrations/002_ai_usage_ledger.sql`. It records provider, model, and token metadata per signed-in user and never stores document contents. Then set `PRISM_ENFORCE_USER_CREDITS=true` in the production environment. The simplifier and Ask DJ will reserve credits before AI work, refund them when the local fallback is used or generation fails, and record actual provider usage after a successful response.
+
+Keep this switch `false` while the migrations are not present; otherwise signed-in AI requests will correctly stop with a setup message instead of silently bypassing the fairness system.
+
 Also make sure **Google** is enabled under **Authentication → Providers**, and add `https://<your-domain>/select-provider` (and `http://localhost:3000/select-provider`) to **Authentication → URL Configuration → Redirect URLs**.
 
 ---
@@ -38,6 +44,7 @@ Copy `.env.example` to `.env.local` for local dev, and add the same keys in **Ve
 | `LEMON_SQUEEZY_WEBHOOK_SECRET` | The signing secret you set on the webhook (step 3) | For payments |
 | `PRISM_CREDITS_PER_REQUEST` | Credits per AI call (default `10`) | Optional |
 | `PRISM_REQUIRE_AUTH_FOR_AI` | `true` = guests get 401 from `/api/chat` | Optional |
+| `PRISM_ENFORCE_USER_CREDITS` | `true` = reserve/refund server-side credits and record per-user usage | Optional until migrations are applied |
 
 > ⚠️ `PRISM_REQUIRE_AUTH_FOR_AI=true` blocks guest AI calls on the homepage. Leave it unset/`false` until you want to require sign-in. When unset, guests (no `sb-access-token` cookie) are not charged.
 

@@ -4,6 +4,7 @@ import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 import { tokenLogger } from '@/lib/tokenLogger';
 import { emptyUsage, mergeUsage, usageFromOpenRouter, type AiUsage, type ProviderPreference } from '@/lib/ai-usage';
+import { recordUsage, refundCredits, reserveCredits, type QuotaReservation } from '@/lib/ai-quota';
 
 const apiKey = process.env.GEMINI_API_KEY;
 const openaiKey = process.env.OPENAI_API_KEY;
@@ -16,12 +17,14 @@ const openrouterModel = process.env.OPENROUTER_MODEL || 'openrouter/free';
 export const dynamic = 'force-dynamic';
 
 type ProviderResult = { text: string; usage: AiUsage };
+type ImageInput = { data: string; mimeType: string };
 
 export async function POST(req: Request) {
+  let reservation: QuotaReservation | null = null;
   try {
     const {
       text = '', mode, question, context, isScenic, cognitiveMode, missionGoal,
-      isStory, simplicityLevel, preferredProvider = 'auto',
+      isStory, simplicityLevel, preferredProvider = 'auto', imageData, imageMimeType,
     } = await req.json();
     const absoluteMaxChars = 150000;
     const chunkSize = 25000;
@@ -29,16 +32,23 @@ export async function POST(req: Request) {
     if (text.length > absoluteMaxChars) {
       return NextResponse.json({ error: 'Neural Link Overload: Document exceeds maximum sovereign bandwidth (150k chars). Please split your noise into smaller volumes.' }, { status: 413 });
     }
-    if (!text && mode !== 'chat') return NextResponse.json({ error: 'Valid input is required.' }, { status: 400 });
+    const image = typeof imageData === 'string' && imageData.length <= 14_000_000 && typeof imageMimeType === 'string' && /^image\/(png|jpeg|jpg|webp|gif)$/i.test(imageMimeType)
+      ? { data: imageData.replace(/^data:image\/[^;]+;base64,/, ''), mimeType: imageMimeType } satisfies ImageInput
+      : undefined;
+    if (!text && !image && mode !== 'chat') return NextResponse.json({ error: 'Valid text or image input is required.' }, { status: 400 });
+    const quota = await reserveCredits(req);
+    if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: quota.status });
+    reservation = quota.reservation;
 
     if (mode === 'chat') {
       const chatPrompt = `You are "Ask DJ," a Sovereign Guide. Answer the following question based on the context provided.\n\nContext: ${context}\n\nQuestion: ${question}`;
-      const result = await callProvider(chatPrompt, preferredProvider);
+      const result = await callProvider(chatPrompt, preferredProvider, image);
       return NextResponse.json({ answer: result.text, usage: result.usage });
     }
 
     const chunksOfText: string[] = [];
-    for (let i = 0; i < text.length; i += chunkSize) chunksOfText.push(text.substring(i, i + chunkSize));
+    if (image) chunksOfText.push('Image input');
+    else for (let i = 0; i < text.length; i += chunkSize) chunksOfText.push(text.substring(i, i + chunkSize));
     const settledResults = await Promise.allSettled(chunksOfText.map(async (chunkText) => {
       const generationPrompt = `
         You are "Ask DJ," a Sovereign Guide. Your mission is to perform a Deep Neural Refraction on the provided Noise.
@@ -57,7 +67,7 @@ export async function POST(req: Request) {
         }
         INPUT NOISE:\n${chunkText}
       `;
-      const result = await callProvider(generationPrompt, preferredProvider);
+      const result = await callProvider(generationPrompt, preferredProvider, image);
       if (!result.text) throw new Error('No response from providers');
       return { data: extractJSON(result.text), usage: result.usage };
     }));
@@ -66,6 +76,7 @@ export async function POST(req: Request) {
     const usage = mergeUsage(refractionResults.map(result => result.usage));
     if (refractionResults.length === 0) {
       const local = createLocalRefraction(text, simplicityLevel, cognitiveMode);
+      await refundCredits(reservation);
       return NextResponse.json({ ...local, usage: { provider: 'local', model: 'structural-refraction', promptTokens: 0, completionTokens: 0, totalTokens: 0 } }, { status: 200 });
     }
 
@@ -78,21 +89,24 @@ export async function POST(req: Request) {
     });
     mergedData.tldr = [...new Set(mergedData.tldr)].slice(0, 6);
     mergedData.actions = Array.from(new Map(mergedData.actions.map(action => [action.task, action])).values());
+    await recordUsage(reservation, usage);
     return NextResponse.json({
       tldr: mergedData.tldr.length ? mergedData.tldr : ['No summary generated'], whyCare: mergedData.whyCare, readingTime: mergedData.readingTime,
       chunks: mergedData.chunks.map(chunk => ({ heading: chunk.heading || 'Neural Fragment', content: chunk.content || '', summary: chunk.summary || 'Segment analyzed.', keyTerms: chunk.keyTerms || [], metaphor: chunk.metaphor || '', dopamineHook: chunk.dopamineHook || '', logicRoot: chunk.logicRoot || 'Foundational principle established.', citations: chunk.citations || 'Contextual anchor secured.' })),
       actions: mergedData.actions, chartData: mergedData.chartData, usage,
     });
   } catch (error: any) {
+    await refundCredits(reservation);
     return NextResponse.json({ error: error.message || 'The Neural Engine is unavailable.' }, { status: 500 });
   }
 }
 
-async function callProvider(prompt: string, preferredProvider: ProviderPreference = 'auto'): Promise<ProviderResult> {
+async function callProvider(prompt: string, preferredProvider: ProviderPreference = 'auto', image?: ImageInput): Promise<ProviderResult> {
   const tryGemini = async (): Promise<ProviderResult> => {
     if (!apiKey) throw new Error('No Gemini Key');
     const model = 'gemini-2.0-flash';
-    const result = await new GoogleGenerativeAI(apiKey).getGenerativeModel({ model }).generateContent(prompt);
+    const content = image ? [{ text: prompt }, { inlineData: { data: image.data, mimeType: image.mimeType } }] : prompt;
+    const result = await new GoogleGenerativeAI(apiKey).getGenerativeModel({ model }).generateContent(content);
     const metadata: any = result.response.usageMetadata;
     const promptTokens = Number(metadata?.promptTokenCount || 0);
     const completionTokens = Number(metadata?.candidatesTokenCount || 0);
@@ -102,7 +116,8 @@ async function callProvider(prompt: string, preferredProvider: ProviderPreferenc
   };
   const tryOpenRouter = async (model = openrouterModel): Promise<ProviderResult> => {
     if (!openrouterKey) throw new Error('No OpenRouter Key');
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-mindbridge.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.2 }) });
+    const content = image ? [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: `data:${image.mimeType};base64,${image.data}` } }] : prompt;
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-mindbridge.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages: [{ role: 'user', content }], temperature: 0.2 }) });
     if (!response.ok) throw new Error(`OpenRouter returned ${response.status}`);
     const data = await response.json();
     const usage = usageFromOpenRouter(data.usage, data.model || model);
