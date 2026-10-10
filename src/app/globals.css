@@ -196,3 +196,26 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-accent) 72%, white 28%); outline-offset: 3px; }
+
+
+/* Stable reading surface for the long-form About and Mission Brief modals. */
+.light .contrast-modal {
+  --fg: #0f172a;
+  --color-fg: #0f172a;
+  --color-text: #1e293b;
+  background: rgba(255, 255, 255, 0.97) !important;
+  color: #1e293b !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+.dark .contrast-modal {
+  --fg: #f8fafc;
+  --color-fg: #f8fafc;
+  --color-text: #e2e8f0;
+  background: rgba(15, 23, 42, 0.97) !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(147, 197, 253, 0.35) !important;
+}
+.contrast-modal .text-slate-200,
+.contrast-modal .text-slate-300,
+.contrast-modal .text-slate-400,
+.contrast-modal .text-slate-500 { color: var(--color-text) !important; }

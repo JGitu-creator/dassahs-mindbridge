@@ -717,7 +717,6 @@ export default function Home() {
   const isPlayingRef = useRef(false);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>('');
-  const [showVoiceSelector, setShowVoiceSelector] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [isBionic, setIsBionic] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
@@ -741,7 +740,6 @@ export default function Home() {
   }, []);
 
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
-  const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>(() => {
     if (typeof window === 'undefined') return 'system';
     const saved = localStorage.getItem('dassahs_theme_mode');
@@ -1833,16 +1831,7 @@ export default function Home() {
                           <ArrowRight size={16} className="text-[var(--fg)] opacity-0 group-hover:opacity-100 transition-opacity" />
                         </button>
                       )}
-                      <a href="/dassahs-prism-extension.zip" download className="w-full p-5 rounded-2xl bg-purple-600/10 border border-purple-500/30 flex items-center justify-between group hover:bg-blue-600 hover:border-blue-400 transition-all">
-                        <div className="flex items-center gap-4">
-                          <Rocket size={20} className="text-[var(--accent)] group-hover:text-[var(--fg)]" />
-                          <div className="text-left">
-                            <p className="text-xs font-black text-[var(--fg)] uppercase tracking-widest">Neural Bridge</p>
-                            <p className="text-[8px] text-[var(--accent)]/60 group-hover:text-purple-100 font-bold uppercase tracking-tight">Download Chrome Extension</p>
-                          </div>
-                        </div>
-                        <Download size={16} className="text-[var(--fg)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </a>
+
                     </div>
                   </div>
                   <div>
@@ -1882,7 +1871,7 @@ export default function Home() {
                           </div>
                           <div className={`w-2 h-2 rounded-full ${brownNoisePlaying ? 'bg-amber-400 animate-pulse' : 'bg-[var(--bg)]/10'}`} />
                         </button>
-                        <button onClick={() => setShowVoiceSelector(true)} className="w-full p-5 rounded-2xl flex items-center justify-between bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)] transition-all" title="Voice Settings">
+                        <button onClick={() => setShowNeuralIdentity(true)} className="w-full p-5 rounded-2xl flex items-center justify-between bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)] transition-all" title="Open Voice Settings in Neural Identity">
                           <div className="flex items-center gap-4">
                             <MorphSettings size={20} />
                             <p className="text-xs font-black text-[var(--fg)] uppercase tracking-widest">Voice Settings</p>
@@ -2014,7 +2003,7 @@ export default function Home() {
       </AnimatePresence>
       <AnimatePresence>{showAbout && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} className="max-w-4xl w-full refractive-border p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto overflow-hidden">
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} className="contrast-modal max-w-4xl w-full refractive-border apple-glass p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto overflow-hidden">
             {[...Array(12)].map((_, i) => <GlassShard key={i} i={i} color={currentTheme.prism[i % 3]} mousePos={mousePos} />)}
             <motion.div initial={{ x: '-100%', skewX: -20 }} animate={{ x: '200%' }} transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }} className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-10" />
             <button onClick={() => setShowAbout(false)} className="absolute top-8 right-8 p-4 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors z-20"><X size={32}/></button>
@@ -2119,7 +2108,7 @@ export default function Home() {
       )}</AnimatePresence>
       <AnimatePresence>{showMissionBrief && data && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="max-w-2xl w-full bg-[var(--color-shadow)] border-2 border-blue-500/30 p-10 md:p-16 rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] relative max-h-[90vh] overflow-y-auto no-scrollbar">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="contrast-modal max-w-2xl w-full apple-glass border-2 border-blue-500/30 p-10 md:p-16 rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] relative max-h-[90vh] overflow-y-auto no-scrollbar">
             <button onClick={() => setShowMissionBrief(false)} className="absolute top-8 right-8 p-3 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
             <div className="space-y-12">
               <div className="flex justify-between items-center">
@@ -2383,7 +2372,7 @@ export default function Home() {
                   <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-[var(--fg)] shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)]'}`} title="Neural Playback"><Volume2 size={16}/></button>
-                    <button onClick={() => setShowVoiceSelector(true)} className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)] transition-all" title="Voice Settings"><MorphSettings size={16}/></button>
+                    <button onClick={() => setShowNeuralIdentity(true)} className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)] transition-all" title="Open Voice Settings in Neural Identity"><MorphSettings size={16}/></button>
                   </div>
                 </div>
                 
@@ -2524,29 +2513,6 @@ export default function Home() {
         <div className="flex items-center gap-4">
           <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-[var(--bg)]/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-[var(--fg)] transition-all">About the Prism</button>
           
-          <div className="flex bg-[var(--bg)]/5 p-1 rounded-full border border-white/10 mt-2">
-            <button 
-              onClick={() => setThemeMode('light')} 
-              title="Light Mode"
-              className={`p-2 rounded-full transition-all ${themeMode === 'light' ? 'bg-[var(--bg)] text-slate-900 shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
-            >
-              <Sun size={14} />
-            </button>
-            <button 
-              onClick={() => setThemeMode('dark')} 
-              title="Dark Mode"
-              className={`p-2 rounded-full transition-all ${themeMode === 'dark' ? 'bg-[var(--bg)] text-[var(--fg)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
-            >
-              <MoonStar size={14} />
-            </button>
-             <button 
-              onClick={() => setThemeMode('system')} 
-              title="System Mode"
-              className={`p-2 rounded-full transition-all ${themeMode === 'system' ? 'bg-[var(--bg)] text-[var(--prism-3)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}
-            >
-              <Monitor size={14} />
-            </button>
-          </div>
           <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
         </div>
       </footer>
