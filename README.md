@@ -1,4 +1,12 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is **Dassah's Prism**, an ADHD-friendly document simplifier that turns overwhelming noise into clear, actionable focus. It is built with [Next.js](https://nextjs.org).
+
+## Source and Android APK
+
+The public source repository is:
+
+<https://github.com/JGitu-creator/dassahs-mindbridge>
+
+For a simple Android install or Capacitor APK wrapper, see [the APK guide](docs/APK_BUILD.md). The recommended first release is **Add to Home screen** from Chrome because Prism's AI, authentication, and server routes remain safely on the server.
 
 ## Getting Started
 

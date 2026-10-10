@@ -64,35 +64,35 @@ const THEMES: Record<string, ThemeConfig> = {
   midnight_sovereign: {
     name: 'Midnight Sovereign',
     icon: Moon,
-    light: { background: '#e0e7ff', text: '#1e3a8a', accent: '#3b82f6', glass: 'rgba(255,255,255,0.7)', border: 'rgba(59, 130, 246, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    light: { background: '#f8fafc', text: '#172554', accent: '#2563eb', glass: 'rgba(255,255,255,0.9)', border: 'rgba(37, 99, 235, 0.28)', shadow: "rgba(15,23,42,0.08)" },
     dark: { background: '#020617', text: '#f8fafc', accent: '#3b82f6', glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#3b82f6', '#8b5cf6', '#06b6d4']
   },
   electric_grace: {
     name: 'Electric Grace',
     icon: Flame,
-    light: { background: '#ffe4e6', text: '#881337', accent: '#e11d48', glass: 'rgba(255, 228, 230, 0.7)', border: 'rgba(225, 29, 72, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    light: { background: '#fff7f8', text: '#881337', accent: '#be123c', glass: 'rgba(255,255,255,0.92)', border: 'rgba(190, 18, 60, 0.28)', shadow: "rgba(76,5,25,0.08)" },
     dark: { background: '#0f0505', text: '#ffe4e6', accent: '#e11d48', glass: 'rgba(20, 5, 5, 0.5)', border: 'rgba(225, 29, 72, 0.3)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#e11d48', '#fbbf24', '#2dd4bf']
   },
   divine_gold: {
     name: 'Divine Gold',
     icon: Coins,
-    light: { background: '#fef3c7', text: '#78350f', accent: '#d97706', glass: 'rgba(255,255,255,0.7)', border: 'rgba(217, 119, 6, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    light: { background: '#fffbeb', text: '#78350f', accent: '#b45309', glass: 'rgba(255,255,255,0.92)', border: 'rgba(180, 83, 9, 0.28)', shadow: "rgba(120,53,15,0.08)" },
     dark: { background: '#000000', text: '#fffbeb', accent: '#fbbf24', glass: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.4)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#fbbf24', '#f59e0b', '#ffffff']
   },
   hadassah_silk: {
     name: 'Hadassah Silk',
     icon: Gem,
-    light: { background: '#d1fae5', text: '#064e3b', accent: '#059669', glass: 'rgba(255,255,255,0.7)', border: 'rgba(5, 150, 105, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    light: { background: '#f0fdf4', text: '#064e3b', accent: '#047857', glass: 'rgba(255,255,255,0.92)', border: 'rgba(4, 120, 87, 0.28)', shadow: "rgba(6,78,59,0.08)" },
     dark: { background: '#022c22', text: '#ecfdf5', accent: '#10b981', glass: 'rgba(6, 78, 59, 0.4)', border: 'rgba(16, 185, 129, 0.2)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#10b981', '#34d399', '#059669']
   },
   sovereign_pulse: {
     name: 'Sovereign Pulse',
     icon: Orbit,
-    light: { background: '#f3e8ff', text: '#3b0764', accent: '#7c3aed', glass: 'rgba(255,255,255,0.7)', border: 'rgba(124, 58, 237, 0.2)', shadow: "rgba(0,0,0,0.05)" },
+    light: { background: '#faf5ff', text: '#3b0764', accent: '#6d28d9', glass: 'rgba(255,255,255,0.92)', border: 'rgba(109, 40, 217, 0.28)', shadow: "rgba(59,7,100,0.08)" },
     dark: { background: '#2e1065', text: '#f5f3ff', accent: '#8b5cf6', glass: 'rgba(76, 29, 149, 0.4)', border: 'rgba(139, 92, 246, 0.2)', shadow: "rgba(0,0,0,0.4)" },
     prism: ['#8b5cf6', '#a78bfa', '#7c3aed']
   }
@@ -2241,7 +2241,7 @@ export default function Home() {
                 <div className="w-full h-48 md:h-80 bg-black/60 rounded-[1.5rem] md:rounded-[2.5rem] overflow-y-auto border border-white/10 pt-16"><NeuroMirrorText text={input || "Paste some text..."} /></div>
               ) : (
                 <textarea 
-                  className="w-full h-48 md:h-80 pt-16 md:pt-20 p-6 md:p-12 text-base md:text-xl bg-black/40 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-white/20 focus:border-purple-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-400 text-slate-200 leading-relaxed font-medium" 
+                  className="prism-input w-full h-48 md:h-80 pt-16 md:pt-20 p-6 md:p-12 text-base md:text-xl bg-black/40 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-white/20 focus:border-purple-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-400 text-slate-200 leading-relaxed font-medium" 
                   placeholder="Paste the noise here..." 
                   value={input} 
                   onChange={(e) => setInput(e.target.value)} 
@@ -2416,7 +2416,7 @@ export default function Home() {
                   <p className="text-slate-300 font-bold italic">{isBionic ? <BionicText text={data.chunks[currentChunk].summary} /> : data.chunks[currentChunk].summary}</p>
                 </div>
                 <div className="space-y-8 flex-grow">
-                  <div className="bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
+                  <div className="prism-content bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
                   
                   {/* Progress Prism at the bottom of content */}
                   <div className="pt-8">

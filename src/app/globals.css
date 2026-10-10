@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+html {
+  font-size: 17px;
+}
+
+@media (max-width: 767px) {
+  html {
+    font-size: 16px;
+  }
+}
+
 :root {
   /* Glassmorphism Core */
   --glass-blur: 32px;
@@ -21,7 +31,33 @@ body {
   overflow-x: hidden;
   background-color: var(--color-bg);
   color: var(--color-text);
+  line-height: 1.5;
   transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1), color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ADHD-friendly reading surfaces: one comfortable step larger with more breathing room. */
+.prism-input {
+  font-size: clamp(1.125rem, 1.5vw, 1.35rem) !important;
+  line-height: 1.7 !important;
+}
+
+.prism-content {
+  font-size: clamp(1.5rem, 2.4vw, 2rem) !important;
+  line-height: 1.7 !important;
+}
+
+.light .prism-content {
+  color: #1e293b !important;
+}
+
+.dark .prism-content {
+  color: #f8fafc !important;
+}
+
+/* White in an animated gradient is attractive in dark mode but washes out on light. */
+.light .prism-text {
+  background: linear-gradient(110deg, #312e81 0%, #6d28d9 28%, #1d4ed8 52%, #7e22ce 76%, #92400e 100%);
+  background-size: 200% auto;
 }
 
 /* --- Advanced Apple Liquid Glassmorphism --- */
