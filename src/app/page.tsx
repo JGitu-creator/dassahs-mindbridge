@@ -5,7 +5,7 @@ import {
   Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
   Lock, Trophy, Sparkle, BarChart3, MessageSquare, Loader2, Type, Swords, Sun, Moon, Ghost, Star, Settings, MoreHorizontal,
-  Compass, Check, LogOut, Shield, Anchor, Heart, Eye, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit,
+  Compass, Check, LogOut, Shield, Anchor, Heart, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit,
   Hexagon, Monitor, Zap, Brain, Fish
 } from 'lucide-react';
 import { NeuralCore } from '@/components/NeuralCore';
@@ -41,28 +41,6 @@ const DastasticShell = ({ children, theme, themeMode }: { children: React.ReactN
   return (
     <div className={`theme-${theme} ${effectiveThemeMode === 'dark' ? 'dark' : 'light'} min-h-screen transition-colors duration-700 ease-in-out`}>
       {children}
-    </div>
-  );
-};
-const NeuralEyes = ({ mousePos }: { mousePos: { x: number, y: number } }) => {
-  const isMobile = useIsMobile();
-  if (isMobile) return null;
-  return (
-    <div className="fixed top-8 left-1/2 -translate-x-1/2 flex gap-4 z-[200] opacity-30 hover:opacity-100 transition-opacity pointer-events-none">
-      {[0, 1].map((i) => (
-        <div key={i} className="w-10 h-10 bg-[var(--bg)]/10 rounded-full border border-white/20 flex items-center justify-center relative overflow-hidden backdrop-blur-md">
-          <motion.div 
-            animate={{ 
-              x: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth / 2 : 0)) * 0.01,
-              y: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight / 2 : 0)) * 0.01 
-            }}
-            className="flex items-center justify-center"
-          >
-            <Eye size={24} className="text-blue-500" />
-            <div className="absolute w-2 h-2 bg-slate-900 rounded-full" />
-          </motion.div>
-        </div>
-      ))}
     </div>
   );
 };
@@ -148,7 +126,7 @@ const useIsMobile = () => {
   return isMobile;
 };
 import { StackedThemeSelector } from '@/components/morphing/StackedThemeSelector';
-import { MorphFish, MorphBrain, MorphZap, MorphRocket, MorphEye, MorphSettings } from '@/components/morphing/MorphIcons';
+import { MorphFish, MorphBrain, MorphZap, MorphRocket, MorphSettings } from '@/components/morphing/MorphIcons';
 
 const IchthysIcon = ({ size = 24, className = "" }) => <MorphFish className={className} />;
 const StarParticles = ({ count, isFinal }: { count: number, isFinal?: boolean }) => {
@@ -437,7 +415,6 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
   
   return (
     <div className="relative">
-      <NeuralEyes mousePos={mousePos} />
       <motion.div 
         animate={{ 
           rotate: loading ? [0, 10, -10, 0] : [0, 5, -5, 0], 
@@ -587,6 +564,8 @@ const RefractiveTagline = () => {
 };
 const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mousePos: { x: number, y: number }, theme: ThemeMode, themeMode: 'light' | 'dark' | 'system', focusMode: string }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mousePosRef = useRef(mousePos);
+  useEffect(() => { mousePosRef.current = mousePos; }, [mousePos]);
   const t = THEMES[theme] || THEMES.midnight_sovereign;
   const isDark = themeMode === 'system' 
     ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -650,8 +629,8 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mous
             this.segments.pop();
           }
           // React to mouse
-          const dx = (newHead.x * gridSize) - mousePos.x;
-          const dy = (newHead.y * gridSize) - mousePos.y;
+          const dx = (newHead.x * gridSize) - mousePosRef.current.x;
+          const dy = (newHead.y * gridSize) - mousePosRef.current.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < 150) {
             this.speed = 3; // Speed up near mouse
@@ -685,7 +664,7 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mous
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [focusMode, theme, mousePos]);
+  }, [focusMode, theme]);
   if (focusMode === 'sovereign') return null;
   return (
     <canvas 
@@ -735,6 +714,7 @@ export default function Home() {
   const [providerPreference, setProviderPreference] = useState<ProviderPreference>('auto');
   const [aiUsage, setAiUsage] = useState({ totalTokens: 0, provider: 'automatic', model: 'not used yet' });
   const [isPlaying, setIsPlaying] = useState(false);
+  const isPlayingRef = useRef(false);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>('');
   const [showVoiceSelector, setShowVoiceSelector] = useState(false);
@@ -762,31 +742,25 @@ export default function Home() {
 
   const [showNeuroMirror, setShowNeuroMirror] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('system');
-
+  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>(() => {
+    if (typeof window === 'undefined') return 'system';
+    const saved = localStorage.getItem('dassahs_theme_mode');
+    return saved === 'light' || saved === 'dark' || saved === 'system' ? saved : 'system';
+  });
+  const [systemIsDark, setSystemIsDark] = useState(false);
   useEffect(() => {
-    // Apply theme based on state or system preference
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const applyTheme = () => {
-      const isDark = themeMode === 'system' 
-        ? window.matchMedia('(prefers-color-scheme: dark)').matches
-        : themeMode === 'dark';
-      document.documentElement.classList.toggle('dark', isDark);
+      const nextSystemIsDark = mediaQuery.matches;
+      setSystemIsDark(nextSystemIsDark);
+      document.documentElement.classList.toggle('dark', themeMode === 'dark' || (themeMode === 'system' && nextSystemIsDark));
+      document.documentElement.classList.toggle('light', themeMode === 'light' || (themeMode === 'system' && !nextSystemIsDark));
     };
     applyTheme();
-    
-    // Add listener for system preference changes if in 'system' mode
-    if (themeMode === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handler = () => applyTheme();
-      mediaQuery.addEventListener('change', handler);
-      return () => mediaQuery.removeEventListener('change', handler);
-    }
+    mediaQuery.addEventListener('change', applyTheme);
+    localStorage.setItem('dassahs_theme_mode', themeMode);
+    return () => mediaQuery.removeEventListener('change', applyTheme);
   }, [themeMode]);
-
-  // ... Update the UI buttons to include 'System'
-  // <button onClick={() => setThemeMode('light')}>Light</button>
-  // <button onClick={() => setThemeMode('dark')}>Dark</button>
-  // <button onClick={() => setThemeMode('system')}>System</button>
   const [theme, setTheme] = useState<ThemeMode>('sovereign_pulse');
   const [brownNoisePlaying, setBrownNoisePlaying] = useState(false);
   const [mouseFocus, setMouseFocus] = useState(true);
@@ -847,6 +821,7 @@ export default function Home() {
         audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
       const ctx = audioCtxRef.current;
+      void ctx.resume();
       const bufferSize = 4096;
       let lastOut = 0.0;
       const node = ctx.createScriptProcessor(bufferSize, 1, 1);
@@ -1232,8 +1207,9 @@ export default function Home() {
         return;
       }
     }
+    const BILLING_ENABLED = false;
     const limit = user ? 30 : 10;
-    if (usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
+    if (BILLING_ENABLED && usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
     
     setLoading(true);
     setData(null); // CLEAR PREVIOUS DATA TO FORCE NEW DISCERNMENT UI
@@ -1391,6 +1367,7 @@ export default function Home() {
 
   const handleReadAloud = async (text: string) => {
     if (isPlaying) {
+      isPlayingRef.current = false;
       window.speechSynthesis.cancel();
       if (premiumAudioRef.current) {
         premiumAudioRef.current.pause();
@@ -1413,9 +1390,9 @@ export default function Home() {
         const url = URL.createObjectURL(blob);
         const audio = new Audio(url);
         premiumAudioRef.current = audio;
-        audio.onended = () => setIsPlaying(false);
-        audio.onerror = () => setIsPlaying(false);
-        audio.play();
+        audio.onended = () => { isPlayingRef.current = false; setIsPlaying(false); URL.revokeObjectURL(url); };
+        audio.onerror = () => { isPlayingRef.current = false; setIsPlaying(false); URL.revokeObjectURL(url); };
+        void audio.play().catch(() => { isPlayingRef.current = false; setIsPlaying(false); URL.revokeObjectURL(url); });
       } catch (e) {
         alert("Neural Premium link failed. Reverting to basic.");
         setIsPlaying(false);
@@ -1426,9 +1403,11 @@ export default function Home() {
     // ADHD-Optimized Rhythmic Pacing (The "DJ" Persona)
     const sentences = text.split(/([.!?])/);
     let index = 0;
+    isPlayingRef.current = true;
     setIsPlaying(true);
     const speakNext = () => {
-      if (index >= sentences.length || !isPlaying) {
+      if (index >= sentences.length || !isPlayingRef.current) {
+        isPlayingRef.current = false;
         setIsPlaying(false);
         return;
       }
@@ -1577,15 +1556,20 @@ export default function Home() {
     setIsPaid(false);
   };
   const currentTheme = THEMES[theme] || THEMES.midnight_sovereign;
-  const isDark = themeMode === 'dark';
+  const isDark = themeMode === 'dark' || (themeMode === 'system' && systemIsDark);
   const colors = isDark 
     ? (currentTheme.dark || { background: '#000', text: '#fff', accent: '#fff', glass: 'rgba(0,0,0,0.5)', border: 'rgba(255,255,255,0.1)', shadow: 'rgba(0,0,0,0.5)' }) 
     : (currentTheme.light || { background: '#fff', text: '#000', accent: '#000', glass: 'rgba(255,255,255,0.5)', border: 'rgba(0,0,0,0.1)', shadow: 'rgba(0,0,0,0.1)' });
   const themeStyles = `
     :root {
       --color-bg-1: ${colors.background}; --color-bg-2: ${colors.background};
-      --color-text: ${colors.text}; --color-accent: ${colors.accent};
+      --color-bg: ${colors.background}; --bg: ${colors.background};
+      --color-text: ${colors.text}; --color-fg: ${colors.text}; --fg: ${colors.text};
+      --color-accent: ${colors.accent}; --accent: ${colors.accent};
       --color-glass: ${colors.glass}; --color-border: ${colors.border};
+      --color-shadow: ${colors.shadow};
+      --color-glass-rgb: ${isDark ? '15, 23, 42' : '255, 255, 255'};
+      --color-border-rgb: ${isDark ? '148, 163, 184' : '100, 116, 139'};
       --prism-1: ${currentTheme.prism[0]}; --prism-2: ${currentTheme.prism[1]}; --prism-3: ${currentTheme.prism[2]};
     }
     @keyframes prism-refract { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
@@ -1676,7 +1660,7 @@ export default function Home() {
       </AnimatePresence>
       <AnimatePresence>
         {oneClickRecap && (
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-[var(--color-glass)] apple-glass p-6 rounded-[2rem] border border-[var(--color-border)] shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-[var(--bg)]/10 rounded-full flex items-center justify-center flex-shrink-0"><MorphEye size={20} className="text-[var(--fg)]" morphing={!!oneClickRecap} /></div><p className="text-sm font-bold text-[var(--fg)] leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
+          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] max-w-lg w-full px-4"><div className="bg-[var(--color-glass)] apple-glass p-6 rounded-[2rem] border border-[var(--color-border)] shadow-2xl flex items-center gap-4"><div className="w-10 h-10 bg-[var(--bg)]/10 rounded-full flex items-center justify-center flex-shrink-0"><Sparkles size={20} className="text-[var(--fg)]" /></div><p className="text-sm font-bold text-[var(--fg)] leading-relaxed italic">"{oneClickRecap}"</p></div></motion.div>
         )}
       </AnimatePresence>
       <AnimatePresence>
@@ -1753,11 +1737,11 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <AIUsageControl preference={providerPreference} onPreferenceChange={(value) => { setProviderPreference(value); localStorage.setItem('dassahs_provider_preference', value); }} usage={aiUsage} isPaid={isPaid} />
+          <AIUsageControl preference={providerPreference} onPreferenceChange={(value) => { setProviderPreference(value); localStorage.setItem('dassahs_provider_preference', value); }} usage={aiUsage} />
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
           {data && currentChunk >= 0 && (
             <button onClick={handleOneClickRecap} title="Where was I? (Recap)" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-400 hover:text-[var(--fg)] hover:bg-blue-500/20 transition-all flex items-center gap-2 group">
-              <motion.div whileHover={{ scale: 1.2 }}><MorphEye size={18} className="md:w-5 md:h-5 transition-transform" /></motion.div>
+              <motion.div whileHover={{ scale: 1.2 }}><Sparkles size={18} className="md:w-5 md:h-5 transition-transform" /></motion.div>
               <span className="hidden lg:block text-[10px] font-black uppercase tracking-widest">Recap</span>
             </button>
           )}

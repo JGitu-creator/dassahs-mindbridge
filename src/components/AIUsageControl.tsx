@@ -14,12 +14,10 @@ export function AIUsageControl({
   preference,
   onPreferenceChange,
   usage,
-  isPaid,
 }: {
   preference: ProviderPreference;
   onPreferenceChange: (value: ProviderPreference) => void;
   usage: Usage;
-  isPaid: boolean;
 }) {
   return (
     <div className="flex items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-glass)] px-2 py-1.5 text-[var(--fg)] shadow-lg backdrop-blur-xl">
@@ -31,11 +29,8 @@ export function AIUsageControl({
         className="max-w-[112px] bg-transparent text-[9px] font-black uppercase tracking-wider outline-none"
       >
         <option value="auto">Auto · best fit</option>
-        <option value="openrouter">OpenRouter · free first</option>
+        <option value="openrouter">OpenRouter · free models</option>
         <option value="gemini">Gemini · director</option>
-        <option value="gpt" disabled={!isPaid}>GPT {isPaid ? '· paid' : '· sign in'}</option>
-        <option value="claude" disabled={!isPaid}>Claude {isPaid ? '· paid' : '· sign in'}</option>
-        <option value="deepseek" disabled={!isPaid}>DeepSeek {isPaid ? '· paid' : '· sign in'}</option>
       </select>
       <div className="hidden items-center gap-1 border-l border-[var(--color-border)] pl-2 sm:flex" title={`${usage.provider || 'automatic'} · ${usage.model || 'not used yet'}`}>
         <Coins size={12} className="text-amber-400" />
