@@ -714,6 +714,7 @@ export default function Home() {
   const [providerPreference, setProviderPreference] = useState<ProviderPreference>('auto');
   const [aiUsage, setAiUsage] = useState({ totalTokens: 0, provider: 'automatic', model: 'not used yet' });
   const [pendingImage, setPendingImage] = useState<{ data: string; mime: string } | null>(null);
+  const [privateSession, setPrivateSession] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const isPlayingRef = useRef(false);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -1276,7 +1277,7 @@ export default function Home() {
       updateStreak();
       
       const title = result.tldr[0].slice(0, 30) + '...';
-      if (user) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
+      if (user && !privateSession) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
       setUsageCount(prev => { const next = prev + 1; localStorage.setItem('dassahs_prism_usage', next.toString()); return next; });
       setCurrentChunk(-1);
     } catch (err: any) { alert(err.message || 'The Prism encountered a storm!'); } finally { setLoading(false); }
@@ -1745,6 +1746,7 @@ export default function Home() {
             </div>
           </div>
           <AIUsageControl preference={providerPreference} onPreferenceChange={(value) => { setProviderPreference(value); localStorage.setItem('dassahs_provider_preference', value); }} usage={aiUsage} />
+          <button onClick={() => setPrivateSession((current) => !current)} title={privateSession ? 'Private session: results are not saved to your history' : 'Turn on private session'} aria-pressed={privateSession} className={`flex items-center gap-1 rounded-xl px-2 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${privateSession ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'text-[var(--fg)]/60 hover:text-[var(--fg)]'}`}><Shield size={12} /><span className="hidden md:inline">{privateSession ? 'Private' : 'Save'}</span></button>
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
           {data && currentChunk >= 0 && (
             <button onClick={handleOneClickRecap} title="Where was I? (Recap)" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-400 hover:text-[var(--fg)] hover:bg-blue-500/20 transition-all flex items-center gap-2 group">
@@ -2268,7 +2270,7 @@ export default function Home() {
               </div>
               <button 
                 onClick={() => handleSimplify()} 
-                disabled={loading || !input.trim()} 
+                disabled={loading || (!input.trim() && !pendingImage)}
                 className="flex-1 max-w-[200px] bg-gradient-to-r from-fuchsia-600 to-purple-500 hover:from-fuchsia-500 hover:to-purple-400 text-[var(--fg)] py-3 md:py-4 rounded-full font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 text-xs md:text-sm flex items-center justify-center gap-2"
               >
                 {loading ? (
@@ -2314,6 +2316,18 @@ export default function Home() {
                    <p className="text-xs font-bold text-emerald-400 italic">ROI: {data.readingTime} saved</p>
                   </div>
 
+                </div>
+                {data.actions[0] && (
+                  <div className="rounded-[2rem] border-2 border-emerald-500/40 bg-emerald-500/10 p-6 md:p-8 shadow-[0_16px_40px_rgba(16,185,129,0.12)]">
+                    <div className="flex items-center gap-2 text-emerald-400 text-[10px] font-black uppercase tracking-[0.35em] mb-3"><Zap size={14} /> Start here</div>
+                    <p className="text-2xl md:text-3xl font-black text-[var(--fg)] leading-tight">{data.actions[0].task}</p>
+                    <button onClick={() => toggleTask(0)} className="mt-5 rounded-xl bg-emerald-500 px-5 py-3 text-[9px] font-black uppercase tracking-widest text-slate-950 hover:bg-emerald-400 transition-colors">Mark next action complete</button>
+                  </div>
+                )}
+                <div className="flex flex-wrap items-center gap-3 text-[9px] font-black uppercase tracking-widest text-[var(--fg)]/60">
+                  <span className="rounded-full border border-[var(--color-border)] px-3 py-2">Source: supplied material</span>
+                  <span className="rounded-full border border-[var(--color-border)] px-3 py-2">Route: {aiUsage.provider || 'automatic'}</span>
+                  <span className="rounded-full border border-[var(--color-border)] px-3 py-2">Interpretation: review before acting</span>
                 </div>
                 <div className="space-y-6">
                   {data.actions.map((action, i) => (
