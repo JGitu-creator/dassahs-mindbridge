@@ -33,7 +33,7 @@ export const StackedThemeSelector = ({ themes, activeTheme, onThemeSelect }: {
             <motion.span
               initial={{ opacity: 0.75, y: 4 }}
               animate={{ opacity: hoveredIdx === i || isActive ? 1 : 0.75, y: 0 }}
-              className="theme-selector-label rounded-lg bg-black/80 px-2 py-1 text-center text-[9px] font-black uppercase tracking-wide text-white whitespace-nowrap border border-white/10 shadow-xl"
+              className="theme-selector-label rounded-lg px-2 py-1 text-center text-[9px] font-black uppercase tracking-wide whitespace-nowrap border shadow-xl"
             >
               {theme.name}
             </motion.span>

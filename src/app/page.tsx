@@ -248,45 +248,6 @@ const NeuralRefractionSlider = () => {
     </motion.div>
   );
 };
-const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData, isOpen: boolean, onToggle: () => void }) => {
-  const anchors = useMemo(() => {
-    const allTerms = data.chunks.flatMap(c => c.keyTerms);
-    return Array.from(new Set(allTerms)).slice(0, 15);
-  }, [data]);
-  return (
-    <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[450] flex items-center">
-      <div className={`transition-all duration-500 ease-in-out ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'}`}>
-        <div className="w-48 apple-glass-dark border-r border-t border-b border-[var(--color-border)] p-4 shadow-2xl h-[400px] overflow-y-auto no-scrollbar rounded-l-3xl flex flex-col gap-4">
-          <CognitiveAscension experience={500} />
-          <MissionLog />
-          <Vault />
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-400 mt-2 mb-2 flex items-center gap-2">
-            <Anchor size={10} /> Anchors
-          </p>
-          <div className="space-y-2">
-            {anchors.map((anchor, i) => (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
-                key={i}
-                className="p-2 bg-[var(--bg)]/5 rounded-xl border border-white/5 text-[10px] font-bold text-slate-300 hover:bg-[var(--bg)]/10 transition-colors cursor-default"
-              >
-                {anchor}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <button
-        onClick={onToggle}
-        className="w-10 h-20 bg-blue-600 rounded-l-2xl flex items-center justify-center text-[var(--fg)] shadow-2xl border-y border-l border-white/20 z-50"
-      >
-        <Anchor size={20} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-    </div>
-  );
-};
 const SceneRecap = ({ chunk }: { chunk: any }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -805,7 +766,15 @@ export default function Home() {
     return 'pending';
   });
   const [syncProgress, setSyncProgress] = useState(0);
-  const [starredItems, setStarredItems] = useState<{heading: string, content: string, type: 'metaphor' | 'hook'}[]>([]);
+  const [starredItems, setStarredItems] = useState<{heading: string, content: string, type: 'metaphor' | 'hook'}[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved = JSON.parse(localStorage.getItem('dassahs_neural_vault') || '[]');
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
   const [vaultFilter, setVaultFilter] = useState<'all' | 'hook' | 'metaphor'>('all');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -813,6 +782,7 @@ export default function Home() {
   const [feedbackInput, setFeedbackInput] = useState('');
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
   const [showBreak, setShowBreak] = useState(false);
+  const [contextAnchorOpen, setContextAnchorOpen] = useState(false);
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
   const [rewardType, setRewardType] = useState<'none' | 'step' | 'final'>('none');
   const [isScenic, setIsScenic] = useState(false);
@@ -877,7 +847,6 @@ export default function Home() {
   const [showMissionBrief, setShowMissionBrief] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
   const [shareId, setShareId] = useState<string | null>(null);
-  const [anchorsOpen, setAnchorsOpen] = useState(false);
   const [breakLevel, setBreakLevel] = useState(1);
   const [showRecap, setShowRecap] = useState(false);
   const [sensoryProfile, setSensoryProfile] = useState('Calm');
@@ -912,6 +881,9 @@ export default function Home() {
       setDassahPoints(p => p + 5); // Reward for action
     }
   };
+  const currentActions = data?.actions ?? [];
+  const completedActionCount = currentActions.filter((_, index) => completedTasks[`${data?.id || 'current'}-${index}`]).length;
+  const allActionsComplete = currentActions.length > 0 && completedActionCount === currentActions.length;
   const sealMission = () => {
     setRewardType('final');
     setTimeout(() => {
@@ -1289,6 +1261,7 @@ export default function Home() {
         // Merge readingTime if applicable, etc.
       }));
 
+      setCompletedTasks({});
       setData(result);
       setPendingImage(null);
 
@@ -1372,8 +1345,10 @@ export default function Home() {
     try {
       if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
         const pdfjs = await import('pdfjs-dist');
-        // Use a same-origin worker: mobile Safari and restrictive networks often block the CDN worker.
-        pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+        // Use the same-origin worker from the installed PDF.js 4.x package.
+        // Keeping the worker and parser on the same release prevents the
+        // "API version does not match Worker version" upload failure.
+        pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
         const arrayBuffer = await file.arrayBuffer(); const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise; let fullText = '';
         for (let i = 1; i <= pdf.numPages; i++) {
@@ -1769,13 +1744,9 @@ export default function Home() {
           </div>
         )}
         <SnakeLightsBackground theme={theme} themeMode={themeMode} mousePos={mousePos} focusMode={focusMode} />
-        {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && focusMode !== 'sovereign' && (
-          <NeuralAnchorSidebar data={data} isOpen={anchorsOpen} onToggle={() => setAnchorsOpen(!anchorsOpen)} />
-        )}
-
         <AnimatePresence>
           {data && currentChunk >= 0 && currentChunk < data.chunks.length && (
-            <ContextAnchor data={data} isOpen={true} onToggle={() => {}} />
+            <ContextAnchor data={data} isOpen={contextAnchorOpen} onToggle={() => setContextAnchorOpen(open => !open)} />
           )}
         </AnimatePresence>
         <AnimatePresence>
@@ -1795,17 +1766,6 @@ export default function Home() {
 
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
 
-          <div className="flex items-center gap-2 md:gap-4 px-1 md:px-2">
-            <div className="flex flex-col items-center">
-              <p className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Bandwidth</p>
-              <div className="flex items-center gap-1.5 md:gap-2">
-                <Clock className="text-blue-400 md:w-[10px] md:h-[10px]" size={8} />
-                <span className="font-black text-[var(--fg)] text-[10px] md:text-xs tabular-nums">{totalMinutesSaved}m</span>
-                <span className="hidden xs:block w-[1px] h-3 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
-                <MorphBrain className="hidden xs:block text-[var(--accent)] md:w-[10px] md:h-[10px]" size={8} />                <span className="hidden xs:block font-black text-[var(--fg)] text-[10px] md:text-xs tabular-nums">{(totalWordsRefracted / 1000).toFixed(1)}k</span>
-              </div>
-            </div>
-          </div>
           <AIUsageControl preference={providerPreference} onPreferenceChange={(value) => { setProviderPreference(value); localStorage.setItem('dassahs_provider_preference', value); }} usage={aiUsage} />
           <button onClick={() => setPrivateSession((current) => !current)} title={privateSession ? 'Private session: results are not saved to your history' : 'Turn on private session'} aria-pressed={privateSession} className={`flex items-center gap-1 rounded-xl px-2 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${privateSession ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'text-[var(--fg)]/60 hover:text-[var(--fg)]'}`}><Shield size={12} /><span className="hidden md:inline">{privateSession ? 'Private' : 'Save'}</span></button>
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
@@ -1982,7 +1942,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex justify-center">
-                <button onClick={() => { setShowNeuralCommand(false); }} className="px-10 py-3 rounded-full bg-[var(--bg)] text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
+                <button onClick={() => { setShowNeuralCommand(false); }} className="px-10 py-3 rounded-full bg-[var(--color-accent)] text-white font-black uppercase tracking-[0.4em] text-[9px] shadow-lg hover:brightness-110 hover:scale-105 transition-all">Engage</button>
               </div>
             </motion.div>
           </div>
@@ -2149,7 +2109,7 @@ export default function Home() {
             <div className="space-y-12 relative z-10">
               <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH&apos;S-PRISM</div>
-                <h2 className="text-4xl md:text-7xl font-black text-[var(--fg)] leading-tight tracking-tight italic pb-6">The <span className="prism-text">Dastastical Founder 🧠✨</span></h2>
+                <h2 className="text-4xl md:text-7xl font-black text-[var(--fg)] leading-tight tracking-tight italic pb-6">The <span className="text-[var(--fg)]">Dastastical Founder 🧠✨</span></h2>
               </motion.header>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-8 text-slate-200 text-lg leading-relaxed font-medium">
@@ -2169,7 +2129,7 @@ export default function Home() {
 
                   <motion.div style={{ y: (mousePos.y - 500) * 0.01, x: (mousePos.x - 1000) * 0.01 }} className="bg-gradient-to-br from-amber-500/10 to-transparent p-10 rounded-[3rem] border-2 border-amber-500/20 shadow-2xl">
                     <p className="text-[var(--fg)] font-bold text-xl leading-relaxed">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
-                    <p className="mt-8 text-3xl font-black italic prism-text">Stay Dastastic! 🌟✨</p>
+                    <p className="mt-8 text-3xl font-black italic text-[var(--fg)]">Stay Dastastic! 🌟✨</p>
                   </motion.div>
                 </div>
                 <div className="space-y-8">
@@ -2451,6 +2411,7 @@ export default function Home() {
                   <span className="rounded-full border border-[var(--color-border)] px-3 py-2">Source: supplied material</span>
                   <span className="rounded-full border border-[var(--color-border)] px-3 py-2">Route: {aiUsage.provider || 'automatic'}</span>
                   <span className="rounded-full border border-[var(--color-border)] px-3 py-2">Interpretation: review before acting</span>
+                  <span className={`rounded-full border px-3 py-2 ${allActionsComplete ? 'border-emerald-500/50 text-emerald-400' : 'border-amber-500/50 text-amber-400'}`}>{completedActionCount} / {data.actions.length} actions confirmed</span>
                 </div>
                 <div className="space-y-6">
                   {data.actions.map((action, i) => (
@@ -2495,19 +2456,11 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row gap-4 mt-12">
                   <button
                     onClick={sealMission}
-                    className="flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition-all active:scale-95 text-[var(--fg)] flex items-center justify-center gap-4 group"
+                    disabled={!allActionsComplete}
+                    title={allActionsComplete ? 'Confirm the completed mission' : 'Tick every assigned action before sealing the mission'}
+                    className="flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition-all active:scale-95 text-[var(--fg)] flex items-center justify-center gap-4 group disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
                   >
-                    Seal the Mission <ShieldCheck size={24} className="group-hover:rotate-12 transition-transform" />
-                  </button>
-                  <button
-                    onClick={async () => {
-                      const summary = `DASSAH'S PRISM: Mission Accomplished! ⚡️\n\nObjective: ${missionGoal || 'Learning'}\nActions:\n${data.actions.map(a => `- ${a.task}`).join('\n')}\n\nReclaimed by Grace.`;
-                      await navigator.clipboard.writeText(summary);
-                      alert("Parent Update Copied! 📱 Send it to Mum or Dad.");
-                    }}
-                    className="p-8 bg-blue-500/10 border-2 border-blue-500/20 rounded-[2rem] text-blue-400 font-black uppercase tracking-widest text-xs hover:bg-blue-500/20 transition-all flex items-center justify-center gap-3"
-                  >
-                    <MessageCircle size={20} /> Share with Parent
+                    {allActionsComplete ? 'Seal the Mission' : 'Confirm every action'} <ShieldCheck size={24} className="group-hover:rotate-12 transition-transform" />
                   </button>
                 </div>
                 {isSunday && (

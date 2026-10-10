@@ -105,9 +105,19 @@ body {
 }
 
 .light .theme-selector-label {
-  background: rgba(15, 23, 42, 0.94);
-  color: #ffffff;
-  border-color: rgba(15, 23, 42, 0.35);
+  background: rgba(255, 255, 255, 0.92);
+  color: #172554;
+  border-color: rgba(30, 41, 59, 0.28);
+}
+.theme-selector-label {
+  background: var(--color-glass);
+  color: var(--fg);
+  border-color: var(--color-border);
+}
+.light .theme-selector-label {
+  background: rgba(255, 255, 255, 0.92);
+  color: #172554;
+  border-color: rgba(30, 41, 59, 0.28);
 }
 
 .prism-brand .brand-prism {
