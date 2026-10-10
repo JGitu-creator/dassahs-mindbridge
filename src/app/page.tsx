@@ -1224,21 +1224,24 @@ export default function Home() {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
       
       // Process chunks and reassemble
-      const results = await Promise.all(chunks.map(chunk => 
-        fetch('/api/simplify', { 
-          method: 'POST', 
-          headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify({ 
-            text: chunk, 
-            isScenic, 
-            cognitiveMode, 
-            missionGoal, 
+      const results = await Promise.all(chunks.map(async (chunk) => {
+        const res = await fetch('/api/simplify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: chunk,
+            isScenic,
+            cognitiveMode,
+            missionGoal,
             isStory: storyMode,
             simplicityLevel,
             preferredProvider: providerPreference
-          }) 
-        }).then(res => res.json())
-      ));
+          })
+        });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(payload.error || `The ${providerPreference === 'auto' ? 'automatic' : providerPreference} route is unavailable. Please try again.`);
+        return payload;
+      }));
 
       // Reassemble the result
       const result = results.reduce((acc, curr) => ({
@@ -1328,9 +1331,10 @@ export default function Home() {
     }
 
     try {
-      if (file.name.endsWith('.pdf')) {
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
         const pdfjs = await import('pdfjs-dist');
-        pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+        // Use a same-origin worker: mobile Safari and restrictive networks often block the CDN worker.
+        pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
         const arrayBuffer = await file.arrayBuffer(); const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise; let fullText = '';
         for (let i = 1; i <= pdf.numPages; i++) {
@@ -1717,7 +1721,7 @@ export default function Home() {
         <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-[var(--fg)] tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-[var(--fg)]/60 text-[8px] font-black uppercase">Rank</p><p className="text-[var(--fg)] font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-[var(--fg)]/60 text-[8px] font-black uppercase">Result</p><p className="text-[var(--fg)] font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-[var(--bg)]/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">&quot;Inhale clarity. Exhale the mission. Your sovereignty is established.&quot;</p></motion.div></div>)}</div></motion.div></>
       )}</AnimatePresence>
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-2 md:p-6 pointer-events-none">
-        <nav className={`pointer-events-auto flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-2xl md:rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
+        <nav className={`pointer-events-auto flex max-w-[calc(100vw-1rem)] overflow-x-auto no-scrollbar items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-2xl md:rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
           <button onClick={() => { setShowNeuralCommand(true); }} title="Neural Command" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-[var(--bg)]/5 text-blue-400 hover:text-[var(--fg)] hover:bg-[var(--bg)]/10 transition-all group">
             <motion.div whileHover={{ scale: 1.2, rotate: 10 }}><Compass size={18} className="md:w-5 md:h-5 transition-transform duration-500" /></motion.div>
           </button>
