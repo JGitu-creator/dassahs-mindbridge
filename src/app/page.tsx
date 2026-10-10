@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { 
-  Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette, 
-  Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2, 
+import {
+  Crown, Sparkles, Rocket, ArrowRight, X, Clock, Palette,
+  Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2,
   Lock, Trophy, Sparkle, BarChart3, MessageSquare, Loader2, Type, Swords, Sun, Moon, Ghost, Star, Settings, MoreHorizontal,
   Compass, Check, LogOut, Shield, Anchor, Heart, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit,
   Hexagon, Monitor, Zap, Brain, Fish
@@ -14,11 +14,11 @@ import { MissionLog } from '@/components/MissionLog';
 import { Vault } from '@/components/Vault';
 
 const DastasticIcon = ({ ActiveIcon, themeAccent }: { ActiveIcon: any, themeAccent: string }) => (
-  <motion.div 
-    animate="animate" 
+  <motion.div
+    animate="animate"
     className="relative w-6 h-6 flex items-center justify-center"
   >
-    <motion.div 
+    <motion.div
       variants={{
         idle: { opacity: 1, scale: 1, rotate: 0 },
         animate: { opacity: [1, 0, 1], scale: [1, 0.8, 1], rotate: [0, 180, 360] }
@@ -35,7 +35,7 @@ const DastasticIcon = ({ ActiveIcon, themeAccent }: { ActiveIcon: any, themeAcce
 );
 
 const DastasticShell = ({ children, theme, themeMode }: { children: React.ReactNode, theme: string, themeMode: 'light' | 'dark' | 'system' }) => {
-  const effectiveThemeMode = themeMode === 'system' 
+  const effectiveThemeMode = themeMode === 'system'
     ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     : themeMode;
   return (
@@ -98,17 +98,29 @@ const THEMES: Record<string, ThemeConfig> = {
   }
 };
 const COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899'];
+const SENSORY_PROFILES = [
+  { id: 'Calm', label: 'Calm', description: 'Softer motion, gentler glass, and less visual intensity.' },
+  { id: 'Vibrant', label: 'Vibrant', description: 'More colour and energy for stimulation and momentum.' },
+  { id: 'Contrast', label: 'Contrast', description: 'Sharper edges and clearer separation for easier scanning.' },
+] as const;
+const NEURAL_GUIDE_STEPS = [
+  { title: 'Start with the noise', description: 'Paste text, upload a PDF or document, capture an image, or use the browser extension. Your focus objective is optional but helps Prism aim the refraction.' },
+  { title: 'Choose your reading feel', description: 'Use the light, dark, or system buttons for comfort. Neural Identity contains sensory profiles, read-aloud settings, and your saved highlights.' },
+  { title: 'Refract, then review', description: 'Prism turns dense material into a short summary, readable segments, metaphors, dopamine hooks, and a next action. AI output is a guide—not guaranteed truth—so verify important facts.' },
+  { title: 'Protect private information', description: 'Private Session prevents new results from being written to history. Remove passwords, API keys, identity numbers, medical details, and financial secrets before sending anything.' },
+  { title: 'Stay in control', description: 'Neural Command changes how Prism presents information. OpenRouter and Gemini are managed by Prism; you are never asked to paste your own provider key into the app.' },
+] as const;
 interface SimplifiedData {
   id?: string;
   tldr: string[];
   whyCare: string;
   readingTime: string;
-  chunks: { 
-    heading: string; 
-    content: string; 
-    summary: string; 
-    keyTerms: string[]; 
-    metaphor: string; 
+  chunks: {
+    heading: string;
+    content: string;
+    summary: string;
+    keyTerms: string[];
+    metaphor: string;
     dopamineHook: string;
     logicRoot?: string;
     citations?: string;
@@ -132,7 +144,7 @@ const IchthysIcon = ({ size = 24, className = "" }) => <MorphFish className={cla
 const StarParticles = ({ count, isFinal }: { count: number, isFinal?: boolean }) => {
   const isMobile = useIsMobile();
   const mobileCount = isMobile ? Math.min(count, 20) : count;
-  
+
   const particlesRef = useRef<any[]>([]);
   if (particlesRef.current.length === 0) {
     particlesRef.current = [...Array(100)].map(() => ({
@@ -151,11 +163,11 @@ const StarParticles = ({ count, isFinal }: { count: number, isFinal?: boolean })
         <motion.div
           key={i}
           initial={{ y: -20, x: p.initialX, opacity: 1, scale: p.scale }}
-          animate={{ 
-            y: 1200, 
-            x: `calc(${p.animateX}px + ${p.offsetX}px)`, 
+          animate={{
+            y: 1200,
+            x: `calc(${p.animateX}px + ${p.offsetX}px)`,
             rotate: 360,
-            opacity: 0 
+            opacity: 0
           }}
           transition={{ duration: p.duration, repeat: Infinity, ease: "linear", delay: p.delay }}
           className="absolute"
@@ -169,7 +181,7 @@ const StarParticles = ({ count, isFinal }: { count: number, isFinal?: boolean })
 const NeuralRefractionSlider = () => {
   const [sliderPos, setSliderPos] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const handleMove = (e: any) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
@@ -185,7 +197,7 @@ const NeuralRefractionSlider = () => {
       className="relative w-full h-[320px] md:h-[400px] rounded-[3rem] overflow-hidden border border-[var(--color-border)] cursor-ew-resize group apple-glass shadow-2xl"
     >
       {/* Noise Side (Left) - Enhanced Contrast and clipped by slider */}
-      <div 
+      <div
         className="absolute inset-0 bg-[var(--color-bg)]/80 dark:bg-[var(--color-shadow)]/60 flex flex-col items-center justify-center p-8 md:p-16 text-center select-none grayscale opacity-90 backdrop-blur-md"
         style={{ clipPath: `polygon(0% 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0% 100%)` }}
       >
@@ -194,7 +206,7 @@ const NeuralRefractionSlider = () => {
           This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow.
         </p>
       </div>
-      
+
       {/* Clarity Side (Right) - Advanced Apple Liquid Glassmorphism, clipped by slider */}
       <div
         className="absolute inset-0 apple-glass-dark flex flex-col items-center justify-center p-8 md:p-16 text-center select-none z-10"
@@ -211,12 +223,12 @@ const NeuralRefractionSlider = () => {
       <motion.div
         className="absolute top-0 bottom-0 w-[6px] bg-white/60 z-20 shadow-[0_0_40px_rgba(255,255,255,0.8)] backdrop-blur-md"
         style={{ left: `${sliderPos}%` }}
-        animate={{ 
+        animate={{
           boxShadow: [
-            "0 0 20px rgba(59, 130, 246, 0.7)", 
-            "0 0 50px rgba(168, 85, 247, 0.7)", 
+            "0 0 20px rgba(59, 130, 246, 0.7)",
+            "0 0 50px rgba(168, 85, 247, 0.7)",
             "0 0 20px rgba(236, 72, 153, 0.7)"
-          ] 
+          ]
         }}
         transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
       >
@@ -249,11 +261,11 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
           </p>
           <div className="space-y-2">
             {anchors.map((anchor, i) => (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
-                key={i} 
+                key={i}
                 className="p-2 bg-[var(--bg)]/5 rounded-xl border border-white/5 text-[10px] font-bold text-slate-300 hover:bg-[var(--bg)]/10 transition-colors cursor-default"
               >
                 {anchor}
@@ -262,7 +274,7 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
           </div>
         </div>
       </div>
-      <button 
+      <button
         onClick={onToggle}
         className="w-10 h-20 bg-blue-600 rounded-l-2xl flex items-center justify-center text-[var(--fg)] shadow-2xl border-y border-l border-white/20 z-50"
       >
@@ -272,7 +284,7 @@ const NeuralAnchorSidebar = ({ data, isOpen, onToggle }: { data: SimplifiedData,
   );
 };
 const SceneRecap = ({ chunk }: { chunk: any }) => (
-  <motion.div 
+  <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-[2rem] mb-8"
@@ -348,8 +360,8 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
         </div>
         <div className="space-y-6">
           <p className="text-slate-400 text-lg font-medium">
-            {level === 1 ? "Look away from the screen. Find a distant object and focus on it for 15 seconds." : 
-             level === 2 ? "Follow the expanding square. Inhale as it grows, exhale as it shrinks. Regulate your sovereignty." : 
+            {level === 1 ? "Look away from the screen. Find a distant object and focus on it for 15 seconds." :
+             level === 2 ? "Follow the expanding square. Inhale as it grows, exhale as it shrinks. Regulate your sovereignty." :
              "Refresh your cognitive interest. Tap the numbers in any order to anchor your dopamine."}
           </p>
           {seconds === 0 && (
@@ -392,9 +404,9 @@ const NeuralSparks = ({ active }: { active: boolean }) => {
         <motion.div
           key={i}
           initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-          animate={{ 
-            x: (Math.random() - 0.5) * 600, 
-            y: (Math.random() - 0.5) * 600, 
+          animate={{
+            x: (Math.random() - 0.5) * 600,
+            y: (Math.random() - 0.5) * 600,
             opacity: 0,
             scale: 0
           }}
@@ -412,20 +424,20 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
   const scale = loading ? [1, 1.3, 1] : isTyping ? [1, 1.15, 1] : [1, 1.05, 1];
   const glowOpacity = isVictorious && user ? 0.8 : (loading || isTyping ? 0.5 : 0.2);
   const color = isVictorious && user ? "from-amber-400 via-yellow-300 to-amber-500" : (focusMode === 'sovereign' ? "from-slate-700 via-slate-800 to-slate-900" : "from-blue-500 via-purple-600 to-blue-400");
-  
+
   return (
     <div className="relative">
-      <motion.div 
-        animate={{ 
-          rotate: loading ? [0, 10, -10, 0] : [0, 5, -5, 0], 
+      <motion.div
+        animate={{
+          rotate: loading ? [0, 10, -10, 0] : [0, 5, -5, 0],
           scale: scale,
           x: (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth/2 : 0)) * 0.02,
           y: (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight/2 : 0)) * 0.02
-        }} 
-        transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }} 
+        }}
+        transition={{ repeat: Infinity, duration: duration, ease: "easeInOut" }}
         className={`relative mx-auto w-28 h-28 md:w-44 md:h-44 bg-gradient-to-br ${color} text-[var(--fg)] rounded-[3rem] md:rounded-[5rem] flex items-center justify-center border-2 border-white/20 shadow-[0_0_100px_rgba(59,130,246,${glowOpacity})] transition-all duration-1000 z-10`}
       >
-      <motion.div 
+      <motion.div
         whileHover={{ scale: 1.1, rotate: 5 }}
         whileTap={{ scale: 0.9 }}
         className="cursor-pointer"
@@ -443,9 +455,9 @@ const RefractiveNeuralCore = ({ loading, inputLength, isVictorious, user, mouseP
           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
           className="absolute inset-0 pointer-events-none"
         >
-          <div 
+          <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-8 md:w-3 md:h-12 bg-[var(--bg)]/20 blur-[1px] rounded-full"
-            style={{ 
+            style={{
               transform: `translateY(-${isTyping ? 60 : 40}px) rotate(${i * 45}deg)`,
               opacity: focusMode === 'sovereign' ? 0.1 : 0.4
             }}
@@ -471,10 +483,10 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
   const wordCount = data.chunks.reduce((acc: number, chunk: any) => acc + (chunk.original?.length || 0), 0) / 5; // Approx
   const isSunday = getIsSunday();
   const dailyInsight = getDailyInsight();
-  
+
   return (
     <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1100] flex items-center justify-center p-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="max-w-md w-full bg-[var(--bg)] border-2 border-amber-500/30 p-6 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(245,158,11,0.2)] text-center space-y-6 md:space-y-8 max-h-[90dvh] overflow-y-auto no-scrollbar"
@@ -482,7 +494,7 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
         <div className="mx-auto w-16 h-16 md:w-24 md:h-24 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500">
           <Trophy size={32} />
         </div>
-        
+
         <div className="space-y-1">
           <p className="text-amber-400 font-black uppercase tracking-[0.4em] text-[8px] md:text-[10px]">Mission Accomplished</p>
           <h2 className="text-2xl md:text-5xl font-black text-[var(--fg)] italic tracking-tighter leading-tight">CEREBRAL RECAP</h2>
@@ -503,7 +515,7 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
             {isSunday ? dailyInsight : '"Inhale clarity. Your sovereignty is established."'}
           </p>
         </div>
-        <button 
+        <button
           onClick={onFinish}
           className="w-full bg-[var(--bg)] text-black py-4 md:py-5 rounded-2xl md:rounded-3xl font-black uppercase tracking-[0.4em] text-[10px] md:text-sm hover:scale-105 transition-all active:scale-95 shadow-2xl"
         >
@@ -523,14 +535,14 @@ const RefractiveTagline = () => {
   const text = "Turn overwhelming noise into clear focus in seconds.";
   return (
     <div className="relative h-12 flex items-center justify-center overflow-hidden">
-      <motion.p 
-        animate={{ 
+      <motion.p
+        animate={{
           filter: phase === 'noise' ? 'blur(4px)' : 'blur(0px)',
           opacity: phase === 'noise' ? 0.6 : 1,
           x: phase === 'noise' ? [0, -2, 2, -1, 0] : 0,
           scale: phase === 'flash' ? 1.05 : 1
         }}
-        transition={{ 
+        transition={{
           x: phase === 'noise' ? { repeat: Infinity, duration: 0.2 } : { duration: 0.2 },
           filter: { duration: 0.5 },
           scale: { duration: 0.2 }
@@ -539,10 +551,10 @@ const RefractiveTagline = () => {
       >
         "{text}"
       </motion.p>
-      
+
       <AnimatePresence>
         {phase === 'flash' && (
-          <motion.div 
+          <motion.div
             initial={{ left: '-100%' }}
             animate={{ left: '200%' }}
             exit={{ opacity: 0 }}
@@ -552,7 +564,7 @@ const RefractiveTagline = () => {
         )}
       </AnimatePresence>
       {phase === 'clarity' && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1.5 }}
           transition={{ duration: 0.3 }}
@@ -567,10 +579,10 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mous
   const mousePosRef = useRef(mousePos);
   useEffect(() => { mousePosRef.current = mousePos; }, [mousePos]);
   const t = THEMES[theme] || THEMES.midnight_sovereign;
-  const isDark = themeMode === 'system' 
+  const isDark = themeMode === 'system'
     ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
     : themeMode === 'dark';
-  const colors = isDark 
+  const colors = isDark
     ? (t.dark || { background: '#000', prism: ['#fff'] })
     : (t.light || { background: '#fff', prism: ['#000'] });
   useEffect(() => {
@@ -667,7 +679,7 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mous
   }, [focusMode, theme]);
   if (focusMode === 'sovereign') return null;
   return (
-    <canvas 
+    <canvas
       ref={canvasRef}
       className={`fixed inset-0 pointer-events-none z-0 transition-opacity duration-1000 ${themeMode === 'light' ? 'opacity-40 mix-blend-multiply' : 'opacity-10'}`}
     />
@@ -709,7 +721,7 @@ export default function Home() {
       window.removeEventListener('click', updateActivity);
     };
   }, [user, lastActivity]);
-  const [isPaid, setIsPaid] = useState(false); 
+  const [isPaid, setIsPaid] = useState(false);
   const [usageCount, setUsageCount] = useState(0);
   const [providerPreference, setProviderPreference] = useState<ProviderPreference>('auto');
   const [aiUsage, setAiUsage] = useState({ totalTokens: 0, provider: 'automatic', model: 'not used yet' });
@@ -809,7 +821,6 @@ export default function Home() {
     if (!hasSeenGuide) {
       setTutorialStep(0);
       setShowTutorial(true);
-      localStorage.setItem('hasSeenNeuralGuide', 'true');
     }
   }, []);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -825,7 +836,7 @@ export default function Home() {
       const bufferSize = 4096;
       let lastOut = 0.0;
       const node = ctx.createScriptProcessor(bufferSize, 1, 1);
-        
+
       node.onaudioprocess = (e: any) => {
         const out = e.outputBuffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
@@ -902,7 +913,7 @@ export default function Home() {
     const savedDate = localStorage.getItem('dassahs_last_refract_date');
     setStreakCount(savedStreak);
     setLastRefractDate(savedDate);
-    
+
     // Check if streak is broken (more than 48 hours)
     if (savedDate) {
       const now = new Date();
@@ -917,7 +928,7 @@ export default function Home() {
   const updateStreak = () => {
     const now = new Date();
     const today = now.toISOString().split('T')[0];
-    
+
     if (lastRefractDate !== today) {
       const newStreak = streakCount + 1;
       setStreakCount(newStreak);
@@ -1012,7 +1023,7 @@ export default function Home() {
     }
   }, [data, currentChunk, input, missionGoal]);
   const handleResumeSnapshot = () => {
-    
+
     const saved = localStorage.getItem('dassahs_neural_snapshot');
     if (saved) {
       const { data: savedData, currentChunk: savedChunk, input: savedInput, missionGoal: savedGoal } = JSON.parse(saved);
@@ -1050,7 +1061,7 @@ export default function Home() {
     } catch (err) { alert("Failed to upload neural image."); } finally { setUploadingAvatar(false); }
   };
   const handleToggleStar = (item: {heading: string, content: string, type: 'metaphor' | 'hook'}) => {
-    
+
     setStarredItems(prev => {
       const exists = prev.find(i => i.content === item.content && i.type === item.type);
       if (exists) return prev.filter(i => !(i.content === item.content && i.type === item.type));
@@ -1058,9 +1069,9 @@ export default function Home() {
     });
   };
   const handleEstablishLink = async () => {
-    
+
     setLinkState('syncing');
-    
+
     // Animate sync progress
     let progress = 0;
     const interval = setInterval(() => {
@@ -1073,11 +1084,11 @@ export default function Home() {
           // Wait for PortalReveal animation to play
           setTimeout(async () => {
             localStorage.setItem('dassahs_prism_tos_accepted', 'true');
-            
+
             // Server-side proof of acceptance for authenticated users
             if (user) {
-              await supabase.from('profiles').update({ 
-                terms_accepted_at: new Date().toISOString() 
+              await supabase.from('profiles').update({
+                terms_accepted_at: new Date().toISOString()
               }).eq('id', user.id);
             }
             setAcceptedTOS(true);
@@ -1096,21 +1107,20 @@ export default function Home() {
     localStorage.setItem('dassahs_neural_vault', JSON.stringify(starredItems));
   }, [starredItems]);
   useEffect(() => {
-    if (linkState === 'established' && !localStorage.getItem('dassahs_prism_tutorial_seen')) {
+    if (linkState === 'established' && !localStorage.getItem('hasSeenNeuralGuide')) {
       setTimeout(() => {
         setShowTutorial(true);
-        localStorage.setItem('dassahs_prism_tutorial_seen', 'true');
       }, 2000);
     }
   }, [linkState]);
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => { 
+    supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user && localStorage.getItem('dassahs_prism_tos_accepted') !== 'true') {
         setAcceptedTOS(false);
         setShowTOS(true);
         setLinkState('pending');
       }
-      setUser(session?.user ?? null); 
+      setUser(session?.user ?? null);
       if (session?.user) {
         loadHistory(session.user.id);
         loadProfile(session.user.id);
@@ -1137,10 +1147,14 @@ export default function Home() {
     const urlParams = new URLSearchParams(window.location.search);
     const textParam = urlParams.get('text');
     const shareIdParam = urlParams.get('share_id');
-    if (textParam) { 
-      setInput(decodeURIComponent(textParam)); 
-      handleSimplify(decodeURIComponent(textParam)); 
-      window.history.replaceState({}, document.title, "/"); 
+    const extensionText = sessionStorage.getItem('prism_pending_document');
+    if (extensionText) {
+      sessionStorage.removeItem('prism_pending_document');
+      setInput(extensionText);
+    } else if (textParam) {
+      setInput(decodeURIComponent(textParam));
+      handleSimplify(decodeURIComponent(textParam));
+      window.history.replaceState({}, document.title, "/");
     } else if (shareIdParam) {
       const fetchShared = async () => {
         setLoading(true);
@@ -1166,7 +1180,7 @@ export default function Home() {
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!feedbackInput.trim()) return;
-    
+
     try {
       await fetch('/api/feedback', {
         method: 'POST',
@@ -1184,7 +1198,7 @@ export default function Home() {
     }
   };
   const handleLoadExample = () => {
-    
+
     const exampleNoise = "This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text. It's filled with unnecessary jargon and complex clauses that are designed to overwhelm the reader rather than provide clarity. By the time you reach the end, you've forgotten how it started, and the 'Sovereign Core' of the message is lost in a sea of cognitive noise.";
     setInput(exampleNoise);
     setRewardType('step');
@@ -1202,7 +1216,7 @@ export default function Home() {
     const ssnPattern = /\b\d{3}-\d{2}-\d{4}\b/;
     const privateKeyPattern = /-----BEGIN [A-Z ]*PRIVATE KEY-----|sk-[a-zA-Z0-9_-]{20,}|AIza[a-zA-Z0-9_-]{20,}/;
     const sensitiveKeyword = /password|secret|api key|access token|bank account|medical record|患者|diagnosis/i;
-    
+
     if (!pendingImage && (ssnPattern.test(textToSimplify) || privateKeyPattern.test(textToSimplify) || (textToSimplify.length < 120 && sensitiveKeyword.test(textToSimplify)))) {
       if (!confirm("SOVEREIGN PRIVACY WARNING: This text may contain a password, API key, identity number, financial detail, or medical information. It will be sent to the configured AI provider for refraction. Remove secrets first, or choose Cancel.")) {
         return;
@@ -1211,20 +1225,20 @@ export default function Home() {
     const BILLING_ENABLED = false;
     const limit = user ? 30 : 10;
     if (BILLING_ENABLED && usageCount >= limit && !isPaid) { setShowPaywall(true); return; }
-    
+
     setLoading(true);
     setData(null); // CLEAR PREVIOUS DATA TO FORCE NEW DISCERNMENT UI
     setShareId(null);
-    
+
     // --- AUTOMATIC CHUNKING ---
     const MAX_CHUNK_SIZE = 2000;
     const chunks = [];
     if (pendingImage) chunks.push('Image input');
     else for (let i = 0; i < textToSimplify.length; i += MAX_CHUNK_SIZE) chunks.push(textToSimplify.slice(i, i + MAX_CHUNK_SIZE));
-    
+
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
-      
+
       // Process chunks and reassemble
       const results = await Promise.all(chunks.map(async (chunk) => {
         const res = await fetch('/api/simplify', {
@@ -1258,11 +1272,11 @@ export default function Home() {
 
       setData(result);
       setPendingImage(null);
-      
+
       // Update Bandwidth Stats
       const wordCount = textToSimplify.trim().split(/\s+/).length;
       const minutesSaved = parseInt(result.readingTime) || 1;
-      
+
       setTotalWordsRefracted(prev => {
         const next = prev + wordCount;
         localStorage.setItem('total_words_refracted', next.toString());
@@ -1273,18 +1287,18 @@ export default function Home() {
         localStorage.setItem('total_minutes_saved', next.toString());
         return next;
       });
-      
+
       updateStreak();
-      
+
       const title = result.tldr[0].slice(0, 30) + '...';
       if (user && !privateSession) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
       setUsageCount(prev => { const next = prev + 1; localStorage.setItem('dassahs_prism_usage', next.toString()); return next; });
       setCurrentChunk(-1);
     } catch (err: any) { alert(err.message || 'The Prism encountered a storm!'); } finally { setLoading(false); }
   };
-  const handleShare = async () => { 
-    if (!data) return; setIsSharing(true); 
-    try { 
+  const handleShare = async () => {
+    if (!data) return; setIsSharing(true);
+    try {
       let id = shareId;
       if (!id) {
         const title = data.tldr[0].slice(0, 50);
@@ -1297,32 +1311,32 @@ export default function Home() {
         id = result.id;
         setShareId(id);
       }
-      
+
       const shareUrl = `${window.location.origin}/s/${id}`;
       const wordCount = input.trim().split(/\s+/).length;
-      const shareText = `I just crushed the noise! ⚡️ Dassah's-Prism refracted ${wordCount.toLocaleString()} words into ${data.readingTime} of pure clarity. Reclaimed ${Math.round(wordCount / 100)}% of my mental bandwidth. 🧠 Join the flow: ${shareUrl}`; 
-      await navigator.clipboard.writeText(shareText); alert("Victory shared! Link copied to clipboard. 🚀"); 
-    } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); } 
+      const shareText = `I just crushed the noise! ⚡️ Dassah's-Prism refracted ${wordCount.toLocaleString()} words into ${data.readingTime} of pure clarity. Reclaimed ${Math.round(wordCount / 100)}% of my mental bandwidth. 🧠 Join the flow: ${shareUrl}`;
+      await navigator.clipboard.writeText(shareText); alert("Victory shared! Link copied to clipboard. 🚀");
+    } catch (err) { alert("Could not create share link."); } finally { setIsSharing(false); }
   };
-  const handleDownloadSummary = () => { 
-    if (!data) return; 
-    const content = `# DASSAH'S PRISM: NEURAL REFRACTION\n\n## THE VISION\n> ${data.whyCare}\n\n## CORE TL;DR\n${data.tldr.map(t => `* **${t}**`).join('\n')}\n\n## PRIORITY ROADMAP\n${data.actions.map(a => `* [ ] **[${a.priority.toUpperCase()}]** ${a.task}`).join('\n')}\n\n---\n*Refracted via Dassah's-Prism. Reclaim your focus.*`; 
-    const blob = new Blob([content], { type: 'text/markdown' }); 
-    const url = URL.createObjectURL(blob); 
-    const a = document.createElement('a'); 
-    a.href = url; 
-    a.download = `prism_refraction_${new Date().toISOString().split('T')[0]}.md`; 
-    document.body.appendChild(a); 
-    a.click(); 
-    document.body.removeChild(a); 
-    URL.revokeObjectURL(url); 
+  const handleDownloadSummary = () => {
+    if (!data) return;
+    const content = `# DASSAH'S PRISM: NEURAL REFRACTION\n\n## THE VISION\n> ${data.whyCare}\n\n## CORE TL;DR\n${data.tldr.map(t => `* **${t}**`).join('\n')}\n\n## PRIORITY ROADMAP\n${data.actions.map(a => `* [ ] **[${a.priority.toUpperCase()}]** ${a.task}`).join('\n')}\n\n---\n*Refracted via Dassah's-Prism. Reclaim your focus.*`;
+    const blob = new Blob([content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `prism_refraction_${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
   const isSunday = getIsSunday();
   const dailyInsight = getDailyInsight();
   const handleFileUpload = async (e: any) => {
     const file = e.target.files?.[0]; if (!file) return; setLoading(true);
     if (file.size > 10 * 1024 * 1024) { alert('This file is larger than 10 MB. Please split it into smaller parts.'); setLoading(false); return; }
-    
+
     // Multi-modal image handling
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
@@ -1373,6 +1387,23 @@ export default function Home() {
     document.documentElement.setAttribute('data-sensory-profile', sensoryProfile.toLowerCase());
   }, [sensoryProfile]);
 
+  const completeNeuralGuide = () => {
+    localStorage.setItem('hasSeenNeuralGuide', 'true');
+    setShowTutorial(false);
+    setTutorialStep(0);
+  };
+  const previewSelectedVoice = () => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const preview = new SpeechSynthesisUtterance('This is your Prism reading preview. Choose the voice and pace that feels easiest to follow.');
+    const voice = availableVoices.find(v => v.voiceURI === selectedVoiceId);
+    if (voice) preview.voice = voice;
+    const moodSettings = { focused: { rate: 1.0, pitch: 1.0 }, soothing: { rate: 0.82, pitch: 0.92 }, energetic: { rate: 1.12, pitch: 1.08 }, encouraging: { rate: 1.04, pitch: 1.12 } };
+    const mood = moodSettings[voiceMood as keyof typeof moodSettings] || moodSettings.focused;
+    preview.rate = mood.rate;
+    preview.pitch = mood.pitch;
+    window.speechSynthesis.speak(preview);
+  };
   const handleReadAloud = async (text: string) => {
     if (isPlaying) {
       isPlayingRef.current = false;
@@ -1407,7 +1438,7 @@ export default function Home() {
       }
       return;
     }
-    
+
     // ADHD-Optimized Rhythmic Pacing (The "DJ" Persona)
     const sentences = text.split(/([.!?])/);
     let index = 0;
@@ -1426,11 +1457,11 @@ export default function Home() {
         return;
       }
       const utterance = new SpeechSynthesisUtterance(fragment);
-      
+
       // Apply Selected Voice
       const voice = availableVoices.find(v => v.voiceURI === selectedVoiceId);
       if (voice) utterance.voice = voice;
-      
+
       // Variable pacing based on content type
       const moodSettings = { focused: { rate: 1.0, pitch: 1.0 }, soothing: { rate: 0.82, pitch: 0.92 }, energetic: { rate: 1.12, pitch: 1.08 }, encouraging: { rate: 1.04, pitch: 1.12 } };
       const mood = moodSettings[voiceMood as keyof typeof moodSettings] || moodSettings.focused;
@@ -1446,7 +1477,7 @@ export default function Home() {
     speakNext();
   };
   const handleReset = () => {
-    
+
     setData(null);
     setInput('');
     setCurrentChunk(-1);
@@ -1455,7 +1486,7 @@ export default function Home() {
     localStorage.removeItem('dassahs_neural_snapshot');
   };
   const handleToggleZenLock = () => {
-    
+
     if (isZenLocked) {
       const penalty = currentChunk === data?.chunks.length ? 50 : (currentChunk + 1) * 5;
       if (confirm(`Wait! Breaking Hadassah's Lock now costs ${penalty} Dassah Points. Are you sure?`)) {
@@ -1468,7 +1499,7 @@ export default function Home() {
   const handleChat = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || chatLoading) return;
-    
+
     const newUserMsg = { role: 'user' as const, text: chatInput };
     setChatHistory(prev => [...prev, newUserMsg]);
     setChatInput('');
@@ -1511,7 +1542,7 @@ export default function Home() {
       setCurrentChunk(nextChunk);
       setRewardType('step');
       setTimeout(() => setRewardType('none'), 2000);
-    } 
+    }
     else if (data && currentChunk === data.chunks.length) {
       setRewardType('final'); setIsZenLocked(false); if (document.fullscreenElement) document.exitFullscreen();
       setDassahPoints(prev => { const next = prev + 10; localStorage.setItem('dassah_points', next.toString()); return next; });
@@ -1520,7 +1551,7 @@ export default function Home() {
   };
   const handleCheckout = async (lookupKey: string) => {
     if (!user) { handleLogin(); return; }
-    
+
     alert("Initiating Neural Handshake... Synchronizing with Dassah’s Prism. Prepare for unlimited bandwidth.");
     try {
       const res = await fetch('/api/checkout', {
@@ -1539,7 +1570,7 @@ export default function Home() {
     }
   };
   const handleLogin = async () => {
-    
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -1557,7 +1588,7 @@ export default function Home() {
     // In production, this would send an invitation and create a Supabase entry
   };
   const handleLogout = async () => {
-    
+
     await supabase.auth.signOut();
     setUser(null);
     setHistory([]);
@@ -1565,8 +1596,8 @@ export default function Home() {
   };
   const currentTheme = THEMES[theme] || THEMES.midnight_sovereign;
   const isDark = themeMode === 'dark' || (themeMode === 'system' && systemIsDark);
-  const colors = isDark 
-    ? (currentTheme.dark || { background: '#000', text: '#fff', accent: '#fff', glass: 'rgba(0,0,0,0.5)', border: 'rgba(255,255,255,0.1)', shadow: 'rgba(0,0,0,0.5)' }) 
+  const colors = isDark
+    ? (currentTheme.dark || { background: '#000', text: '#fff', accent: '#fff', glass: 'rgba(0,0,0,0.5)', border: 'rgba(255,255,255,0.1)', shadow: 'rgba(0,0,0,0.5)' })
     : (currentTheme.light || { background: '#fff', text: '#000', accent: '#000', glass: 'rgba(255,255,255,0.5)', border: 'rgba(0,0,0,0.1)', shadow: 'rgba(0,0,0,0.1)' });
   const themeStyles = `
     :root {
@@ -1601,9 +1632,9 @@ export default function Home() {
     }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { 
-      background: linear-gradient(to bottom, var(--prism-1), var(--prism-2)); 
-      border-radius: 10px; 
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, var(--prism-1), var(--prism-2));
+      border-radius: 10px;
       box-shadow: 0 0 10px var(--prism-1);
     }
   `;
@@ -1620,7 +1651,7 @@ export default function Home() {
           background-size: 40px 40px !important;
         }
       `}</style>
-      
+
       <AnimatePresence>
         {showGuardianCenter && (
           <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[1100] flex items-center justify-center p-4">
@@ -1631,7 +1662,7 @@ export default function Home() {
                 </div>
                 <button onClick={() => setShowGuardianCenter(false)} className="p-2 hover:bg-[var(--bg)]/5 rounded-full text-[var(--fg)] transition-colors"><X size={24}/></button>
               </div>
-              
+
               <div className="space-y-6">
                 <h2 className="text-4xl font-black text-[var(--fg)] italic tracking-tighter">Sanctuary Control</h2>
                 <div className="space-y-4">
@@ -1656,7 +1687,7 @@ export default function Home() {
           </div>
         )}
       </AnimatePresence>
-      
+
       <AnimatePresence>
         {showRecap && <CerebralRecap data={data} onFinish={() => { setShowRecap(false); handleReset(); }} />}
       </AnimatePresence>
@@ -1673,10 +1704,10 @@ export default function Home() {
       </AnimatePresence>
       <AnimatePresence>
         {usageCount > 0 && usageCount % 5 === 0 && !localStorage.getItem(`milestone_${usageCount}`) && (
-          <motion.div 
-            initial={{ scale: 0.5, opacity: 0 }} 
-            animate={{ scale: 1, opacity: 1 }} 
-            exit={{ scale: 1.5, opacity: 0 }} 
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 1.5, opacity: 0 }}
             className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none"
             onAnimationComplete={() => localStorage.setItem(`milestone_${usageCount}`, 'true')}
           >
@@ -1692,9 +1723,9 @@ export default function Home() {
         )}
       </AnimatePresence>
       {/* REMOVED: SUBTLE BRAND SIGNATURE */}
-      <main 
-        onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })} 
-        className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-[var(--color-accent)]/40 transition-all duration-1000 bg-fixed ${isScholarMode ? 'scholar-mode' : ''} ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`} 
+      <main
+        onMouseMove={(e) => mouseFocus && setMousePos({ x: e.clientX, y: e.clientY })}
+        className={`min-h-screen font-sans flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-[var(--color-accent)]/40 transition-all duration-1000 bg-fixed ${isScholarMode ? 'scholar-mode' : ''} ${isGreyedOut ? 'grayscale sepia contrast-50' : ''}`}
       >
         <div className={`fixed inset-0 -z-10 transition-all duration-1000`} style={{ background: focusMode === 'sovereign' ? '#000' : `radial-gradient(circle at 50% 50%, var(--color-bg-1) 0%, var(--color-bg-2) 100%)` }} />
         {focusMode !== 'sovereign' ? (
@@ -1711,7 +1742,7 @@ export default function Home() {
         {storyMode && data && currentChunk >= 0 && currentChunk < data.chunks.length && focusMode !== 'sovereign' && (
           <NeuralAnchorSidebar data={data} isOpen={anchorsOpen} onToggle={() => setAnchorsOpen(!anchorsOpen)} />
         )}
-        
+
         <AnimatePresence>
           {data && currentChunk >= 0 && currentChunk < data.chunks.length && (
             <ContextAnchor data={data} isOpen={true} onToggle={() => {}} />
@@ -1731,9 +1762,9 @@ export default function Home() {
           <button onClick={() => { setShowNeuralCommand(true); }} title="Neural Command" className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-[var(--bg)]/5 text-blue-400 hover:text-[var(--fg)] hover:bg-[var(--bg)]/10 transition-all group">
             <motion.div whileHover={{ scale: 1.2, rotate: 10 }}><Compass size={18} className="md:w-5 md:h-5 transition-transform duration-500" /></motion.div>
           </button>
-          
+
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
-          
+
           <div className="flex items-center gap-2 md:gap-4 px-1 md:px-2">
             <div className="flex flex-col items-center">
               <p className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.3em] text-blue-400/60 leading-none mb-1">Bandwidth</p>
@@ -1861,8 +1892,8 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="py-8">
-                      <StackedThemeSelector 
-                        themes={Object.entries(THEMES).map(([id, t]) => ({ id, ...t, stroke: t.dark?.accent || '#8b5cf6' }))} 
+                      <StackedThemeSelector
+                        themes={Object.entries(THEMES).map(([id, t]) => ({ id, ...t, stroke: t.dark?.accent || '#8b5cf6' }))}
                         activeTheme={theme}
                         onThemeSelect={(id) => setTheme(id as any)}
                       />
@@ -1875,8 +1906,8 @@ export default function Home() {
                     <details open className="group">
                       <summary className="cursor-pointer text-[10px] font-bold text-blue-400 hover:text-blue-300">Show Advanced Controls</summary>
                       <div className="pt-4 space-y-4">
-                        <button 
-                          onClick={() => setBrownNoisePlaying(!brownNoisePlaying)} 
+                        <button
+                          onClick={() => setBrownNoisePlaying(!brownNoisePlaying)}
                           className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center justify-between group ${brownNoisePlaying ? 'bg-amber-600/20 border-amber-500 text-amber-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
                         >
                           <div className="flex items-center gap-4">
@@ -1901,9 +1932,9 @@ export default function Home() {
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Adaptive Refraction</p>
                     <div className="grid grid-cols-3 gap-2">
                       {['Concise', 'Standard', 'Detailed'].map(mode => (
-                        <button 
-                          key={mode} 
-                          onClick={() => setSimplicityLevel(mode.toLowerCase() as any)} 
+                        <button
+                          key={mode}
+                          onClick={() => setSimplicityLevel(mode.toLowerCase() as any)}
                           className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${simplicityLevel === mode.toLowerCase() ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
                         >
                           <span className="text-[8px] font-black uppercase tracking-tight">{mode}</span>
@@ -1915,6 +1946,36 @@ export default function Home() {
               </div>
               <div className="flex justify-center">
                 <button onClick={() => { setShowNeuralCommand(false); }} className="px-10 py-3 rounded-full bg-[var(--bg)] text-black font-black uppercase tracking-[0.4em] text-[9px] hover:scale-105 transition-all">Engage</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showTutorial && (
+          <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-[750] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="contrast-modal max-w-2xl w-full apple-glass p-7 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-2xl">
+              <div className="flex items-center justify-between gap-4 mb-8">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.35em] text-blue-500 mb-2">Neural Guide · {tutorialStep + 1} / {NEURAL_GUIDE_STEPS.length}</p>
+                  <h2 className="text-2xl md:text-4xl font-black italic text-[var(--fg)]">Learn your Prism</h2>
+                </div>
+                <Sparkles className="text-amber-400" size={30} />
+              </div>
+              <div className="rounded-2xl border border-blue-500/20 bg-blue-500/10 p-6 md:p-8 min-h-48">
+                <h3 className="text-xl md:text-2xl font-black text-[var(--fg)] mb-3">{NEURAL_GUIDE_STEPS[tutorialStep].title}</h3>
+                <p className="text-base md:text-lg leading-relaxed text-[var(--color-text)]">{NEURAL_GUIDE_STEPS[tutorialStep].description}</p>
+              </div>
+              <div className="flex gap-2 mt-6" aria-label="Guide progress">
+                {NEURAL_GUIDE_STEPS.map((step, index) => <div key={step.title} className={`h-2 flex-1 rounded-full ${index <= tutorialStep ? 'bg-blue-500' : 'bg-slate-300/40'}`} />)}
+              </div>
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 mt-8">
+                <button onClick={() => setTutorialStep(step => Math.max(0, step - 1))} disabled={tutorialStep === 0} className="px-5 py-3 rounded-xl border border-[var(--color-border)] text-[var(--fg)] font-bold disabled:opacity-30">Back</button>
+                {tutorialStep < NEURAL_GUIDE_STEPS.length - 1 ? (
+                  <button onClick={() => setTutorialStep(step => step + 1)} className="px-7 py-3 rounded-xl bg-blue-600 text-white font-black">Next: {NEURAL_GUIDE_STEPS[tutorialStep + 1].title}</button>
+                ) : (
+                  <button onClick={completeNeuralGuide} className="px-7 py-3 rounded-xl bg-emerald-600 text-white font-black">I understand — enter Prism</button>
+                )}
               </div>
             </motion.div>
           </div>
@@ -1939,39 +2000,55 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-8">
                   <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Sensory Profile</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {['Calm', 'Vibrant', 'Contrast'].map(profile => (
-                        <button 
-                          key={profile} 
-                          onClick={() => setSensoryProfile(profile)}
-                          className={`p-4 rounded-xl border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${sensoryProfile === profile ? 'bg-blue-600/20 text-blue-400' : 'bg-[var(--bg)]/5'}`}
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Sensory Profile</p>
+                      <p className="text-sm text-[var(--color-text)] mt-2">Choose how Prism feels while you read. This changes presentation, not the meaning of your document.</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3">
+                      {SENSORY_PROFILES.map(profile => (
+                        <button
+                          key={profile.id}
+                          onClick={() => setSensoryProfile(profile.id)}
+                          aria-pressed={sensoryProfile === profile.id}
+                          className={`p-4 rounded-xl border-2 hover:border-blue-500/50 transition-all text-left ${sensoryProfile === profile.id ? 'bg-blue-600/20 border-blue-500' : 'bg-[var(--bg)]/5 border-transparent'}`}
                         >
-                          {profile}
+                          <span className="flex items-center justify-between text-sm font-black uppercase tracking-widest text-[var(--fg)]">{profile.label}{sensoryProfile === profile.id && <Check size={16} className="text-blue-400" />}</span>
+                          <span className="block mt-1 text-xs font-medium normal-case tracking-normal text-[var(--color-text)]">{profile.description}</span>
                         </button>
                       ))}
                     </div>
                   </div>
                   <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Voice Settings</p>
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Voice Settings</p>
+                      <p className="text-sm text-[var(--color-text)] mt-2">Pick one reading pace, one mood, and one device voice. Use Preview before reading a document.</p>
+                    </div>
+                    <label className="block text-xs font-bold text-[var(--color-text)]">Device voice
+                      <select value={selectedVoiceId} onChange={(event) => setSelectedVoiceId(event.target.value)} className="mt-2 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-glass)] p-3 text-sm text-[var(--fg)]">
+                        {availableVoices.length === 0 ? <option value="">Default device voice</option> : availableVoices.map(voice => <option key={voice.voiceURI} value={voice.voiceURI}>{voice.name} · {voice.lang}</option>)}
+                      </select>
+                    </label>
                     <div className="grid grid-cols-2 gap-3">
                       {['Standard', 'Soothing', 'Energetic'].map(setting => (
-                        <button 
-                          key={setting} 
+                        <button
+                          key={setting}
                           onClick={() => { setVoiceSetting(setting); setVoiceMood(setting === 'Standard' ? 'focused' : setting.toLowerCase()); }}
-                          className={`p-4 rounded-xl border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceSetting === setting ? 'bg-blue-600/20 text-blue-400' : 'bg-[var(--bg)]/5'}`}
+                          aria-pressed={voiceSetting === setting}
+                          className={`p-4 rounded-xl border-2 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceSetting === setting ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
                         >
-                          {setting}
+                          <span className="flex items-center justify-center gap-2">{setting}{voiceSetting === setting && <Check size={14} />}</span>
                         </button>
                       ))}
                       {['focused', 'encouraging'].map(mood => (
-                        <button key={mood} onClick={() => setVoiceMood(mood)} className={`p-4 rounded-xl border border-white/10 hover:border-amber-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceMood === mood ? 'bg-amber-500/20 text-amber-400' : 'bg-[var(--bg)]/5'}`}>{mood}</button>
+                        <button key={mood} onClick={() => setVoiceMood(mood)} aria-pressed={voiceMood === mood} className={`p-4 rounded-xl border-2 hover:border-amber-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceMood === mood ? 'bg-amber-500/20 border-amber-500 text-amber-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}><span className="flex items-center justify-center gap-2">{mood}{voiceMood === mood && <Check size={14} />}</span></button>
                       ))}
                     </div>
+                    <button onClick={previewSelectedVoice} className="w-full rounded-xl bg-amber-500 px-4 py-3 text-sm font-black text-slate-950 hover:bg-amber-400">▶ Preview selected voice</button>
                   </div>
                   <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Fidget Mode</p>
-                    <button 
+                    <p className="text-sm leading-relaxed text-[var(--color-text)]">Prism Weaver is a soft cursor-following light for restless hands and visual anchoring. It changes no document data and has no effect on phones without a mouse.</p>
+                    <button
                       onClick={() => setIsFidgetModeActive(!isFidgetModeActive)}
                       className={`w-full p-4 rounded-xl border border-white/10 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${isFidgetModeActive ? 'bg-blue-600/20 text-blue-400' : 'bg-[var(--bg)]/5'}`}
                     >
@@ -2034,7 +2111,7 @@ export default function Home() {
                   <motion.div style={{ y: (mousePos.y - 500) * -0.01, x: (mousePos.x - 1000) * -0.01 }} className="bg-gradient-to-r from-blue-500/10 to-transparent p-8 border-l-4 border-blue-500 rounded-r-3xl shadow-xl">
                     <p>For as long as I can remember, the world hasn&apos;t just been loud; it has been a flood of raw, unfiltered data. From a young age, my mind and body processed every detail with profound intensity. For years, I navigated a world that felt like an overwhelming cacophony, battling the sheer exhaustion of a mind trying to process everything at once. I tried to manage this massive cognitive load on my own strength, but it only ever led to paralysis and defeat.</p>
                   </motion.div>
-                  
+
                   <motion.div style={{ y: (mousePos.y - 500) * 0.02, x: (mousePos.x - 1000) * 0.02 }} className="bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-blue-600/20 p-10 rounded-[3rem] border-2 border-white/10 italic text-[var(--fg)] shadow-[0_0_50px_rgba(59,130,246,0.2)] relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
                     <p className="relative z-10 text-xl md:text-2xl leading-relaxed">
@@ -2044,7 +2121,7 @@ export default function Home() {
                   <motion.div style={{ y: (mousePos.y - 500) * -0.015, x: (mousePos.x - 1000) * -0.015 }} className="bg-gradient-to-r from-purple-500/10 to-transparent p-8 border-l-4 border-purple-500 rounded-r-3xl shadow-xl">
                     <p>It was only through His strength that my greatest source of exhaustion was transformed into my most powerful gift. The victory wasn&apos;t that the world stopped being complex; the victory was that He gave me the peace to finally master it. Guided by His grace, I began to channel that intense processing power into &apos;systems thinking&apos;. Suddenly, I could look under the hood of chaotic environments—whether untangling complex partnerships or building outdoor communities—and build structures that brought clarity, all for His glory.</p>
                   </motion.div>
-                  
+
                   <motion.div style={{ y: (mousePos.y - 500) * 0.01, x: (mousePos.x - 1000) * 0.01 }} className="bg-gradient-to-br from-amber-500/10 to-transparent p-10 rounded-[3rem] border-2 border-amber-500/20 shadow-2xl">
                     <p className="text-[var(--fg)] font-bold text-xl leading-relaxed">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
                     <p className="mt-8 text-3xl font-black italic prism-text">Stay Dastastic! 🌟✨</p>
@@ -2056,12 +2133,12 @@ export default function Home() {
                     <div className="flex items-center gap-3 text-blue-400 font-black uppercase text-xs tracking-widest mb-6 relative z-10">
                       <Zap size={16} className="text-amber-400 animate-pulse" /> The Final Push
                     </div>
-                    
+
                     <div className="space-y-6 relative z-10">
                       <p className="text-slate-300 italic leading-relaxed">
                         This build became a reality through the sovereign push of two monumental souls:
                       </p>
-                      
+
                       <div className="border-l-4 border-blue-500 pl-6 space-y-2 group/jimmy">
                         <p className="text-[var(--fg)] font-black uppercase tracking-tighter text-xl group-hover:text-blue-400 transition-colors">Eng. Jimmy Njuguna</p>
                         <p className="text-slate-400 text-sm font-bold">
@@ -2114,7 +2191,7 @@ export default function Home() {
                   </div>
                 </div>
               </footer>
-              
+
               <div className="pt-8 flex justify-center gap-8 border-t border-white/5 opacity-40 hover:opacity-100 transition-opacity">
                 <a href="/privacy" className="text-[9px] font-black uppercase tracking-widest text-[var(--fg)] hover:text-blue-400 transition-colors">Privacy Shield</a>
                 <a href="/terms" className="text-[9px] font-black uppercase tracking-widest text-[var(--fg)] hover:text-blue-400 transition-colors">Neural Terms</a>
@@ -2131,7 +2208,7 @@ export default function Home() {
               <div className="flex justify-between items-center">
                 <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 w-fit flex items-center gap-3"><Rocket size={18}/> Mission Brief</div>
               </div>
-              
+
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-4 border-y border-white/5">
                 {[
                   { n: 'DJ', r: 'Sovereign Guide' }
@@ -2186,18 +2263,18 @@ export default function Home() {
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-6 md:space-y-10 z-10 px-4 pt-20 md:pt-24 pb-20">
           <header className="text-center space-y-4 md:space-y-8 relative">
-            <h1 className="text-5xl md:text-9xl font-black text-[var(--fg)] leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text">Prism</span></h1>
+            <h1 className="prism-brand text-5xl md:text-9xl font-black text-[var(--fg)] leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text brand-prism">Prism</span></h1>
             <RefractiveTagline />
           </header>
           <NeuralRefractionSlider />
           <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[2rem] md:rounded-[3rem] border-2 border-white/20 p-2 md:p-3 shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden relative group focus-within:border-blue-500/50 hover:border-white/30 transition-all flex flex-col items-center">
             <div className="pt-4 md:pt-6 pb-2 relative flex flex-col items-center gap-4">
               <RefractiveNeuralCore loading={loading} inputLength={input.length} isVictorious={false} user={user} mousePos={mousePos} focusMode={focusMode} />
-              
+
               {/* LOW PRESSURE FOCUS TIMER */}
               <div className="flex flex-col items-center gap-2">
                 {timerActive ? (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex flex-col items-center gap-3"
@@ -2207,7 +2284,7 @@ export default function Home() {
                       <span className="text-sm font-black text-[var(--fg)] tabular-nums">
                         {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
                       </span>
-                      <button 
+                      <button
                         onClick={() => addTime(5)}
                         className="ml-2 bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 p-1 rounded-lg transition-colors"
                         title="Add 5 Minutes"
@@ -2217,7 +2294,7 @@ export default function Home() {
                     </div>
                   </motion.div>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => addTime(15)}
                     className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] hover:text-blue-400 transition-colors opacity-40 hover:opacity-100 py-2"
                   >
@@ -2229,38 +2306,38 @@ export default function Home() {
             <div className="w-full relative group">
               {/* Sovereign Goal Floating Input */}
               <div className="absolute top-4 left-6 right-6 z-10">
-                <input 
-                  type="text" 
-                  value={missionGoal} 
-                  onChange={(e) => setMissionGoal(e.target.value)} 
-                  placeholder="Focus Objective (Optional)" 
+                <input
+                  type="text"
+                  value={missionGoal}
+                  onChange={(e) => setMissionGoal(e.target.value)}
+                  placeholder="Focus Objective (Optional)"
                   className="w-full bg-[var(--bg)]/5 border border-white/10 p-2 md:p-3 rounded-xl text-[10px] md:text-xs font-bold text-blue-200 placeholder:text-blue-300/20 italic focus:outline-none focus:border-blue-500/40 focus:bg-[var(--bg)]/10 transition-all backdrop-blur-md"
                 />
               </div>
               {showNeuroMirror ? (
                 <div className="w-full h-48 md:h-80 bg-black/60 rounded-[1.5rem] md:rounded-[2.5rem] overflow-y-auto border border-white/10 pt-16"><NeuroMirrorText text={input || "Paste some text..."} /></div>
               ) : (
-                <textarea 
-                  className="prism-input w-full h-48 md:h-80 pt-16 md:pt-20 p-6 md:p-12 text-base md:text-xl bg-black/40 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-white/20 focus:border-purple-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-400 text-slate-200 leading-relaxed font-medium" 
-                  placeholder="Paste the noise here..." 
-                  value={input} 
-                  onChange={(e) => setInput(e.target.value)} 
+                <textarea
+                  className="prism-input w-full h-48 md:h-80 pt-16 md:pt-20 p-6 md:p-12 text-base md:text-xl bg-black/40 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-white/20 focus:border-purple-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-400 text-slate-200 leading-relaxed font-medium"
+                  placeholder="Paste the noise here..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
                 />
               )}
             </div>
             <div className="w-full bg-[var(--color-glass)] p-3 md:p-4 rounded-3xl md:rounded-full flex items-center justify-between gap-2 md:gap-4 border border-white/10 shadow-2xl backdrop-blur-3xl">
               <div className="flex items-center gap-1 md:gap-2 pl-2">
               <button onClick={() => { fileInputRef.current?.click(); }} title="Clean Document" className="p-2 md:p-3 text-slate-400 hover:text-[var(--fg)] transition-colors bg-[var(--bg)]/5 rounded-full"><Upload size={16} className="text-blue-500" /></button>
-              <button 
-                onClick={() => { 
+              <button
+                onClick={() => {
                   const input = document.createElement('input');
                   input.type = 'file';
                   input.accept = 'image/*';
                   input.capture = 'environment';
                   input.onchange = (e) => handleFileUpload(e);
                   input.click();
-                }} 
-                title="Capture Neural Image" 
+                }}
+                title="Capture Neural Image"
                 className="p-2 md:p-3 text-slate-400 hover:text-[var(--fg)] transition-colors bg-[var(--bg)]/5 rounded-full"
               >
                 <Camera size={16} className="text-emerald-500" />
@@ -2268,8 +2345,8 @@ export default function Home() {
               <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-1" />
               <button onClick={() => setStoryMode(!storyMode)} title={storyMode ? 'Story Mode' : 'Fact Mode'} className={`p-2 md:p-3 rounded-full border transition-all ${storyMode ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>{storyMode ? <MorphRocket size={16}/> : <Anchor size={16}/>}</button>
               </div>
-              <button 
-                onClick={() => handleSimplify()} 
+              <button
+                onClick={() => handleSimplify()}
                 disabled={loading || (!input.trim() && !pendingImage)}
                 className="flex-1 max-w-[200px] bg-gradient-to-r from-fuchsia-600 to-purple-500 hover:from-fuchsia-500 hover:to-purple-400 text-[var(--fg)] py-3 md:py-4 rounded-full font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 text-xs md:text-sm flex items-center justify-center gap-2"
               >
@@ -2331,37 +2408,37 @@ export default function Home() {
                 </div>
                 <div className="space-y-6">
                   {data.actions.map((action, i) => (
-                    <motion.div 
-                      key={i} 
-                      initial={{ x: -20, opacity: 0 }} 
-                      animate={{ x: 0, opacity: 1 }} 
-                      transition={{ delay: i * 0.1 }} 
+                    <motion.div
+                      key={i}
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: i * 0.1 }}
                       onClick={() => toggleTask(i)}
                       className={`p-6 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
-                        completedTasks[`${data.id || 'current'}-${i}`] 
-                        ? 'bg-emerald-500/10 border-emerald-500/50 opacity-60' 
+                        completedTasks[`${data.id || 'current'}-${i}`]
+                        ? 'bg-emerald-500/10 border-emerald-500/50 opacity-60'
                         : 'bg-black/20 border-white/5 hover:border-blue-500/30'
                       }`}
                     >
                       <div className="flex items-center gap-6">
                         <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
-                          completedTasks[`${data.id || 'current'}-${i}`] 
-                          ? 'bg-emerald-500 border-emerald-500 text-[var(--fg)]' 
+                          completedTasks[`${data.id || 'current'}-${i}`]
+                          ? 'bg-emerald-500 border-emerald-500 text-[var(--fg)]'
                           : 'border-white/20 text-transparent'
                         }`}>
                           <Check size={14} strokeWidth={4} />
                         </div>
                         <p className={`text-lg font-bold transition-all ${
-                          completedTasks[`${data.id || 'current'}-${i}`] 
-                          ? 'text-[var(--fg)] line-through' 
+                          completedTasks[`${data.id || 'current'}-${i}`]
+                          ? 'text-[var(--fg)] line-through'
                           : 'text-slate-300 group-hover:text-[var(--fg)]'
                         }`}>
                           {action.task}
                         </p>
                       </div>
                       <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${
-                        action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' : 
-                        action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' : 
+                        action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' :
+                        action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
                         'border-blue-500/50 text-blue-400 bg-blue-500/10'
                       }`}>
                         {action.priority}
@@ -2370,18 +2447,18 @@ export default function Home() {
                   ))}
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 mt-12">
-                  <button 
+                  <button
                     onClick={sealMission}
                     className="flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition-all active:scale-95 text-[var(--fg)] flex items-center justify-center gap-4 group"
                   >
                     Seal the Mission <ShieldCheck size={24} className="group-hover:rotate-12 transition-transform" />
                   </button>
-                  <button 
-                    onClick={async () => { 
-                      const summary = `DASSAH'S PRISM: Mission Accomplished! ⚡️\n\nObjective: ${missionGoal || 'Learning'}\nActions:\n${data.actions.map(a => `- ${a.task}`).join('\n')}\n\nReclaimed by Grace.`; 
-                      await navigator.clipboard.writeText(summary); 
-                      alert("Parent Update Copied! 📱 Send it to Mum or Dad."); 
-                    }} 
+                  <button
+                    onClick={async () => {
+                      const summary = `DASSAH'S PRISM: Mission Accomplished! ⚡️\n\nObjective: ${missionGoal || 'Learning'}\nActions:\n${data.actions.map(a => `- ${a.task}`).join('\n')}\n\nReclaimed by Grace.`;
+                      await navigator.clipboard.writeText(summary);
+                      alert("Parent Update Copied! 📱 Send it to Mum or Dad.");
+                    }}
                     className="p-8 bg-blue-500/10 border-2 border-blue-500/20 rounded-[2rem] text-blue-400 font-black uppercase tracking-widest text-xs hover:bg-blue-500/20 transition-all flex items-center justify-center gap-3"
                   >
                     <MessageCircle size={20} /> Share with Parent
@@ -2404,20 +2481,24 @@ export default function Home() {
                     <button onClick={() => setShowNeuralIdentity(true)} className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)] transition-all" title="Open Voice Settings in Neural Identity"><MorphSettings size={16}/></button>
                   </div>
                 </div>
-                
+
                 <h2 className="text-4xl md:text-6xl font-black mb-4 text-[var(--fg)] tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
-                
+
                 {storyMode && showRecap && currentChunk > 0 && (
                   <SceneRecap chunk={data.chunks[currentChunk - 1]} />
                 )}
-                
+
                 <div className="mb-8 p-4 bg-blue-500/10 border-l-4 border-blue-500 rounded-r-xl">
                   <p className="text-blue-300 text-xs font-black uppercase tracking-widest mb-1">Segment Snap</p>
                   <p className="text-slate-300 font-bold italic">{isBionic ? <BionicText text={data.chunks[currentChunk].summary} /> : data.chunks[currentChunk].summary}</p>
                 </div>
+                <div className="mb-8 flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4" role="note">
+                  <ShieldCheck className="mt-0.5 shrink-0 text-amber-500" size={20} />
+                  <p className="text-sm leading-relaxed text-[var(--color-text)]"><strong className="text-amber-500">Review before acting:</strong> Prism is an AI reading aid, not an authority. Check important facts, legal/medical/financial advice, dates, names, and decisions against the original source or a qualified professional.</p>
+                </div>
                 <div className="space-y-8 flex-grow">
                   <div className="prism-content bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
-                  
+
                   {/* Progress Prism at the bottom of content */}
                   <div className="pt-8">
                     <ProgressPrism progress={(currentChunk + 1) / data.chunks.length} />
@@ -2429,7 +2510,7 @@ export default function Home() {
                       </div>
                       <div className="flex justify-between items-center relative z-10">
                         <div className="flex items-center gap-3 text-amber-500 font-black uppercase tracking-[0.2em] text-[10px]"><Rocket size={16} className="animate-pulse" /> Dopamine Hook</div>
-                        <button 
+                        <button
                           onClick={() => handleToggleStar({ heading: 'Dopamine Hook', content: data.chunks[currentChunk].dopamineHook, type: 'hook' })}
                           className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook && i.type === 'hook') ? 'bg-amber-500 text-[var(--fg)] scale-110 shadow-amber-500/40' : 'bg-[var(--bg)]/5 text-[var(--fg)] hover:text-amber-400 hover:bg-[var(--bg)]/10'}`}
                         >
@@ -2438,14 +2519,14 @@ export default function Home() {
                       </div>
                       <p className="text-xl md:text-2xl font-black text-amber-100 italic leading-tight relative z-10">"{data.chunks[currentChunk].dopamineHook}"</p>
                     </div>
-                    
+
                     <div className="bg-purple-500/5 p-8 rounded-[2.5rem] border-2 border-purple-500/10 space-y-4 relative group/card overflow-hidden">
                       <div className="absolute -right-4 -top-4 opacity-5 group-hover/card:scale-110 group-hover/card:rotate-[-12deg] transition-transform duration-700 text-purple-500">
                         <Brain size={120} />
                       </div>
                       <div className="flex justify-between items-center relative z-10">
                         <div className="flex items-center gap-3 text-[var(--accent)] font-black uppercase tracking-[0.2em] text-[10px]"><Brain size={16} /> The Metaphor</div>
-                        <button 
+                        <button
                           onClick={() => handleToggleStar({ heading: 'The Metaphor', content: data.chunks[currentChunk].metaphor, type: 'metaphor' })}
                           className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? 'bg-purple-600 text-[var(--fg)] scale-110 shadow-purple-500/40' : 'bg-[var(--bg)]/5 text-[var(--fg)] hover:text-[var(--accent)] hover:bg-[var(--bg)]/10'}`}
                         >
@@ -2473,7 +2554,7 @@ export default function Home() {
             <div className="mx-auto w-20 h-20 bg-[var(--color-accent)]/10 rounded-full flex items-center justify-center text-[var(--color-accent)] animate-pulse"><Crown size={40} /></div>
             <h2 className="text-3xl md:text-4xl font-black text-[var(--fg)] tracking-tighter italic">{user ? "Neural Capacity Reached" : "Neural Blueprint Fragmenting"}</h2>
             <p className="text-slate-400 text-base md:text-lg leading-relaxed font-medium">
-              {user 
+              {user
                 ? "You have reached the edge of your current neural bandwidth. Your Executive Distillation has peaked. To maintain this flow without interruption, join DJ's Inner Circle to unlock unlimited neural capacity."
                 : "Your Neural Blueprint is fragmenting. To prevent focus-decay and anchor your cognitive data, you must secure your session. Anchor to your Achieving Vault now."
               }
@@ -2502,15 +2583,15 @@ export default function Home() {
       )}</AnimatePresence>
       <AnimatePresence>{isZenLocked && (<motion.button initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} onClick={handleToggleZenLock} className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-[var(--fg)] p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"><X size={32} className="group-hover:rotate-90 transition-transform" /></motion.button>)}</AnimatePresence>
       <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] apple-glass border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-[var(--fg)] uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-[var(--fg)] hover:bg-[var(--bg)]/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-[var(--fg)] italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-[var(--fg)]' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-[var(--fg)]">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-[var(--fg)] focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-[var(--fg)] p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-[var(--fg)] rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-[var(--bg)]/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
-      
+
       <AnimatePresence>{showVictory && data && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[700] flex items-center justify-center p-6">
           <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="max-w-md w-full apple-glass-dark border-2 border-white/10 p-8 md:p-12 rounded-[3rem] text-center space-y-8 shadow-[0_0_100px_rgba(59,130,246,0.3)] relative overflow-hidden">
              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.2)_0%,transparent_70%)] pointer-events-none" />
              <button onClick={() => setShowVictory(false)} className="absolute top-6 right-6 p-2 hover:bg-[var(--bg)]/10 rounded-full text-[var(--fg)] hover:text-[var(--fg)] transition-all z-20"><X size={20}/></button>
-             
+
              <div className="mx-auto w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse relative z-10"><Trophy size={32} /></div>
-             
+
              <div className="space-y-2 relative z-10">
                <h2 className="text-3xl font-black text-[var(--fg)] tracking-tighter italic">NEURAL <span className="prism-text">VICTORY</span></h2>
                <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]">Sovereignty Reclaimed</p>
@@ -2542,7 +2623,7 @@ export default function Home() {
         <p className="max-w-xl text-[10px] leading-relaxed text-[var(--fg)]/70">Privacy first: remove passwords, API keys, identity numbers, and private medical or financial details before sending material for AI refraction.</p>
         <div className="flex items-center gap-4">
           <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-[var(--bg)]/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-[var(--fg)] transition-all">About the Prism</button>
-          
+
           <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
           <a href="/dassahs-prism-extension.zip" download className="mt-2 px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-emerald-500 hover:text-[var(--fg)] transition-all">Browser Extension</a>
         </div>
@@ -2555,7 +2636,7 @@ export default function Home() {
 const AudioToggle = () => {
   const [isOn, setIsOn] = useState(false);
   return (
-    <button 
+    <button
       onClick={() => setIsOn(!isOn)}
       className="fixed bottom-8 right-8 z-[500] p-4 bg-[var(--bg)]/10 backdrop-blur-md rounded-2xl border border-white/10 text-[var(--fg)] font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:scale-105 transition-all"
     >

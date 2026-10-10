@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { getCheckoutUrl } from '@/lib/lemon-squeezy';
 
-type Provider = 'openrouter' | 'abacus';
+type Provider = 'openrouter';
 
 export default function SelectProviderPage() {
   const router = useRouter();
@@ -104,7 +104,7 @@ export default function SelectProviderPage() {
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-amber-400">Choose Your Mind</h1>
           <p className="text-amber-200/70 text-sm">
-            Select the AI provider for this session.
+            OpenRouter is Prism&apos;s supported session route. Prism manages provider keys on the server; you are never asked to paste a private API key here.
             {pendingDoc && <span className="block mt-1 text-amber-300/60">📎 Document ready to send.</span>}
           </p>
         </div>
@@ -159,28 +159,6 @@ export default function SelectProviderPage() {
             </div>
           </button>
 
-          {/* Abacus Card */}
-          <button
-            onClick={() => setSelected('abacus')}
-            className={`w-full text-left p-5 rounded-2xl border-2 transition-all ${
-              selected === 'abacus'
-                ? 'border-amber-500 bg-amber-900/30'
-                : 'border-amber-900/30 bg-[#1f1208] hover:border-amber-700/60'
-            }`}
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-lg font-bold text-amber-300">Abacus.AI RouteLLM</span>
-                  <span className="text-xs bg-amber-900/50 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">
-                    Premium
-                  </span>
-                </div>
-                <p className="text-sm text-amber-200/60">Optimized routing · Higher quality · Uses credits</p>
-              </div>
-              {selected === 'abacus' && <span className="text-amber-400 text-xl">✓</span>}
-            </div>
-          </button>
         </div>
 
         {/* CTA */}
@@ -188,7 +166,7 @@ export default function SelectProviderPage() {
           onClick={handleContinue}
           className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-4 rounded-2xl text-lg transition"
         >
-          Continue with {selected === 'openrouter' ? 'OpenRouter' : 'Abacus.AI'}
+          Continue with OpenRouter
         </button>
 
         <p className="text-center text-xs text-amber-200/30">

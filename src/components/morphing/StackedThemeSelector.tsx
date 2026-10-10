@@ -34,7 +34,7 @@ export const StackedThemeSelector = ({ themes, activeTheme, onThemeSelect }: {
               <motion.span 
                 initial={{ opacity: 0, y: 10 }} 
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute -top-10 bg-black/80 backdrop-blur-md text-[10px] text-white px-2 py-1 rounded-md whitespace-nowrap border border-white/10 shadow-xl"
+                className="theme-selector-label absolute -top-10 bg-black/80 backdrop-blur-md text-[10px] text-white px-2 py-1 rounded-md whitespace-nowrap border border-white/10 shadow-xl"
               >
                 {theme.name}
               </motion.span>
