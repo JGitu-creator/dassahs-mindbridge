@@ -105,10 +105,14 @@ const SENSORY_PROFILES = [
 ] as const;
 const NEURAL_GUIDE_STEPS = [
   { title: 'Start with the noise', description: 'Paste text, upload a PDF or document, capture an image, or use the browser extension. Your focus objective is optional but helps Prism aim the refraction.' },
-  { title: 'Choose your reading feel', description: 'Use the light, dark, or system buttons for comfort. Neural Identity contains sensory profiles, read-aloud settings, and your saved highlights.' },
+  { title: 'Use the Focus Objective', description: 'Tell Prism what you need from the material—for example, “prepare me for the meeting” or “find the three actions I must take.” It steers the summary and action suggestions without changing the source.' },
   { title: 'Refract, then review', description: 'Prism turns dense material into a short summary, readable segments, metaphors, dopamine hooks, and a next action. AI output is a guide—not guaranteed truth—so verify important facts.' },
-  { title: 'Protect private information', description: 'Private Session prevents new results from being written to history. Remove passwords, API keys, identity numbers, medical details, and financial secrets before sending anything.' },
-  { title: 'Stay in control', description: 'Neural Command changes how Prism presents information. OpenRouter and Gemini are managed by Prism; you are never asked to paste your own provider key into the app.' },
+  { title: 'Adaptive Refraction', description: 'Concise gives the shortest path, Standard balances context and speed, and Detailed preserves more explanation. This setting changes how much Prism says, not the original document.' },
+  { title: 'Bionic Shield and Neural Rhythm', description: 'Bionic Shield bolds useful word patterns to make scanning easier. Neural Rhythm adds gentle pacing and break prompts to support task completion; neither changes the meaning.' },
+  { title: 'Choose your sensory feel', description: 'Calm softens motion and colour, Vibrant adds energy, and Contrast sharpens edges. The preview in Neural Identity shows the change immediately so you can choose what feels comfortable.' },
+  { title: 'Sound and saved highlights', description: 'Neural Identity lets you choose a device voice and preview it. Brown Noise is an optional focus sound. Star only the metaphor or dopamine hook you truly want to revisit; the Vault can filter or clear saved items.' },
+  { title: 'Protect private information', description: 'Private Session prevents new results from being written to history. Leaving the tab does not intentionally sign you out; Prism only uses its inactivity safeguard while the app is visible.' },
+  { title: 'Stay in control', description: 'Neural Command changes how Prism presents information. OpenRouter and Gemini are managed by Prism; you are never asked to paste your own provider key into the app. The token meter shows recorded usage.' },
 ] as const;
 interface SimplifiedData {
   id?: string;
@@ -690,7 +694,7 @@ export default function Home() {
   const noiseNodeRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [lastActivity, setLastActivity] = useState(Date.now());
-  const AUTO_LOGOUT_TIME = 30 * 60 * 1000; // 30 Minutes
+  const AUTO_LOGOUT_TIME = 30 * 60 * 1000; // 30 minutes while Prism is visible
   const [linkedUsers, setLinkedUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<SimplifiedData | null>(null);
@@ -704,21 +708,27 @@ export default function Home() {
   useEffect(() => {
     if (!user) return;
     const checkInactivity = () => {
-      if (Date.now() - lastActivity > 30 * 60 * 1000) { // 30 minutes
+      if (document.visibilityState !== 'visible') return;
+      if (Date.now() - lastActivity > AUTO_LOGOUT_TIME) {
         handleLogout();
         alert("Neural Link Severed: For your sovereignty and safety, you have been logged out due to inactivity.");
       }
     };
     const interval = setInterval(checkInactivity, 60000); // Check every minute
     const updateActivity = () => setLastActivity(Date.now());
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') updateActivity();
+    };
     window.addEventListener('mousemove', updateActivity);
     window.addEventListener('keydown', updateActivity);
     window.addEventListener('click', updateActivity);
+    document.addEventListener('visibilitychange', handleVisibility);
     return () => {
       clearInterval(interval);
       window.removeEventListener('mousemove', updateActivity);
       window.removeEventListener('keydown', updateActivity);
       window.removeEventListener('click', updateActivity);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [user, lastActivity]);
   const [isPaid, setIsPaid] = useState(false);
@@ -796,6 +806,7 @@ export default function Home() {
   });
   const [syncProgress, setSyncProgress] = useState(0);
   const [starredItems, setStarredItems] = useState<{heading: string, content: string, type: 'metaphor' | 'hook'}[]>([]);
+  const [vaultFilter, setVaultFilter] = useState<'all' | 'hook' | 'metaphor'>('all');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [missionGoal, setMissionGoal] = useState('');
@@ -872,6 +883,7 @@ export default function Home() {
   const [sensoryProfile, setSensoryProfile] = useState('Calm');
   const [voiceSetting, setVoiceSetting] = useState('Standard');
   const [voiceMood, setVoiceMood] = useState('focused');
+  const selectedVoicePreset = voiceMood === 'encouraging' ? 'Encouraging' : voiceSetting;
   const [oneClickRecap, setOneClickRecap] = useState<string | null>(null);
   const handleOneClickRecap = () => {
     if (!data || currentChunk < 0) return;
@@ -1068,6 +1080,13 @@ export default function Home() {
       return [...prev, item];
     });
   };
+  const clearDopamineVault = () => {
+    if (starredItems.length === 0) return;
+    if (window.confirm('Clear all saved metaphors and dopamine hooks from your Dopamine Vault?')) {
+      setStarredItems([]);
+    }
+  };
+  const visibleVaultItems = vaultFilter === 'all' ? starredItems : starredItems.filter(item => item.type === vaultFilter);
   const handleEstablishLink = async () => {
 
     setLinkState('syncing');
@@ -1623,6 +1642,17 @@ export default function Home() {
       display: inline-block;
       padding-right: 0.3em;
     }
+    .light .prism-brand .brand-prism {
+      background: linear-gradient(110deg, #312e81 0%, #7e22ce 24%, #0369a1 48%, #b45309 72%, #312e81 100%);
+      background-size: 400% auto;
+      animation: prism-refract-light 14s ease-in-out infinite;
+    }
+    @keyframes prism-refract-light {
+      0% { background-position: -220% center; opacity: 0.58; }
+      25% { background-position: -40% center; opacity: 1; }
+      60% { background-position: 70% center; opacity: 1; }
+      84%, 100% { background-image: none; background-position: 100% center; -webkit-text-fill-color: #312e81; opacity: 1; }
+    }
     .refractive-border {
       background: var(--color-shadow); border: 2px solid transparent; background-clip: padding-box; position: relative;
     }
@@ -1853,14 +1883,17 @@ export default function Home() {
                 <div className="space-y-6">
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Sovereign Controls</p>
+                    <p className="text-sm leading-relaxed text-[var(--color-text)] mb-4">These controls change how Prism presents information. They do not rewrite the source.</p>
                     <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => { setIsBionic(!isBionic); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>
+                      <button onClick={() => { setIsBionic(!isBionic); }} title="Bold useful word patterns to make long text easier to scan" aria-pressed={isBionic} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>
                         <Type size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Bionic Shield</span>
+                        <span className="text-center text-[10px] font-medium normal-case tracking-normal text-[var(--color-text)]">Bold scanning cues</span>
                       </button>
-                      <button onClick={() => { setNeuralRhythm(!neuralRhythm); }} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-[var(--accent)]' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>
+                      <button onClick={() => { setNeuralRhythm(!neuralRhythm); }} title="Add gentle pacing and break prompts while you work" aria-pressed={neuralRhythm} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${neuralRhythm ? 'bg-purple-600/20 border-purple-500 text-[var(--accent)]' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>
                         <Clock size={20} />
                         <span className="text-[8px] font-black uppercase tracking-widest">Neural Rhythm</span>
+                        <span className="text-center text-[10px] font-medium normal-case tracking-normal text-[var(--color-text)]">Pacing and breaks</span>
                       </button>
                     </div>
                   </div>
@@ -1884,7 +1917,10 @@ export default function Home() {
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Visual Spectrum</p>
+                      <div>
+                        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Visual Spectrum</p>
+                        <p className="text-xs text-[var(--color-text)] mt-1">Light, Dark, or System follows your device preference. Current system reading: <strong>{systemIsDark ? 'Dark' : 'Light'}</strong>.</p>
+                      </div>
                       <div className="flex gap-1 bg-[var(--bg)]/5 rounded-full p-1 border border-white/10">
                         <button onClick={() => setThemeMode('light')} className={`p-1.5 rounded-full transition-all ${themeMode === 'light' ? 'bg-[var(--bg)] text-slate-900 shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}><Sun size={12} /></button>
                         <button onClick={() => setThemeMode('dark')} className={`p-1.5 rounded-full transition-all ${themeMode === 'dark' ? 'bg-[var(--bg)] text-[var(--fg)] shadow-lg' : 'text-[var(--fg)] hover:text-[var(--fg)]'}`}><Moon size={12} /></button>
@@ -1930,6 +1966,7 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Adaptive Refraction</p>
+                    <p className="text-sm leading-relaxed text-[var(--color-text)] mb-4">Choose how much context you want: Concise is the fastest scan, Standard is balanced, and Detailed keeps more explanation.</p>
                     <div className="grid grid-cols-3 gap-2">
                       {['Concise', 'Standard', 'Detailed'].map(mode => (
                         <button
@@ -2017,6 +2054,10 @@ export default function Home() {
                         </button>
                       ))}
                     </div>
+                    <div className={`sensory-preview sensory-preview-${sensoryProfile.toLowerCase()}`} aria-live="polite">
+                      <span className="sensory-preview-sample">Aa</span>
+                      <span><strong>{sensoryProfile} preview:</strong> This is how a reading surface feels.</span>
+                    </div>
                   </div>
                   <div className="bg-[var(--bg)]/5 p-8 rounded-[2rem] border border-white/10 space-y-6">
                     <div>
@@ -2028,19 +2069,17 @@ export default function Home() {
                         {availableVoices.length === 0 ? <option value="">Default device voice</option> : availableVoices.map(voice => <option key={voice.voiceURI} value={voice.voiceURI}>{voice.name} · {voice.lang}</option>)}
                       </select>
                     </label>
+                    <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-text)]">Reading preset: <span className="text-blue-400">{selectedVoicePreset}</span></p>
                     <div className="grid grid-cols-2 gap-3">
-                      {['Standard', 'Soothing', 'Energetic'].map(setting => (
+                      {['Standard', 'Soothing', 'Energetic', 'Encouraging'].map(setting => (
                         <button
                           key={setting}
-                          onClick={() => { setVoiceSetting(setting); setVoiceMood(setting === 'Standard' ? 'focused' : setting.toLowerCase()); }}
-                          aria-pressed={voiceSetting === setting}
-                          className={`p-4 rounded-xl border-2 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceSetting === setting ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
+                          onClick={() => { setVoiceSetting(setting === 'Encouraging' ? 'Standard' : setting); setVoiceMood(setting === 'Standard' ? 'focused' : setting.toLowerCase()); }}
+                          aria-pressed={selectedVoicePreset === setting}
+                          className={`p-4 rounded-xl border-2 hover:border-blue-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${selectedVoicePreset === setting ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}
                         >
-                          <span className="flex items-center justify-center gap-2">{setting}{voiceSetting === setting && <Check size={14} />}</span>
+                          <span className="flex items-center justify-center gap-2">{setting}{selectedVoicePreset === setting && <Check size={14} />}</span>
                         </button>
-                      ))}
-                      {['focused', 'encouraging'].map(mood => (
-                        <button key={mood} onClick={() => setVoiceMood(mood)} aria-pressed={voiceMood === mood} className={`p-4 rounded-xl border-2 hover:border-amber-500/50 transition-all text-[8px] font-black uppercase tracking-widest ${voiceMood === mood ? 'bg-amber-500/20 border-amber-500 text-amber-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}><span className="flex items-center justify-center gap-2">{mood}{voiceMood === mood && <Check size={14} />}</span></button>
                       ))}
                     </div>
                     <button onClick={previewSelectedVoice} className="w-full rounded-xl bg-amber-500 px-4 py-3 text-sm font-black text-slate-950 hover:bg-amber-400">▶ Preview selected voice</button>
@@ -2067,15 +2106,21 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="space-y-6">
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Dopamine Vault</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)]">Dopamine Vault <span className="text-blue-400">· {starredItems.length}</span></p>
+                    <button onClick={clearDopamineVault} disabled={starredItems.length === 0} className="text-[9px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 disabled:opacity-30">Clear all</button>
+                  </div>
+                  <div className="flex flex-wrap gap-2" role="group" aria-label="Filter saved highlights">
+                    {(['all', 'hook', 'metaphor'] as const).map(filter => <button key={filter} onClick={() => setVaultFilter(filter)} aria-pressed={vaultFilter === filter} className={`rounded-full border px-3 py-1.5 text-[9px] font-black uppercase tracking-widest ${vaultFilter === filter ? 'border-blue-500 bg-blue-500/15 text-blue-400' : 'border-[var(--color-border)] text-[var(--color-text)]'}`}>{filter === 'all' ? 'All saved' : filter === 'hook' ? 'Hooks' : 'Metaphors'}</button>)}
+                  </div>
                   <div className="bg-[var(--bg)]/5 p-6 rounded-[2.5rem] border border-white/10 min-h-[300px] flex flex-col gap-4">
-                    {starredItems.length === 0 ? (
+                    {visibleVaultItems.length === 0 ? (
                       <div className="flex-grow flex flex-col items-center justify-center text-center p-8 opacity-40">
                         <Star size={40} className="mb-4 text-amber-500" />
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Star metaphors during reading to anchor them in your vault.</p>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Star only the ideas you want to revisit. Your filtered vault stays focused.</p>
                       </div>
                     ) : (
-                      starredItems.map((item, i) => (
+                      visibleVaultItems.map((item, i) => (
                         <div key={i} className="p-4 rounded-2xl bg-black/20 border border-white/5 space-y-2 relative group">
                           <p className="text-[8px] font-black uppercase text-blue-400 tracking-tighter">{item.heading}</p>
                           <p className="text-sm font-bold text-slate-300 italic">"{item.content}"</p>
@@ -2310,7 +2355,8 @@ export default function Home() {
                   type="text"
                   value={missionGoal}
                   onChange={(e) => setMissionGoal(e.target.value)}
-                  placeholder="Focus Objective (Optional)"
+                  placeholder="Focus Objective (Optional) — what should Prism help you do?"
+                  title="Optional: tell Prism what to prioritise in the document"
                   className="w-full bg-[var(--bg)]/5 border border-white/10 p-2 md:p-3 rounded-xl text-[10px] md:text-xs font-bold text-blue-200 placeholder:text-blue-300/20 italic focus:outline-none focus:border-blue-500/40 focus:bg-[var(--bg)]/10 transition-all backdrop-blur-md"
                 />
               </div>

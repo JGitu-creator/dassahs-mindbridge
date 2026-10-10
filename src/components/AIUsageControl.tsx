@@ -32,9 +32,9 @@ export function AIUsageControl({
         <option value="openrouter">OpenRouter · free models</option>
         <option value="gemini">Gemini · director</option>
       </select>
-      <div className="hidden items-center gap-1 border-l border-[var(--color-border)] pl-2 sm:flex" title={`${usage.provider || 'automatic'} · ${usage.model || 'not used yet'}`}>
+      <div className="flex min-w-0 items-center gap-1 border-l border-[var(--color-border)] pl-2" title={`${usage.provider || 'automatic'} · ${usage.model || 'not used yet'}`}>
         <Coins size={12} className="text-amber-400" />
-        <span className="text-[9px] font-black tabular-nums">{usage.totalTokens.toLocaleString()} tok</span>
+        <span className="text-[8px] font-black tabular-nums sm:text-[9px]">{usage.totalTokens.toLocaleString()} <span className="hidden xs:inline">tokens</span><span className="xs:hidden">tok</span></span>
       </div>
     </div>
   );

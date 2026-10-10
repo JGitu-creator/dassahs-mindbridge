@@ -20,7 +20,7 @@ export const StackedThemeSelector = ({ themes, activeTheme, onThemeSelect }: {
             onHoverStart={() => setHoveredIdx(i)}
             onHoverEnd={() => setHoveredIdx(null)}
             onClick={() => onThemeSelect(theme.id)}
-            className="absolute p-4 rounded-3xl apple-glass border border-white/10 shadow-2xl z-10 transition-all flex flex-col items-center gap-2"
+            className="absolute p-3 rounded-2xl apple-glass border border-white/10 shadow-2xl z-10 transition-all flex min-w-24 flex-col items-center gap-2"
             animate={{
               x: offset * 40,
               scale: hoveredIdx === i ? 1.2 : (isActive ? 1 : 0.8),
@@ -30,15 +30,13 @@ export const StackedThemeSelector = ({ themes, activeTheme, onThemeSelect }: {
             whileHover={{ y: -20 }}
           >
             <theme.icon size={24} style={{ color: theme.stroke }} />
-            { (hoveredIdx === i || isActive) && (
-              <motion.span 
-                initial={{ opacity: 0, y: 10 }} 
-                animate={{ opacity: 1, y: 0 }}
-                className="theme-selector-label absolute -top-10 bg-black/80 backdrop-blur-md text-[10px] text-white px-2 py-1 rounded-md whitespace-nowrap border border-white/10 shadow-xl"
-              >
-                {theme.name}
-              </motion.span>
-            )}
+            <motion.span
+              initial={{ opacity: 0.75, y: 4 }}
+              animate={{ opacity: hoveredIdx === i || isActive ? 1 : 0.75, y: 0 }}
+              className="theme-selector-label rounded-lg bg-black/80 px-2 py-1 text-center text-[9px] font-black uppercase tracking-wide text-white whitespace-nowrap border border-white/10 shadow-xl"
+            >
+              {theme.name}
+            </motion.span>
           </motion.button>
         );
       })}
