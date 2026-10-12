@@ -658,6 +658,7 @@ export default function Home() {
   const AUTO_LOGOUT_TIME = 30 * 60 * 1000; // 30 minutes while Prism is visible
   const [linkedUsers, setLinkedUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refractionProgress, setRefractionProgress] = useState({ completed: 0, total: 0 });
   const [data, setData] = useState<SimplifiedData | null>(null);
   const [currentChunk, setCurrentChunk] = useState(-1);
   const [history, setHistory] = useState<any[]>([]);
@@ -775,6 +776,7 @@ export default function Home() {
       return [];
     }
   });
+  const [vaultReady, setVaultReady] = useState(false);
   const [vaultFilter, setVaultFilter] = useState<'all' | 'hook' | 'metaphor'>('all');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -983,6 +985,24 @@ export default function Home() {
       console.error("Failed to load profile:", e);
     }
   };
+  const loadVault = async (userId: string) => {
+    try {
+      const { data: remoteItems, error } = await supabase
+        .from('neural_vault_items')
+        .select('heading, content, type')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      const localItems = JSON.parse(localStorage.getItem('dassahs_neural_vault') || '[]');
+      const merged = [...(Array.isArray(localItems) ? localItems : []), ...(remoteItems || [])]
+        .filter((item, index, all) => all.findIndex(candidate => candidate.content === item.content && candidate.type === item.type) === index);
+      setStarredItems(merged);
+    } catch (error) {
+      console.warn('Vault sync unavailable; keeping local vault.', error);
+    } finally {
+      setVaultReady(true);
+    }
+  };
   const CATCHPHRASES = [
     "Neural Link Established",
     "Cognitive Clarity Achieved",
@@ -1096,7 +1116,22 @@ export default function Home() {
   };
   useEffect(() => {
     localStorage.setItem('dassahs_neural_vault', JSON.stringify(starredItems));
-  }, [starredItems]);
+    if (user && vaultReady) {
+      void (async () => {
+        const { data: remoteItems } = await supabase.from('neural_vault_items').select('heading, content, type').eq('user_id', user.id);
+        const remoteKeys = new Set((remoteItems || []).map(item => `${item.type}:${item.content}`));
+        const localKeys = new Set(starredItems.map(item => `${item.type}:${item.content}`));
+        const additions = starredItems.filter(item => !remoteKeys.has(`${item.type}:${item.content}`));
+        if (additions.length) {
+          await supabase.from('neural_vault_items').upsert(additions.map(item => ({ ...item, user_id: user.id })), { onConflict: 'user_id,type,content' });
+        }
+        const removed = (remoteItems || []).filter(item => !localKeys.has(`${item.type}:${item.content}`));
+        for (const item of removed) {
+          await supabase.from('neural_vault_items').delete().eq('user_id', user.id).eq('type', item.type).eq('content', item.content);
+        }
+      })();
+    }
+  }, [starredItems, user, vaultReady]);
   useEffect(() => {
     if (linkState === 'established' && !localStorage.getItem('hasSeenNeuralGuide')) {
       setTimeout(() => {
@@ -1115,6 +1150,7 @@ export default function Home() {
       if (session?.user) {
         loadHistory(session.user.id);
         loadProfile(session.user.id);
+        loadVault(session.user.id);
       }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -1127,9 +1163,11 @@ export default function Home() {
       if (session?.user) {
         loadHistory(session.user.id);
         loadProfile(session.user.id);
+        loadVault(session.user.id);
       } else {
         setHistory([]);
         setIsPaid(false);
+        setVaultReady(true);
       }
     });
     setUsageCount(parseInt(localStorage.getItem('dassahs_prism_usage') || '0'));
@@ -1223,34 +1261,48 @@ export default function Home() {
 
     // --- AUTOMATIC CHUNKING ---
     const MAX_CHUNK_SIZE = 2000;
-    const chunks = [];
+    const chunks: string[] = [];
     if (pendingImage) chunks.push('Image input');
     else for (let i = 0; i < textToSimplify.length; i += MAX_CHUNK_SIZE) chunks.push(textToSimplify.slice(i, i + MAX_CHUNK_SIZE));
 
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
 
-      // Process chunks and reassemble
-      const results = await Promise.all(chunks.map(async (chunk) => {
-        const res = await fetch('/api/simplify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: chunk,
-            isScenic,
-            cognitiveMode,
-            missionGoal,
-            isStory: storyMode,
-            simplicityLevel,
-            preferredProvider: providerPreference,
-            imageData: pendingImage?.data,
-            imageMimeType: pendingImage?.mime
-          })
-        });
-        const payload = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(payload.error || `The ${providerPreference === 'auto' ? 'automatic' : providerPreference} route is unavailable. Please try again.`);
-        return payload;
-      }));
+      // Process at most three chunks at once to avoid provider bursts and quota spikes.
+      const results: any[] = new Array(chunks.length);
+      let completedChunks = 0;
+      const processChunk = async () => {
+        while (true) {
+          const index = chunks.findIndex((_, chunkIndex) => results[chunkIndex] === undefined);
+          if (index === -1) return;
+          results[index] = null;
+          const res = await fetch('/api/simplify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: chunks[index],
+              isScenic,
+              cognitiveMode,
+              missionGoal,
+              isStory: storyMode,
+              simplicityLevel,
+              preferredProvider: providerPreference,
+              imageData: pendingImage?.data,
+              imageMimeType: pendingImage?.mime
+            })
+          });
+          const payload = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(payload.error || `The ${providerPreference === 'auto' ? 'automatic' : providerPreference} route is unavailable. Please try again.`);
+          results[index] = payload;
+          completedChunks += 1;
+          setRefractionProgress({ completed: completedChunks, total: chunks.length });
+          const schedulerApi = (window as Window & { scheduler?: { yield?: () => Promise<void> } }).scheduler;
+          if (schedulerApi?.yield) await schedulerApi.yield();
+          else await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      };
+      setRefractionProgress({ completed: 0, total: chunks.length });
+      await Promise.all(Array.from({ length: Math.min(3, chunks.length) }, () => processChunk()));
 
       // Reassemble the result
       const result = results.reduce((acc, curr) => ({
@@ -1263,6 +1315,7 @@ export default function Home() {
 
       setCompletedTasks({});
       setData(result);
+      setRefractionProgress({ completed: 0, total: 0 });
       setPendingImage(null);
 
       // Update Bandwidth Stats
@@ -1286,7 +1339,7 @@ export default function Home() {
       if (user && !privateSession) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
       setUsageCount(prev => { const next = prev + 1; localStorage.setItem('dassahs_prism_usage', next.toString()); return next; });
       setCurrentChunk(-1);
-    } catch (err: any) { alert(err.message || 'The Prism encountered a storm!'); } finally { setLoading(false); }
+    } catch (err: any) { alert(err.message || 'The Prism encountered a storm!'); } finally { setRefractionProgress({ completed: 0, total: 0 }); setLoading(false); }
   };
   const handleShare = async () => {
     if (!data) return; setIsSharing(true);
@@ -2109,7 +2162,7 @@ export default function Home() {
             <div className="space-y-12 relative z-10">
               <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH&apos;S-PRISM</div>
-                <h2 className="text-4xl md:text-7xl font-black text-[var(--fg)] leading-tight tracking-tight italic pb-6">The <span className="text-[var(--fg)]">Dastastical Founder 🧠✨</span></h2>
+                <h2 className="text-4xl md:text-7xl font-black text-[var(--fg)] leading-tight tracking-tight italic pb-6">The <span className="prism-text">Dastastical Founder 🧠✨</span></h2>
               </motion.header>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-8 text-slate-200 text-lg leading-relaxed font-medium">
@@ -2129,7 +2182,7 @@ export default function Home() {
 
                   <motion.div style={{ y: (mousePos.y - 500) * 0.01, x: (mousePos.x - 1000) * 0.01 }} className="bg-gradient-to-br from-amber-500/10 to-transparent p-10 rounded-[3rem] border-2 border-amber-500/20 shadow-2xl">
                     <p className="text-[var(--fg)] font-bold text-xl leading-relaxed">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
-                    <p className="mt-8 text-3xl font-black italic text-[var(--fg)]">Stay Dastastic! 🌟✨</p>
+                    <p className="mt-8 text-3xl font-black italic prism-text">Stay Dastastic! 🌟✨</p>
                   </motion.div>
                 </div>
                 <div className="space-y-8">
@@ -2359,7 +2412,9 @@ export default function Home() {
                 {loading ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="animate-spin" size={16} />
-                    <span className="text-[8px] animate-pulse">Neural Bridge Active...</span>
+                    <span className="text-[8px] animate-pulse" aria-live="polite">
+                      Neural Bridge Active{refractionProgress.total > 1 ? ` · ${refractionProgress.completed}/${refractionProgress.total}` : '...'}
+                    </span>
                   </div>
                 ) : <><Disc size={16} /> Discern</>}
               </button>

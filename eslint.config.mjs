@@ -1,12 +1,10 @@
-import { FlatCompat } from "@eslint/eslintrc";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 import { globalIgnores } from "eslint/config";
 
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-});
-
 export default [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
     rules: {
       // Existing product code uses these patterns intentionally in a few
@@ -19,6 +17,10 @@ export default [
       "@next/next/no-html-link-for-pages": "warn",
       "react/no-unescaped-entities": "warn",
       "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/immutability": "warn",
+      "react-hooks/purity": "warn",
+      "react-hooks/refs": "warn",
+      "react-hooks/set-state-in-effect": "warn",
     },
   },
   globalIgnores([
@@ -26,5 +28,6 @@ export default [
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "public/pdf.worker.min.mjs",
   ]),
 ];

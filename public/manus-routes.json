@@ -1,0 +1,9 @@
+{
+  "routes": [
+    { "path": "/", "title": "Prism" },
+    { "path": "/privacy", "title": "Privacy" },
+    { "path": "/terms", "title": "Terms" },
+    { "path": "/select-provider", "title": "Select Provider" },
+    { "path": "/s/:id", "title": "Shared Refraction" }
+  ]
+}
