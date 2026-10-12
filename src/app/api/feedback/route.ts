@@ -3,10 +3,16 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl!, supabaseAnonKey!);
+const supabase = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
 export async function POST(req: Request) {
   try {
+    if (!supabase) {
+      return NextResponse.json({ error: 'Feedback is not configured.' }, { status: 503 });
+    }
+
     const { feedback, userId } = await req.json();
 
     console.log('--- NEW FEEDBACK RECEIVED ---');

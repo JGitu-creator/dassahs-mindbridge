@@ -4,10 +4,16 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = supabaseUrl && supabaseKey
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 export async function POST(req: Request) {
   try {
+    if (!supabase) {
+      return NextResponse.json({ error: 'Sharing is not configured.' }, { status: 503 });
+    }
+
     const { title, data, userId } = await req.json();
 
     // Insert into history/shares table. Assuming we use 'history' for now
@@ -39,6 +45,10 @@ export async function GET(req: Request) {
   if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
   try {
+    if (!supabase) {
+      return NextResponse.json({ error: 'Sharing is not configured.' }, { status: 503 });
+    }
+
     const { data, error } = await supabase
       .from('history')
       .select('*')
