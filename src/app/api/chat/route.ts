@@ -17,20 +17,35 @@ type ProviderResult = { text: string; usage: AiUsage };
 
 export async function POST(req: Request) {
   let reservation: QuotaReservation | null = null;
+  let guestUses: number | null = null;
   try {
     const { message = '', history = [], data, preferredProvider = 'auto' } = await req.json();
     if (!message.trim()) return NextResponse.json({ error: 'A message is required.' }, { status: 400 });
     const quota = await reserveCredits(req);
-    if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: quota.status });
+    if (!quota.ok) return NextResponse.json({ error: quota.error, code: quota.code }, { status: quota.status });
     reservation = quota.reservation;
+    guestUses = quota.reservation.guestUses ?? null;
+    const respond = (body: unknown, init?: ResponseInit) => {
+      const response = NextResponse.json(body, init);
+      if (guestUses !== null) {
+        response.cookies.set('prism-guest-uses', String(guestUses), {
+          httpOnly: true,
+          maxAge: 60 * 60 * 24 * 30,
+          path: '/',
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        });
+      }
+      return response;
+    };
     const systemInstruction = `You are an ADHD-friendly assistant called "Ask DJ" inside Dassah's Prism. Help the user navigate their Refracted Noise. Be simple, encouraging, and clear. Use bullet points for lists. If asked to do a task based on the document context, perform it fully. Respond only with clean plain text. CONTEXT OF CURRENT REFRACTION: ${JSON.stringify(data)}`;
     const result = await callProvider(message, history, systemInstruction, preferredProvider);
     if (!result.text) {
       await refundCredits(reservation);
-      return NextResponse.json({ error: 'Ask DJ is currently unavailable.' }, { status: 500 });
+      return respond({ error: 'Ask DJ is currently unavailable.' }, { status: 500 });
     }
     await recordUsage(reservation, result.usage);
-    return NextResponse.json({ text: result.text, usage: result.usage });
+    return respond({ text: result.text, usage: result.usage });
   } catch (error) {
     await refundCredits(reservation);
     console.error('Chat API Error:', error);

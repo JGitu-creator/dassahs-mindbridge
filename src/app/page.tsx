@@ -1292,7 +1292,15 @@ export default function Home() {
             })
           });
           const payload = await res.json().catch(() => ({}));
-          if (!res.ok) throw new Error(payload.error || `The ${providerPreference === 'auto' ? 'automatic' : providerPreference} route is unavailable. Please try again.`);
+          if (!res.ok) {
+            if (res.status === 401 && payload.code === 'guest_trial_exhausted') {
+              setShowPaywall(true);
+              const guestLimitError = new Error(payload.error || 'Sign in to continue using Prism.');
+              (guestLimitError as Error & { guestLimit?: boolean }).guestLimit = true;
+              throw guestLimitError;
+            }
+            throw new Error(payload.error || `The ${providerPreference === 'auto' ? 'automatic' : providerPreference} route is unavailable. Please try again.`);
+          }
           results[index] = payload;
           completedChunks += 1;
           setRefractionProgress({ completed: completedChunks, total: chunks.length });
@@ -1339,7 +1347,9 @@ export default function Home() {
       if (user && !privateSession) { await supabase.from('history').insert({ user_id: user.id, title, data: result }); loadHistory(user.id); }
       setUsageCount(prev => { const next = prev + 1; localStorage.setItem('dassahs_prism_usage', next.toString()); return next; });
       setCurrentChunk(-1);
-    } catch (err: any) { alert(err.message || 'The Prism encountered a storm!'); } finally { setRefractionProgress({ completed: 0, total: 0 }); setLoading(false); }
+    } catch (err: any) {
+      if (!err?.guestLimit) alert(err.message || 'The Prism encountered a storm!');
+    } finally { setRefractionProgress({ completed: 0, total: 0 }); setLoading(false); }
   };
   const handleShare = async () => {
     if (!data) return; setIsSharing(true);
@@ -1558,6 +1568,10 @@ export default function Home() {
         body: JSON.stringify({ message: chatInput, history: chatHistory, data, preferredProvider: providerPreference })
       });
       const result = await res.json();
+      if (!res.ok) {
+        if (res.status === 401 && result.code === 'guest_trial_exhausted') setShowPaywall(true);
+        throw new Error(result.error || 'Ask DJ is currently unavailable.');
+      }
       if (result.usage) {
         setAiUsage(prev => {
           const next = { totalTokens: prev.totalTokens + Number(result.usage.totalTokens || 0), provider: result.usage.provider || prev.provider, model: result.usage.model || prev.model };
@@ -1568,8 +1582,10 @@ export default function Home() {
         });
       }
       setChatHistory(prev => [...prev, { role: 'ai' as const, text: result.text }]);
-    } catch (err) {
-      setChatHistory(prev => [...prev, { role: 'ai' as const, text: "The Neural Link is flickering. Try again." }]);
+    } catch (err: any) {
+      if (!err?.message?.includes('three guest refractions')) {
+        setChatHistory(prev => [...prev, { role: 'ai' as const, text: "The Neural Link is flickering. Try again." }]);
+      }
     } finally {
       setChatLoading(false);
     }
@@ -2606,11 +2622,11 @@ export default function Home() {
         <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-md w-full bg-[var(--bg)] border-2 border-[var(--color-accent)] p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] text-center space-y-6 shadow-[0_0_100px_rgba(59,130,246,0.3)] max-h-[90vh] overflow-y-auto no-scrollbar">
             <div className="mx-auto w-20 h-20 bg-[var(--color-accent)]/10 rounded-full flex items-center justify-center text-[var(--color-accent)] animate-pulse"><Crown size={40} /></div>
-            <h2 className="text-3xl md:text-4xl font-black text-[var(--fg)] tracking-tighter italic">{user ? "Neural Capacity Reached" : "Neural Blueprint Fragmenting"}</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-[var(--fg)] tracking-tighter italic">{user ? "Neural Capacity Reached" : "Guest Trial Complete"}</h2>
             <p className="text-slate-400 text-base md:text-lg leading-relaxed font-medium">
               {user
                 ? "You have reached the edge of your current neural bandwidth. Your Executive Distillation has peaked. To maintain this flow without interruption, join DJ's Inner Circle to unlock unlimited neural capacity."
-                : "Your Neural Blueprint is fragmenting. To prevent focus-decay and anchor your cognitive data, you must secure your session. Anchor to your Achieving Vault now."
+                : "You have tested Prism three times as a guest. Sign in is still optional until this point; sign in now to continue refracting and save your history across devices."
               }
             </p>
             <div className="space-y-4 pt-4">

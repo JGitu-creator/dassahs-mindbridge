@@ -21,6 +21,7 @@ type ImageInput = { data: string; mimeType: string };
 
 export async function POST(req: Request) {
   let reservation: QuotaReservation | null = null;
+  let guestUses: number | null = null;
   try {
     const {
       text = '', mode, question, context, isScenic, cognitiveMode, missionGoal,
@@ -37,13 +38,27 @@ export async function POST(req: Request) {
       : undefined;
     if (!text && !image && mode !== 'chat') return NextResponse.json({ error: 'Valid text or image input is required.' }, { status: 400 });
     const quota = await reserveCredits(req);
-    if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: quota.status });
+    if (!quota.ok) return NextResponse.json({ error: quota.error, code: quota.code }, { status: quota.status });
     reservation = quota.reservation;
+    guestUses = quota.reservation.guestUses ?? null;
+    const respond = (body: unknown, init?: ResponseInit) => {
+      const response = NextResponse.json(body, init);
+      if (guestUses !== null) {
+        response.cookies.set('prism-guest-uses', String(guestUses), {
+          httpOnly: true,
+          maxAge: 60 * 60 * 24 * 30,
+          path: '/',
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        });
+      }
+      return response;
+    };
 
     if (mode === 'chat') {
       const chatPrompt = `You are "Ask DJ," a Sovereign Guide. Answer the following question based on the context provided.\n\nContext: ${context}\n\nQuestion: ${question}`;
       const result = await callProvider(chatPrompt, preferredProvider, image);
-      return NextResponse.json({ answer: result.text, usage: result.usage });
+      return respond({ answer: result.text, usage: result.usage });
     }
 
     const chunksOfText: string[] = [];
@@ -77,7 +92,7 @@ export async function POST(req: Request) {
     if (refractionResults.length === 0) {
       const local = createLocalRefraction(text, simplicityLevel, cognitiveMode);
       await refundCredits(reservation);
-      return NextResponse.json({ ...local, usage: { provider: 'local', model: 'structural-refraction', promptTokens: 0, completionTokens: 0, totalTokens: 0 } }, { status: 200 });
+      return respond({ ...local, usage: { provider: 'local', model: 'structural-refraction', promptTokens: 0, completionTokens: 0, totalTokens: 0 } }, { status: 200 });
     }
 
     const mergedData = { tldr: [] as string[], whyCare: refractionResults[0]?.data?.whyCare || 'Focus was interrupted.', readingTime: `${Math.round(text.split(/\s+/).length / 200)}m`, chunks: [] as any[], actions: [] as any[], chartData: null as any };
@@ -90,7 +105,7 @@ export async function POST(req: Request) {
     mergedData.tldr = [...new Set(mergedData.tldr)].slice(0, 6);
     mergedData.actions = Array.from(new Map(mergedData.actions.map(action => [action.task, action])).values());
     await recordUsage(reservation, usage);
-    return NextResponse.json({
+    return respond({
       tldr: mergedData.tldr.length ? mergedData.tldr : ['No summary generated'], whyCare: mergedData.whyCare, readingTime: mergedData.readingTime,
       chunks: mergedData.chunks.map(chunk => ({ heading: chunk.heading || 'Neural Fragment', content: chunk.content || '', summary: chunk.summary || 'Segment analyzed.', keyTerms: chunk.keyTerms || [], metaphor: chunk.metaphor || '', dopamineHook: chunk.dopamineHook || '', logicRoot: chunk.logicRoot || 'Foundational principle established.', citations: chunk.citations || 'Contextual anchor secured.' })),
       actions: mergedData.actions, chartData: mergedData.chartData, usage,

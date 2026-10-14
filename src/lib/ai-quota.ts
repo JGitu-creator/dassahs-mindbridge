@@ -5,14 +5,17 @@ export type QuotaReservation = {
   enabled: boolean;
   userId?: string;
   amount: number;
+  guestUses?: number;
 };
 
 export type QuotaResult =
   | { ok: true; reservation: QuotaReservation; balance?: number }
-  | { ok: false; status: number; error: string };
+  | { ok: false; status: number; error: string; code?: string };
 
 const isEnabled = () => process.env.PRISM_ENFORCE_USER_CREDITS === 'true';
 const requestCost = () => Math.max(1, Number.parseInt(process.env.PRISM_CREDITS_PER_REQUEST ?? '10', 10) || 10);
+const GUEST_TRIAL_LIMIT = 3;
+const GUEST_TRIAL_COOKIE = 'prism-guest-uses';
 
 async function getUserId(req: Request): Promise<string | null> {
   const token = req.headers.get('cookie')?.match(/(?:^|;\s*)sb-access-token=([^;]+)/)?.[1];
@@ -21,11 +24,26 @@ async function getUserId(req: Request): Promise<string | null> {
   return error || !data.user ? null : data.user.id;
 }
 
+function getGuestUses(req: Request): number {
+  const value = req.headers.get('cookie')?.match(new RegExp(`(?:^|;\\s*)${GUEST_TRIAL_COOKIE}=([^;]+)`))?.[1];
+  const uses = Number.parseInt(value ?? '0', 10);
+  return Number.isFinite(uses) ? Math.max(0, uses) : 0;
+}
+
 export async function reserveCredits(req: Request): Promise<QuotaResult> {
   if (!isEnabled()) return { ok: true, reservation: { enabled: false, amount: 0 } };
   const userId = await getUserId(req);
   if (!userId) {
-    return { ok: false, status: 401, error: 'Please sign in before using the fair-use AI allowance.' };
+    const guestUses = getGuestUses(req);
+    if (guestUses >= GUEST_TRIAL_LIMIT) {
+      return {
+        ok: false,
+        status: 401,
+        code: 'guest_trial_exhausted',
+        error: 'Your three guest refractions are complete. Sign in to continue using Prism and save your history.',
+      };
+    }
+    return { ok: true, reservation: { enabled: false, amount: 0, guestUses: guestUses + 1 } };
   }
   const amount = requestCost();
   const { data, error } = await createServiceClient().rpc('deduct_credits', { p_user_id: userId, p_amount: amount });
