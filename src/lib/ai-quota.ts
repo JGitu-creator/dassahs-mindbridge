@@ -18,9 +18,16 @@ const GUEST_TRIAL_LIMIT = 3;
 const GUEST_TRIAL_COOKIE = 'prism-guest-uses';
 
 async function getUserId(req: Request): Promise<string | null> {
-  const token = req.headers.get('cookie')?.match(/(?:^|;\s*)sb-access-token=([^;]+)/)?.[1];
+  const authorization = req.headers.get('authorization');
+  const bearerToken = authorization?.match(/^Bearer\s+(.+)$/i)?.[1];
+  const cookieHeader = req.headers.get('cookie') || '';
+  const token = bearerToken
+    || cookieHeader.match(/(?:^|;\s*)sb-access-token=([^;]+)/)?.[1]
+    || cookieHeader.match(/(?:^|;\s*)sb-[-\w]+-auth-token=([^;]+)/)?.[1];
   if (!token) return null;
-  const { data, error } = await createServiceClient().auth.getUser(token);
+  let decodedToken = token;
+  try { decodedToken = decodeURIComponent(token); } catch { /* Keep the original token when it is not URI-encoded. */ }
+  const { data, error } = await createServiceClient().auth.getUser(decodedToken);
   return error || !data.user ? null : data.user.id;
 }
 

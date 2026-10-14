@@ -6,9 +6,10 @@ import { supabase } from '@/lib/supabase';
 
 function writeCookies(session: Session | null) {
   if (session?.access_token) {
-    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-    document.cookie = `sb-access-token=${session.access_token}; path=/; SameSite=Lax${secure}`;
-    document.cookie = `sb-refresh-token=${session.refresh_token ?? ''}; path=/; SameSite=Lax${secure}`;
+    const https = window.location.protocol === 'https:';
+    const attributes = `path=/; SameSite=${https ? 'None' : 'Lax'}${https ? '; Secure' : ''}`;
+    document.cookie = `sb-access-token=${encodeURIComponent(session.access_token)}; ${attributes}`;
+    document.cookie = `sb-refresh-token=${encodeURIComponent(session.refresh_token ?? '')}; ${attributes}`;
   } else {
     document.cookie = 'sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     document.cookie = 'sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';

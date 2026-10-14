@@ -1258,6 +1258,9 @@ export default function Home() {
     setLoading(true);
     setData(null); // CLEAR PREVIOUS DATA TO FORCE NEW DISCERNMENT UI
     setShareId(null);
+    const { data: { session: activeSession } } = await supabase.auth.getSession();
+    const authHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (activeSession?.access_token) authHeaders.Authorization = `Bearer ${activeSession.access_token}`;
 
     // --- AUTOMATIC CHUNKING ---
     const MAX_CHUNK_SIZE = 2000;
@@ -1278,7 +1281,7 @@ export default function Home() {
           results[index] = null;
           const res = await fetch('/api/simplify', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders,
             body: JSON.stringify({
               text: chunks[index],
               isScenic,
@@ -1325,6 +1328,21 @@ export default function Home() {
       setData(result);
       setRefractionProgress({ completed: 0, total: 0 });
       setPendingImage(null);
+      const refractionUsage = results.reduce((total, item) => total + Number(item?.usage?.totalTokens || 0), 0);
+      const latestUsage = results.find((item) => item?.usage)?.usage;
+      if (refractionUsage || latestUsage) {
+        setAiUsage(prev => {
+          const next = {
+            totalTokens: prev.totalTokens + refractionUsage,
+            provider: latestUsage?.provider || prev.provider,
+            model: latestUsage?.model || prev.model,
+          };
+          localStorage.setItem('dassahs_ai_tokens', next.totalTokens.toString());
+          localStorage.setItem('dassahs_ai_provider', next.provider);
+          localStorage.setItem('dassahs_ai_model', next.model);
+          return next;
+        });
+      }
 
       // Update Bandwidth Stats
       const wordCount = textToSimplify.trim().split(/\s+/).length;
@@ -1562,9 +1580,13 @@ export default function Home() {
     setChatInput('');
     setChatLoading(true);
     try {
+      const { data: { session: activeSession } } = await supabase.auth.getSession();
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(activeSession?.access_token ? { Authorization: `Bearer ${activeSession.access_token}` } : {}),
+        },
         body: JSON.stringify({ message: chatInput, history: chatHistory, data, preferredProvider: providerPreference })
       });
       const result = await res.json();
