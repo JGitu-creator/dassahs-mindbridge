@@ -1262,16 +1262,16 @@ export default function Home() {
     const authHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
     if (activeSession?.access_token) authHeaders.Authorization = `Bearer ${activeSession.access_token}`;
 
-    // --- AUTOMATIC CHUNKING ---
-    const MAX_CHUNK_SIZE = 2000;
-    const chunks: string[] = [];
-    if (pendingImage) chunks.push('Image input');
-    else for (let i = 0; i < textToSimplify.length; i += MAX_CHUNK_SIZE) chunks.push(textToSimplify.slice(i, i + MAX_CHUNK_SIZE));
+    // Send one document request. The API owns 25k-character chunking and
+    // limits provider concurrency, so a long document uses one quota
+    // reservation instead of one reservation per tiny browser chunk.
+    const chunks: string[] = [pendingImage ? 'Image input' : textToSimplify];
 
     try {
       const cognitiveMode = focusMode === 'sovereign' ? 'ceo' : 'adhd';
 
-      // Process at most three chunks at once to avoid provider bursts and quota spikes.
+      // The server bounds its internal document chunks to three provider calls.
+      // Keeping one client request avoids multiplying latency and quota holds.
       const results: any[] = new Array(chunks.length);
       let completedChunks = 0;
       const processChunk = async () => {
@@ -1313,7 +1313,7 @@ export default function Home() {
         }
       };
       setRefractionProgress({ completed: 0, total: chunks.length });
-      await Promise.all(Array.from({ length: Math.min(3, chunks.length) }, () => processChunk()));
+      await Promise.all([processChunk()]);
 
       // Reassemble the result
       const result = results.reduce((acc, curr) => ({

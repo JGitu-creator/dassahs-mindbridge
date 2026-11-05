@@ -65,7 +65,14 @@ export async function POST(req: Request) {
     const chunksOfText: string[] = [];
     if (image) chunksOfText.push('Image input');
     else for (let i = 0; i < text.length; i += chunkSize) chunksOfText.push(text.substring(i, i + chunkSize));
-    const settledResults = await Promise.allSettled(chunksOfText.map(async (chunkText) => {
+    let nextChunkIndex = 0;
+    const processChunk = async () => {
+      const results: PromiseSettledResult<{ data: any; usage: AiUsage }>[] = [];
+      while (true) {
+        const chunkIndex = nextChunkIndex++;
+        if (chunkIndex >= chunksOfText.length) return results;
+        const chunkText = chunksOfText[chunkIndex];
+        try {
       const generationPrompt = `
         You are "Ask DJ," a Sovereign Guide. Your mission is to perform a Deep Neural Refraction on the provided Noise.
         GOAL: ${missionGoal || 'Discovery'}
@@ -85,8 +92,15 @@ export async function POST(req: Request) {
       `;
       const result = await callProvider(generationPrompt, preferredProvider, image);
       if (!result.text) throw new Error('No response from providers');
-      return { data: extractJSON(result.text), usage: result.usage };
-    }));
+          results.push({ status: 'fulfilled', value: { data: extractJSON(result.text), usage: result.usage } });
+        } catch (reason) {
+          results.push({ status: 'rejected', reason });
+        }
+      }
+    };
+    const workerCount = Math.min(3, chunksOfText.length);
+    const workerResults = await Promise.all(Array.from({ length: workerCount }, () => processChunk()));
+    const settledResults = workerResults.flat();
 
     const refractionResults = settledResults.filter((res): res is PromiseFulfilledResult<{ data: any; usage: AiUsage }> => res.status === 'fulfilled').map(res => res.value);
     const usage = mergeUsage(refractionResults.map(result => result.usage));
