@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { tokenLogger } from '@/lib/tokenLogger';
+import { getOpenRouterChatCompletionsUrl } from '@/lib/server/openrouter';
 import { usageFromOpenRouter, type AiUsage, type ProviderPreference } from '@/lib/ai-usage';
 import { recordUsage, refundCredits, reserveCredits, type QuotaReservation } from '@/lib/ai-quota';
 
@@ -74,7 +75,7 @@ async function callProvider(message: string, history: any[], systemInstruction: 
   const tryOpenRouter = async (model = process.env.OPENROUTER_MODEL || 'openrouter/free'): Promise<ProviderResult> => {
     if (!openrouterKey) throw new Error('No OpenRouter key');
     const messages = [{ role: 'system', content: systemInstruction }, ...history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'assistant', content: item.text })), { role: 'user', content: message }];
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-mindbridge.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages, temperature: 0.4 }) });
+    const response = await fetch(getOpenRouterChatCompletionsUrl(), { method: 'POST', headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-mindbridge.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages, temperature: 0.4 }) });
     if (!response.ok) throw new Error(`OpenRouter returned ${response.status}`);
     const result = await response.json();
     const usage = usageFromOpenRouter(result.usage, result.model || model);

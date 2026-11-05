@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { getOpenRouterApiBaseUrl } from '@/lib/server/openrouter';
 
 const client = new OpenAI({
-  baseURL: process.env.ROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
-  apiKey: process.env.ROUTER_API_KEY,
+  baseURL: getOpenRouterApiBaseUrl(),
+  apiKey: process.env.ROUTER_API_KEY || process.env.OPENROUTER_API_KEY,
   defaultHeaders: {
     'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://dassahs-mindbridge.vercel.app',
     'X-Title': process.env.APP_NAME || "Dassah's Mindbridge",
