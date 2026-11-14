@@ -42,6 +42,20 @@ try {
   assert.equal(result.reason, 'candidate_usage_unverified');
   assert.equal(result.fallbackState, 'candidate_failed');
 
+  for (const invalidValue of [null, '', false, undefined, -1]) {
+    globalThis.fetch = async () => response({
+      ok: true,
+      budgetEnforced: true,
+      usage: { totalTokens: invalidValue, cost: invalidValue },
+      output: 'hidden',
+    });
+    result = await runShadowProbe({ userId: 'test-user', text: fixture, syntheticToken: 'synthetic-secret' });
+    assert.equal(result.reason, 'candidate_usage_unverified');
+    assert.equal(result.fallbackState, 'candidate_failed');
+    assert.equal(result.candidateAccepted, false);
+    assert.equal(result.output, undefined);
+  }
+
   globalThis.fetch = async () => response({ ok: true, budgetEnforced: false, usage: { totalTokens: 10, cost: 0.001 } });
   result = await runShadowProbe({ userId: 'test-user', text: fixture, syntheticToken: 'synthetic-secret' });
   assert.equal(result.reason, 'candidate_usage_unverified');

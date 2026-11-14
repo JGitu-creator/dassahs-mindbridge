@@ -44,6 +44,30 @@ assert.equal(overBudget.accepted, false);
 assert.equal(overBudget.fallbackState, 'candidate_failed');
 assert.equal(overBudget.output, undefined);
 
+for (const invalidValue of [null, '', false, undefined, Number.NaN, Number.POSITIVE_INFINITY, -1]) {
+  const badTokens = evaluateCandidateResponse({
+    responseOk: true,
+    payload: { ok: true, budgetEnforced: true, usage: { totalTokens: invalidValue, cost: 0.001 }, output: 'hidden' },
+    maxCostUsd: 0.01,
+    maxOutputTokens: 100,
+  });
+  assert.equal(badTokens.accepted, false);
+  assert.equal(badTokens.fallbackState, 'candidate_failed');
+  assert.equal(badTokens.reason, 'candidate_usage_unverified');
+  assert.equal(badTokens.output, undefined);
+
+  const badCost = evaluateCandidateResponse({
+    responseOk: true,
+    payload: { ok: true, budgetEnforced: true, usage: { totalTokens: 10, cost: invalidValue }, output: 'hidden' },
+    maxCostUsd: 0.01,
+    maxOutputTokens: 100,
+  });
+  assert.equal(badCost.accepted, false);
+  assert.equal(badCost.fallbackState, 'candidate_failed');
+  assert.equal(badCost.reason, 'candidate_usage_unverified');
+  assert.equal(badCost.output, undefined);
+}
+
 let fetchCalls = 0;
 globalThis.fetch = async () => {
   fetchCalls += 1;

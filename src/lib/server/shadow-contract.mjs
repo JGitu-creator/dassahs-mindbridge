@@ -1,16 +1,24 @@
+const toFiniteNumber = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
+
 export function evaluateCandidateResponse({ responseOk, payload, maxCostUsd, maxOutputTokens }) {
   const usage = payload?.usage;
-  const totalTokens = Number(usage?.totalTokens);
-  const reportedCost = Number(usage?.cost);
-  const authoritative = payload?.budgetEnforced === true && usage && Number.isFinite(totalTokens) && totalTokens >= 0 && Number.isFinite(reportedCost) && reportedCost >= 0;
+  const totalTokens = toFiniteNumber(usage?.totalTokens);
+  const reportedCost = toFiniteNumber(usage?.cost);
+  const authoritative =
+    payload?.budgetEnforced === true &&
+    Boolean(usage) &&
+    totalTokens !== null &&
+    totalTokens >= 0 &&
+    reportedCost !== null &&
+    reportedCost >= 0;
   const overBudget = !authoritative || reportedCost > maxCostUsd || totalTokens > maxOutputTokens;
   const accepted = responseOk && payload?.ok !== false && !overBudget;
   return {
     accepted,
     fallbackState: accepted ? 'candidate_observed' : 'candidate_failed',
     reason: !authoritative ? 'candidate_usage_unverified' : overBudget ? 'candidate_budget_exceeded' : accepted ? 'candidate_observed' : 'candidate_http_error',
-    totalTokens: Number.isFinite(totalTokens) ? totalTokens : null,
-    reportedCost: Number.isFinite(reportedCost) ? reportedCost : null,
+    totalTokens,
+    reportedCost,
   };
 }
 
