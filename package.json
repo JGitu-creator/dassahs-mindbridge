@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:shadow": "node scripts/test-shadow-boundary.mjs && node --experimental-strip-types scripts/test-shadow-production.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.2",

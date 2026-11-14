@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
@@ -6,6 +6,7 @@ import { tokenLogger } from '@/lib/tokenLogger';
 import { getOpenRouterChatCompletionsUrl } from '@/lib/server/openrouter';
 import { emptyUsage, mergeUsage, usageFromOpenRouter, type AiUsage, type ProviderPreference } from '@/lib/ai-usage';
 import { recordUsage, refundCredits, reserveCredits, type QuotaReservation } from '@/lib/ai-quota';
+import { logShadowTelemetry, runShadowProbe } from '@/lib/server/shadow-mode';
 
 const apiKey = process.env.GEMINI_API_KEY;
 const openaiKey = process.env.OPENAI_API_KEY;
@@ -120,6 +121,22 @@ export async function POST(req: Request) {
     mergedData.tldr = [...new Set(mergedData.tldr)].slice(0, 6);
     mergedData.actions = Array.from(new Map(mergedData.actions.map(action => [action.task, action])).values());
     await recordUsage(reservation, usage);
+    try {
+      after(async () => {
+        const shadowTelemetry = await runShadowProbe({
+          userId: reservation?.userId,
+          text,
+          goal: missionGoal,
+          cognitiveMode,
+          simplicityLevel,
+          baselineUsage: usage,
+          syntheticToken: req.headers.get('x-prism-shadow-fixture'),
+        });
+        logShadowTelemetry(shadowTelemetry);
+      });
+    } catch {
+      // Shadow scheduling is strictly best-effort and must never affect the baseline response.
+    }
     return respond({
       tldr: mergedData.tldr.length ? mergedData.tldr : ['No summary generated'], whyCare: mergedData.whyCare, readingTime: mergedData.readingTime,
       chunks: mergedData.chunks.map(chunk => ({ heading: chunk.heading || 'Neural Fragment', content: chunk.content || '', summary: chunk.summary || 'Segment analyzed.', keyTerms: chunk.keyTerms || [], metaphor: chunk.metaphor || '', dopamineHook: chunk.dopamineHook || '', logicRoot: chunk.logicRoot || 'Foundational principle established.', citations: chunk.citations || 'Contextual anchor secured.' })),
