@@ -7,12 +7,13 @@ The real `/api/simplify` route now has a server-only shadow probe. It is inactiv
 
 The original Prism response remains unchanged and visible. The candidate response is never returned to the browser. The probe records only sanitized provider/model, latency, token, cost, HTTP/failure, and eligibility metadata. It never logs user IDs, source text, prompts, embeddings, or candidate output.
 
-The probe runs through Next.js `after()` after the baseline response has been constructed, so candidate latency cannot block the user response. The candidate endpoint is deliberately not configured in this branch. Model Garden credentials and Vertex AI were not added or called. OpenRouter/Gemini provider selection remains unchanged for normal requests.
+The probe runs through Next.js `after()` after the baseline response has been constructed, so candidate latency cannot block the user response. The candidate endpoint must return `budgetEnforced: true` plus finite usage/cost fields; missing or unverified usage fails closed. The candidate endpoint is deliberately not configured in this branch. Model Garden credentials and Vertex AI were not added or called. OpenRouter/Gemini provider selection remains unchanged for normal requests.
 
 The route requires existing authenticated quota behavior to provide a user ID; guest requests are not shadow-eligible. This prevents accidental shadow calls for anonymous testers.
 
 ## Verification required before merge
 
+- `npm run test:shadow` now executes behavioral checks with mocked `fetch` and mocked `after()`.
 - Run `npm run test:shadow`, lint, and production build.
 - Test default `PRISM_SHADOW_MODE=false` and confirm no candidate request occurs.
 - Test an authenticated allowlisted synthetic account against a controlled HTTPS candidate endpoint.

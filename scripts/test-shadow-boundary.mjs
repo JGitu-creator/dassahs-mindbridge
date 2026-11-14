@@ -1,23 +1,57 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { evaluateCandidateResponse, shadowEligibility, safelyRunShadow } from '../src/lib/server/shadow-contract.mjs';
 
-const route = await readFile(new URL('../src/app/api/simplify/route.ts', import.meta.url), 'utf8');
-const helper = await readFile(new URL('../src/lib/server/shadow-mode.ts', import.meta.url), 'utf8');
-const env = await readFile(new URL('../.env.example', import.meta.url), 'utf8');
+const afterCalls = [];
+const mockedAfter = (task) => { afterCalls.push(task); };
 
-assert.match(env, /PRISM_SHADOW_MODE=false/);
-assert.match(helper, /PRISM_SHADOW_SYNTHETIC_TOKEN/);
-assert.match(helper, /PRISM_SHADOW_FIXTURE_SHA256/);
-assert.match(helper, /createHash\('sha256'\)/);
-assert.match(helper, /PRISM_SHADOW_MAX_COST_USD/);
-assert.match(helper, /PRISM_SHADOW_MAX_OUTPUT_TOKENS/);
-assert.match(helper, /fallbackState/);
-assert.match(helper, /catch \{/);
-assert.match(route, /after\(async \(\) =>/);
-assert.match(route, /x-prism-shadow-fixture/);
-assert.match(route, /runShadowProbe/);
-assert.doesNotMatch(route, /shadowTelemetry.*return/);
-assert.doesNotMatch(helper, /console\.log\([^)]*input\.text/);
-assert.doesNotMatch(helper, /console\.log\([^)]*userId/);
+function scheduleShadow(task) {
+  mockedAfter(async () => {
+    await safelyRunShadow(task);
+  });
+}
 
-console.log('shadow boundary static checks: 13 passed');
+assert.equal(shadowEligibility({ enabled: false }).reason, 'disabled');
+assert.equal(shadowEligibility({ enabled: true, userId: undefined }).reason, 'no_authenticated_user');
+assert.equal(shadowEligibility({ enabled: true, userId: 'u1', allowlisted: false }).reason, 'user_not_allowlisted');
+assert.equal(shadowEligibility({ enabled: true, userId: 'u1', allowlisted: true, fixtureApproved: false }).reason, 'synthetic_fixture_not_approved');
+assert.equal(shadowEligibility({ enabled: true, userId: 'u1', allowlisted: true, fixtureApproved: true, url: 'http://candidate', budget: 0.01 }).reason, 'candidate_endpoint_not_configured');
+assert.equal(shadowEligibility({ enabled: true, userId: 'u1', allowlisted: true, fixtureApproved: true, url: 'https://candidate', budget: 0 }).reason, 'candidate_budget_not_configured');
+assert.equal(shadowEligibility({ enabled: true, userId: 'u1', allowlisted: true, fixtureApproved: true, url: 'https://candidate', budget: 0.01 }).eligible, true);
+
+const valid = evaluateCandidateResponse({ responseOk: true, payload: { ok: true, budgetEnforced: true, usage: { totalTokens: 20, cost: 0.001 } }, maxCostUsd: 0.01, maxOutputTokens: 100 });
+assert.equal(valid.accepted, true);
+assert.equal(valid.fallbackState, 'candidate_observed');
+assert.equal(valid.reason, 'candidate_observed');
+
+const missingUsage = evaluateCandidateResponse({ responseOk: true, payload: { ok: true }, maxCostUsd: 0.01, maxOutputTokens: 100 });
+assert.equal(missingUsage.accepted, false);
+assert.equal(missingUsage.reason, 'candidate_usage_unverified');
+assert.equal(missingUsage.fallbackState, 'candidate_failed');
+
+const untrustedBudget = evaluateCandidateResponse({ responseOk: true, payload: { ok: true, budgetEnforced: false, usage: { totalTokens: 20, cost: 0.001 } }, maxCostUsd: 0.01, maxOutputTokens: 100 });
+assert.equal(untrustedBudget.accepted, false);
+assert.equal(untrustedBudget.fallbackState, 'candidate_failed');
+
+const overBudget = evaluateCandidateResponse({ responseOk: true, payload: { ok: true, budgetEnforced: true, usage: { totalTokens: 101, cost: 0.02 }, output: 'candidate text' }, maxCostUsd: 0.01, maxOutputTokens: 100 });
+assert.equal(overBudget.accepted, false);
+assert.equal(overBudget.fallbackState, 'candidate_failed');
+assert.equal(overBudget.output, undefined);
+
+let fetchCalls = 0;
+globalThis.fetch = async () => {
+  fetchCalls += 1;
+  return { ok: false, json: async () => ({ ok: false }) };
+};
+scheduleShadow(async () => {
+  const response = await fetch('https://candidate');
+  return evaluateCandidateResponse({ responseOk: response.ok, payload: await response.json(), maxCostUsd: 0.01, maxOutputTokens: 100 });
+});
+assert.equal(afterCalls.length, 1);
+await afterCalls[0]();
+assert.equal(fetchCalls, 1);
+
+const guardedFailure = await safelyRunShadow(async () => { throw new Error('timeout'); });
+assert.equal(guardedFailure.fallbackState, 'candidate_failed');
+assert.equal(guardedFailure.reason, 'shadow_guard_error');
+
+console.log('shadow behavioral checks: 17 passed');

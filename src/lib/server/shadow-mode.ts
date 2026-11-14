@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import type { AiUsage } from '@/lib/ai-usage';
+import { evaluateCandidateResponse, shadowEligibility } from './shadow-contract.mjs';
 
 type ShadowInput = {
   userId?: string;
@@ -74,8 +75,8 @@ export async function runShadowProbe(input: ShadowInput): Promise<ShadowTelemetr
     if (input.text.length > maxChars()) return emptyTelemetry('input_over_shadow_limit');
     const url = candidateUrl();
     const budget = maxCostUsd();
-    if (!url || !/^https:\/\//i.test(url)) return emptyTelemetry('candidate_endpoint_not_configured');
-    if (budget <= 0) return emptyTelemetry('candidate_budget_not_configured');
+    const eligibility = shadowEligibility({ enabled: true, userId: input.userId, allowlisted: true, fixtureApproved: true, url, budget });
+    if (!eligibility.eligible) return emptyTelemetry(eligibility.reason);
 
     const started = Date.now();
     const baseTelemetry = {
@@ -114,20 +115,17 @@ export async function runShadowProbe(input: ShadowInput): Promise<ShadowTelemetr
       });
       const payload = await response.json().catch(() => null) as Record<string, unknown> | null;
       const usage = payload?.usage as Record<string, unknown> | undefined;
-      const totalTokens = Number(usage?.totalTokens);
-      const reportedCost = Number(usage?.cost);
-      const overBudget = (Number.isFinite(reportedCost) && reportedCost > budget)
-        || (Number.isFinite(totalTokens) && totalTokens > maxOutputTokens());
+      const evaluation = evaluateCandidateResponse({ responseOk: response.ok, payload, maxCostUsd: budget, maxOutputTokens: maxOutputTokens() });
       return {
         ...baseTelemetry,
-        candidateAccepted: response.ok && payload?.ok !== false && !overBudget,
-        fallbackState: response.ok && payload?.ok !== false && !overBudget ? 'candidate_primary' : 'candidate_failed',
-        reason: overBudget ? 'candidate_budget_exceeded' : response.ok ? 'candidate_observed' : 'candidate_http_error',
+        candidateAccepted: evaluation.accepted,
+        fallbackState: evaluation.fallbackState as ShadowTelemetry['fallbackState'],
+        reason: evaluation.reason,
         durationMs: Date.now() - started,
         provider: typeof usage?.provider === 'string' ? usage.provider : null,
         model: typeof usage?.model === 'string' ? usage.model : null,
-        totalTokens: Number.isFinite(totalTokens) ? totalTokens : null,
-        reportedCost: Number.isFinite(reportedCost) ? reportedCost : null,
+        totalTokens: evaluation.totalTokens,
+        reportedCost: evaluation.reportedCost,
       };
     } catch (error) {
       return {
