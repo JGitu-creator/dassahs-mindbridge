@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import type { AiUsage } from '@/lib/ai-usage';
+import type { AiUsage } from '../ai-usage';
 import { evaluateCandidateResponse, shadowEligibility } from './shadow-contract.mjs';
 
 type ShadowInput = {
@@ -17,7 +17,7 @@ type ShadowTelemetry = {
   eligible: boolean;
   candidateAttempted: boolean;
   candidateAccepted: boolean;
-  fallbackState: 'not_attempted' | 'candidate_primary' | 'candidate_failed';
+  fallbackState: 'not_attempted' | 'candidate_observed' | 'candidate_failed';
   reason: string;
   durationMs: number;
   provider: string | null;

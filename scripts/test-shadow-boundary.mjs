@@ -1,13 +1,20 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { evaluateCandidateResponse, shadowEligibility, safelyRunShadow } from '../src/lib/server/shadow-contract.mjs';
+
+const route = await readFile(new URL('../src/app/api/simplify/route.ts', import.meta.url), 'utf8');
+const helper = await readFile(new URL('../src/lib/server/shadow-mode.ts', import.meta.url), 'utf8');
+const contract = await readFile(new URL('../src/lib/server/shadow-contract.mjs', import.meta.url), 'utf8');
+assert.match(route, /after\(async \(\) =>/);
+assert.match(route, /x-prism-shadow-fixture/);
+assert.doesNotMatch(helper, /candidate_primary/);
+assert.doesNotMatch(contract, /candidate_primary/);
+assert.doesNotMatch(route, /shadowTelemetry.*return/);
 
 const afterCalls = [];
 const mockedAfter = (task) => { afterCalls.push(task); };
-
 function scheduleShadow(task) {
-  mockedAfter(async () => {
-    await safelyRunShadow(task);
-  });
+  mockedAfter(async () => { await safelyRunShadow(task); });
 }
 
 assert.equal(shadowEligibility({ enabled: false }).reason, 'disabled');
@@ -54,4 +61,4 @@ const guardedFailure = await safelyRunShadow(async () => { throw new Error('time
 assert.equal(guardedFailure.fallbackState, 'candidate_failed');
 assert.equal(guardedFailure.reason, 'shadow_guard_error');
 
-console.log('shadow behavioral checks: 17 passed');
+console.log('shadow behavioral checks: 20 passed');
