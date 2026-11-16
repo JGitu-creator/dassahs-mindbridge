@@ -153,7 +153,10 @@ async function callProvider(prompt: string, preferredProvider: ProviderPreferenc
     if (!apiKey) throw new Error('No Gemini Key');
     const model = 'gemini-2.0-flash';
     const content = image ? [{ text: prompt }, { inlineData: { data: image.data, mimeType: image.mimeType } }] : prompt;
-    const result = await new GoogleGenerativeAI(apiKey).getGenerativeModel({ model }).generateContent(content);
+    const result = await Promise.race([
+      new GoogleGenerativeAI(apiKey).getGenerativeModel({ model }).generateContent(content),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Gemini request timed out')), 25000)),
+    ]);
     const metadata: any = result.response.usageMetadata;
     const promptTokens = Number(metadata?.promptTokenCount || 0);
     const completionTokens = Number(metadata?.candidatesTokenCount || 0);
@@ -164,7 +167,7 @@ async function callProvider(prompt: string, preferredProvider: ProviderPreferenc
   const tryOpenRouter = async (model = openrouterModel): Promise<ProviderResult> => {
     if (!openrouterKey) throw new Error('No OpenRouter Key');
     const content = image ? [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: `data:${image.mimeType};base64,${image.data}` } }] : prompt;
-    const response = await fetch(getOpenRouterChatCompletionsUrl(), { method: 'POST', headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-mindbridge.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages: [{ role: 'user', content }], temperature: 0.2 }) });
+    const response = await fetch(getOpenRouterChatCompletionsUrl(), { method: 'POST', signal: AbortSignal.timeout(25000), headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-mindbridge.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages: [{ role: 'user', content }], temperature: 0.2 }) });
     if (!response.ok) throw new Error(`OpenRouter returned ${response.status}`);
     const data = await response.json();
     const usage = usageFromOpenRouter(data.usage, data.model || model);

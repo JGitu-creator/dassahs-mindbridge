@@ -1,8 +1,7 @@
 'use client';
 
 import { Coins, Sparkles } from 'lucide-react';
-
-type ProviderPreference = 'auto' | 'openrouter' | 'gemini' | 'gpt' | 'claude' | 'deepseek';
+import type { ProviderPreference } from '@/lib/ai-usage';
 
 type Usage = {
   totalTokens: number;
@@ -19,9 +18,18 @@ export function AIUsageControl({
   onPreferenceChange: (value: ProviderPreference) => void;
   usage: Usage;
 }) {
+  const isLocalFallback = usage.provider === 'local';
+  const providerLabel = isLocalFallback
+    ? 'Local'
+    : usage.provider === 'gemini'
+      ? 'Gemini'
+      : usage.provider === 'openrouter'
+        ? 'Router'
+        : '';
+
   return (
     <div className="flex min-w-0 shrink-0 items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-glass)] px-2 py-1.5 text-[var(--fg)] shadow-lg backdrop-blur-xl">
-      <Sparkles size={14} className="text-blue-400" />
+      <Sparkles size={14} className={isLocalFallback ? 'text-amber-400' : 'text-blue-400'} />
       <select
         aria-label="AI route preference"
         value={preference}
@@ -32,9 +40,19 @@ export function AIUsageControl({
         <option value="openrouter">OpenRouter · free models</option>
         <option value="gemini">Gemini · director</option>
       </select>
-      <div className="flex min-w-0 items-center gap-1 border-l border-[var(--color-border)] pl-2" title={`${usage.provider || 'automatic'} · ${usage.model || 'not used yet'}`}>
-        <Coins size={12} className="text-amber-400" />
-        <span className="text-[8px] font-black tabular-nums sm:text-[9px]">{usage.totalTokens.toLocaleString()} <span className="hidden xs:inline">tokens</span><span className="xs:hidden">tok</span></span>
+      <div
+        className="flex min-w-0 items-center gap-1 border-l border-[var(--color-border)] pl-2"
+        title={isLocalFallback ? 'Local structural fallback used (0 credits spent)' : `${usage.provider || 'automatic'} · ${usage.model || 'not used yet'}`}
+      >
+        <Coins size={12} className="text-amber-400 shrink-0" />
+        <span className="text-[8px] font-black tabular-nums sm:text-[9px]">
+          {usage.totalTokens.toLocaleString()} <span className="hidden xs:inline">tokens</span><span className="xs:hidden">tok</span>
+        </span>
+        {providerLabel && (
+          <span className={`hidden sm:inline rounded px-1 py-0.5 text-[8px] font-bold uppercase ${isLocalFallback ? 'bg-amber-500/20 text-amber-300' : 'bg-blue-500/15 text-blue-300'}`}>
+            {providerLabel}
+          </span>
+        )}
       </div>
     </div>
   );
