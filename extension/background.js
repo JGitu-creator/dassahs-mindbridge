@@ -4,7 +4,7 @@
 // Documents are no longer encoded into `?text=` (length limits, leaks into
 // history/referrers/server logs). Instead we open the Prism app and inject the
 // document into the tab's sessionStorage under `prism_pending_document`.
-const PRISM_APP_URL = "https://dassahs-mindbridge.vercel.app";
+const PRISM_APP_URL = "https://dassahs-prism.vercel.app";
 const PRISM_HANDOFF_PATH = "/";
 const PRISM_STORAGE_KEY = "prism_pending_document";
 const MAX_DOCUMENT_CHARS = 8000;
