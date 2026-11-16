@@ -4,7 +4,7 @@ This is **Dassah's Prism**, an ADHD-friendly document simplifier that turns over
 
 The public source repository is:
 
-<https://github.com/JGitu-creator/dassahs-mindbridge>
+<https://github.com/JGitu-creator/dassahs-prism>
 
 For a simple Android install or Capacitor APK wrapper, see [the APK guide](docs/APK_BUILD.md). The recommended first release is **Add to Home screen** from Chrome because Prism's AI, authentication, and server routes remain safely on the server.
 

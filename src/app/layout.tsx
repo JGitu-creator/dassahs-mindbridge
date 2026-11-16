@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Dassah's-Prism",
   description: "Refract overwhelming noise into divine clarity. Your cognitive architecture, optimized.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dassahs-mindbridge.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dassahs-prism.vercel.app"),
   manifest: "/manifest.json",
   icons: {
     icon: "/logo.png",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Dassah's-Prism",
     description: "Sovereignty Reclaimed. Turn noise into focus in seconds.",
-    url: "https://dassahs-mindbridge-rjeiohdc3-phidotaxis-3372s-projects.vercel.app",
+    url: "https://dassahs-prism.vercel.app",
     siteName: "Dassah's-Prism",
     images: [
       {

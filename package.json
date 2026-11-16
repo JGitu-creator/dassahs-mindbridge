@@ -10,7 +10,6 @@
     "test:shadow": "node scripts/test-shadow-boundary.mjs && node --experimental-strip-types scripts/test-shadow-production.mjs"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.95.2",
     "@google/generative-ai": "^0.24.1",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "@supabase/supabase-js": "^2.45.0",

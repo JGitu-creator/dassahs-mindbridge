@@ -8,9 +8,6 @@ import { recordUsage, refundCredits, reserveCredits, type QuotaReservation } fro
 const geminiKey = process.env.GEMINI_API_KEY;
 // Preserve compatibility with the existing deployment variable while preferring the explicit name.
 const openrouterKey = process.env.OPENROUTER_API_KEY || process.env.ROUTER_API_KEY;
-const openaiKey = process.env.OPENAI_API_KEY;
-const anthropicKey = process.env.ANTHROPIC_API_KEY;
-const deepseekKey = process.env.DEEPSEEK_API_KEY;
 
 export const dynamic = 'force-dynamic';
 
@@ -75,46 +72,21 @@ async function callProvider(message: string, history: any[], systemInstruction: 
   const tryOpenRouter = async (model = process.env.OPENROUTER_MODEL || 'openrouter/free'): Promise<ProviderResult> => {
     if (!openrouterKey) throw new Error('No OpenRouter key');
     const messages = [{ role: 'system', content: systemInstruction }, ...history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'assistant', content: item.text })), { role: 'user', content: message }];
-    const response = await fetch(getOpenRouterChatCompletionsUrl(), { method: 'POST', headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-mindbridge.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages, temperature: 0.4 }) });
+    const response = await fetch(getOpenRouterChatCompletionsUrl(), { method: 'POST', headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-prism.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages, temperature: 0.4 }) });
     if (!response.ok) throw new Error(`OpenRouter returned ${response.status}`);
     const result = await response.json();
     const usage = usageFromOpenRouter(result.usage, result.model || model);
     tokenLogger(usage.model, usage.totalTokens);
     return { text: result.choices?.[0]?.message?.content || '', usage };
   };
-  const tryOpenAI = async (): Promise<ProviderResult> => {
-    if (!openaiKey) throw new Error('No OpenAI key');
-    const model = 'gpt-4o-mini';
-    const response = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${openaiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: systemInstruction }, ...history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'assistant', content: item.text })), { role: 'user', content: message }] }) });
-    if (!response.ok) throw new Error(`OpenAI returned ${response.status}`);
-    const result = await response.json();
-    const usage = { provider: 'openai', model, promptTokens: result.usage?.prompt_tokens || 0, completionTokens: result.usage?.completion_tokens || 0, totalTokens: result.usage?.total_tokens || 0 };
-    tokenLogger(model, usage.totalTokens);
-    return { text: result.choices?.[0]?.message?.content || '', usage };
-  };
-  const tryAnthropic = async (): Promise<ProviderResult> => {
-    if (!anthropicKey) throw new Error('No Anthropic key');
-    const model = 'claude-3-5-sonnet-20241022';
-    const response = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' }, body: JSON.stringify({ model, max_tokens: 1024, system: systemInstruction, messages: [...history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'assistant', content: item.text })), { role: 'user', content: message }] }) });
-    if (!response.ok) throw new Error(`Anthropic returned ${response.status}`);
-    const result = await response.json();
-    const usage = { provider: 'anthropic', model, promptTokens: result.usage?.input_tokens || 0, completionTokens: result.usage?.output_tokens || 0, totalTokens: (result.usage?.input_tokens || 0) + (result.usage?.output_tokens || 0) };
-    tokenLogger(model, usage.totalTokens);
-    return { text: result.content?.[0]?.text || '', usage };
-  };
-  const tryDeepSeek = async (): Promise<ProviderResult> => {
-    if (!deepseekKey) throw new Error('No DeepSeek key');
-    const model = 'deepseek-chat';
-    const response = await fetch('https://api.deepseek.com/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${deepseekKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: systemInstruction }, ...history.map((item: any) => ({ role: item.role === 'user' ? 'user' : 'assistant', content: item.text })), { role: 'user', content: message }] }) });
-    if (!response.ok) throw new Error(`DeepSeek returned ${response.status}`);
-    const result = await response.json();
-    const usage = { provider: 'deepseek', model, promptTokens: result.usage?.prompt_tokens || 0, completionTokens: result.usage?.completion_tokens || 0, totalTokens: result.usage?.total_tokens || 0 };
-    tokenLogger(model, usage.totalTokens);
-    return { text: result.choices?.[0]?.message?.content || '', usage };
-  };
   const openRouterModelFor = (provider: ProviderPreference) => ({ gpt: 'openai/gpt-4o-mini', claude: 'anthropic/claude-3.5-sonnet', deepseek: 'deepseek/deepseek-chat' } as Record<string, string>)[provider];
   const model = openRouterModelFor(preferredProvider);
-  const providers: (() => Promise<ProviderResult>)[] = preferredProvider === 'openrouter' ? [() => tryOpenRouter(), tryGemini, tryOpenAI, tryAnthropic, tryDeepSeek] : preferredProvider === 'gpt' ? [tryOpenAI, () => tryOpenRouter(model), tryGemini, tryAnthropic, tryDeepSeek] : preferredProvider === 'claude' ? [tryAnthropic, () => tryOpenRouter(model), tryGemini, tryOpenAI, tryDeepSeek] : preferredProvider === 'deepseek' ? [tryDeepSeek, () => tryOpenRouter(model), tryGemini, tryOpenAI, tryAnthropic] : [tryGemini, () => tryOpenRouter(), tryOpenAI, tryAnthropic, tryDeepSeek];
+  const providers: (() => Promise<ProviderResult>)[] =
+    preferredProvider === 'openrouter'
+      ? [() => tryOpenRouter(), tryGemini]
+      : model
+        ? [() => tryOpenRouter(model), tryGemini]
+        : [tryGemini, () => tryOpenRouter()];
   for (const provider of providers) {
     try { const result = await provider(); if (result.text) return result; } catch (error) { console.error('Chat provider failed:', error); }
   }
