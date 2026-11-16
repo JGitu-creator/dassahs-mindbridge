@@ -46,7 +46,7 @@ export function AIUsageControl({
       >
         <Coins size={12} className="text-amber-400 shrink-0" />
         <span className="text-[8px] font-black tabular-nums sm:text-[9px]">
-          {usage.totalTokens.toLocaleString()} <span className="hidden xs:inline">tokens</span><span className="xs:hidden">tok</span>
+          {usage.totalTokens.toLocaleString()} <span className="hidden sm:inline">tokens</span><span className="sm:hidden">tok</span>
         </span>
         {providerLabel && (
           <span className={`hidden sm:inline rounded px-1 py-0.5 text-[8px] font-bold uppercase ${isLocalFallback ? 'bg-amber-500/20 text-amber-300' : 'bg-blue-500/15 text-blue-300'}`}>

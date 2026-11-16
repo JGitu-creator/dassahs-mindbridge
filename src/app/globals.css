@@ -100,8 +100,11 @@ body {
 
 /* White in an animated gradient is attractive in dark mode but washes out on light. */
 .light .prism-text {
-  background: linear-gradient(110deg, #312e81 0%, #6d28d9 28%, #1d4ed8 52%, #7e22ce 76%, #92400e 100%);
+  background-image: linear-gradient(110deg, #312e81 0%, #6d28d9 28%, #1d4ed8 52%, #7e22ce 76%, #92400e 100%);
   background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .light .theme-selector-label {
@@ -280,7 +283,6 @@ body {
 .light .text-slate-400 { color: #475569 !important; }
 .light .text-slate-500 { color: #475569 !important; }
 .light .text-slate-600 { color: #334155 !important; }
-.light .text-white { color: #0f172a !important; }
 .light .text-blue-200 { color: #1e40af !important; }
 .light .text-blue-300 { color: #1d4ed8 !important; }
 .light .text-blue-400 { color: #1d4ed8 !important; }
@@ -294,6 +296,7 @@ body {
 .light .border-white\/5,
 .light .border-white\/10,
 .light .border-white\/20 { border-color: rgba(71, 85, 105, 0.24) !important; }
+.light footer.opacity-75,
 .light footer.opacity-40 { opacity: 1; }
 
 .dark .text-slate-600 { color: #cbd5e1 !important; }

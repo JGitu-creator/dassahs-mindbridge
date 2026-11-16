@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:shadow": "node scripts/test-shadow-boundary.mjs && node --experimental-strip-types scripts/test-shadow-production.mjs"
+    "test:shadow": "node scripts/test-shadow-boundary.mjs && node --experimental-strip-types scripts/test-shadow-production.mjs",
+    "test:acceptance": "node scripts/test-ui-contrast.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
