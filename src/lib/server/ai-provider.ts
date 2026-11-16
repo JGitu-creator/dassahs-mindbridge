@@ -9,7 +9,7 @@ export function getAIClient(provider: Provider): OpenAI {
     apiKey: process.env.OPENROUTER_API_KEY ?? process.env.ROUTER_API_KEY ?? '',
     baseURL: getOpenRouterApiBaseUrl(),
     defaultHeaders: {
-      'HTTP-Referer': 'https://dassahs-mindbridge.vercel.app',
+      'HTTP-Referer': 'https://dassahs-prism.vercel.app',
       'X-Title': "Dassah's Prism",
     },
   });

@@ -1,7 +1,5 @@
 import { after, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import OpenAI from 'openai';
-import Anthropic from '@anthropic-ai/sdk';
 import { tokenLogger } from '@/lib/tokenLogger';
 import { getOpenRouterChatCompletionsUrl } from '@/lib/server/openrouter';
 import { emptyUsage, mergeUsage, usageFromOpenRouter, type AiUsage, type ProviderPreference } from '@/lib/ai-usage';
@@ -9,9 +7,6 @@ import { recordUsage, refundCredits, reserveCredits, type QuotaReservation } fro
 import { logShadowTelemetry, runShadowProbe } from '@/lib/server/shadow-mode';
 
 const apiKey = process.env.GEMINI_API_KEY;
-const openaiKey = process.env.OPENAI_API_KEY;
-const anthropicKey = process.env.ANTHROPIC_API_KEY;
-const deepseekKey = process.env.DEEPSEEK_API_KEY;
 // Preserve compatibility with the existing deployment variable while preferring the explicit name.
 const openrouterKey = process.env.OPENROUTER_API_KEY || process.env.ROUTER_API_KEY;
 const openrouterModel = process.env.OPENROUTER_MODEL || 'openrouter/free';
@@ -164,51 +159,22 @@ async function callProvider(prompt: string, preferredProvider: ProviderPreferenc
   const tryOpenRouter = async (model = openrouterModel): Promise<ProviderResult> => {
     if (!openrouterKey) throw new Error('No OpenRouter Key');
     const content = image ? [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: `data:${image.mimeType};base64,${image.data}` } }] : prompt;
-    const response = await fetch(getOpenRouterChatCompletionsUrl(), { method: 'POST', headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-mindbridge.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages: [{ role: 'user', content }], temperature: 0.2 }) });
+    const response = await fetch(getOpenRouterChatCompletionsUrl(), { method: 'POST', headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-prism.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages: [{ role: 'user', content }], temperature: 0.2 }) });
     if (!response.ok) throw new Error(`OpenRouter returned ${response.status}`);
     const data = await response.json();
     const usage = usageFromOpenRouter(data.usage, data.model || model);
     tokenLogger(usage.model, usage.totalTokens);
     return { text: data.choices?.[0]?.message?.content || '', usage };
   };
-  const tryOpenAI = async (): Promise<ProviderResult> => {
-    if (!openaiKey) throw new Error('No OpenAI Key');
-    const model = 'gpt-4o-mini';
-    const completion = await new OpenAI({ apiKey: openaiKey }).chat.completions.create({ model, messages: [{ role: 'user', content: prompt }] });
-    const usage = { provider: 'openai', model, promptTokens: completion.usage?.prompt_tokens || 0, completionTokens: completion.usage?.completion_tokens || 0, totalTokens: completion.usage?.total_tokens || 0 };
-    tokenLogger(model, usage.totalTokens);
-    return { text: completion.choices[0].message.content || '', usage };
-  };
-  const tryAnthropic = async (): Promise<ProviderResult> => {
-    if (!anthropicKey) throw new Error('No Anthropic Key');
-    const model = 'claude-3-5-sonnet-20241022';
-    const msg = await new Anthropic({ apiKey: anthropicKey }).messages.create({ model, max_tokens: 2048, messages: [{ role: 'user', content: prompt }] });
-    const usage = { provider: 'anthropic', model, promptTokens: msg.usage.input_tokens, completionTokens: msg.usage.output_tokens, totalTokens: msg.usage.input_tokens + msg.usage.output_tokens };
-    tokenLogger(model, usage.totalTokens);
-    return { text: (msg.content[0] as any).text, usage };
-  };
-  const tryDeepSeek = async (): Promise<ProviderResult> => {
-    if (!deepseekKey) throw new Error('No DeepSeek Key');
-    const model = 'deepseek-chat';
-    const response = await fetch('https://api.deepseek.com/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${deepseekKey}` }, body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] }) });
-    if (!response.ok) throw new Error(`DeepSeek returned ${response.status}`);
-    const data = await response.json();
-    const usage = { provider: 'deepseek', model, promptTokens: data.usage?.prompt_tokens || 0, completionTokens: data.usage?.completion_tokens || 0, totalTokens: data.usage?.total_tokens || 0 };
-    tokenLogger(model, usage.totalTokens);
-    return { text: data.choices?.[0]?.message?.content || '', usage };
-  };
 
   const openRouterModelFor = (provider: ProviderPreference) => ({ gpt: 'openai/gpt-4o-mini', claude: 'anthropic/claude-3.5-sonnet', deepseek: 'deepseek/deepseek-chat' } as Record<string, string>)[provider];
   const openRouterChoice = openRouterModelFor(preferredProvider);
-  const providers: (() => Promise<ProviderResult>)[] = preferredProvider === 'openrouter'
-    ? [() => tryOpenRouter(), tryGemini, tryOpenAI, tryAnthropic, tryDeepSeek]
-    : preferredProvider === 'gpt'
-      ? [tryOpenAI, () => tryOpenRouter(openRouterChoice), tryGemini, tryAnthropic, tryDeepSeek]
-      : preferredProvider === 'claude'
-        ? [tryAnthropic, () => tryOpenRouter(openRouterChoice), tryGemini, tryOpenAI, tryDeepSeek]
-        : preferredProvider === 'deepseek'
-          ? [tryDeepSeek, () => tryOpenRouter(openRouterChoice), tryGemini, tryOpenAI, tryAnthropic]
-          : [tryGemini, () => tryOpenRouter(), tryOpenAI, tryAnthropic, tryDeepSeek];
+  const providers: (() => Promise<ProviderResult>)[] =
+    preferredProvider === 'openrouter'
+      ? [() => tryOpenRouter(), tryGemini]
+      : openRouterChoice
+        ? [() => tryOpenRouter(openRouterChoice), tryGemini]
+        : [tryGemini, () => tryOpenRouter()];
   for (const provider of providers) {
     try { const result = await provider(); if (result.text) return result; } catch (error) { console.error('Provider failed:', error); }
   }

@@ -6,8 +6,8 @@ const client = new OpenAI({
   baseURL: getOpenRouterApiBaseUrl(),
   apiKey: process.env.ROUTER_API_KEY || process.env.OPENROUTER_API_KEY,
   defaultHeaders: {
-    'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://dassahs-mindbridge.vercel.app',
-    'X-Title': process.env.APP_NAME || "Dassah's Mindbridge",
+    'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://dassahs-prism.vercel.app',
+    'X-Title': process.env.APP_NAME || "Dassah's Prism",
   },
 });
 

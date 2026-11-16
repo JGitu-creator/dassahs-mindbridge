@@ -1,7 +1,7 @@
 # Dassah's Prism — Implementation Progress Record
 **Last updated:** 2026-10-06
 **Branch:** `feature/provider-selection-credits` (recreated from `main` and pushed)
-**Repo:** `JGitu-creator/dassahs-mindbridge`
+**Repo:** `JGitu-creator/dassahs-prism`
 
 ## ✅ Done on this branch
 | Area | Files |
