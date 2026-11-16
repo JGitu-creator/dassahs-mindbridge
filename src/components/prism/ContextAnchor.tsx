@@ -12,7 +12,7 @@ export const ContextAnchor = ({ data, isOpen, onToggle }: { data: any, isOpen: b
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '100%', opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-6 right-6 w-72 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl z-[300]"
+            className="fixed bottom-24 right-4 sm:bottom-28 sm:right-8 w-[calc(100vw-2rem)] max-w-72 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl z-[300]"
           >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-white font-black uppercase tracking-widest flex items-center gap-2">
@@ -47,7 +47,7 @@ export const ContextAnchor = ({ data, isOpen, onToggle }: { data: any, isOpen: b
       {!isOpen && (
         <button 
           onClick={onToggle}
-          className="fixed bottom-6 right-6 flex h-12 w-12 items-center justify-center rounded-xl border-2 border-blue-300/40 bg-blue-600 shadow-lg hover:scale-110 transition-all z-[300]"
+          className="fixed bottom-24 right-4 sm:bottom-28 sm:right-8 flex h-12 w-12 items-center justify-center rounded-xl border-2 border-blue-300/40 bg-blue-600 shadow-lg hover:scale-110 transition-all z-[300]"
           title="Open context anchor"
           aria-label="Open context anchor"
         >

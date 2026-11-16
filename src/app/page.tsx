@@ -242,7 +242,7 @@ const NeuralRefractionSlider = () => {
       </motion.div>
 
       {/* Interaction Hint styled with Premium Glassmorphism */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2 bg-black/50 dark:bg-black/30 border border-white/20 text-[9px] font-black uppercase tracking-[0.3em] text-[var(--fg)] rounded-full z-30 pointer-events-none group-hover:opacity-0 transition-opacity duration-300 backdrop-blur-md">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2 bg-slate-900/80 border border-white/20 text-[9px] font-black uppercase tracking-[0.3em] text-white rounded-full z-30 pointer-events-none group-hover:opacity-0 transition-opacity duration-300 backdrop-blur-md">
         Slide to Refract
       </div>
     </motion.div>
@@ -330,7 +330,7 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
              "Refresh your cognitive interest. Tap the numbers in any order to anchor your dopamine."}
           </p>
           {seconds === 0 && (
-            <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} onClick={onComplete} className="w-full bg-[var(--bg)] text-black py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all">Resume Mission</motion.button>
+            <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} onClick={onComplete} className="w-full bg-[var(--fg)] text-[var(--bg)] py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all">Resume Mission</motion.button>
           )}
         </div>
       </div>
@@ -482,7 +482,7 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
         </div>
         <button
           onClick={onFinish}
-          className="w-full bg-[var(--bg)] text-black py-4 md:py-5 rounded-2xl md:rounded-3xl font-black uppercase tracking-[0.4em] text-[10px] md:text-sm hover:scale-105 transition-all active:scale-95 shadow-2xl"
+          className="w-full bg-[var(--fg)] text-[var(--bg)] py-4 md:py-5 rounded-2xl md:rounded-3xl font-black uppercase tracking-[0.4em] text-[10px] md:text-sm hover:scale-105 transition-all active:scale-95 shadow-2xl"
         >
           Reclaim Bandwidth
         </button>
@@ -1729,8 +1729,11 @@ export default function Home() {
       padding-right: 0.3em;
     }
     .light .prism-brand .brand-prism {
-      background: linear-gradient(110deg, #312e81 0%, #7e22ce 24%, #0369a1 48%, #b45309 72%, #312e81 100%);
+      background-image: linear-gradient(110deg, #312e81 0%, #7e22ce 24%, #0369a1 48%, #b45309 72%, #312e81 100%);
       background-size: 400% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
       animation: prism-refract-light 14s ease-in-out infinite;
     }
     @keyframes prism-refract-light {
@@ -1798,7 +1801,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <button onClick={() => setShowGuardianCenter(false)} className="w-full bg-red-600 py-6 rounded-2xl font-black uppercase tracking-widest text-xs text-[var(--fg)] shadow-xl">Seal Control Center</button>
+              <button onClick={() => setShowGuardianCenter(false)} className="w-full bg-red-600 py-6 rounded-2xl font-black uppercase tracking-widest text-xs text-white shadow-xl">Seal Control Center</button>
             </motion.div>
           </div>
         )}
@@ -1891,9 +1894,9 @@ export default function Home() {
             <motion.div whileHover={{ scale: 1.2, rotate: -10 }}><Clock size={18} className="md:w-5 md:h-5 transition-transform" /></motion.div>
           </button>
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
-          <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-[var(--fg)] shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-[var(--fg)]'}`}>
+          <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-[var(--fg)]'}`}>
             {focusMode === 'sovereign' ? <Crown size={12} className="md:w-3.5 md:h-3.5" /> : <Zap size={12} className="md:w-3.5 md:h-3.5" />}
-            <span className="hidden xs:block">{focusMode === 'sovereign' ? 'Sov' : 'Das'}</span>
+            <span className="hidden sm:block">{focusMode === 'sovereign' ? 'Sov' : 'Das'}</span>
           </button>
           {user ? (
             <button onClick={() => setShowNeuralIdentity(true)} className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl overflow-hidden border-2 border-blue-500/30 hover:border-blue-400 hover:scale-105 transition-all shadow-lg flex items-center justify-center bg-blue-500/10">
@@ -1912,7 +1915,7 @@ export default function Home() {
               )}
             </button>
           ) : (
-            <button onClick={handleLogin} className="px-4 md:px-6 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-[var(--color-accent)] text-[var(--fg)] text-[8px] md:text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-lg">
+            <button onClick={handleLogin} className="px-4 md:px-6 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-[var(--color-accent)] text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-lg">
               Join
             </button>
           )}
@@ -1945,7 +1948,7 @@ export default function Home() {
         <button aria-label="Follow device reading mode" aria-pressed={themeMode === 'system'} onClick={() => setThemeMode('system')} className={`rounded-xl p-2 transition ${themeMode === 'system' ? 'bg-[var(--bg)] text-[var(--fg)] shadow' : 'text-[var(--fg)]/70 hover:text-[var(--fg)]'}`}><Monitor size={14} /></button>
       </div>
       {/* Prism Link (Feedback) */}
-      <button onClick={() => setShowFeedback(true)} className={`fixed top-24 left-8 z-[120] p-4 rounded-2xl apple-glass text-[var(--fg)] hover:text-[var(--fg)] hover:bg-[var(--bg)]/10 transition-all opacity-40 hover:opacity-100 group shadow-2xl ${focusMode === 'sovereign' ? 'hidden' : ''}`}>
+      <button onClick={() => setShowFeedback(true)} aria-label="Open feedback" className={`fixed bottom-20 left-4 sm:top-24 sm:bottom-auto sm:left-8 z-[120] p-3 sm:p-4 rounded-2xl apple-glass text-[var(--fg)] hover:text-[var(--fg)] hover:bg-[var(--bg)]/10 transition-all opacity-75 sm:opacity-40 hover:opacity-100 group shadow-2xl ${focusMode === 'sovereign' ? 'hidden' : ''}`}>
         <div className="absolute inset-0 bg-blue-500/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         <MessageSquare size={20} className="relative z-10 group-hover:scale-110 transition-transform" />
       </button>
@@ -1956,7 +1959,7 @@ export default function Home() {
               <p className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400 mb-3">Neural Link Ready</p>
               <h2 className="text-2xl md:text-3xl font-black italic text-[var(--fg)] mb-4">Confirm your Inner Circle access</h2>
               <p className="text-sm leading-relaxed text-[var(--fg)]/80 mb-6">Your account is connected. Review the <a href="/terms" target="_blank" rel="noreferrer" className="text-blue-400 underline underline-offset-4">Neural Terms</a> and <a href="/privacy" target="_blank" rel="noreferrer" className="text-blue-400 underline underline-offset-4">Privacy Shield</a> before continuing.</p>
-              <button onClick={handleEstablishLink} className="w-full rounded-2xl bg-[var(--color-accent)] text-[var(--fg)] py-4 text-[10px] font-black uppercase tracking-[0.3em] shadow-lg hover:scale-[1.02] transition-transform">Accept and establish link</button>
+              <button onClick={handleEstablishLink} className="w-full rounded-2xl bg-[var(--color-accent)] text-white py-4 text-[10px] font-black uppercase tracking-[0.3em] shadow-lg hover:scale-[1.02] transition-transform">Accept and establish link</button>
               <button onClick={handleLogout} className="w-full mt-3 rounded-2xl border border-white/10 text-[var(--fg)]/70 py-3 text-[9px] font-black uppercase tracking-[0.25em] hover:text-[var(--fg)] transition-colors">Cancel and disconnect</button>
             </motion.div>
           </div>
@@ -2112,9 +2115,9 @@ export default function Home() {
       <AnimatePresence>
         {showNeuralIdentity && (
           <div className="fixed inset-0 bg-[var(--bg)]/80 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-4xl w-full max-h-[90vh] overflow-y-auto no-scrollbar apple-glass p-8 md:p-12 rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-10">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-black text-[var(--fg)] italic flex items-center gap-4"><Crown className="text-amber-400" /> Neural Identity</h2>
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-4xl w-full max-h-[90vh] overflow-y-auto no-scrollbar apple-glass p-5 sm:p-8 md:p-12 rounded-[2rem] sm:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-6 sm:gap-10">
+              <div className="flex flex-wrap justify-between items-center gap-3">
+                <h2 className="text-xl sm:text-2xl font-black text-[var(--fg)] italic flex items-center gap-3 sm:gap-4"><Crown className="text-amber-400" /> Neural Identity</h2>
                 <div className="flex gap-3">
                   <div className="bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-500/20 flex items-center gap-2">
                     <Clock className="text-blue-400" size={12}/><span className="font-black text-[var(--fg)] text-[10px]">{totalMinutesSaved}m</span>
@@ -2215,7 +2218,7 @@ export default function Home() {
                         <div key={i} className="p-4 rounded-2xl bg-black/20 border border-white/5 space-y-2 relative group">
                           <p className="text-[8px] font-black uppercase text-blue-400 tracking-tighter">{item.heading}</p>
                           <p className="text-sm font-bold text-slate-300 italic">"{item.content}"</p>
-                          <button onClick={() => handleToggleStar(item)} className="absolute top-2 right-2 text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"><X size={14}/></button>
+                          <button onClick={() => handleToggleStar(item)} aria-label="Remove saved highlight" className="absolute top-2 right-2 p-1.5 text-amber-500 opacity-75 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 transition-opacity"><X size={14}/></button>
                         </div>
                       ))
                     )}
@@ -2233,10 +2236,10 @@ export default function Home() {
       </AnimatePresence>
       <AnimatePresence>{showAbout && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[600] flex items-center justify-center p-4 overflow-y-auto no-scrollbar">
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} className="contrast-modal max-w-4xl w-full refractive-border apple-glass p-8 md:p-16 rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto overflow-hidden">
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20, rotateX: 10 }} className="contrast-modal max-w-4xl w-full refractive-border apple-glass p-5 sm:p-8 md:p-14 rounded-[2rem] sm:rounded-[3rem] md:rounded-[5rem] shadow-[0_0_150px_rgba(255,255,255,0.1)] relative my-auto overflow-hidden">
             {[...Array(12)].map((_, i) => <GlassShard key={i} i={i} color={currentTheme.prism[i % 3]} mousePos={mousePos} />)}
             <motion.div initial={{ x: '-100%', skewX: -20 }} animate={{ x: '200%' }} transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }} className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-10" />
-            <button onClick={() => setShowAbout(false)} className="absolute top-8 right-8 p-4 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors z-20"><X size={32}/></button>
+            <button onClick={() => setShowAbout(false)} aria-label="Close About modal" className="absolute top-4 right-4 sm:top-8 sm:right-8 p-2 sm:p-4 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors z-20"><X size={28}/></button>
             <div className="space-y-12 relative z-10">
               <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH&apos;S-PRISM</div>
@@ -2338,9 +2341,9 @@ export default function Home() {
       )}</AnimatePresence>
       <AnimatePresence>{showMissionBrief && data && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[600] flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="contrast-modal max-w-2xl w-full apple-glass border-2 border-blue-500/30 p-10 md:p-16 rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] relative max-h-[90vh] overflow-y-auto no-scrollbar">
-            <button onClick={() => setShowMissionBrief(false)} className="absolute top-8 right-8 p-3 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
-            <div className="space-y-12">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="contrast-modal max-w-2xl w-full apple-glass border-2 border-blue-500/30 p-5 sm:p-8 md:p-14 rounded-[2rem] sm:rounded-[3.5rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] relative max-h-[90vh] overflow-y-auto no-scrollbar">
+            <button onClick={() => setShowMissionBrief(false)} aria-label="Close Mission Brief" className="absolute top-4 right-4 sm:top-8 sm:right-8 p-2 sm:p-3 hover:bg-[var(--bg)]/10 rounded-full text-slate-400 transition-colors"><X size={24}/></button>
+            <div className="space-y-8 sm:space-y-12">
               <div className="flex justify-between items-center">
                 <div className="bg-blue-500/10 text-blue-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-500/20 w-fit flex items-center gap-3"><Rocket size={18}/> Mission Brief</div>
               </div>
@@ -2372,7 +2375,7 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-              <button onClick={() => setShowMissionBrief(false)} className="w-full bg-blue-600 py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-[var(--fg)] shadow-xl hover:opacity-80 transition-all active:scale-95">Acknowledge & Return</button>
+              <button onClick={() => setShowMissionBrief(false)} className="w-full bg-blue-600 py-5 sm:py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs text-white shadow-xl hover:opacity-80 transition-all active:scale-95">Acknowledge & Return</button>
             </div>
           </motion.div>
         </div>
@@ -2399,7 +2402,7 @@ export default function Home() {
       {!data ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl lg:max-w-4xl w-full space-y-6 md:space-y-10 z-10 px-4 pt-20 md:pt-24 pb-20">
           <header className="text-center space-y-4 md:space-y-8 relative">
-            <h1 className="prism-brand text-5xl md:text-9xl font-black text-[var(--fg)] leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text brand-prism">Prism</span></h1>
+            <h1 className="prism-brand text-4xl sm:text-6xl md:text-9xl font-black text-[var(--fg)] leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text brand-prism">Prism</span></h1>
             <RefractiveTagline />
           </header>
           <NeuralRefractionSlider />
@@ -2439,31 +2442,31 @@ export default function Home() {
                 )}
               </div>
             </div>
-            <div className="w-full relative group">
-              {/* Sovereign Goal Floating Input */}
-              <div className="absolute top-4 left-6 right-6 z-10">
+            <div className="w-full relative group flex flex-col gap-2">
+              {/* Sovereign Goal Input */}
+              <div className="px-2 pt-1 sm:px-4">
                 <input
                   type="text"
                   value={missionGoal}
                   onChange={(e) => setMissionGoal(e.target.value)}
                   placeholder="Focus Objective (Optional) — what should Prism help you do?"
                   title="Optional: tell Prism what to prioritise in the document"
-                  className="w-full bg-[var(--bg)]/5 border border-white/10 p-2 md:p-3 rounded-xl text-[10px] md:text-xs font-bold text-blue-200 placeholder:text-blue-300/20 italic focus:outline-none focus:border-blue-500/40 focus:bg-[var(--bg)]/10 transition-all backdrop-blur-md"
+                  className="w-full bg-[var(--bg)]/5 border border-white/10 p-2.5 md:p-3 rounded-xl text-xs font-bold text-[var(--fg)] placeholder:text-slate-500 dark:placeholder:text-blue-200/60 italic focus:outline-none focus:border-blue-500/40 focus:bg-[var(--bg)]/10 transition-all backdrop-blur-md"
                 />
               </div>
               {showNeuroMirror ? (
-                <div className="w-full h-48 md:h-80 bg-black/60 rounded-[1.5rem] md:rounded-[2.5rem] overflow-y-auto border border-white/10 pt-16"><NeuroMirrorText text={input || "Paste some text..."} /></div>
+                <div className="w-full h-48 md:h-80 bg-black/60 rounded-[1.5rem] md:rounded-[2.5rem] overflow-y-auto border border-white/10 p-4 sm:p-6"><NeuroMirrorText text={input || "Paste some text..."} /></div>
               ) : (
                 <textarea
-                  className="prism-input w-full h-48 md:h-80 pt-16 md:pt-20 p-6 md:p-12 text-base md:text-xl bg-black/40 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-white/20 focus:border-purple-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-400 text-slate-200 leading-relaxed font-medium"
+                  className="prism-input w-full h-48 md:h-80 p-5 sm:p-6 md:p-10 text-base md:text-xl bg-black/40 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-white/20 focus:border-purple-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-400 text-slate-200 leading-relaxed font-medium"
                   placeholder="Paste the noise here..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                 />
               )}
             </div>
-            <div className="w-full bg-[var(--color-glass)] p-3 md:p-4 rounded-3xl md:rounded-full flex items-center justify-between gap-2 md:gap-4 border border-white/10 shadow-2xl backdrop-blur-3xl">
-              <div className="flex items-center gap-1 md:gap-2 pl-2">
+            <div className="w-full bg-[var(--color-glass)] p-2.5 sm:p-3 md:p-4 rounded-3xl md:rounded-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 md:gap-4 border border-white/10 shadow-2xl backdrop-blur-3xl">
+              <div className="flex items-center gap-1 md:gap-2 pl-1 sm:pl-2">
               <button onClick={() => { fileInputRef.current?.click(); }} title="Clean Document" className="p-2 md:p-3 text-slate-400 hover:text-[var(--fg)] transition-colors bg-[var(--bg)]/5 rounded-full"><Upload size={16} className="text-blue-500" /></button>
               <button
                 onClick={() => {
@@ -2485,7 +2488,7 @@ export default function Home() {
               <button
                 onClick={() => handleSimplify()}
                 disabled={loading || (!input.trim() && !pendingImage)}
-                className="flex-1 max-w-[200px] bg-gradient-to-r from-fuchsia-600 to-purple-500 hover:from-fuchsia-500 hover:to-purple-400 text-[var(--fg)] py-3 md:py-4 rounded-full font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 text-xs md:text-sm flex items-center justify-center gap-2"
+                className="flex-1 min-w-[120px] max-w-[200px] min-h-[44px] bg-gradient-to-r from-fuchsia-600 to-purple-500 hover:from-fuchsia-500 hover:to-purple-400 text-white py-3 md:py-4 rounded-full font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 text-xs md:text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -2496,8 +2499,8 @@ export default function Home() {
                   </div>
                 ) : <><Disc size={16} /> Discern</>}
               </button>
-              <div className="flex items-center gap-2 pr-2">
-                 <p className="hidden md:block text-[8px] font-black uppercase text-[var(--fg)] tracking-[0.2em]">Ready to Refract</p>
+              <div className="hidden md:flex items-center gap-2 pr-2">
+                 <p className="text-[8px] font-black uppercase text-[var(--fg)] tracking-[0.2em]">Ready to Refract</p>
               </div>
             </div>
           </div>
@@ -2505,28 +2508,28 @@ export default function Home() {
       ) : (
         <div ref={resultRef} className="max-w-2xl lg:max-w-3xl w-full pt-24 md:pt-32 pb-20 z-10 px-4">
           <div className="mb-6 md:mb-8 flex justify-end gap-2 md:gap-4">
-            <button onClick={() => { setShowMissionBrief(true);  }} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Rocket size={16}/><span className="hidden xs:inline">Mission Brief</span></button>
-            <button onClick={handleDownloadSummary} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-slate-400 hover:text-[var(--fg)] transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Download size={16}/><span className="hidden xs:inline">Save Summary</span></button>
+            <button onClick={() => { setShowMissionBrief(true);  }} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Rocket size={16}/><span className="hidden sm:inline">Mission Brief</span></button>
+            <button onClick={handleDownloadSummary} className="p-3 md:p-4 bg-[var(--color-glass)] border border-[var(--color-border)] rounded-xl md:rounded-2xl text-slate-400 hover:text-[var(--fg)] transition-all flex items-center gap-2 md:gap-3 font-black uppercase text-[8px] md:text-[10px] tracking-widest"><Download size={16}/><span className="hidden sm:inline">Save Summary</span></button>
           </div>          <AnimatePresence mode="wait">
             {currentChunk === -1 ? (
-              <motion.div key="ready" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] text-center space-y-8 shadow-2xl relative overflow-hidden">
-                <div className="mx-auto w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse"><Zap size={48} /></div>
+              <motion.div key="ready" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -100 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-5 sm:p-8 md:p-14 rounded-[2rem] sm:rounded-[3.5rem] border border-[var(--color-border)] text-center space-y-6 sm:space-y-8 shadow-2xl relative overflow-hidden">
+                <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 animate-pulse"><Zap size={48} /></div>
                 <div className="space-y-4">
-                  <h2 className="text-4xl md:text-6xl font-black text-[var(--fg)] italic tracking-tighter">Neural Refraction Complete</h2>
+                  <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-[var(--fg)] italic tracking-tighter">Neural Refraction Complete</h2>
                   <p className="text-slate-400 font-bold uppercase tracking-[0.4em] text-[10px]">Saved {data.readingTime} of Cognitive Noise</p>
                 </div>
                 <div className="flex flex-col gap-4">
-                  <button onClick={() => { setCurrentChunk(0);  }} className="w-full bg-[var(--color-accent)] py-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Prism <ArrowRight className="inline ml-4"/></button>
+                  <button onClick={() => { setCurrentChunk(0);  }} className="w-full bg-[var(--color-accent)] text-white py-6 sm:py-8 rounded-[2rem] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-base sm:text-xl shadow-2xl hover:opacity-80 transition-all active:scale-95">Open the Prism <ArrowRight className="inline ml-3 sm:ml-4"/></button>
                   <button onClick={() => { setShowMissionBrief(true);  }} className="w-full bg-[var(--bg)]/5 py-4 rounded-xl font-black uppercase tracking-[0.3em] text-[10px] text-slate-400 hover:text-[var(--fg)] transition-all">View Mission Brief</button>
                 </div>
-                <button onClick={handleReset} className="absolute top-8 right-8 p-4 text-slate-600 hover:text-red-400 transition-all"><X size={20}/></button>
+                <button onClick={handleReset} aria-label="Reset session" className="absolute top-4 right-4 sm:top-8 sm:right-8 p-3 sm:p-4 text-slate-600 hover:text-red-400 transition-all"><X size={20}/></button>
               </motion.div>
             ) : currentChunk === data.chunks.length ? (
-              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-10 md:p-16 rounded-[3.5rem] border-2 border-blue-500/30 space-y-12 shadow-2xl relative overflow-hidden">
-                <div className="flex justify-between items-center">
-                  <div className="space-y-4">
+              <motion.div key="roadmap" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="bg-[var(--color-glass)] backdrop-blur-3xl p-5 sm:p-8 md:p-14 rounded-[2rem] sm:rounded-[3.5rem] border-2 border-blue-500/30 space-y-8 sm:space-y-12 shadow-2xl relative overflow-hidden">
+                <div className="flex flex-wrap justify-between items-center gap-3">
+                  <div className="space-y-3 sm:space-y-4">
                     <h2 className="text-[10px] uppercase tracking-[0.5em] text-blue-400 font-black italic">The Roadmap</h2>
-                    <h3 className="text-4xl md:text-5xl font-black text-[var(--fg)] tracking-tight italic">Priority Overview</h3>
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-[var(--fg)] tracking-tight italic">Priority Overview</h3>
                   </div>
                   <div className="text-right">
                    <p className="text-xs font-bold text-emerald-400 italic">ROI: {data.readingTime} saved</p>
@@ -2534,9 +2537,9 @@ export default function Home() {
 
                 </div>
                 {data.actions[0] && (
-                  <div className="rounded-[2rem] border-2 border-emerald-500/40 bg-emerald-500/10 p-6 md:p-8 shadow-[0_16px_40px_rgba(16,185,129,0.12)]">
+                  <div className="rounded-[2rem] border-2 border-emerald-500/40 bg-emerald-500/10 p-5 sm:p-6 md:p-8 shadow-[0_16px_40px_rgba(16,185,129,0.12)]">
                     <div className="flex items-center gap-2 text-emerald-400 text-[10px] font-black uppercase tracking-[0.35em] mb-3"><Zap size={14} /> Start here</div>
-                    <p className="text-2xl md:text-3xl font-black text-[var(--fg)] leading-tight">{data.actions[0].task}</p>
+                    <p className="text-xl sm:text-2xl md:text-3xl font-black text-[var(--fg)] leading-tight">{data.actions[0].task}</p>
                     <button onClick={() => toggleTask(0)} className="mt-5 rounded-xl bg-emerald-500 px-5 py-3 text-[9px] font-black uppercase tracking-widest text-slate-950 hover:bg-emerald-400 transition-colors">Mark next action complete</button>
                   </div>
                 )}
@@ -2546,7 +2549,7 @@ export default function Home() {
                   <span className="rounded-full border border-[var(--color-border)] px-3 py-2">Interpretation: review before acting</span>
                   <span className={`rounded-full border px-3 py-2 ${allActionsComplete ? 'border-emerald-500/50 text-emerald-400' : 'border-amber-500/50 text-amber-400'}`}>{completedActionCount} / {data.actions.length} actions confirmed</span>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {data.actions.map((action, i) => (
                     <motion.div
                       key={i}
@@ -2554,21 +2557,21 @@ export default function Home() {
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ delay: i * 0.1 }}
                       onClick={() => toggleTask(i)}
-                      className={`p-6 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
+                      className={`p-4 sm:p-6 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 group ${
                         completedTasks[`${data.id || 'current'}-${i}`]
                         ? 'bg-emerald-500/10 border-emerald-500/50 opacity-60'
                         : 'bg-black/20 border-white/5 hover:border-blue-500/30'
                       }`}
                     >
-                      <div className="flex items-center gap-6">
-                        <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                      <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+                        <div className={`w-6 h-6 shrink-0 rounded-lg border-2 flex items-center justify-center transition-all ${
                           completedTasks[`${data.id || 'current'}-${i}`]
-                          ? 'bg-emerald-500 border-emerald-500 text-[var(--fg)]'
+                          ? 'bg-emerald-500 border-emerald-500 text-white'
                           : 'border-white/20 text-transparent'
                         }`}>
                           <Check size={14} strokeWidth={4} />
                         </div>
-                        <p className={`text-lg font-bold transition-all ${
+                        <p className={`text-base sm:text-lg font-bold transition-all ${
                           completedTasks[`${data.id || 'current'}-${i}`]
                           ? 'text-[var(--fg)] line-through'
                           : 'text-slate-300 group-hover:text-[var(--fg)]'
@@ -2576,7 +2579,7 @@ export default function Home() {
                           {action.task}
                         </p>
                       </div>
-                      <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${
+                      <span className={`shrink-0 text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${
                         action.priority === 'high' ? 'border-red-500/50 text-red-400 bg-red-500/10' :
                         action.priority === 'medium' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
                         'border-blue-500/50 text-blue-400 bg-blue-500/10'
@@ -2586,18 +2589,18 @@ export default function Home() {
                     </motion.div>
                   ))}
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4 mt-12">
+                <div className="flex flex-col sm:flex-row gap-4 mt-8 sm:mt-12">
                   <button
                     onClick={sealMission}
                     disabled={!allActionsComplete}
                     title={allActionsComplete ? 'Confirm the completed mission' : 'Tick every assigned action before sealing the mission'}
-                    className="flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-500 p-8 rounded-[2rem] font-black uppercase tracking-[0.3em] text-xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition-all active:scale-95 text-[var(--fg)] flex items-center justify-center gap-4 group disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+                    className="flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-500 p-5 sm:p-8 rounded-[2rem] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-base sm:text-xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition-all active:scale-95 text-white flex items-center justify-center gap-3 sm:gap-4 group disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
                   >
                     {allActionsComplete ? 'Seal the Mission' : 'Confirm every action'} <ShieldCheck size={24} className="group-hover:rotate-12 transition-transform" />
                   </button>
                 </div>
                 {isSunday && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-12 p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/20 text-center space-y-4">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-12 p-6 sm:p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/20 text-center space-y-4">
                     <p className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-500">Divine Insight: Sabbath Reflection</p>
                     <p className="text-xl font-black italic text-[var(--fg)] leading-relaxed">&quot;{dailyInsight}&quot;</p>
                     <p className="text-[10px] text-[var(--fg)] font-bold uppercase">Reclaimed by Grace. Powered by Him.</p>
@@ -2605,16 +2608,16 @@ export default function Home() {
                 )}
               </motion.div>
             ) : (
-              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="apple-glass p-10 md:p-16 rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
-                <div className="absolute top-10 left-10 flex items-center gap-4">
-                  <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div>
+              <motion.div key={currentChunk} initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ opacity: 0, x: -100 }} className="apple-glass p-5 sm:p-8 md:p-14 rounded-[2rem] sm:rounded-[3.5rem] border border-[var(--color-border)] min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-[0.4em] sm:tracking-[0.5em]">Prism Segment {currentChunk + 1} / {data.chunks.length}</div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-[var(--fg)] shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)]'}`} title="Neural Playback"><Volume2 size={16}/></button>
+                    <button onClick={() => handleReadAloud(data.chunks[currentChunk].content)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isPlaying ? 'bg-amber-500 text-slate-950 shadow-lg animate-pulse' : 'bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)]'}`} title="Neural Playback"><Volume2 size={16}/></button>
                     <button onClick={() => setShowNeuralIdentity(true)} className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-glass)] text-[var(--fg)] hover:text-[var(--fg)] border border-[var(--color-border)] transition-all" title="Open Voice Settings in Neural Identity"><MorphSettings size={16}/></button>
                   </div>
                 </div>
 
-                <h2 className="text-4xl md:text-6xl font-black mb-4 text-[var(--fg)] tracking-tighter leading-none pt-12">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
+                <h2 className="text-3xl sm:text-4xl md:text-6xl font-black mb-4 text-[var(--fg)] tracking-tighter leading-none">{isBionic ? <BionicText text={data.chunks[currentChunk].heading} /> : data.chunks[currentChunk].heading}</h2>
 
                 {storyMode && showRecap && currentChunk > 0 && (
                   <SceneRecap chunk={data.chunks[currentChunk - 1]} />
@@ -2629,14 +2632,14 @@ export default function Home() {
                   <p className="text-sm leading-relaxed text-[var(--color-text)]"><strong className="text-amber-500">Review before acting:</strong> Prism is an AI reading aid, not an authority. Check important facts, legal/medical/financial advice, dates, names, and decisions against the original source or a qualified professional.</p>
                 </div>
                 <div className="space-y-8 flex-grow">
-                  <div className="prism-content bg-blue-500/5 p-8 md:p-12 rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
+                  <div className="prism-content bg-blue-500/5 p-5 sm:p-8 md:p-12 rounded-[1.75rem] sm:rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
 
                   {/* Progress Prism at the bottom of content */}
                   <div className="pt-8">
                     <ProgressPrism progress={(currentChunk + 1) / data.chunks.length} />
                   </div>
-                  {data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-10 rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-amber-500/5 p-8 rounded-[2.5rem] border-2 border-amber-500/10 space-y-4 relative group/card overflow-hidden">
+                  {data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-5 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-amber-500/5 p-5 sm:p-8 rounded-[1.75rem] sm:rounded-[2.5rem] border-2 border-amber-500/10 space-y-4 relative group/card overflow-hidden">
                       <div className="absolute -right-4 -top-4 opacity-5 group-hover/card:scale-110 group-hover/card:rotate-12 transition-transform duration-700 text-amber-500">
                         <Rocket size={120} />
                       </div>
@@ -2644,7 +2647,7 @@ export default function Home() {
                         <div className="flex items-center gap-3 text-amber-500 font-black uppercase tracking-[0.2em] text-[10px]"><Rocket size={16} className="animate-pulse" /> Dopamine Hook</div>
                         <button
                           onClick={() => handleToggleStar({ heading: 'Dopamine Hook', content: data.chunks[currentChunk].dopamineHook, type: 'hook' })}
-                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook && i.type === 'hook') ? 'bg-amber-500 text-[var(--fg)] scale-110 shadow-amber-500/40' : 'bg-[var(--bg)]/5 text-[var(--fg)] hover:text-amber-400 hover:bg-[var(--bg)]/10'}`}
+                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook && i.type === 'hook') ? 'bg-amber-500 text-slate-950 scale-110 shadow-amber-500/40' : 'bg-[var(--bg)]/5 text-[var(--fg)] hover:text-amber-400 hover:bg-[var(--bg)]/10'}`}
                         >
                           <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].dopamineHook && i.type === 'hook') ? "currentColor" : "none"} />
                         </button>
@@ -2652,7 +2655,7 @@ export default function Home() {
                       <p className="text-xl md:text-2xl font-black text-amber-100 italic leading-tight relative z-10">"{data.chunks[currentChunk].dopamineHook}"</p>
                     </div>
 
-                    <div className="bg-purple-500/5 p-8 rounded-[2.5rem] border-2 border-purple-500/10 space-y-4 relative group/card overflow-hidden">
+                    <div className="bg-purple-500/5 p-5 sm:p-8 rounded-[1.75rem] sm:rounded-[2.5rem] border-2 border-purple-500/10 space-y-4 relative group/card overflow-hidden">
                       <div className="absolute -right-4 -top-4 opacity-5 group-hover/card:scale-110 group-hover/card:rotate-[-12deg] transition-transform duration-700 text-purple-500">
                         <Brain size={120} />
                       </div>
@@ -2660,7 +2663,7 @@ export default function Home() {
                         <div className="flex items-center gap-3 text-[var(--accent)] font-black uppercase tracking-[0.2em] text-[10px]"><Brain size={16} /> The Metaphor</div>
                         <button
                           onClick={() => handleToggleStar({ heading: 'The Metaphor', content: data.chunks[currentChunk].metaphor, type: 'metaphor' })}
-                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? 'bg-purple-600 text-[var(--fg)] scale-110 shadow-purple-500/40' : 'bg-[var(--bg)]/5 text-[var(--fg)] hover:text-[var(--accent)] hover:bg-[var(--bg)]/10'}`}
+                          className={`p-3 rounded-2xl transition-all shadow-lg ${starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? 'bg-purple-600 text-white scale-110 shadow-purple-500/40' : 'bg-[var(--bg)]/5 text-[var(--fg)] hover:text-[var(--accent)] hover:bg-[var(--bg)]/10'}`}
                         >
                           <Star size={18} fill={starredItems.find(i => i.content === data.chunks[currentChunk].metaphor && i.type === 'metaphor') ? "currentColor" : "none"} />
                         </button>
@@ -2669,9 +2672,9 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-12 flex justify-between items-center">
-                  <button onClick={() => setCurrentChunk(c => c - 1)} className="px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-[var(--fg)] hover:text-[var(--fg)] transition-all">Back</button>
-                  <button onClick={handleNext} className="bg-[var(--bg)] text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Next Step' : 'Next Segment'}</button>
+                <div className="mt-8 sm:mt-12 flex flex-wrap sm:flex-nowrap justify-between items-center gap-3">
+                  <button onClick={() => setCurrentChunk(c => c - 1)} className="px-5 py-4 sm:px-10 sm:py-5 rounded-2xl font-black uppercase tracking-widest text-xs sm:text-sm text-[var(--fg)] hover:text-[var(--fg)] transition-all">Back</button>
+                  <button onClick={handleNext} className="bg-[var(--fg)] text-[var(--bg)] px-5 py-4 sm:px-10 sm:py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs sm:text-sm shadow-2xl hover:scale-105 transition-all active:scale-90">{currentChunk === data.chunks.length - 1 ? 'Next Step' : 'Next Segment'}</button>
                 </div>
               </motion.div>
             )}
@@ -2693,18 +2696,18 @@ export default function Home() {
             </p>
             <div className="space-y-4 pt-4">
               {!user ? (
-                <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-lg shadow-2xl transition-all active:scale-95">Anchor to Vault (Sign In)</button>
+                <button onClick={handleLogin} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-lg shadow-2xl transition-all active:scale-95">Anchor to Vault (Sign In)</button>
               ) : (
                 <div className="grid grid-cols-1 gap-4">
-                  <button onClick={() => handleCheckout("architect_monthly")} className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
+                  <button onClick={() => handleCheckout("architect_monthly")} className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-[2rem] text-left text-white group hover:scale-[1.02] transition-all border border-white/10">
                     <p className="text-[10px] font-black uppercase text-blue-200">Prism Architect</p>
-                    <p className="text-xl font-black text-[var(--fg)]">$9 / Monthly</p>
-                    <p className="text-xs text-blue-100 opacity-60 mt-1">Continuous Neural Support & Unlimited Capacity</p>
+                    <p className="text-xl font-black text-white">$9 / Monthly</p>
+                    <p className="text-xs text-blue-100 opacity-80 mt-1">Continuous Neural Support & Unlimited Capacity</p>
                   </button>
-                  <button onClick={() => handleCheckout("sovereign_lifetime")} className="bg-gradient-to-r from-amber-500 to-yellow-600 p-6 rounded-[2rem] text-left group hover:scale-[1.02] transition-all border border-white/10">
-                    <p className="text-[10px] font-black uppercase text-amber-200">Sovereign Master</p>
-                    <p className="text-xl font-black text-[var(--fg)]">$99 / Lifetime</p>
-                    <p className="text-xs text-amber-100 opacity-60 mt-1">Permanent Focus Anchor & Exclusive Resources</p>
+                  <button onClick={() => handleCheckout("sovereign_lifetime")} className="bg-gradient-to-r from-amber-500 to-yellow-600 p-6 rounded-[2rem] text-left text-slate-950 group hover:scale-[1.02] transition-all border border-white/10">
+                    <p className="text-[10px] font-black uppercase text-amber-950">Sovereign Master</p>
+                    <p className="text-xl font-black text-slate-950">$99 / Lifetime</p>
+                    <p className="text-xs text-amber-950/80 mt-1">Permanent Focus Anchor & Exclusive Resources</p>
                   </button>
                 </div>
               )}
@@ -2713,12 +2716,12 @@ export default function Home() {
           </motion.div>
         </div>
       )}</AnimatePresence>
-      <AnimatePresence>{isZenLocked && (<motion.button initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} onClick={handleToggleZenLock} className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-[var(--fg)] p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"><X size={32} className="group-hover:rotate-90 transition-transform" /></motion.button>)}</AnimatePresence>
-      <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[350px] md:w-[450px] apple-glass border-2 border-blue-500/30 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-6 flex justify-between items-center"><h3 className="font-black text-[var(--fg)] uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} className="text-[var(--fg)] hover:bg-[var(--bg)]/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-6 space-y-4 text-sm font-medium h-[300px]">{chatHistory.length === 0 && <p className="text-[var(--fg)] italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-[var(--fg)]' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-[var(--fg)]">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow bg-[var(--color-shadow)] p-4 rounded-xl text-[var(--fg)] focus:outline-none border border-[var(--color-border)]" /><button type="submit" className="bg-blue-600 text-[var(--fg)] p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-6 bg-blue-600 text-[var(--fg)] rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-[var(--bg)]/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={24} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
+      <AnimatePresence>{isZenLocked && (<motion.button initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} onClick={handleToggleZenLock} className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"><X size={32} className="group-hover:rotate-90 transition-transform" /></motion.button>)}</AnimatePresence>
+      <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-[150] flex flex-col items-end gap-3 sm:gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[calc(100vw-2rem)] sm:w-[400px] md:w-[450px] apple-glass border-2 border-blue-500/30 rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-4 sm:p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} aria-label="Close Ask DJ" className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-4 sm:p-6 space-y-4 text-sm font-medium h-[260px] sm:h-[300px]">{chatHistory.length === 0 && <p className="text-[var(--fg)] italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-[var(--fg)]">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-3 sm:p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow min-w-0 bg-[var(--color-shadow)] p-3 sm:p-4 rounded-xl text-[var(--fg)] focus:outline-none border border-[var(--color-border)]" /><button type="submit" aria-label="Send message" className="bg-blue-600 text-white p-3 sm:p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95 shrink-0"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-4 sm:p-6 bg-blue-600 text-white rounded-[1.5rem] sm:rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-3 sm:gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-[var(--bg)]/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={22} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
 
       <AnimatePresence>{showVictory && data && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[700] flex items-center justify-center p-6">
-          <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="max-w-md w-full apple-glass-dark border-2 border-white/10 p-8 md:p-12 rounded-[3rem] text-center space-y-8 shadow-[0_0_100px_rgba(59,130,246,0.3)] relative overflow-hidden">
+          <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="max-w-md w-full apple-glass-dark border-2 border-white/10 p-6 sm:p-8 md:p-12 rounded-[2.5rem] sm:rounded-[3rem] text-center space-y-8 shadow-[0_0_100px_rgba(59,130,246,0.3)] relative overflow-hidden">
              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.2)_0%,transparent_70%)] pointer-events-none" />
              <button onClick={() => setShowVictory(false)} className="absolute top-6 right-6 p-2 hover:bg-[var(--bg)]/10 rounded-full text-[var(--fg)] hover:text-[var(--fg)] transition-all z-20"><X size={20}/></button>
 
@@ -2739,7 +2742,7 @@ export default function Home() {
                </div>
              </div>
              <div className="space-y-3 relative z-10 pt-4">
-               <button onClick={handleShare} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-[var(--fg)] py-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
+               <button onClick={handleShare} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
                  {isSharing ? <Loader2 className="animate-spin" size={18} /> : <Share2 size={18} />}
                  Share Victory
                </button>
@@ -2748,12 +2751,12 @@ export default function Home() {
           </motion.div>
         </div>
       )}</AnimatePresence>
-      <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-40 hover:opacity-100 transition-opacity">
+      <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-75 hover:opacity-100 transition-opacity">
         <p className="text-[var(--fg)] font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
           JG <IchthysIcon size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
         </p>
         <p className="max-w-xl text-[10px] leading-relaxed text-[var(--fg)]/70">Privacy first: remove passwords, API keys, identity numbers, and private medical or financial details before sending material for AI refraction.</p>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4">
           <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-[var(--bg)]/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-[var(--fg)] transition-all">About the Prism</button>
 
           <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
