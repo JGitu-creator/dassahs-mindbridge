@@ -35,7 +35,7 @@ export const StackedThemeSelector = ({ themes, activeTheme, onThemeSelect }: {
         {themes.map((theme, i) => {
           const isActive = activeTheme === theme.id;
           const offset = i - (themes.indexOf(themes.find(t => t.id === activeTheme)));
-          
+
           return (
             <motion.button
               key={theme.id}
