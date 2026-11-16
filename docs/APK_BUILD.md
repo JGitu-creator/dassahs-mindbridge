@@ -4,13 +4,13 @@
 
 The project source is maintained here:
 
-<https://github.com/JGitu-creator/dassahs-mindbridge>
+<https://github.com/JGitu-creator/dassahs-prism>
 
 Clone it with:
 
 ```bash
-git clone https://github.com/JGitu-creator/dassahs-mindbridge.git
-cd dassahs-mindbridge
+git clone https://github.com/JGitu-creator/dassahs-prism.git
+cd dassahs-prism
 npm install
 npm run dev
 ```
@@ -23,7 +23,7 @@ Copy `.env.example` to `.env.local` and add the required values locally. **Never
 
 On Android Chrome:
 
-1. Open <https://dassahs-mindbridge.vercel.app/>.
+1. Open <https://dassahs-prism.vercel.app/>.
 2. Open the three-dot menu.
 3. Choose **Add to Home screen** or **Install app**.
 4. Launch Prism from the new icon.
@@ -62,7 +62,7 @@ const config: CapacitorConfig = {
   appName: "Dassah's Prism",
   webDir: 'public',
   server: {
-    url: 'https://dassahs-mindbridge.vercel.app',
+    url: 'https://dassahs-prism.vercel.app',
     cleartext: false,
   },
 };

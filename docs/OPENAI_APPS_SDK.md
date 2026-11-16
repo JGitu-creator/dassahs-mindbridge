@@ -3,7 +3,7 @@
 MindBridge exposes a focused MCP tool at:
 
 ```text
-https://dassahs-mindbridge.vercel.app/mcp
+https://dassahs-prism.vercel.app/mcp
 ```
 
 The first integration slice is intentionally narrow. It exposes `refract_document`, which accepts text supplied by the user in ChatGPT and returns:
