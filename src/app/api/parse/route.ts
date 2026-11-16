@@ -13,14 +13,21 @@ export async function POST(req: NextRequest) {
     }
 
     const fileName = file.name.toLowerCase();
-    const allowedExtension = /\.(pdf|docx|txt|csv)$/i.test(fileName);
-    const allowedMime = !file.type || ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/csv'].includes(file.type);
+    const allowedExtension = /\.(pdf|docx|txt|csv|md)$/i.test(fileName);
+    const allowedMime = !file.type || [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain',
+      'text/csv',
+      'text/markdown',
+      'application/octet-stream',
+    ].includes(file.type);
     const maxBytes = 10 * 1024 * 1024;
     if (!allowedExtension || !allowedMime) {
-      return NextResponse.json({ error: 'Unsupported document type. Please upload a PDF, DOCX, TXT, or CSV file.' }, { status: 415 });
+      return NextResponse.json({ error: 'Unsupported document type. Upload a PDF, DOCX, TXT, MD, CSV, or an image (PNG/JPG/WEBP).' }, { status: 415 });
     }
     if (file.size > maxBytes) {
-      return NextResponse.json({ error: 'This document is larger than 10 MB. Please split it into smaller parts.' }, { status: 413 });
+      return NextResponse.json({ error: 'This document is larger than 10 MB. Split it into smaller parts or paste a section directly.' }, { status: 413 });
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -35,7 +42,10 @@ export async function POST(req: NextRequest) {
         text = data.text;
       } catch (pdfErr: any) {
         console.error('PDF Parse Error:', pdfErr);
-        throw new Error(`PDF Parsing failed: ${pdfErr.message}`);
+        return NextResponse.json(
+          { error: 'Could not read this PDF. If it is password-protected or corrupted, copy the text or upload a screenshot instead.' },
+          { status: 422 }
+        );
       }
     } else if (fileName.endsWith('.docx')) {
       const result = await mammoth.extractRawText({ buffer });
@@ -45,18 +55,21 @@ export async function POST(req: NextRequest) {
     }
 
     if (!text || text.trim().length === 0) {
-      throw new Error("Extracted text is empty. The file might be scanned/image-only.");
+      return NextResponse.json(
+        { error: 'No selectable text was found in this file. If it is a scanned PDF, take a screenshot or upload it as an image (PNG/JPG) so Prism can read it.' },
+        { status: 422 }
+      );
     }
 
-    // Advanced Clean-up for ADHD focus
-    text = text.replace(/[^\x20-\x7E\n\t]/g, ' '); 
-    text = text.replace(/\n\s*\n/g, '\n\n'); 
-    text = text.replace(/[ \t]+/g, ' '); 
+    // Preserve UTF-8 punctuation and international characters while removing control chars.
+    text = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ' ');
+    text = text.replace(/\n\s*\n/g, '\n\n');
+    text = text.replace(/[ \t]+/g, ' ');
     text = text.trim();
 
     return NextResponse.json({ text: text.slice(0, 100000) });
   } catch (error: any) {
     console.error('Parsing error:', error);
-    return NextResponse.json({ error: `Parsing Failed: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ error: `Could not process this file: ${error.message || 'Please try pasting the text directly.'}` }, { status: 500 });
   }
 }

@@ -698,6 +698,7 @@ export default function Home() {
   const [providerPreference, setProviderPreference] = useState<ProviderPreference>('auto');
   const [aiUsage, setAiUsage] = useState({ totalTokens: 0, provider: 'automatic', model: 'not used yet' });
   const [pendingImage, setPendingImage] = useState<{ data: string; mime: string } | null>(null);
+  const [uiNotice, setUiNotice] = useState<{ type: 'error' | 'info'; message: string } | null>(null);
   const [privateSession, setPrivateSession] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const isPlayingRef = useRef(false);
@@ -1330,6 +1331,11 @@ export default function Home() {
       setPendingImage(null);
       const refractionUsage = results.reduce((total, item) => total + Number(item?.usage?.totalTokens || 0), 0);
       const latestUsage = results.find((item) => item?.usage)?.usage;
+      if (latestUsage?.provider === 'local') {
+        setUiNotice({ type: 'info', message: 'External AI providers were busy, so Prism used local structural refraction (0 credits spent).' });
+      } else {
+        setUiNotice(null);
+      }
       if (refractionUsage || latestUsage) {
         setAiUsage(prev => {
           const next = {
@@ -1407,8 +1413,16 @@ export default function Home() {
   const isSunday = getIsSunday();
   const dailyInsight = getDailyInsight();
   const handleFileUpload = async (e: any) => {
-    const file = e.target.files?.[0]; if (!file) return; setLoading(true);
-    if (file.size > 10 * 1024 * 1024) { alert('This file is larger than 10 MB. Please split it into smaller parts.'); setLoading(false); return; }
+    const file = e.target.files?.[0];
+    if (e.target) e.target.value = '';
+    if (!file) return;
+    setUiNotice(null);
+    setLoading(true);
+    if (file.size > 10 * 1024 * 1024) {
+      setUiNotice({ type: 'error', message: 'This file is larger than 10 MB. Split it into smaller parts or paste a section directly.' });
+      setLoading(false);
+      return;
+    }
 
     // Multi-modal image handling
     if (file.type.startsWith('image/')) {
@@ -1417,6 +1431,10 @@ export default function Home() {
         const base64Image = reader.result as string;
         setPendingImage({ data: base64Image, mime: file.type });
         setInput('Image ready — add an optional goal, then open the Prism to refract it.');
+        setLoading(false);
+      };
+      reader.onerror = () => {
+        setUiNotice({ type: 'error', message: 'Could not read this image file. Try PNG, JPG, or WEBP.' });
         setLoading(false);
       };
       reader.readAsDataURL(file);
@@ -1436,14 +1454,17 @@ export default function Home() {
           const page = await pdf.getPage(i); const textContent = await page.getTextContent();
           const strings = textContent.items.map((item: any) => (item as any).str); fullText += strings.join(' ') + '\n';
         }
-        if (fullText.trim()) setInput(fullText); else throw new Error("Could not extract text from PDF.");
+        if (fullText.trim()) setInput(fullText);
+        else throw new Error('No selectable text was found in this PDF. If it is scanned, upload a screenshot or image instead.');
       } else {
         const formData = new FormData(); formData.append('file', file);
         const res = await fetch('/api/parse', { method: 'POST', body: formData });
-        if (!res.ok) { const errData = await res.json(); throw new Error(errData.error || "Server error"); }
+        if (!res.ok) { const errData = await res.json().catch(() => ({})); throw new Error(errData.error || 'Could not process this file. Try pasting the text directly.'); }
         const result = await res.json(); if (result.text) setInput(result.text);
       }
-    } catch (err: any) { alert(`Upload Failed: ${err.message}`); } finally { setLoading(false); }
+    } catch (err: any) {
+      setUiNotice({ type: 'error', message: `Upload failed: ${err?.message || 'Try a .txt, .docx, .pdf, or image file.'}` });
+    } finally { setLoading(false); }
   };
   useEffect(() => {
     const loadVoices = () => {
@@ -1499,19 +1520,18 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text, voice_id: voiceSetting.toLowerCase(), mood: voiceMood })
         });
-        if (!res.ok) throw new Error("Neural Premium offline");
+        if (!res.ok) throw new Error('Neural Premium offline');
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         const audio = new Audio(url);
         premiumAudioRef.current = audio;
         audio.onended = () => { isPlayingRef.current = false; setIsPlaying(false); URL.revokeObjectURL(url); };
         audio.onerror = () => { isPlayingRef.current = false; setIsPlaying(false); URL.revokeObjectURL(url); };
-        void audio.play().catch(() => { isPlayingRef.current = false; setIsPlaying(false); URL.revokeObjectURL(url); });
-      } catch (e) {
-        alert("Neural Premium link failed. Reverting to basic.");
-        setIsPlaying(false);
+        await audio.play();
+        return;
+      } catch {
+        setUiNotice({ type: 'info', message: 'Premium voice is unavailable right now. Switched to browser voice.' });
       }
-      return;
     }
 
     // ADHD-Optimized Rhythmic Pacing (The "DJ" Persona)
@@ -1898,6 +1918,26 @@ export default function Home() {
           )}
         </nav>
       </div>
+      {uiNotice && (
+        <div
+          role={uiNotice.type === 'error' ? 'alert' : 'status'}
+          className={`fixed top-20 left-1/2 -translate-x-1/2 z-[150] w-[calc(100%-2rem)] max-w-xl rounded-2xl border px-4 py-3 text-xs sm:text-sm font-medium shadow-2xl backdrop-blur-xl flex items-start justify-between gap-3 ${
+            uiNotice.type === 'error'
+              ? 'border-rose-500/40 bg-rose-950/90 text-rose-100'
+              : 'border-amber-500/40 bg-slate-900/90 text-amber-100'
+          }`}
+        >
+          <span>{uiNotice.message}</span>
+          <button
+            type="button"
+            onClick={() => setUiNotice(null)}
+            aria-label="Dismiss notice"
+            className="shrink-0 rounded-lg px-2 py-0.5 text-xs font-bold opacity-80 hover:opacity-100"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <div className="fixed bottom-4 left-4 z-[125] flex items-center gap-1 rounded-2xl border border-[var(--color-border)] bg-[var(--color-glass)] p-1.5 shadow-xl backdrop-blur-xl" aria-label="Reading appearance">
         <span className="sr-only">Reading appearance</span>
         <button aria-label="Use light reading mode" aria-pressed={themeMode === 'light'} onClick={() => setThemeMode('light')} className={`rounded-xl p-2 transition ${themeMode === 'light' ? 'bg-[var(--bg)] text-[var(--fg)] shadow' : 'text-[var(--fg)]/70 hover:text-[var(--fg)]'}`}><Sun size={14} /></button>
@@ -2638,7 +2678,7 @@ export default function Home() {
           </AnimatePresence>
         </div>
       )}
-      <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.pdf,.docx" />
+      <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.md,.pdf,.docx,image/*" />
       <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 apple-glass z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-[var(--fg)]"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] apple-glass hover:bg-[var(--bg)]/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-[var(--fg)] mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
       <AnimatePresence>{showPaywall && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
