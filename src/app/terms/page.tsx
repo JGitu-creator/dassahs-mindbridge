@@ -11,7 +11,7 @@ export default function TermsOfService() {
 
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-white uppercase tracking-tight">1. Acceptance of Mandate</h2>
-          <p>By establishing a Neural Link with Dassah's-Prism, you acknowledge that this tool is designed for cognitive optimization and is provided "as-is." You agree to use the Prism for lawful, sovereign purposes.</p>
+          <p>By establishing a Neural Link with Dassah's-Prism, you acknowledge that this tool is designed for cognitive optimization and is provided "as-is." You agree to use the Prism for lawful, responsible purposes.</p>
         </section>
 
         <section className="space-y-4">
@@ -20,8 +20,8 @@ export default function TermsOfService() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-xl font-bold text-white uppercase tracking-tight">3. Sovereignty & Termination</h2>
-          <p>You may sever your Neural Link at any time. We reserve the right to recalibrate or suspend access to ensure the stability and safety of the Divine Server for all users.</p>
+          <h2 className="text-xl font-bold text-white uppercase tracking-tight">3. Focus & Termination</h2>
+          <p>You may sever your Neural Link at any time. We reserve the right to recalibrate or suspend access to ensure the stability and safety of the Prism service for all users.</p>
         </section>
 
         <footer className="pt-12 border-t border-white/10">

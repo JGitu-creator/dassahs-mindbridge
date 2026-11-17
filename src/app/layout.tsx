@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Dassah's-Prism",
-  description: "Refract overwhelming noise into divine clarity. Your cognitive architecture, optimized.",
+  description: "Refract overwhelming noise into clear, actionable focus.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dassahs-prism.vercel.app"),
   manifest: "/manifest.json",
   icons: {
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Dassah's-Prism",
-    description: "Sovereignty Reclaimed. Turn noise into focus in seconds.",
+    description: "Focus Reclaimed. Turn noise into focus in seconds.",
     url: "https://dassahs-prism.vercel.app",
     siteName: "Dassah's-Prism",
     images: [
