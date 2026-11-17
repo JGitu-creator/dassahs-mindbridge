@@ -2284,10 +2284,16 @@ export default function Home() {
                           The loving support of a brother who <span className="text-blue-400 uppercase">ALWAYS PUSHES FOR THE BEST</span> and challenged me to use my tech knowledge for a greater purpose.
                         </p>
                       </div>
+                      <div className="border-l-4 border-amber-500 pl-6 space-y-2 group/magama">
+                        <p className="text-[var(--fg)] font-black uppercase tracking-tighter text-xl group-hover:text-amber-400 transition-colors">Magama Tongogara Njuguna</p>
+                        <p className="text-slate-400 text-sm font-bold">
+                          My cousin and lifelong companion in growth. Raised alongside me, Magama has remained consistent to the core—always striving for my growth and refusing to let me give up. His mother, Auntie Sisy, gave us a lasting charge: to push one another forward and stand together.
+                        </p>
+                      </div>
                       <div className="border-l-4 border-purple-500 pl-6 space-y-2 group/kizzie">
                         <p className="text-[var(--fg)] font-black uppercase tracking-tighter text-xl group-hover:text-[var(--accent)] transition-colors">Dr. Kizzie Shako</p>
                         <p className="text-slate-400 text-sm font-bold">
-                          The mentor encouragement that ignited the fire: <span className="text-[var(--accent)] font-black italic">&quot;THEN DO SOMETHING ABOUT IT!&quot;</span>
+                          The mentor whose encouragement gave the vision weight and urgency, turning an idea into a responsibility to act: <span className="text-[var(--accent)] font-black italic">&quot;Then do something about it.&quot;</span>
                         </p>
                       </div>
                     </div>
@@ -2445,13 +2451,17 @@ export default function Home() {
             <div className="w-full relative group flex flex-col gap-2">
               {/* Sovereign Goal Input */}
               <div className="px-2 pt-1 sm:px-4">
+                <label htmlFor="focus-objective" className="mb-1.5 block text-[9px] md:text-[10px] font-black uppercase tracking-[0.18em] text-blue-200/80">
+                  Focus Objective <span className="font-bold normal-case tracking-normal text-blue-200/60">(optional)</span>
+                </label>
                 <input
+                  id="focus-objective"
                   type="text"
                   value={missionGoal}
                   onChange={(e) => setMissionGoal(e.target.value)}
-                  placeholder="Focus Objective (Optional) — what should Prism help you do?"
+                  placeholder="What should Prism help you do?"
                   title="Optional: tell Prism what to prioritise in the document"
-                  className="w-full bg-[var(--bg)]/5 border border-white/10 p-2.5 md:p-3 rounded-xl text-xs font-bold text-[var(--fg)] placeholder:text-slate-500 dark:placeholder:text-blue-200/60 italic focus:outline-none focus:border-blue-500/40 focus:bg-[var(--bg)]/10 transition-all backdrop-blur-md"
+                  className="w-full min-w-0 bg-[var(--bg)]/5 border border-white/10 p-2.5 md:p-3 rounded-xl text-xs font-bold text-[var(--fg)] placeholder:text-slate-500 dark:placeholder:text-blue-200/60 italic focus:outline-none focus:border-blue-500/40 focus:bg-[var(--bg)]/10 transition-all backdrop-blur-md"
                 />
               </div>
               {showNeuroMirror ? (
