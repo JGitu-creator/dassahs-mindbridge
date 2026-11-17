@@ -10,7 +10,7 @@ export default function PrivacyPolicy() {
         </header>
 
         <section className="space-y-4">
-          <h2 className="text-xl font-bold text-white uppercase tracking-tight">1. Cognitive Sovereignty</h2>
+          <h2 className="text-xl font-bold text-white uppercase tracking-tight">1. Cognitive Focus</h2>
           <p>Dassah's Prism is built on the principle that your thoughts and data are your own. We do not sell, rent, or trade your neural profiles or refracted data to third parties.</p>
         </section>
 

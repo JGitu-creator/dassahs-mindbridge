@@ -62,7 +62,7 @@ interface ThemeConfig {
 }
 const THEMES: Record<string, ThemeConfig> = {
   midnight_sovereign: {
-    name: 'Midnight Sovereign',
+    name: 'Midnight Focus',
     icon: Moon,
     light: { background: '#f8fafc', text: '#172554', accent: '#2563eb', glass: 'rgba(255,255,255,0.9)', border: 'rgba(37, 99, 235, 0.28)', shadow: "rgba(15,23,42,0.08)" },
     dark: { background: '#020617', text: '#f8fafc', accent: '#3b82f6', glass: 'rgba(30, 41, 59, 0.5)', border: 'rgba(255, 255, 255, 0.1)', shadow: "rgba(0,0,0,0.4)" },
@@ -76,7 +76,7 @@ const THEMES: Record<string, ThemeConfig> = {
     prism: ['#e11d48', '#fbbf24', '#2dd4bf']
   },
   divine_gold: {
-    name: 'Divine Gold',
+    name: 'Golden Glow',
     icon: Coins,
     light: { background: '#fffbeb', text: '#78350f', accent: '#b45309', glass: 'rgba(255,255,255,0.92)', border: 'rgba(180, 83, 9, 0.28)', shadow: "rgba(120,53,15,0.08)" },
     dark: { background: '#000000', text: '#fffbeb', accent: '#fbbf24', glass: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.4)', shadow: "rgba(0,0,0,0.4)" },
@@ -90,7 +90,7 @@ const THEMES: Record<string, ThemeConfig> = {
     prism: ['#10b981', '#34d399', '#059669']
   },
   sovereign_pulse: {
-    name: 'Sovereign Pulse',
+    name: 'Focus Pulse',
     icon: Orbit,
     light: { background: '#faf5ff', text: '#3b0764', accent: '#6d28d9', glass: 'rgba(255,255,255,0.92)', border: 'rgba(109, 40, 217, 0.28)', shadow: "rgba(59,7,100,0.08)" },
     dark: { background: '#2e1065', text: '#f5f3ff', accent: '#8b5cf6', glass: 'rgba(76, 29, 149, 0.4)', border: 'rgba(139, 92, 246, 0.2)', shadow: "rgba(0,0,0,0.4)" },
@@ -302,7 +302,7 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
         <div className="space-y-4">
           <p className="text-blue-400 font-black uppercase tracking-[0.5em] text-[10px]">Neural Rhythm: Level {level}</p>
           <h2 className="text-5xl md:text-7xl font-black italic text-[var(--fg)] tracking-tighter">
-            {level === 1 ? "Neural Blink" : level === 2 ? "Sovereign Breath" : "Dopamine Anchor"}
+            {level === 1 ? "Neural Blink" : level === 2 ? "Steady Breath" : "Dopamine Anchor"}
           </h2>
         </div>
         <div className="relative h-48 flex items-center justify-center">
@@ -326,7 +326,7 @@ const NeuralRhythmBreak = ({ level, onComplete }: { level: number, onComplete: (
         <div className="space-y-6">
           <p className="text-slate-400 text-lg font-medium">
             {level === 1 ? "Look away from the screen. Find a distant object and focus on it for 15 seconds." :
-             level === 2 ? "Follow the expanding square. Inhale as it grows, exhale as it shrinks. Regulate your sovereignty." :
+             level === 2 ? "Follow the expanding square. Inhale as it grows, exhale as it shrinks. Regulate your focus." :
              "Refresh your cognitive interest. Tap the numbers in any order to anchor your dopamine."}
           </p>
           {seconds === 0 && (
@@ -475,9 +475,9 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
           </div>
         </div>
         <div className="bg-amber-500/5 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-amber-500/20">
-          <p className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.3em] text-amber-400 mb-2 md:mb-3 italic">{isSunday ? "Sabbath Mode: Divine Insight" : "Divine Insight"}</p>
+          <p className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.3em] text-amber-400 mb-2 md:mb-3 italic">{isSunday ? "Sabbath Mode: Daily Insight" : "Daily Insight"}</p>
           <p className="text-xs md:text-sm text-amber-100 font-bold italic leading-relaxed">
-            {isSunday ? dailyInsight : '"Inhale clarity. Your sovereignty is established."'}
+            {isSunday ? dailyInsight : '"Inhale clarity. Your focus is established."'}
           </p>
         </div>
         <button
@@ -673,7 +673,7 @@ export default function Home() {
       if (document.visibilityState !== 'visible') return;
       if (Date.now() - lastActivity > AUTO_LOGOUT_TIME) {
         handleLogout();
-        alert("Neural Link Severed: For your sovereignty and safety, you have been logged out due to inactivity.");
+        alert("Neural Link Severed: For your focus and safety, you have been logged out due to inactivity.");
       }
     };
     const interval = setInterval(checkInactivity, 60000); // Check every minute
@@ -1009,9 +1009,9 @@ export default function Home() {
     "Cognitive Clarity Achieved",
     "Executive Function Engaged",
     "Noise Refracted",
-    "Divine Focus Locked",
+    "Focus Locked",
     "Bandwidth Reclaimed",
-    "Sovereignty Restored"
+    "Focus Restored"
   ];
   const currentCatchphrase = useMemo(() => CATCHPHRASES[Math.floor(Math.random() * CATCHPHRASES.length)], [rewardType]);
   // Neural Snapshot - Auto Save
@@ -1045,7 +1045,7 @@ export default function Home() {
     { id: 'prism', icon: <Palette className="text-blue-400" />, label: 'The Prism' },
     { id: 'shield', icon: <Shield className="text-emerald-400" />, label: 'The Shield' },
     { id: 'brain', icon: <MorphBrain className="text-[var(--accent)]" />, label: 'The Core' },
-    { id: 'crown', icon: <Crown className="text-yellow-500" />, label: 'The Sovereign' },
+    { id: 'crown', icon: <Crown className="text-yellow-500" />, label: 'The Focused' },
   ];
   const handleAvatarSelect = async (url: string) => {
     if (!user) return;
@@ -1229,7 +1229,7 @@ export default function Home() {
   };
   const handleLoadExample = () => {
 
-    const exampleNoise = "This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text. It's filled with unnecessary jargon and complex clauses that are designed to overwhelm the reader rather than provide clarity. By the time you reach the end, you've forgotten how it started, and the 'Sovereign Core' of the message is lost in a sea of cognitive noise.";
+    const exampleNoise = "This is a very long and confusing sentence that just keeps going and going and your brain might start to wander off because there is no clear structure or path for your eyes to follow and it just feels like a wall of text. It's filled with unnecessary jargon and complex clauses that are designed to overwhelm the reader rather than provide clarity. By the time you reach the end, you've forgotten how it started, and the 'core message' of the message is lost in a sea of cognitive noise.";
     setInput(exampleNoise);
     setRewardType('step');
     setTimeout(() => setRewardType('none'), 2000);
@@ -1870,7 +1870,7 @@ export default function Home() {
         </AnimatePresence>
         {/* Background Overlay Removed (Moved to Main Layout) */}
       <AnimatePresence>{rewardType !== "none" && focusMode === "dastastic" && (
-        <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-[var(--fg)] tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "SOVEREIGNTY RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-[var(--fg)]/60 text-[8px] font-black uppercase">Rank</p><p className="text-[var(--fg)] font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-[var(--fg)]/60 text-[8px] font-black uppercase">Result</p><p className="text-[var(--fg)] font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-[var(--bg)]/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">&quot;Inhale clarity. Exhale the mission. Your sovereignty is established.&quot;</p></motion.div></div>)}</div></motion.div></>
+        <><StarParticles count={rewardType === 'final' ? 100 : 30} isFinal={rewardType === 'final'} /><motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 1.1 }} className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none p-4 text-center"><div className="bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-amber-500/90 p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-[0_0_100px_rgba(59,130,246,0.5)] border-2 border-white/20 backdrop-blur-3xl flex flex-col items-center gap-6 max-w-lg w-full"><RefractiveNeuralCore loading={false} inputLength={0} isVictorious={rewardType === 'final'} user={user} mousePos={mousePos} focusMode={focusMode} /><div className="space-y-2"><p className="text-blue-200 font-black uppercase tracking-[0.4em] text-[10px]">{rewardType === 'final' ? "Mission Objective: Complete" : "Neural Link Established"}</p><h2 className="font-black italic text-3xl md:text-5xl text-[var(--fg)] tracking-tighter drop-shadow-2xl">{rewardType === 'final' ? "FOCUS RECLAIMED" : currentCatchphrase}</h2></div>{rewardType === 'final' && (<div className="space-y-6 pt-4"><div className="flex gap-6 justify-center"><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-[var(--fg)]/60 text-[8px] font-black uppercase">Rank</p><p className="text-[var(--fg)] font-bold text-base italic">Master Discernor</p></div><div className="text-left border-l-2 border-white/20 pl-4"><p className="text-[var(--fg)]/60 text-[8px] font-black uppercase">Result</p><p className="text-[var(--fg)] font-bold text-base italic">100% Clarity</p></div></div><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="bg-[var(--bg)]/5 p-4 rounded-2xl border border-white/10"><p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Neural Off-Ramp: Transitioning...</p><p className="text-xs text-slate-300 italic">&quot;Inhale clarity. Exhale the mission. Your focus is established.&quot;</p></motion.div></div>)}</div></motion.div></>
       )}</AnimatePresence>
       <div className="fixed top-0 left-0 right-0 z-[110] flex justify-center p-2 md:p-6 pointer-events-none">
         <nav className={`pointer-events-auto flex max-w-[calc(100vw-1rem)] overflow-x-auto no-scrollbar items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-2xl md:rounded-3xl bg-[var(--color-glass)] backdrop-blur-3xl border border-[var(--color-border)] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-700 ${isZenLocked ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
@@ -1896,7 +1896,7 @@ export default function Home() {
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
           <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-[var(--fg)]'}`}>
             {focusMode === 'sovereign' ? <Crown size={12} className="md:w-3.5 md:h-3.5" /> : <Zap size={12} className="md:w-3.5 md:h-3.5" />}
-            <span className="hidden sm:block">{focusMode === 'sovereign' ? 'Sov' : 'Das'}</span>
+            <span className="hidden sm:block">{focusMode === 'sovereign' ? 'Focus' : 'Das'}</span>
           </button>
           {user ? (
             <button onClick={() => setShowNeuralIdentity(true)} className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl overflow-hidden border-2 border-blue-500/30 hover:border-blue-400 hover:scale-105 transition-all shadow-lg flex items-center justify-center bg-blue-500/10">
@@ -1976,7 +1976,7 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className="space-y-6">
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Sovereign Controls</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--fg)] mb-4">Focus Controls</p>
                     <p className="text-sm leading-relaxed text-[var(--color-text)] mb-4">These controls change how Prism presents information. They do not rewrite the source.</p>
                     <div className="grid grid-cols-2 gap-3">
                       <button onClick={() => { setIsBionic(!isBionic); }} title="Bold useful word patterns to make long text easier to scan" aria-pressed={isBionic} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${isBionic ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-[var(--bg)]/5 border-transparent text-[var(--fg)]'}`}>
@@ -2262,35 +2262,35 @@ export default function Home() {
                   </motion.div>
 
                   <motion.div style={{ y: (mousePos.y - 500) * 0.01, x: (mousePos.x - 1000) * 0.01 }} className="bg-gradient-to-br from-amber-500/10 to-transparent p-10 rounded-[3rem] border-2 border-amber-500/20 shadow-2xl">
-                    <p className="text-[var(--fg)] font-bold text-xl leading-relaxed">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim the sovereignty of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
+                    <p className="text-[var(--fg)] font-bold text-xl leading-relaxed">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim ownership of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
                     <p className="mt-8 text-3xl font-black italic prism-text">Stay Dastastic! 🌟✨</p>
                   </motion.div>
                 </div>
                 <div className="space-y-8">
-                  <motion.div style={{ y: (mousePos.y - 500) * 0.05, x: (mousePos.x - 1000) * 0.03 }} className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-8 rounded-[2.5rem] border-2 border-blue-500/30 relative overflow-hidden group shadow-2xl">
+                  <motion.div style={{ y: (mousePos.y - 500) * 0.05, x: (mousePos.x - 1000) * 0.03 }} className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-8 rounded-[2.5rem] border-2 border-blue-500/40 relative overflow-hidden group shadow-2xl">
                     <div className="absolute -right-8 -top-8 opacity-10 rotate-12 group-hover:scale-110 transition-transform duration-700"><Rocket size={120} /></div>
                     <div className="flex items-center gap-3 text-blue-400 font-black uppercase text-xs tracking-widest mb-6 relative z-10">
                       <Zap size={16} className="text-amber-400 animate-pulse" /> The Final Push
                     </div>
 
-                    <div className="space-y-6 relative z-10">
+                    <div className="space-y-8 relative z-10">
                       <p className="text-slate-300 italic leading-relaxed">
-                        This build became a reality through the sovereign push of two monumental souls:
+                        This build became a reality through the steady support of three remarkable people:
                       </p>
 
-                      <div className="border-l-4 border-blue-500 pl-6 space-y-2 group/jimmy">
+                      <div className="border-l-4 border-blue-500 pl-6 pr-4 py-2 rounded-r-2xl space-y-2 group/jimmy hover:bg-[var(--bg)]/5 transition-colors">
                         <p className="text-[var(--fg)] font-black uppercase tracking-tighter text-xl group-hover:text-blue-400 transition-colors">Eng. Jimmy Njuguna</p>
                         <p className="text-slate-400 text-sm font-bold">
                           The loving support of a brother who <span className="text-blue-400 uppercase">ALWAYS PUSHES FOR THE BEST</span> and challenged me to use my tech knowledge for a greater purpose.
                         </p>
                       </div>
-                      <div className="border-l-4 border-amber-500 pl-6 space-y-2 group/magama">
+                      <div className="border-l-4 border-amber-500 pl-6 pr-4 py-2 rounded-r-2xl space-y-2 group/magama hover:bg-[var(--bg)]/5 transition-colors">
                         <p className="text-[var(--fg)] font-black uppercase tracking-tighter text-xl group-hover:text-amber-400 transition-colors">Magama Tongogara Njuguna</p>
                         <p className="text-slate-400 text-sm font-bold">
                           My cousin and lifelong companion in growth. Raised alongside me, Magama has remained consistent to the core—always striving for my growth and refusing to let me give up. His mother, Auntie Sisy, gave us a lasting charge: to push one another forward and stand together.
                         </p>
                       </div>
-                      <div className="border-l-4 border-purple-500 pl-6 space-y-2 group/kizzie">
+                      <div className="border-l-4 border-purple-500 pl-6 pr-4 py-2 rounded-r-2xl space-y-2 group/kizzie hover:bg-[var(--bg)]/5 transition-colors">
                         <p className="text-[var(--fg)] font-black uppercase tracking-tighter text-xl group-hover:text-[var(--accent)] transition-colors">Dr. Kizzie Shako</p>
                         <p className="text-slate-400 text-sm font-bold">
                           The mentor whose encouragement gave the vision weight and urgency, turning an idea into a responsibility to act: <span className="text-[var(--accent)] font-black italic">&quot;Then do something about it.&quot;</span>
@@ -2356,7 +2356,7 @@ export default function Home() {
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-4 border-y border-white/5">
                 {[
-                  { n: 'DJ', r: 'Sovereign Guide' }
+                  { n: 'DJ', r: 'Focus Guide' }
                 ].map((a) => (
                   <div key={a.n} className="p-3 bg-[var(--bg)]/5 rounded-xl border border-white/5 text-center flex flex-col items-center justify-center gap-1">
                     <p className="text-[7px] font-black text-blue-400 uppercase tracking-tighter flex items-center gap-1">
@@ -2611,7 +2611,7 @@ export default function Home() {
                 </div>
                 {isSunday && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-12 p-6 sm:p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/20 text-center space-y-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-500">Divine Insight: Sabbath Reflection</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-500">Daily Insight: Sabbath Reflection</p>
                     <p className="text-xl font-black italic text-[var(--fg)] leading-relaxed">&quot;{dailyInsight}&quot;</p>
                     <p className="text-[10px] text-[var(--fg)] font-bold uppercase">Reclaimed by Grace. Powered by Him.</p>
                   </motion.div>
@@ -2715,7 +2715,7 @@ export default function Home() {
                     <p className="text-xs text-blue-100 opacity-80 mt-1">Continuous Neural Support & Unlimited Capacity</p>
                   </button>
                   <button onClick={() => handleCheckout("sovereign_lifetime")} className="bg-gradient-to-r from-amber-500 to-yellow-600 p-6 rounded-[2rem] text-left text-slate-950 group hover:scale-[1.02] transition-all border border-white/10">
-                    <p className="text-[10px] font-black uppercase text-amber-950">Sovereign Master</p>
+                    <p className="text-[10px] font-black uppercase text-amber-950">Focus Master</p>
                     <p className="text-xl font-black text-slate-950">$99 / Lifetime</p>
                     <p className="text-xs text-amber-950/80 mt-1">Permanent Focus Anchor & Exclusive Resources</p>
                   </button>
@@ -2739,7 +2739,7 @@ export default function Home() {
 
              <div className="space-y-2 relative z-10">
                <h2 className="text-3xl font-black text-[var(--fg)] tracking-tighter italic">NEURAL <span className="prism-text">VICTORY</span></h2>
-               <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]">Sovereignty Reclaimed</p>
+               <p className="text-blue-400 font-black uppercase tracking-[0.4em] text-[8px]">Focus Reclaimed</p>
              </div>
              <div className="grid grid-cols-2 gap-3 relative z-10">
                <div className="apple-glass-dark rounded-3xl p-6">

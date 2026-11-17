@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const chunkSize = 25000;
 
     if (text.length > absoluteMaxChars) {
-      return NextResponse.json({ error: 'Neural Link Overload: Document exceeds maximum sovereign bandwidth (150k chars). Please split your noise into smaller volumes.' }, { status: 413 });
+      return NextResponse.json({ error: 'Neural Link Overload: Document exceeds maximum document limit (150k chars). Please split your noise into smaller volumes.' }, { status: 413 });
     }
     const image = typeof imageData === 'string' && imageData.length <= 14_000_000 && typeof imageMimeType === 'string' && /^image\/(png|jpeg|jpg|webp|gif)$/i.test(imageMimeType)
       ? { data: imageData.replace(/^data:image\/[^;]+;base64,/, ''), mimeType: imageMimeType } satisfies ImageInput
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     };
 
     if (mode === 'chat') {
-      const chatPrompt = `You are "Ask DJ," a Sovereign Guide. Answer the following question based on the context provided.\n\nContext: ${context}\n\nQuestion: ${question}`;
+      const chatPrompt = `You are "Ask DJ," a Focus Guide. Answer the following question based on the context provided.\n\nContext: ${context}\n\nQuestion: ${question}`;
       const result = await callProvider(chatPrompt, preferredProvider, image);
       return respond({ answer: result.text, usage: result.usage });
     }
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         const chunkText = chunksOfText[chunkIndex];
         try {
       const generationPrompt = `
-        You are "Ask DJ," a Sovereign Guide. Your mission is to perform a Deep Neural Refraction on the provided Noise.
+        You are "Ask DJ," a Focus Guide. Your mission is to perform a Deep Neural Refraction on the provided Noise.
         GOAL: ${missionGoal || 'Discovery'}
         TARGET COGNITIVE MODE: ${cognitiveMode}
         SIMPLICITY LEVEL: ${simplicityLevel || 'Standard'}

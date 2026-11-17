@@ -56,7 +56,7 @@ export async function POST(req: Request) {
 
 async function routeToTier(content: string, complexity: 'light' | 'standard' | 'complex') {
   let primaryModel = 'anthropic/claude-3.5-sonnet';
-  let tierName = 'Sovereign';
+  let tierName = 'Focus';
   let promptText = content;
   let fallbackModels: string[] = [];
 
@@ -90,7 +90,7 @@ async function routeToTier(content: string, complexity: 'light' | 'standard' | '
 
     case 'complex':
     default:
-      tierName = 'Sovereign';
+      tierName = 'Focus';
       primaryModel = 'anthropic/claude-3.5-sonnet';
       fallbackModels = [
         'anthropic/claude-3.5-sonnet',
@@ -111,7 +111,7 @@ async function routeToTier(content: string, complexity: 'light' | 'standard' | '
       {
         role: 'system',
         content:
-          "You are the Sovereign Guide in Dassah's Prism. Provide high-fidelity cognitive refractions, concise anchors, and structural analysis.",
+          "You are the Focus Guide in Dassah's Prism. Provide high-fidelity cognitive refractions, concise anchors, and structural analysis.",
       },
       {
         role: 'user',

@@ -6,7 +6,7 @@ export const ranks = [
   { name: 'Novice Observer', threshold: 0 },
   { name: 'Pattern Discernor', threshold: 100 },
   { name: 'Complexity Architect', threshold: 500 },
-  { name: 'Sovereign Mind', threshold: 1000 },
+  { name: 'Focused Mind', threshold: 1000 },
 ];
 
 export const CognitiveAscension = ({ experience }: { experience: number }) => {
