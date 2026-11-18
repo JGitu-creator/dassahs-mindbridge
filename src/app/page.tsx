@@ -6,7 +6,7 @@ import {
   Upload, Volume2, Share2, Download, MessageCircle, Send, CheckCircle2,
   Lock, Trophy, Sparkle, BarChart3, MessageSquare, Loader2, Type, Swords, Sun, Moon, Ghost, Star, Settings, MoreHorizontal,
   Compass, Check, LogOut, Shield, Anchor, Heart, Music, Church, ShieldCheck, Disc, Code, Camera, BookOpen, ChevronRight, MoonStar, Flame, Coins, Gem, Orbit,
-  Hexagon, Monitor, Zap, Brain, Fish
+  Hexagon, Monitor, Zap, Brain, Fish, Search
 } from 'lucide-react';
 import { NeuralCore } from '@/components/NeuralCore';
 import { CognitiveAscension } from '@/components/CognitiveAscension';
@@ -713,8 +713,22 @@ export default function Home() {
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
+  const [lensWord, setLensWord] = useState('');
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
+
+  useEffect(() => {
+    const handleSelection = () => {
+      const selection = window.getSelection();
+      const selected = selection?.toString().trim().replace(/\s+/g, ' ') || '';
+      const anchor = selection?.anchorNode?.parentElement;
+      if (selected.length >= 2 && selected.length <= 80 && anchor?.closest('.prism-content')) {
+        setLensWord(selected);
+      }
+    };
+    document.addEventListener('selectionchange', handleSelection);
+    return () => document.removeEventListener('selectionchange', handleSelection);
+  }, []);
 
   // Scroll Hide Hook
   const [navVisible, setNavVisible] = useState(true);
@@ -1634,6 +1648,36 @@ export default function Home() {
     } finally {
       setChatLoading(false);
     }
+  };
+  const handleLensAsk = () => {
+    if (!lensWord) return;
+    setChatInput(`What does “${lensWord}” mean in this passage? Give a plain-language definition and one short example.`);
+    setChatOpen(true);
+    setLensWord('');
+  };
+  const handleSaveAskDj = async (question: string, answer: string) => {
+    try {
+      const { data: { session: activeSession } } = await supabase.auth.getSession();
+      if (!activeSession?.access_token) {
+        setUiNotice({ type: 'info', message: 'Sign in to save Ask DJ questions. Your current chat remains temporary.' });
+        return;
+      }
+      const res = await fetch('/api/ask-dj/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${activeSession.access_token}` },
+        body: JSON.stringify({ question, answer }),
+      });
+      const result = await res.json();
+      setUiNotice({ type: res.ok ? 'info' : 'error', message: res.ok ? 'Saved to your Ask DJ vault.' : (result.error || 'Ask DJ history is unavailable.') });
+    } catch {
+      setUiNotice({ type: 'error', message: 'Ask DJ history is unavailable.' });
+    }
+  };
+  const handleSaveLatestAskDj = () => {
+    const answerIndex = [...chatHistory].map((message) => message.role).lastIndexOf('ai');
+    const answer = answerIndex >= 0 ? chatHistory[answerIndex] : null;
+    const question = answerIndex > 0 ? chatHistory[answerIndex - 1] : null;
+    if (answer?.role === 'ai' && question?.role === 'user') void handleSaveAskDj(question.text, answer.text);
   };
   const handleNext = () => {
     if (data && currentChunk < data.chunks.length) {
@@ -2694,6 +2738,30 @@ export default function Home() {
           </AnimatePresence>
         </div>
       )}
+      <AnimatePresence>
+        {lensWord && (
+          <motion.aside
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.96 }}
+            className="fixed bottom-24 left-4 right-4 sm:left-auto sm:right-6 sm:w-[360px] z-[180] apple-glass border-2 border-blue-500/30 rounded-3xl p-5 shadow-2xl"
+            aria-label="Prism Lens word help"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400">Prism Lens</p>
+                <p className="mt-2 text-lg font-black text-[var(--fg)] break-words">“{lensWord}”</p>
+                <p className="mt-1 text-xs text-[var(--fg)]/70">Understand the word without leaving the page.</p>
+              </div>
+              <button onClick={() => setLensWord('')} aria-label="Close Prism Lens" className="p-2 rounded-xl text-[var(--fg)]/60 hover:text-[var(--fg)]"><X size={18} /></button>
+            </div>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button onClick={handleLensAsk} className="rounded-xl bg-blue-600 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-white hover:bg-blue-500 flex items-center justify-center gap-2"><MessageCircle size={14} /> Ask DJ</button>
+              <a href={`https://www.google.com/search?q=${encodeURIComponent(`${lensWord} definition`)}`} target="_blank" rel="noreferrer" className="rounded-xl border border-[var(--color-border)] px-3 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--fg)] hover:bg-[var(--color-glass)] flex items-center justify-center gap-2"><Search size={14} /> Google definition</a>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.csv,.md,.pdf,.docx,image/*" />
       <AnimatePresence>{showHistory && (<motion.div initial={{ x: -300 }} animate={{ x: 0 }} exit={{ x: -300 }} className="fixed left-0 top-0 bottom-0 w-full sm:w-80 apple-glass z-[120] p-6 md:p-8 border-r border-[var(--color-border)] shadow-2xl overflow-y-auto"><div className="flex justify-between items-center mb-10"><h2 className="font-bold text-xl flex items-center gap-3 text-[var(--fg)]"><Clock size={20} className="text-blue-400" /> Achieving Vault</h2><button onClick={() => setShowHistory(false)} className="p-2 hover:bg-[var(--color-glass)] rounded-full transition-colors"><X size={20} /></button></div><div className="space-y-4">{history.map((item) => (<button key={item.id} onClick={() => { setData(item.data); setCurrentChunk(-1); setShowHistory(false); }} className="w-full text-left p-5 rounded-[1.5rem] apple-glass hover:bg-[var(--bg)]/10 border border-[var(--color-border)] hover:border-blue-500/30 transition-all group"><p className="text-[10px] uppercase tracking-widest text-[var(--fg)] mb-2 font-black">{item.date}</p><p className="text-sm font-bold text-slate-300 group-hover:text-blue-400 line-clamp-2 transition-colors">{item.title}</p></button>))}</div></motion.div>)}</AnimatePresence>
       <AnimatePresence>{showPaywall && (
@@ -2730,7 +2798,7 @@ export default function Home() {
         </div>
       )}</AnimatePresence>
       <AnimatePresence>{isZenLocked && (<motion.button initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} onClick={handleToggleZenLock} className="fixed top-8 right-8 z-[500] bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-6 rounded-full border-2 border-red-600/50 backdrop-blur-3xl shadow-2xl transition-all group"><X size={32} className="group-hover:rotate-90 transition-transform" /></motion.button>)}</AnimatePresence>
-      <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-[150] flex flex-col items-end gap-3 sm:gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[calc(100vw-2rem)] sm:w-[400px] md:w-[450px] apple-glass border-2 border-blue-500/30 rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-4 sm:p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><button onClick={() => setChatOpen(false)} aria-label="Close Ask DJ" className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div><div className="flex-grow overflow-y-auto p-4 sm:p-6 space-y-4 text-sm font-medium h-[260px] sm:h-[300px]">{chatHistory.length === 0 && <p className="text-[var(--fg)] italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-[var(--fg)]">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-3 sm:p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow min-w-0 bg-[var(--color-shadow)] p-3 sm:p-4 rounded-xl text-[var(--fg)] focus:outline-none border border-[var(--color-border)]" /><button type="submit" aria-label="Send message" className="bg-blue-600 text-white p-3 sm:p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95 shrink-0"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-4 sm:p-6 bg-blue-600 text-white rounded-[1.5rem] sm:rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-3 sm:gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-[var(--bg)]/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={22} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
+      <AnimatePresence>{data && !isZenLocked && (<div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-[150] flex flex-col items-end gap-3 sm:gap-4">{chatOpen && (<motion.div initial={{ opacity: 0, y: 50, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.8 }} className="w-[calc(100vw-2rem)] sm:w-[400px] md:w-[450px] apple-glass border-2 border-blue-500/30 rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden max-h-[500px]"><div className="bg-blue-600 p-4 sm:p-6 flex justify-between items-center"><h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3"><MessageCircle size={18}/> Ask DJ</h3><div className="flex items-center gap-1"><button onClick={handleSaveLatestAskDj} aria-label="Save latest Ask DJ exchange" title="Save latest exchange to your Ask DJ vault" className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><BookOpen size={16}/></button><button onClick={() => setChatOpen(false)} aria-label="Close Ask DJ" className="text-white hover:bg-white/10 p-2 rounded-xl transition-all"><X size={20}/></button></div></div><div className="flex-grow overflow-y-auto p-4 sm:p-6 space-y-4 text-sm font-medium h-[260px] sm:h-[300px]">{chatHistory.length === 0 && <p className="text-[var(--fg)] italic text-center py-10">"Ask me anything!"</p>}{chatHistory.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[var(--color-glass)] text-slate-300 border border-[var(--color-border)]'}`}>{msg.text}</div></div>))}{chatLoading && <div className="flex justify-start"><div className="bg-[var(--color-glass)] p-4 rounded-2xl animate-pulse text-[var(--fg)]">Thinking...</div></div>}</div><form onSubmit={handleChat} className="p-3 sm:p-4 border-t border-[var(--color-border)] bg-[var(--color-glass)] flex gap-2"><input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Type a question..." className="flex-grow min-w-0 bg-[var(--color-shadow)] p-3 sm:p-4 rounded-xl text-[var(--fg)] focus:outline-none border border-[var(--color-border)]" /><button type="submit" aria-label="Send message" className="bg-blue-600 text-white p-3 sm:p-4 rounded-xl hover:bg-blue-500 transition-all active:scale-95 shrink-0"><Send size={20} /></button></form></motion.div>)}<button onClick={() => setChatOpen(!chatOpen)} className="p-4 sm:p-6 bg-blue-600 text-white rounded-[1.5rem] sm:rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-500 transition-all active:scale-90 flex items-center gap-3 sm:gap-4 font-black uppercase tracking-widest text-xs relative overflow-hidden group"><div className="absolute inset-0 bg-[var(--bg)]/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" /><MessageCircle size={22} className="relative z-10" /> <span className="relative z-10">Ask DJ</span></button></div>)}</AnimatePresence>
 
       <AnimatePresence>{showVictory && data && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[700] flex items-center justify-center p-6">
