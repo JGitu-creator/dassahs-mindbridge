@@ -1179,6 +1179,35 @@ export default function Home() {
       setStarredItems([]);
     }
   };
+  const handleClearAllSavedData = async () => {
+    if (!window.confirm('Delete your saved reading history, Dopamine Vault highlights, and Ask DJ history from this device and your signed-in account?')) {
+      return;
+    }
+    setHistory([]);
+    setStarredItems([]);
+    localStorage.removeItem('dassahs_neural_snapshot');
+    localStorage.removeItem('dassahs_neural_vault');
+
+    try {
+      const { data: { session: activeSession } } = await supabase.auth.getSession();
+      if (activeSession?.access_token) {
+        const res = await fetch('/api/user/delete-data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${activeSession.access_token}`,
+          },
+          body: JSON.stringify({}),
+        });
+        if (!res.ok) {
+          throw new Error('Could not clear cloud history');
+        }
+      }
+      setUiNotice({ type: 'info', message: 'Saved reading history, highlights, and Ask DJ vault cleared.' });
+    } catch {
+      setUiNotice({ type: 'error', message: 'Local data cleared, but cloud deletion could not be confirmed. Try again when connected.' });
+    }
+  };
   const visibleVaultItems = vaultFilter === 'all' ? starredItems : starredItems.filter(item => item.type === vaultFilter);
   const handleEstablishLink = async () => {
 
@@ -2389,11 +2418,18 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              {user && (
-                <div className="pt-4 border-t border-white/5">
+              <div className="pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-4">
+                {user && (
                   <button onClick={handleLogout} className="text-red-400 text-[10px] font-black uppercase tracking-widest hover:text-red-300 flex items-center gap-2"><LogOut size={14}/> Disconnect Neural Link</button>
-                </div>
-              )}
+                )}
+                <button
+                  type="button"
+                  onClick={handleClearAllSavedData}
+                  className="text-[10px] font-black uppercase tracking-widest text-amber-400 hover:text-amber-300 transition-colors"
+                >
+                  Delete Saved Cloud &amp; Local Data
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

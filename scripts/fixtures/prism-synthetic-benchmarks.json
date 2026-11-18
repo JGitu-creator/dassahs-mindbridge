@@ -1,0 +1,30 @@
+[
+  {
+    "id": "lecture-notes-cognitive-load",
+    "category": "student_notes",
+    "goal": "Turn these messy lecture notes into a 3-step exam study checklist",
+    "text": "Cognitive Load Theory (Sweller, 1988) distinguishes intrinsic load (task complexity), extraneous load (poor formatting, dense walls of text, unclear instructions), and germane load (schema construction). When working memory capacity is exceeded by extraneous friction, executive function stalls. Bionic anchoring, progressive disclosure, and concrete action checklists reduce extraneous load so learners can focus on meaning and immediate next steps.",
+    "expectedMinWords": 50
+  },
+  {
+    "id": "it-edge-worker-error",
+    "category": "it_support",
+    "goal": "Tell me what broke and the exact command or fix to try first",
+    "text": "Deployment build failed on edge worker: Uncaught ReferenceError: WorkerGlobalScope is not defined when bundling pdfjs-dist legacy build in SSR context. Ensure client-only dynamic import is used inside event handlers and verify that GlobalWorkerOptions.workerSrc points to a same-origin static asset (/pdf.worker.min.mjs) matching the installed package version.",
+    "expectedMinWords": 40
+  },
+  {
+    "id": "workplace-security-policy",
+    "category": "work_policy",
+    "goal": "Extract my deadlines and required actions before Friday",
+    "text": "All remote and hybrid staff must complete the annual Information Security and Acceptable Use attestation in the compliance portal no later than Friday at 17:00 UTC. Prior to submitting the attestation, employees must rotate any personal access tokens older than 90 days, confirm hardware asset tags in the inventory sheet, and upload their signed telework ergonomics checklist to HR Services.",
+    "expectedMinWords": 50
+  },
+  {
+    "id": "short-reminder-note",
+    "category": "short_note",
+    "goal": "What is the single next step?",
+    "text": "Send the updated lab report PDF to Dr. Mensah before 3 PM today.",
+    "expectedMinWords": 10
+  }
+]
