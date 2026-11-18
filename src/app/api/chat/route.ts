@@ -46,14 +46,14 @@ export async function POST(req: Request) {
     return respond({ text: result.text, usage: result.usage });
   } catch (error) {
     await refundCredits(reservation);
-    console.error('Chat API Error:', error);
+    console.error('[AskDJ] request_failed', { reason: providerErrorCategory(error) });
     return NextResponse.json({ error: 'Ask DJ is currently unavailable.' }, { status: 500 });
   }
 }
 
 async function callProvider(message: string, history: any[], systemInstruction: string, preferredProvider: ProviderPreference): Promise<ProviderResult> {
   const tryGemini = async (): Promise<ProviderResult> => {
-    if (!geminiKey) throw new Error('No Gemini key');
+    if (!geminiKey) throw new Error('gemini_key_missing');
     const model = 'gemini-2.0-flash';
     const chat = new GoogleGenerativeAI(geminiKey).getGenerativeModel({ model, safetySettings: [
       { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
@@ -81,14 +81,25 @@ async function callProvider(message: string, history: any[], systemInstruction: 
   };
   const openRouterModelFor = (provider: ProviderPreference) => ({ gpt: 'openai/gpt-4o-mini', claude: 'anthropic/claude-3.5-sonnet', deepseek: 'deepseek/deepseek-chat' } as Record<string, string>)[provider];
   const model = openRouterModelFor(preferredProvider);
-  const providers: (() => Promise<ProviderResult>)[] =
+  const providers: { name: string; run: () => Promise<ProviderResult> }[] =
     preferredProvider === 'openrouter'
-      ? [() => tryOpenRouter(), tryGemini]
+      ? [{ name: 'openrouter', run: () => tryOpenRouter() }, { name: 'gemini', run: tryGemini }]
       : model
-        ? [() => tryOpenRouter(model), tryGemini]
-        : [tryGemini, () => tryOpenRouter()];
+        ? [{ name: 'openrouter', run: () => tryOpenRouter(model) }, { name: 'gemini', run: tryGemini }]
+        : [{ name: 'gemini', run: tryGemini }, { name: 'openrouter', run: () => tryOpenRouter() }];
   for (const provider of providers) {
-    try { const result = await provider(); if (result.text) return result; } catch (error) { console.error('Chat provider failed:', error); }
+    try { const result = await provider.run(); if (result.text) return result; }
+    catch (error) { console.warn('[AskDJ] provider_failed', { provider: provider.name, reason: providerErrorCategory(error) }); }
   }
   return { text: '', usage: { provider: 'none', model: 'none', promptTokens: 0, completionTokens: 0, totalTokens: 0 } };
+}
+
+function providerErrorCategory(error: unknown): string {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  if (message.includes('gemini_key_missing') || message.includes('no gemini key')) return 'key_missing';
+  if (/401|403|unauthori|forbidden|api key|permission/.test(message)) return 'key_or_permission';
+  if (/404|not found|model/.test(message)) return 'model_unavailable';
+  if (/429|quota|rate limit|resource exhausted/.test(message)) return 'quota_or_rate_limit';
+  if (/timeout|timed out|abort/.test(message)) return 'timeout';
+  return 'provider_error';
 }
