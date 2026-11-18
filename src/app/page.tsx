@@ -445,7 +445,9 @@ const getIsSunday = () => new Date().getDay() === 0;
 const getDailyInsight = () => DIVINE_INSIGHTS[new Date().getDate() % DIVINE_INSIGHTS.length];
 const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) => {
   if (!data) return null;
-  const wordCount = data.chunks.reduce((acc: number, chunk: any) => acc + (chunk.original?.length || 0), 0) / 5; // Approx
+  const computedWordCount = data.chunks.reduce((acc: number, chunk: any) => acc + (chunk.original?.trim().split(/\s+/).filter(Boolean).length || 0), 0);
+  const wordCount = data.sourceWordCount || computedWordCount;
+  const readingTime = data.readingTime === '0m' ? '<1m' : (data.readingTime || '<1m');
   const isSunday = getIsSunday();
   const dailyInsight = getDailyInsight();
 
@@ -471,7 +473,7 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
           </div>
           <div className="bg-[var(--bg)]/5 p-3 md:p-4 rounded-2xl border border-white/10 text-left">
             <p className="text-[7px] md:text-[8px] font-black uppercase text-[var(--fg)] mb-1">Time Saved</p>
-            <p className="text-sm md:text-xl font-black text-[var(--fg)] italic">{data.readingTime}</p>
+            <p className="text-sm md:text-xl font-black text-[var(--fg)] italic">{readingTime}</p>
           </div>
         </div>
         <div className="bg-amber-500/5 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-amber-500/20">
@@ -480,6 +482,7 @@ const CerebralRecap = ({ data, onFinish }: { data: any, onFinish: () => void }) 
             {isSunday ? dailyInsight : '"Inhale clarity. Your focus is established."'}
           </p>
         </div>
+        <p className="text-[10px] md:text-xs text-[var(--fg)]/70 font-semibold">This is a completion recap only. It does not run another AI refraction or use another refraction.</p>
         <button
           onClick={onFinish}
           className="w-full bg-[var(--fg)] text-[var(--bg)] py-4 md:py-5 rounded-2xl md:rounded-3xl font-black uppercase tracking-[0.4em] text-[10px] md:text-sm hover:scale-105 transition-all active:scale-95 shadow-2xl"
@@ -891,7 +894,6 @@ export default function Home() {
     setRewardType('final');
     setTimeout(() => {
       setShowRecap(true);
-      handleReset();
     }, 3000);
   };
   // Neural Streak Logic
@@ -1324,6 +1326,7 @@ export default function Home() {
         actions: [...(acc.actions || []), ...(curr.actions || [])],
         // Merge readingTime if applicable, etc.
       }));
+      result.sourceWordCount = textToSimplify.trim().split(/\s+/).filter(Boolean).length;
 
       setCompletedTasks({});
       setData(result);
@@ -2646,7 +2649,7 @@ export default function Home() {
 
                   {/* Progress Prism at the bottom of content */}
                   <div className="pt-8">
-                    <ProgressPrism progress={(currentChunk + 1) / data.chunks.length} />
+                    <ProgressPrism progress={(currentChunk + 1) / data.chunks.length} label={`Segment ${currentChunk + 1} of ${data.chunks.length}`} />
                   </div>
                   {data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-5 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-amber-500/5 p-5 sm:p-8 rounded-[1.75rem] sm:rounded-[2.5rem] border-2 border-amber-500/10 space-y-4 relative group/card overflow-hidden">
