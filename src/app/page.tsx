@@ -50,6 +50,7 @@ import { ReadAloud } from '@/components/prism/ReadAloud';
 import { AIUsageControl } from '@/components/AIUsageControl';
 import type { ProviderPreference } from '@/lib/ai-usage';
 import { PrismWeaver } from '@/components/prism/PrismWeaver';
+import { LivingIchthysFooter } from '@/components/prism/LivingIchthysFooter';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 type ThemeMode = "midnight_sovereign" | "dastastic_neon" | "electric_grace" | "divine_gold" | "hadassah_silk" | "sovereign_pulse";
@@ -542,19 +543,34 @@ const RefractiveTagline = () => {
     </div>
   );
 };
-const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mousePos: { x: number, y: number }, theme: ThemeMode, themeMode: 'light' | 'dark' | 'system', focusMode: string }) => {
+const SnakeLightsBackground = ({
+  mousePos,
+  theme,
+  themeMode,
+  focusMode,
+  isReadingDense = false,
+  completedPulse = 0,
+}: {
+  mousePos: { x: number; y: number };
+  theme: ThemeMode;
+  themeMode: 'light' | 'dark' | 'system';
+  focusMode: string;
+  isReadingDense?: boolean;
+  completedPulse?: number;
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mousePosRef = useRef(mousePos);
+  const isReadingRef = useRef(isReadingDense);
+  const gatherUntilRef = useRef(0);
   useEffect(() => { mousePosRef.current = mousePos; }, [mousePos]);
+  useEffect(() => { isReadingRef.current = isReadingDense; }, [isReadingDense]);
+  useEffect(() => {
+    if (completedPulse > 0) gatherUntilRef.current = Date.now() + 1800;
+  }, [completedPulse]);
   const t = THEMES[theme] || THEMES.midnight_sovereign;
-  const isDark = themeMode === 'system'
-    ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-    : themeMode === 'dark';
-  const colors = isDark
-    ? (t.dark || { background: '#000', prism: ['#fff'] })
-    : (t.light || { background: '#fff', prism: ['#000'] });
   useEffect(() => {
     if (focusMode === 'sovereign') return;
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -568,17 +584,24 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mous
       canvas.width = width;
       canvas.height = height;
     };
+    const handleTouch = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (touch) mousePosRef.current = { x: touch.clientX, y: touch.clientY };
+    };
     window.addEventListener('resize', resize);
+    window.addEventListener('touchstart', handleTouch, { passive: true });
+    window.addEventListener('touchmove', handleTouch, { passive: true });
     resize();
     const gridSize = 30;
-    const cols = Math.ceil(width / gridSize);
-    const rows = Math.ceil(height / gridSize);
+    const cols = Math.max(1, Math.ceil(width / gridSize));
+    const rows = Math.max(1, Math.ceil(height / gridSize));
     class Snake {
       segments!: {x: number, y: number}[];
       color!: string;
       direction!: {x: number, y: number};
       timer!: number;
       speed!: number;
+      nearPointer!: boolean;
       constructor() {
         this.reset();
       }
@@ -589,44 +612,60 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mous
         this.direction = dirs[Math.floor(Math.random() * dirs.length)];
         this.timer = 0;
         this.speed = 8 + Math.random() * 12;
+        this.nearPointer = false;
       }
       update() {
         this.timer++;
-        if (this.timer >= this.speed) {
+        const readingSlowdown = isReadingRef.current ? 1.7 : 1;
+        if (this.timer >= this.speed * readingSlowdown) {
           this.timer = 0;
           const head = this.segments[0];
+          const targetX = mousePosRef.current.x;
+          const targetY = mousePosRef.current.y;
+          const dx = targetX - (head.x * gridSize);
+          const dy = targetY - (head.y * gridSize);
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const isGathering = Date.now() < gatherUntilRef.current;
 
-          if (Math.random() > 0.85) {
-             const dirs = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
-             this.direction = dirs[Math.floor(Math.random() * dirs.length)];
+          if ((dist < 220 && !isReadingRef.current) || isGathering) {
+            this.nearPointer = true;
+            if (Math.abs(dx) > Math.abs(dy)) {
+              this.direction = { x: dx > 0 ? 1 : -1, y: 0 };
+            } else {
+              this.direction = { x: 0, y: dy > 0 ? 1 : -1 };
+            }
+            this.speed = isGathering ? 2 : 3.5;
+          } else {
+            this.nearPointer = false;
+            if (Math.random() > 0.85) {
+              const dirs = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
+              this.direction = dirs[Math.floor(Math.random() * dirs.length)];
+            }
+            this.speed = 8 + Math.random() * 5;
           }
+
           const newHead = {
             x: (head.x + this.direction.x + cols) % cols,
             y: (head.y + this.direction.y + rows) % rows
           };
           this.segments.unshift(newHead);
-          if (this.segments.length > 8) {
+          const maxLen = this.nearPointer ? 11 : 8;
+          while (this.segments.length > maxLen) {
             this.segments.pop();
-          }
-          // React to mouse
-          const dx = (newHead.x * gridSize) - mousePosRef.current.x;
-          const dy = (newHead.y * gridSize) - mousePosRef.current.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 150) {
-            this.speed = 3; // Speed up near mouse
-          } else {
-            this.speed = 8 + Math.random() * 5;
           }
         }
       }
       draw() {
+        const calmFactor = isReadingRef.current ? 0.45 : 1;
         this.segments.forEach((seg, i) => {
-          const alpha = (1 - (i / this.segments.length)) * 0.5;
+          const isHead = i === 0;
+          const baseAlpha = (1 - (i / this.segments.length)) * (this.nearPointer ? 0.72 : 0.48);
           ctx!.fillStyle = this.color;
-          ctx!.globalAlpha = alpha;
-          ctx!.shadowBlur = 20;
+          ctx!.globalAlpha = baseAlpha * calmFactor;
+          ctx!.shadowBlur = isHead && this.nearPointer ? 28 : 16;
           ctx!.shadowColor = this.color;
-          ctx!.fillRect(seg.x * gridSize + 4, seg.y * gridSize + 4, gridSize - 8, gridSize - 8);
+          const inset = isHead && this.nearPointer ? 2 : 4;
+          ctx!.fillRect(seg.x * gridSize + inset, seg.y * gridSize + inset, gridSize - inset * 2, gridSize - inset * 2);
         });
       }
     }
@@ -642,6 +681,8 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mous
     render();
     return () => {
       window.removeEventListener('resize', resize);
+      window.removeEventListener('touchstart', handleTouch);
+      window.removeEventListener('touchmove', handleTouch);
       cancelAnimationFrame(animationFrameId);
     };
   }, [focusMode, theme]);
@@ -649,7 +690,13 @@ const SnakeLightsBackground = ({ mousePos, theme, themeMode, focusMode }: { mous
   return (
     <canvas
       ref={canvasRef}
-      className={`fixed inset-0 pointer-events-none z-0 transition-opacity duration-1000 ${themeMode === 'light' ? 'opacity-40 mix-blend-multiply' : 'opacity-10'}`}
+      className={`fixed inset-0 pointer-events-none z-0 transition-opacity duration-1000 ${
+        isReadingDense
+          ? 'opacity-10'
+          : themeMode === 'light'
+            ? 'opacity-35 mix-blend-multiply'
+            : 'opacity-15'
+      }`}
     />
   );
 };
@@ -894,17 +941,23 @@ export default function Home() {
   const toggleLogicRoot = (idx: number) => {
     setShowLogicRoot(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
+  const [completedPulse, setCompletedPulse] = useState(0);
+  const [prismArrival, setPrismArrival] = useState(false);
+  const [signingIn, setSigningIn] = useState(false);
   const toggleTask = (taskIndex: number) => {
     const key = `${data?.id || 'current'}-${taskIndex}`;
     setCompletedTasks(prev => ({ ...prev, [key]: !prev[key] }));
     if (!completedTasks[key]) {
       setDassahPoints(p => p + 5); // Reward for action
+      setCompletedPulse(c => c + 1);
     }
   };
   const currentActions = data?.actions ?? [];
   const completedActionCount = currentActions.filter((_, index) => completedTasks[`${data?.id || 'current'}-${index}`]).length;
   const allActionsComplete = currentActions.length > 0 && completedActionCount === currentActions.length;
+  const firstUnfinishedAction = currentActions.find((_, index) => !completedTasks[`${data?.id || 'current'}-${index}`]);
   const sealMission = () => {
+    setCompletedPulse(c => c + 1);
     setRewardType('final');
     setTimeout(() => {
       setShowRecap(true);
@@ -1170,14 +1223,19 @@ export default function Home() {
         loadVault(session.user.id);
       }
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user && localStorage.getItem('dassahs_prism_tos_accepted') !== 'true') {
         setAcceptedTOS(false);
         setShowTOS(true);
         setLinkState('pending');
       }
       setUser(session?.user ?? null);
+      setSigningIn(false);
       if (session?.user) {
+        if (event === 'SIGNED_IN') {
+          setPrismArrival(true);
+          setTimeout(() => setPrismArrival(false), 1400);
+        }
         loadHistory(session.user.id);
         loadProfile(session.user.id);
         loadVault(session.user.id);
@@ -1692,10 +1750,12 @@ export default function Home() {
         if (level >= 2) setShowRecap(true);
       }
       setCurrentChunk(nextChunk);
+      setCompletedPulse(c => c + 1);
       setRewardType('step');
       setTimeout(() => setRewardType('none'), 2000);
     }
     else if (data && currentChunk === data.chunks.length) {
+      setCompletedPulse(c => c + 1);
       setRewardType('final'); setIsZenLocked(false); if (document.fullscreenElement) document.exitFullscreen();
       setDassahPoints(prev => { const next = prev + 10; localStorage.setItem('dassah_points', next.toString()); return next; });
       setTimeout(() => { setShowRecap(true); }, 2000);
@@ -1722,7 +1782,7 @@ export default function Home() {
     }
   };
   const handleLogin = async () => {
-
+    setSigningIn(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -1732,7 +1792,10 @@ export default function Home() {
         },
       },
     });
-    if (error) alert("Neural Link failed: " + error.message);
+    if (error) {
+      setSigningIn(false);
+      alert("Neural Link failed: " + error.message);
+    }
   };
   const handleInviteUser = async (email: string) => {
     if (!isGuardian) return;
@@ -1763,24 +1826,14 @@ export default function Home() {
       --color-border-rgb: ${isDark ? '148, 163, 184' : '100, 116, 139'};
       --prism-1: ${currentTheme.prism[0]}; --prism-2: ${currentTheme.prism[1]}; --prism-3: ${currentTheme.prism[2]};
     }
-    @keyframes prism-refract { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
     @keyframes neural-gear { 0% { rotate: 0deg; } 100% { rotate: 360deg; } }
-    .prism-text {
-      background: linear-gradient(110deg, var(--prism-1) 0%, var(--prism-2) 25%, #fff 50%, var(--prism-2) 75%, var(--prism-3) 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: prism-refract 4s linear infinite;
-      display: inline-block;
-      padding-right: 0.3em;
-    }
     .light .prism-brand .brand-prism {
+      background-color: transparent !important;
       background-image: linear-gradient(110deg, #312e81 0%, #7e22ce 24%, #0369a1 48%, #b45309 72%, #312e81 100%);
       background-size: 400% auto;
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
       animation: prism-refract-light 14s ease-in-out infinite;
     }
     @keyframes prism-refract-light {
@@ -1904,7 +1957,40 @@ export default function Home() {
              <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: `linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)`, backgroundSize: '80px 80px' }} />
           </div>
         )}
-        <SnakeLightsBackground theme={theme} themeMode={themeMode} mousePos={mousePos} focusMode={focusMode} />
+        <SnakeLightsBackground
+          theme={theme}
+          themeMode={themeMode}
+          mousePos={mousePos}
+          focusMode={focusMode}
+          isReadingDense={Boolean(data && currentChunk >= 0 && currentChunk < data.chunks.length)}
+          completedPulse={completedPulse}
+        />
+        <AnimatePresence>
+          {prismArrival && (
+            <motion.div
+              initial={{ opacity: 0, y: -16, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.96 }}
+              transition={{ duration: 0.35 }}
+              role="status"
+              aria-live="polite"
+              className="fixed top-20 left-1/2 -translate-x-1/2 z-[450] max-w-md w-[calc(100%-2rem)] apple-glass border-2 border-blue-400/50 rounded-3xl px-5 py-4 shadow-[0_0_50px_rgba(59,130,246,0.35)] flex items-center gap-4 pointer-events-none"
+            >
+              <div className="relative w-10 h-10 rounded-full border-2 border-blue-400/70 flex items-center justify-center shrink-0">
+                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-amber-500/30 animate-pulse" />
+                <Sparkles size={16} className="text-blue-400 relative z-10" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-widest text-blue-400">Your Prism space is ready.</p>
+                <p className="text-xs text-[var(--fg)]/80 truncate">
+                  {firstUnfinishedAction
+                    ? `Next step preserved: ${firstUnfinishedAction.task}`
+                    : 'Your focus settings and vault are synced.'}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <AnimatePresence>
           {data && currentChunk >= 0 && currentChunk < data.chunks.length && (
             <ContextAnchor data={data} isOpen={contextAnchorOpen} onToggle={() => setContextAnchorOpen(open => !open)} />
@@ -1963,7 +2049,7 @@ export default function Home() {
             </button>
           ) : (
             <button onClick={handleLogin} className="px-4 md:px-6 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-[var(--color-accent)] text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-lg">
-              Join
+              {signingIn ? 'Connecting…' : 'Join'}
             </button>
           )}
         </nav>
@@ -2290,7 +2376,7 @@ export default function Home() {
             <div className="space-y-12 relative z-10">
               <motion.header style={{ x: (mousePos.x - 1000) * 0.02, y: (mousePos.y - 500) * 0.02 }} className="space-y-4">
                 <div className="flex items-center gap-4 text-blue-400 font-black uppercase tracking-[0.3em] text-xs"><div className="w-12 h-[2px] bg-blue-500/50" /> THE HEART OF DASSAH&apos;S-PRISM</div>
-                <h2 className="text-4xl md:text-7xl font-black text-[var(--fg)] leading-tight tracking-tight italic pb-6">The <span className="prism-text">Dastastical Founder 🧠✨</span></h2>
+                <h2 className="text-4xl md:text-7xl font-black text-[var(--fg)] leading-tight tracking-tight italic pb-6">The <span className="prism-text">Dastastical Founder</span> <span className="not-italic">🧠✨</span></h2>
               </motion.header>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-8 text-slate-200 text-lg leading-relaxed font-medium">
@@ -2310,7 +2396,7 @@ export default function Home() {
 
                   <motion.div style={{ y: (mousePos.y - 500) * 0.01, x: (mousePos.x - 1000) * 0.01 }} className="bg-gradient-to-br from-amber-500/10 to-transparent p-10 rounded-[3rem] border-2 border-amber-500/20 shadow-2xl">
                     <p className="text-[var(--fg)] font-bold text-xl leading-relaxed">That is how Dassah&apos;s-Prism was born. It is not merely a tool; it is a living testimony of triumph. Our mission is to empower every neurodivergent soul to reclaim ownership of their focus. We transmute the overwhelming noise of modern information into a purposeful stream of clarity, inviting you to step out of the exhaustion, discover the true purpose of your neurodivergence, and perhaps meet the very Source of this peace.</p>
-                    <p className="mt-8 text-3xl font-black italic prism-text">Stay Dastastic! 🌟✨</p>
+                    <p className="mt-8 text-3xl font-black italic"><span className="prism-text">Stay Dastastic!</span> <span className="not-italic">🌟✨</span></p>
                   </motion.div>
                 </div>
                 <div className="space-y-8">
@@ -2521,6 +2607,41 @@ export default function Home() {
                   onChange={(e) => setInput(e.target.value)}
                 />
               )}
+              {!input.trim() && !pendingImage && (
+                <div className="flex flex-wrap items-center gap-2 px-2 pt-1" aria-label="Try a 1-click sample">
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--fg)]/50">Try a sample:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMissionGoal('Turn these messy lecture notes into a 3-step exam study checklist');
+                      setInput('Cognitive Load Theory (Sweller, 1988) distinguishes intrinsic load (task complexity), extraneous load (poor formatting, dense walls of text, unclear instructions), and germane load (schema construction). When working memory capacity is exceeded by extraneous friction, executive function stalls. Bionic anchoring, progressive disclosure, and concrete action checklists reduce extraneous load so learners can focus on meaning and immediate next steps.');
+                    }}
+                    className="rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-blue-300 hover:border-blue-400/50 hover:bg-blue-500/20 transition-all"
+                  >
+                    Messy Lecture Notes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMissionGoal('Tell me what broke and the exact command or fix to try first');
+                      setInput('Deployment build failed on edge worker: Uncaught ReferenceError: WorkerGlobalScope is not defined when bundling pdfjs-dist legacy build in SSR context. Ensure client-only dynamic import is used inside event handlers and verify that GlobalWorkerOptions.workerSrc points to a same-origin static asset (/pdf.worker.min.mjs) matching the installed package version.');
+                    }}
+                    className="rounded-full border border-purple-500/25 bg-purple-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-purple-300 hover:border-purple-400/50 hover:bg-purple-500/20 transition-all"
+                  >
+                    Cryptic IT Error
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMissionGoal('Extract my deadlines and required actions before Friday');
+                      setInput('All remote and hybrid staff must complete the annual Information Security & Acceptable Use attestation in the compliance portal no later than Friday at 17:00 UTC. Prior to submitting the attestation, employees must rotate any personal access tokens older than 90 days, confirm hardware asset tags in the inventory sheet, and upload their signed telework ergonomics checklist to HR Services.');
+                    }}
+                    className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 hover:border-emerald-400/50 hover:bg-emerald-500/20 transition-all"
+                  >
+                    Dense Work Policy
+                  </button>
+                </div>
+              )}
             </div>
             <div className="w-full bg-[var(--color-glass)] p-2.5 sm:p-3 md:p-4 rounded-3xl md:rounded-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 md:gap-4 border border-white/10 shadow-2xl backdrop-blur-3xl">
               <div className="flex items-center gap-1 md:gap-2 pl-1 sm:pl-2">
@@ -2689,7 +2810,30 @@ export default function Home() {
                   <p className="text-sm leading-relaxed text-[var(--color-text)]"><strong className="text-amber-500">Review before acting:</strong> Prism is an AI reading aid, not an authority. Check important facts, legal/medical/financial advice, dates, names, and decisions against the original source or a qualified professional.</p>
                 </div>
                 <div className="space-y-8 flex-grow">
-                  <div className="prism-content bg-blue-500/5 p-5 sm:p-8 md:p-12 rounded-[1.75rem] sm:rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">{isBionic ? <BionicText text={data.chunks[currentChunk].content} /> : data.chunks[currentChunk].content}</div>
+                  <div className="space-y-2">
+                    <div className="prism-content bg-blue-500/5 p-5 sm:p-8 md:p-12 rounded-[1.75rem] sm:rounded-[2.5rem] border border-blue-500/10 text-2xl md:text-3xl leading-relaxed font-black text-slate-200 italic shadow-inner">
+                      {isBionic ? (
+                        <BionicText text={data.chunks[currentChunk].content} onWordSelect={(w) => setLensWord(w)} />
+                      ) : (
+                        data.chunks[currentChunk].content.split(/\s+/).map((word, idx) => {
+                          const clean = word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+                          const isSelectable = clean.length >= 3;
+                          return (
+                            <span
+                              key={idx}
+                              onClick={isSelectable ? () => setLensWord(clean) : undefined}
+                              className={`mr-1.5 inline-block transition-colors ${isSelectable ? 'cursor-pointer rounded-sm px-0.5 -mx-0.5 hover:bg-blue-500/15 active:bg-blue-500/25' : ''}`}
+                            >
+                              {word}
+                            </span>
+                          );
+                        })
+                      )}
+                    </div>
+                    <p className="px-2 text-[10px] font-bold uppercase tracking-widest text-blue-400/70">
+                      Tip: Tap or select any word to open Prism Lens &amp; Ask DJ.
+                    </p>
+                  </div>
 
                   {/* Progress Prism at the bottom of content */}
                   <div className="pt-8">
@@ -2833,9 +2977,7 @@ export default function Home() {
         </div>
       )}</AnimatePresence>
       <footer className="w-full py-12 px-4 border-t border-white/5 z-10 flex flex-col items-center gap-4 text-center opacity-75 hover:opacity-100 transition-opacity">
-        <p className="text-[var(--fg)] font-black uppercase text-[10px] tracking-[0.4em] flex items-center gap-3 justify-center">
-          JG <IchthysIcon size={12} className="text-blue-500" /> | Rooted in Christ | Dedicated to Dchan.
-        </p>
+        <LivingIchthysFooter focusMode={focusMode} />
         <p className="max-w-xl text-[10px] leading-relaxed text-[var(--fg)]/70">Privacy first: remove passwords, API keys, identity numbers, and private medical or financial details before sending material for AI refraction.</p>
         <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4">
           <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-[var(--bg)]/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-[var(--fg)] transition-all">About the Prism</button>
@@ -2844,7 +2986,7 @@ export default function Home() {
           <a href="/dassahs-prism-extension.zip" download className="mt-2 px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-emerald-500 hover:text-[var(--fg)] transition-all">Browser Extension</a>
         </div>
       </footer>
-      {isFidgetModeActive && <PrismWeaver />}
+      {isFidgetModeActive && <PrismWeaver completedPulse={completedPulse} focusMode={focusMode} />}
     </main>
     </>
   );
