@@ -19,8 +19,7 @@ export const MorphFish = ({ className = "", size = 24, morphing = false, stage =
       className={className}
       whileHover={{
         scale: 1.18,
-        rotate: [0, -7, 7, -4, 0],
-        y: [0, -2, 2, 0],
+        rotate: -6,
         filter: "drop-shadow(0 0 10px currentColor)",
       }}
       transition={{ duration: 0.75, ease: "easeInOut" }}

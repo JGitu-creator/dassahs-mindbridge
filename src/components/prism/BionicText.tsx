@@ -10,7 +10,7 @@ export const BionicText = ({
   return (
     <span>
       {text.split(' ').map((word, i) => {
-        const cleaned = word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').trim();
+        const cleaned = word.replace(/^[^a-zA-Z0-9\u00C0-\u024F]+|[^a-zA-Z0-9\u00C0-\u024F]+$/g, '').trim();
         const canSelect = Boolean(onWordSelect && cleaned.length >= 3 && cleaned.length <= 60);
         const mid = Math.ceil(word.length / 2);
 

@@ -2816,7 +2816,7 @@ export default function Home() {
                         <BionicText text={data.chunks[currentChunk].content} onWordSelect={(w) => setLensWord(w)} />
                       ) : (
                         data.chunks[currentChunk].content.split(/\s+/).map((word, idx) => {
-                          const clean = word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+                          const clean = word.replace(/^[^a-zA-Z0-9\u00C0-\u024F]+|[^a-zA-Z0-9\u00C0-\u024F]+$/g, '');
                           const isSelectable = clean.length >= 3;
                           return (
                             <span

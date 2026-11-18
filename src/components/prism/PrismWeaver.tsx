@@ -114,7 +114,7 @@ export const PrismWeaver = ({
       >
         <motion.div
           animate={{
-            scale: mode === 'completion' ? [1, 1.35, 0.9] : mode === 'engaged' ? 1.12 : 0.92,
+            scale: mode === 'completion' ? 1.28 : mode === 'engaged' ? 1.12 : 0.92,
             rotate: mode === 'completion' ? 180 : mode === 'engaged' ? 45 : 0,
           }}
           transition={{ duration: 0.45, ease: 'easeOut' }}
@@ -138,7 +138,7 @@ export const PrismWeaver = ({
                 initial={{ opacity: 0, scale: 0.4 }}
                 animate={{
                   opacity: [0.6, 1, 0.7],
-                  scale: mode === 'completion' ? [1, 1.3, 0] : 1,
+                  scale: mode === 'completion' ? 1.2 : 1,
                   x: Math.cos(angle) * radius,
                   y: Math.sin(angle) * radius,
                 }}
