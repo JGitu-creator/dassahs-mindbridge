@@ -2086,9 +2086,9 @@ export default function Home() {
             <motion.div whileHover={{ scale: 1.2, rotate: -10 }}><Clock size={18} className="md:w-5 md:h-5 transition-transform" /></motion.div>
           </button>
           <div className="w-[1px] h-6 bg-[var(--bg)]/10 mx-0.5 md:mx-1" />
-          <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${focusMode === 'sovereign' ? 'bg-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'text-slate-400 hover:text-[var(--fg)]'}`}>
-            {focusMode === 'sovereign' ? <Crown size={12} className="md:w-3.5 md:h-3.5" /> : <Zap size={12} className="md:w-3.5 md:h-3.5" />}
-            <span className="hidden sm:block">{focusMode === 'sovereign' ? 'Focus' : 'Das'}</span>
+          <button onClick={() => { setFocusMode(f => f === "dastastic" ? "sovereign" : "dastastic"); }} title={focusMode === 'sovereign' ? 'Focus (Sovereign) mode active — click to switch to Dastastic mode' : 'Dastastic mode active — click to switch to Focus (Sovereign) mode'} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 ${focusMode === 'sovereign' ? 'bg-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.4)]' : 'border border-[var(--color-border)] bg-[var(--bg)]/5 text-[var(--fg)]/85 hover:text-[var(--fg)]'}`}>
+            {focusMode === 'sovereign' ? <Crown size={13} className="md:w-3.5 md:h-3.5 shrink-0" /> : <Zap size={13} className="md:w-3.5 md:h-3.5 shrink-0" />}
+            <span>{focusMode === 'sovereign' ? 'Focus' : 'Dastastic'}</span>
           </button>
           {user ? (
             <button onClick={() => setShowNeuralIdentity(true)} className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl overflow-hidden border-2 border-blue-500/30 hover:border-blue-400 hover:scale-105 transition-all shadow-lg flex items-center justify-center bg-blue-500/10">
@@ -2407,9 +2407,9 @@ export default function Home() {
                       </div>
                     ) : (
                       visibleVaultItems.map((item, i) => (
-                        <div key={i} className="p-4 rounded-2xl bg-black/20 border border-white/5 space-y-2 relative group">
+                        <div key={i} className="p-4 rounded-2xl bg-[var(--color-glass)] border border-[var(--color-border)] space-y-2 relative group">
                           <p className="text-[8px] font-black uppercase text-blue-400 tracking-tighter">{item.heading}</p>
-                          <p className="text-sm font-bold text-slate-300 italic">"{item.content}"</p>
+                          <p className="text-sm font-bold text-[var(--fg)] italic">"{item.content}"</p>
                           <button onClick={() => handleToggleStar(item)} aria-label="Remove saved highlight" className="absolute top-2 right-2 p-1.5 text-amber-500 opacity-75 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 transition-opacity"><X size={14}/></button>
                         </div>
                       ))
@@ -2664,10 +2664,10 @@ export default function Home() {
                 />
               </div>
               {showNeuroMirror ? (
-                <div className="w-full h-48 md:h-80 bg-black/60 rounded-[1.5rem] md:rounded-[2.5rem] overflow-y-auto border border-white/10 p-4 sm:p-6"><NeuroMirrorText text={input || "Paste some text..."} /></div>
+                <div className="w-full h-48 md:h-80 bg-[var(--color-glass)] text-[var(--fg)] rounded-[1.5rem] md:rounded-[2.5rem] overflow-y-auto border border-[var(--color-border)] p-4 sm:p-6"><NeuroMirrorText text={input || "Paste some text..."} /></div>
               ) : (
                 <textarea
-                  className="prism-input w-full h-48 md:h-80 p-5 sm:p-6 md:p-10 text-base md:text-xl bg-black/40 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-white/20 focus:border-purple-500/40 focus:bg-black/50 transition-all resize-none focus:outline-none placeholder:text-slate-400 text-slate-200 leading-relaxed font-medium"
+                  className="prism-input w-full h-48 md:h-80 p-5 sm:p-6 md:p-10 text-base md:text-xl bg-[var(--color-glass)] rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-[var(--color-border)] focus:border-purple-500/50 transition-all resize-none focus:outline-none placeholder:text-slate-500 dark:placeholder:text-slate-400 text-[var(--fg)] leading-relaxed font-medium"
                   placeholder="Paste the noise here..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -2804,7 +2804,7 @@ export default function Home() {
                       className={`p-4 sm:p-6 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 group ${
                         completedTasks[`${data.id || 'current'}-${i}`]
                         ? 'bg-emerald-500/10 border-emerald-500/50 opacity-60'
-                        : 'bg-black/20 border-white/5 hover:border-blue-500/30'
+                        : 'bg-[var(--color-glass)] border-[var(--color-border)] hover:border-blue-500/30'
                       }`}
                     >
                       <div className="flex items-center gap-4 sm:gap-6 min-w-0">
