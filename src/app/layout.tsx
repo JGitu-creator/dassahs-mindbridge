@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import SessionSync from "@/components/SessionSync";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -51,6 +52,7 @@ export default function RootLayout({
       <body className={`${inter.className} h-full`}>
         <SessionSync />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
