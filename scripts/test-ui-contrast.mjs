@@ -153,3 +153,108 @@ test('Light Mode brand-prism stays visible and ContextAnchor + uiNotice + Prism 
     'Prism Lens must be positioned away from bottom-right ContextAnchor and Ask DJ'
   );
 });
+
+test('AI route select and all <select>/<option> elements have explicit Light and Dark contrast', async () => {
+  const globals = await readFile(globalsPath, 'utf8');
+  const aiUsage = await readFile(aiUsagePath, 'utf8');
+
+  assert.match(
+    globals,
+    /\.light\s+select\s+option\s*\{[^}]*background-color:\s*#ffffff[^}]*color:\s*#172033/,
+    'globals.css must set explicit Light Mode background-color and color on select option'
+  );
+  assert.match(
+    globals,
+    /\.dark\s+select\s+option\s*\{[^}]*background-color:\s*#0f172a[^}]*color:\s*#f8fafc/,
+    'globals.css must set explicit Dark Mode background-color and color on select option'
+  );
+  assert.match(
+    aiUsage,
+    /<option[^>]*className="[^"]*bg-\[var\(--bg\)\][^"]*text-\[var\(--fg\)\]/,
+    'AIUsageControl <option> tags must explicitly set bg-[var(--bg)] text-[var(--fg)]'
+  );
+});
+
+test('Navbar renders full word Dastastic (not Das) and supports Focus (Sovereign) mode', async () => {
+  const page = await readFile(pagePath, 'utf8');
+
+  assert.match(
+    page,
+    /focusMode\s*===\s*['"]sovereign['"]\s*\?\s*['"]Focus['"]\s*:\s*['"]Dastastic['"]/,
+    'Navbar focusMode toggle must display full word Dastastic instead of truncated Das'
+  );
+  assert.doesNotMatch(
+    page,
+    /focusMode\s*===\s*['"]sovereign['"]\s*\?\s*['"]Focus['"]\s*:\s*['"]Das['"]/,
+    'Navbar must not abbreviate Dastastic to Das'
+  );
+});
+
+test('Light Mode remaps all pastel utility text classes and input/vault/action cards use theme-aware glass', async () => {
+  const globals = await readFile(globalsPath, 'utf8');
+  const page = await readFile(pagePath, 'utf8');
+
+  for (const cls of [
+    'text-blue-100',
+    'text-blue-200',
+    'text-blue-300',
+    'text-purple-100',
+    'text-purple-300',
+    'text-amber-100',
+    'text-amber-200',
+    'text-amber-300',
+    'text-emerald-300',
+    'text-slate-200',
+    'text-slate-300',
+    'text-slate-400',
+  ]) {
+    assert.match(
+      globals,
+      new RegExp(`\\.light\\s+\\.${cls}\\s*\\{`),
+      `globals.css must remap .light .${cls} for Light Mode contrast`
+    );
+  }
+
+  assert.doesNotMatch(
+    page,
+    /className="prism-input[^"]*bg-black\/40/,
+    'textarea.prism-input must use bg-[var(--color-glass)] instead of bg-black/40 for Light Mode readability'
+  );
+  assert.doesNotMatch(
+    page,
+    /bg-black\/60[^"]*><NeuroMirrorText/,
+    'NeuroMirrorText container must use bg-[var(--color-glass)] instead of bg-black/60'
+  );
+});
+
+test('App-wide scan across src/app and src/components has zero bg-[var(--bg)] text-black regressions', async () => {
+  const { readdir } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  const srcRoot = new URL('../src', import.meta.url).pathname;
+
+  async function collectTsx(dir) {
+    const entries = await readdir(dir, { withFileTypes: true });
+    const files = [];
+    for (const entry of entries) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        files.push(...(await collectTsx(full)));
+      } else if (entry.name.endsWith('.tsx')) {
+        files.push(full);
+      }
+    }
+    return files;
+  }
+
+  const tsxFiles = await collectTsx(srcRoot);
+  assert.ok(tsxFiles.length >= 10, `Expected >= 10 .tsx files in src/, found ${tsxFiles.length}`);
+
+  for (const file of tsxFiles) {
+    const content = await readFile(file, 'utf8');
+    assert.doesNotMatch(
+      content,
+      /bg-\[var\(--bg\)\]\s+text-black/,
+      `Contrast regression in ${file}: bg-[var(--bg)] text-black`
+    );
+  }
+});

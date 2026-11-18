@@ -34,11 +34,11 @@ export function AIUsageControl({
         aria-label="AI route preference"
         value={preference}
         onChange={(event) => onPreferenceChange(event.target.value as ProviderPreference)}
-        className="max-w-[76px] sm:max-w-[112px] truncate bg-transparent text-[9px] font-black uppercase tracking-wider outline-none"
+        className="max-w-[100px] sm:max-w-[136px] cursor-pointer truncate bg-transparent text-[10px] font-black uppercase tracking-wider text-[var(--fg)] outline-none"
       >
-        <option value="auto">Auto · best fit</option>
-        <option value="openrouter">OpenRouter · free models</option>
-        <option value="gemini">Gemini · director</option>
+        <option value="auto" className="bg-[var(--bg)] text-[var(--fg)]">Auto · best fit</option>
+        <option value="openrouter" className="bg-[var(--bg)] text-[var(--fg)]">OpenRouter · free models</option>
+        <option value="gemini" className="bg-[var(--bg)] text-[var(--fg)]">Gemini · director</option>
       </select>
       <div
         className="flex min-w-0 items-center gap-1 border-l border-[var(--color-border)] pl-2"
