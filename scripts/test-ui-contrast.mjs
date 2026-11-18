@@ -127,3 +127,29 @@ test('BionicText supports mobile tap-to-Lens via onWordSelect and LivingIchthysF
     'LivingIchthysFooter must be a pure client-side interaction with zero network or API calls'
   );
 });
+
+test('Light Mode brand-prism stays visible and ContextAnchor + uiNotice + Prism Lens maintain Light/Dark contrast and separation', async () => {
+  const page = await readFile(pagePath, 'utf8');
+  const contextAnchor = await readFile(contextAnchorPath, 'utf8');
+
+  assert.doesNotMatch(
+    page,
+    /@keyframes\s+prism-refract-light\s*\{[\s\S]*?background-image:\s*none/m,
+    '@keyframes prism-refract-light must not set background-image: none while -webkit-text-fill-color: transparent !important is active'
+  );
+  assert.doesNotMatch(
+    contextAnchor,
+    /bg-slate-900/,
+    'ContextAnchor must use theme-aware apple-glass instead of hardcoded bg-slate-900'
+  );
+  assert.doesNotMatch(
+    page,
+    /bg-slate-900\/90\s+text-amber-100/,
+    'Info uiNotice banner must not pair bg-slate-900/90 with text-amber-100 (unreadable in Light Mode)'
+  );
+  assert.match(
+    page,
+    /fixed\s+bottom-40\s+left-4\s+right-4\s+sm:bottom-24\s+sm:left-6/,
+    'Prism Lens must be positioned away from bottom-right ContextAnchor and Ask DJ'
+  );
+});

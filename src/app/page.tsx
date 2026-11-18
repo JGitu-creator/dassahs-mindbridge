@@ -2118,8 +2118,8 @@ export default function Home() {
           role={uiNotice.type === 'error' ? 'alert' : 'status'}
           className={`fixed top-20 left-1/2 -translate-x-1/2 z-[150] w-[calc(100%-2rem)] max-w-xl rounded-2xl border px-4 py-3 text-xs sm:text-sm font-medium shadow-2xl backdrop-blur-xl flex items-start justify-between gap-3 ${
             uiNotice.type === 'error'
-              ? 'border-rose-500/40 bg-rose-950/90 text-rose-100'
-              : 'border-amber-500/40 bg-slate-900/90 text-amber-100'
+              ? 'border-rose-500/40 bg-rose-950/95 text-white'
+              : 'border-amber-500/40 apple-glass text-[var(--fg)]'
           }`}
         >
           <span>{uiNotice.message}</span>
