@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "test:shadow": "node scripts/test-shadow-boundary.mjs && node --experimental-strip-types scripts/test-shadow-production.mjs",
-    "test:acceptance": "node scripts/test-ui-contrast.mjs"
+    "test:acceptance": "node scripts/test-ui-contrast.mjs",
+    "test:contracts": "node scripts/test-upload-tts-contracts.mjs",
+    "test:benchmarks": "node scripts/test-prism-benchmarks.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
