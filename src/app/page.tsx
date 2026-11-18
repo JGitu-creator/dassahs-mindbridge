@@ -261,15 +261,46 @@ const SceneRecap = ({ chunk }: { chunk: any }) => (
     <p className="text-slate-300 italic font-medium">"...{chunk.summary}"</p>
   </motion.div>
 );
-const BionicText = ({ text }: { text: string }) => {
+const BionicText = ({ text, onWordSelect }: { text: string; onWordSelect?: (word: string) => void }) => {
   if (!text) return null;
   return (
     <>
       {text.split(' ').map((word, i) => {
+        const cleaned = word.replace(/^[^a-zA-Z0-9\u00C0-\u024F]+|[^a-zA-Z0-9\u00C0-\u024F]+$/g, '').trim();
+        const canSelect = Boolean(onWordSelect && cleaned.length >= 3 && cleaned.length <= 60);
         const mid = Math.ceil(word.length / 2);
         const bold = word.slice(0, mid);
         const rest = word.slice(mid);
-        return <span key={i} className="inline-block mr-1"><span className="font-black text-[var(--fg)]">{bold}</span><span className="opacity-70">{rest}</span></span>;
+        if (canSelect && onWordSelect) {
+          return (
+            <span
+              key={i}
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                onWordSelect(cleaned);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onWordSelect(cleaned);
+                }
+              }}
+              title={`Tap to inspect “${cleaned}” in Prism Lens`}
+              className="inline-block mr-1 rounded-md px-0.5 -mx-0.5 cursor-pointer transition-colors hover:bg-blue-500/15 active:bg-blue-500/25 focus-visible:ring-2 focus-visible:ring-blue-400"
+            >
+              <span className="font-black text-[var(--fg)]">{bold}</span>
+              <span className="opacity-70">{rest}</span>
+            </span>
+          );
+        }
+        return (
+          <span key={i} className="inline-block mr-1">
+            <span className="font-black text-[var(--fg)]">{bold}</span>
+            <span className="opacity-70">{rest}</span>
+          </span>
+        );
       })}
     </>
   );
