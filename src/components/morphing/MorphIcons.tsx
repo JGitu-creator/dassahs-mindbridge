@@ -1,23 +1,45 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-type IconProps = { className?: string; size?: number; morphing?: boolean };
+type IconProps = { className?: string; size?: number; morphing?: boolean; stage?: 'fish' | 'prism' | 'crown' };
 
-// Category A: Draw & Refract (Fish)
-export const MorphFish = ({ className = "", size = 24, morphing = false }: IconProps) => (
-  <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-    <motion.path
-      d="M2 12c4-8 14-8 19 0l3 3M2 12c4 8 14 8 19 0l3-3"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      animate={{ pathLength: morphing ? [0, 1] : 1, opacity: morphing ? [0, 1] : 1 }}
-      whileHover={{ filter: "drop-shadow(0 0 8px currentColor)" }}
-      transition={{ duration: 1, ease: "easeInOut" }}
-    />
-  </motion.svg>
-);
+const FISH_PATH = "M2 12c4-8 14-8 19 0l3 3M2 12c4 8 14 8 19 0l3-3";
+const PRISM_PATH = "M12 3L3 20h18L12 3zM12 3v17";
+const CROWN_PATH = "M3 18h18l-2-10-5 4-2-6-2 6-5-4-2 10z";
+
+// Category A: Draw & Refract (Fish -> Prism -> Crown)
+export const MorphFish = ({ className = "", size = 24, morphing = false, stage = 'fish' }: IconProps) => {
+  const pathD = stage === 'prism' ? PRISM_PATH : stage === 'crown' ? CROWN_PATH : FISH_PATH;
+  return (
+    <motion.svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      whileHover={{
+        scale: 1.18,
+        rotate: -6,
+        filter: "drop-shadow(0 0 10px currentColor)",
+      }}
+      transition={{ duration: 0.75, ease: "easeInOut" }}
+    >
+      <motion.path
+        d={pathD}
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        animate={{
+          d: pathD,
+          pathLength: morphing ? [0.2, 1] : 1,
+          opacity: morphing ? [0.65, 1] : 1,
+        }}
+        transition={{ duration: 0.65, ease: "easeInOut" }}
+      />
+    </motion.svg>
+  );
+};
 
 // Category B: Primitive to Complex (Brain)
 export const MorphBrain = ({ className = "", size = 24, morphing = false }: IconProps) => (

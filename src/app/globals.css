@@ -25,7 +25,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans), 'Inter', sans-serif;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -33,6 +33,14 @@ body {
   color: var(--color-text);
   line-height: 1.5;
   transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1), color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+h1, h2, h3, .prism-brand {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+}
+
+.tabular-nums, .font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
 }
 
 /* Sensory profiles are presentation presets, not hidden data transformations. */
@@ -81,11 +89,13 @@ body {
 
 /* ADHD-friendly reading surfaces: one comfortable step larger with more breathing room. */
 .prism-input {
+  font-family: var(--font-reading), var(--font-sans), sans-serif;
   font-size: clamp(1.125rem, 1.5vw, 1.35rem) !important;
   line-height: 1.7 !important;
 }
 
 .prism-content {
+  font-family: var(--font-reading), var(--font-sans), sans-serif;
   font-size: clamp(1.5rem, 2.4vw, 2rem) !important;
   line-height: 1.7 !important;
 }
@@ -98,13 +108,48 @@ body {
   color: #f8fafc !important;
 }
 
+@keyframes prism-refract {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.prism-text {
+  background-color: transparent !important;
+  background-image: linear-gradient(110deg, var(--prism-1) 0%, var(--prism-2) 25%, #ffffff 50%, var(--prism-2) 75%, var(--prism-3) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  animation: prism-refract 4s linear infinite;
+  display: inline-block;
+  padding-right: 0.3em;
+}
+
 /* White in an animated gradient is attractive in dark mode but washes out on light. */
 .light .prism-text {
+  background-color: transparent !important;
   background-image: linear-gradient(110deg, #312e81 0%, #6d28d9 28%, #1d4ed8 52%, #7e22ce 76%, #92400e 100%);
   background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+@keyframes footer-shimmer-sweep {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.footer-prism-shimmer {
+  background-color: transparent !important;
+  background-image: linear-gradient(110deg, var(--fg) 0%, #3b82f6 25%, #a855f7 50%, #f59e0b 75%, var(--fg) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: footer-shimmer-sweep 1.8s ease-in-out forwards;
 }
 
 .light .theme-selector-label {

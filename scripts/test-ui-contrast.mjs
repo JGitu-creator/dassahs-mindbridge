@@ -97,3 +97,33 @@ test('PRISM_SHADOW_MODE remains false in .env.example', async () => {
   const envExample = await readFile(envExamplePath, 'utf8');
   assert.match(envExample, /^PRISM_SHADOW_MODE=false$/m, 'PRISM_SHADOW_MODE must remain false in .env.example');
 });
+
+test('.light .prism-text preserves background-clip: text and emojis are outside .prism-text spans', async () => {
+  const globals = await readFile(globalsPath, 'utf8');
+  const page = await readFile(pagePath, 'utf8');
+
+  assert.match(
+    globals,
+    /\.light\s+\.prism-text\s*\{[\s\S]*?background-clip:\s*text/m,
+    '.light .prism-text must explicitly retain background-clip: text'
+  );
+  assert.doesNotMatch(
+    page,
+    /<span className="prism-text">[^<]*(🧠|✨|🌟)[^<]*<\/span>/,
+    'Emojis must be placed outside .prism-text spans to prevent solid color block rendering'
+  );
+});
+
+test('BionicText supports mobile tap-to-Lens via onWordSelect and LivingIchthysFooter makes zero network calls', async () => {
+  const bionicPath = new URL('../src/components/prism/BionicText.tsx', import.meta.url);
+  const livingFooterPath = new URL('../src/components/prism/LivingIchthysFooter.tsx', import.meta.url);
+  const bionic = await readFile(bionicPath, 'utf8');
+  const livingFooter = await readFile(livingFooterPath, 'utf8');
+
+  assert.match(bionic, /onWordSelect\?/, 'BionicText must accept optional onWordSelect callback for mobile Prism Lens');
+  assert.doesNotMatch(
+    livingFooter,
+    /\bfetch\s*\(|GEMINI_API_KEY|OPENROUTER_API_KEY/,
+    'LivingIchthysFooter must be a pure client-side interaction with zero network or API calls'
+  );
+});
