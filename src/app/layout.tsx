@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Lexend, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import SessionSync from "@/components/SessionSync";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display" });
@@ -54,6 +55,7 @@ export default function RootLayout({
       <body className={`${inter.className} h-full`}>
         <SessionSync />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );

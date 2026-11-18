@@ -16,6 +16,7 @@
     "@google/generative-ai": "^0.24.1",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "@supabase/supabase-js": "^2.45.0",
+    "@vercel/speed-insights": "^2.1.0",
     "framer-motion": "^11.11.0",
     "howler": "^2.2.4",
     "lucide-react": "^0.454.0",
