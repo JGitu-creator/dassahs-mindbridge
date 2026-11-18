@@ -14,26 +14,25 @@ export async function POST(req: Request) {
     }
 
     const { feedback, userId } = await req.json();
-
-    console.log('--- NEW FEEDBACK RECEIVED ---');
-    console.log('User ID:', userId);
-    console.log('Feedback:', feedback);
-    console.log('-----------------------------');
+    if (typeof feedback !== 'string' || !feedback.trim()) {
+      return NextResponse.json({ error: 'Feedback text is required.' }, { status: 400 });
+    }
+    const content = feedback.trim().slice(0, 5000);
 
     // Save to Supabase 'feedback_vault' table
     // We only use 'content' and 'user_id' as they are confirmed/likely safe
     const { error } = await supabase
       .from('feedback_vault')
       .insert([
-        { 
+        {
           user_id: userId || null, 
-          content: feedback
+          content,
+          type: 'feedback'
         }
       ]);
 
     if (error) {
-      console.warn('Supabase Insert Warning:', error.message);
-      // We don't fail the whole request because logging to console worked
+      console.warn('Supabase feedback insert warning:', error.message);
     }
 
     return NextResponse.json({ success: true });
