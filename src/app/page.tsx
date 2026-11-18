@@ -1897,10 +1897,9 @@ export default function Home() {
       animation: prism-refract-light 14s ease-in-out infinite;
     }
     @keyframes prism-refract-light {
-      0% { background-position: -220% center; opacity: 0.58; }
-      25% { background-position: -40% center; opacity: 1; }
-      60% { background-position: 70% center; opacity: 1; }
-      84%, 100% { background-image: none; background-position: 100% center; -webkit-text-fill-color: #312e81; opacity: 1; }
+      0% { background-position: 0% center; }
+      50% { background-position: 100% center; }
+      100% { background-position: 0% center; }
     }
     .refractive-border {
       background: var(--color-shadow); border: 2px solid transparent; background-clip: padding-box; position: relative;
@@ -2955,7 +2954,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.96 }}
-            className="fixed bottom-24 left-4 right-4 sm:left-auto sm:right-6 sm:w-[360px] z-[180] apple-glass border-2 border-blue-500/30 rounded-3xl p-5 shadow-2xl"
+            className="fixed bottom-40 left-4 right-4 sm:bottom-24 sm:left-6 sm:right-auto sm:w-[360px] z-[180] apple-glass border-2 border-blue-500/30 rounded-3xl p-5 shadow-2xl"
             aria-label="Prism Lens word help"
           >
             <div className="flex items-start justify-between gap-4">
