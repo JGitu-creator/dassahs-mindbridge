@@ -133,7 +133,7 @@ export const NEURAL_PRESETS: Record<Exclude<NeuralPresetId, 'custom'>, {
   },
   adhd_energy: {
     label: 'ADHD High-Energy',
-    tagline: 'All A–H superpowers ON: 1.5x voice, Beat-the-Clock, Boss Fight, RSVP, 40Hz, Kinetic Glow, High-Score Streak & Voice Mic.',
+    tagline: 'Full lock-in mode: 1.5x voice, Beat-the-Clock, Boss Fight, RSVP, 40Hz Pulse, Kinetic Background, High-Score Streak & Voice Mic.',
     recommendedTextSize: 'comfortable',
     recommendedBionic: true,
     recommendedEasyRead: false,
@@ -262,20 +262,20 @@ export function analyzeBrainCheckIn(
   let summary = 'A calm, uncluttered setup with steady focus support and zero pressure.';
 
   if (energy === 'energized' && motivation === 'challenge') {
-    personaName = 'High-Voltage INCUP Lock-In';
-    summary = 'Your brain thrives on novelty, speed, and game stakes — we recommend fast voice (A), Beat-the-Clock (B), Boss Fight (C), RSVP (D), 40Hz Pulse (E), Kinetic Glow (F), High-Score Streak (G), and Voice Recap (H).';
+    personaName = 'High-Voltage Lock-In';
+    summary = 'Your brain thrives on novelty, speed, and game stakes — we pre-selected fast read-aloud, Beat-the-Clock sprints, Boss Fights, RSVP Flash, 40Hz Pulse, Kinetic Living Background, High-Score Streaks, and Voice Recap.';
   } else if (energy === 'silence' && motivation === 'gentle') {
     personaName = 'Quiet Sanctuary Reader';
-    summary = 'Maximum calm with zero visual overload or timer pressure. All A–H power tools start OFF unless you hand-pick one below.';
+    summary = 'Maximum calm with zero visual overload or timer pressure. Extra power tools start OFF unless you hand-pick any below.';
   } else if (eyes === 'big') {
     personaName = 'Comfort-First Clarity';
-    summary = 'Big spacious typography, Prism Lens word help, and gentle pacing — with optional Voice Recap (H) if speaking helps you retain ideas.';
+    summary = 'Big spacious typography, Prism Lens word help, and gentle pacing — with optional Voice Recap if speaking helps you lock in ideas.';
   } else if (motivation === 'challenge') {
     personaName = 'Game-Driven Challenger';
-    summary = 'Urgency and game mechanics wake your focus up — we recommend Beat-the-Clock (B), Boss Fight (C), and High-Score Streak (G).';
+    summary = 'Urgency and game mechanics wake your focus up — we pre-selected Beat-the-Clock sprints, Boss Fights, and High-Score Streaks.';
   } else if (energy === 'energized') {
     personaName = 'Sensory Trance Seeker';
-    summary = 'Your brain locks in with movement and rhythm — we recommend Fast Read-Aloud (A), RSVP Flash (D), 40Hz Pulse (E), and Kinetic Glow (F).';
+    summary = 'Your brain locks in with movement and rhythm — we pre-selected fast read-aloud, RSVP Flash, 40Hz Pulse, and Kinetic Living Background.';
   }
 
   return {

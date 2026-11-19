@@ -11,9 +11,11 @@ import {
   Brain,
   CheckCircle2,
   Compass,
+  Crown,
   Eye,
   FastForward,
   Flame,
+  Headphones,
   HeartHandshake,
   KeyRound,
   Layers,
@@ -298,10 +300,13 @@ export default function CanvasPrismPlayPage() {
   const chimesRef = useRef(chimesOn);
   chimesRef.current = chimesOn;
 
-  // Modals & Drawers
+  // Modals, Command Center & Bottom Studio Docks
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [connectTab, setConnectTab] = useState<'canvas' | 'paste'>('canvas');
   const [showQuestDrawer, setShowQuestDrawer] = useState(false);
+  const [showCommandModal, setShowCommandModal] = useState(false);
+  const [soundStudioOpen, setSoundStudioOpen] = useState(false);
+  const [focusStudioOpen, setFocusStudioOpen] = useState(false);
 
   // Private Canvas Connection (sessionStorage only — NEVER pre-filled with personal course URL!)
   const [courseUrl, setCourseUrl] = useState('');
@@ -834,7 +839,7 @@ export default function CanvasPrismPlayPage() {
     const onKeyDown = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-      if (showConnectModal || showQuestDrawer || showCheckIn || showIdentityDrawer || showBrainDump || showBreak || showStageClear) {
+      if (showConnectModal || showQuestDrawer || showCommandModal || showCheckIn || showIdentityDrawer || showBrainDump || showBreak || showStageClear) {
         return;
       }
       if (e.key === 'ArrowRight') {
@@ -853,7 +858,7 @@ export default function CanvasPrismPlayPage() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [profile.keyboardFlow, showConnectModal, showQuestDrawer, showCheckIn, showIdentityDrawer, showBrainDump, showBreak, showStageClear]);
+  }, [profile.keyboardFlow, showConnectModal, showQuestDrawer, showCommandModal, showCheckIn, showIdentityDrawer, showBrainDump, showBreak, showStageClear]);
 
   const surfaceBg = darkMode ? theme.darkBg : theme.lightBg;
   const glassCard = darkMode ? theme.darkCard : theme.lightCard;
@@ -870,19 +875,55 @@ export default function CanvasPrismPlayPage() {
         <PrismWeaver completedPulse={winPulseCount} focusMode="dastastic" />
       )}
 
-      {/* Soft ambient background glow (+ optional Kinetic Glow Tool F) */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+      {/* Ambient Background + Truly Visible Kinetic Living Background */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
         {profile.kineticMotion && !profile.reducedMotion ? (
           <>
+            {/* Luminous sweeping prism orbs along peripheral edges */}
             <motion.div
-              animate={{ x: [0, 60, -40, 0], y: [0, 45, -25, 0], scale: [1, 1.12, 0.96, 1] }}
-              transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-              className={`absolute -top-32 left-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? theme.darkGlowA : theme.lightGlowA}`}
+              animate={{ x: [0, 150, -90, 0], y: [0, 130, -60, 0], scale: [1, 1.22, 0.9, 1] }}
+              transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -top-16 -left-16 h-[26rem] w-[26rem] rounded-full blur-2xl"
+              style={{
+                background: darkMode
+                  ? `radial-gradient(circle, ${theme.swatch}70 0%, transparent 70%)`
+                  : `radial-gradient(circle, ${theme.swatch}48 0%, transparent 70%)`,
+              }}
             />
             <motion.div
-              animate={{ x: [0, -65, 45, 0], y: [0, -40, 30, 0], scale: [1, 0.94, 1.1, 1] }}
-              transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-              className={`absolute bottom-0 right-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? theme.darkGlowB : theme.lightGlowB}`}
+              animate={{ x: [0, -160, 100, 0], y: [0, -120, 90, 0], scale: [1, 0.9, 1.24, 1] }}
+              transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute bottom-4 -right-16 h-[28rem] w-[28rem] rounded-full blur-2xl"
+              style={{
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(34,211,238,0.42) 0%, transparent 70%)'
+                  : 'radial-gradient(circle, rgba(14,165,233,0.34) 0%, transparent 70%)',
+              }}
+            />
+            <motion.div
+              animate={{ x: [-80, 120, -80], y: [40, -90, 40], scale: [0.95, 1.15, 0.95] }}
+              transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute top-1/3 left-1/2 -translate-x-1/2 h-[22rem] w-[22rem] rounded-full blur-3xl"
+              style={{
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(168,85,247,0.32) 0%, transparent 70%)'
+                  : 'radial-gradient(circle, rgba(245,158,11,0.28) 0%, transparent 70%)',
+              }}
+            />
+            {/* Crisp floating frosted prism rings in peripheral margins */}
+            <motion.div
+              animate={{ y: [0, -45, 0], rotate: [0, 180, 360] }}
+              transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
+              className={`hidden md:block absolute top-28 left-10 h-36 w-36 rounded-[2.5rem] border-2 ${
+                darkMode ? 'border-blue-400/35 bg-blue-500/10' : 'border-blue-500/30 bg-blue-400/10'
+              }`}
+            />
+            <motion.div
+              animate={{ y: [0, 50, 0], rotate: [360, 180, 0] }}
+              transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
+              className={`hidden md:block absolute bottom-28 right-10 h-44 w-44 rounded-full border-2 ${
+                darkMode ? 'border-cyan-400/35 bg-cyan-500/10' : 'border-emerald-500/30 bg-emerald-400/10'
+              }`}
             />
           </>
         ) : (
@@ -893,100 +934,81 @@ export default function CanvasPrismPlayPage() {
         )}
       </div>
 
-      <div className="relative z-10 mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8 space-y-5">
-        {/* Calm Header */}
-        <header className="flex flex-wrap items-center justify-between gap-3">
+      {/* Full-Width Spacious Top Navigation Bar (mirroring main Dassah's Prism) */}
+      <header className="relative z-20 w-full border-b border-black/5 dark:border-white/5 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-8">
+          {/* Left: Brand & Home */}
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-2 text-xs font-bold transition-colors ${subtlePill} hover:border-blue-500/50`}
+              className={`inline-flex items-center gap-1.5 rounded-2xl border px-3.5 py-2 text-xs font-bold transition-colors ${subtlePill} hover:border-blue-500/50`}
             >
               <ArrowLeft size={14} /> Prism Home
             </Link>
             <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white ${theme.accentBg}`}>
+              <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wider text-white ${theme.accentBg}`}>
                 <Sparkles size={11} /> Prism Play
               </span>
-              <span className={`text-xs font-semibold ${mutedText}`}>Canvas Quest</span>
+              <span className={`hidden sm:inline text-xs font-semibold ${mutedText}`}>Canvas Quest</span>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Shame-Free Days Shown Up vs Competitive High-Score Streak (Tool G) */}
-            <div
-              className={`inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-bold ${subtlePill}`}
-              title={profile.shameFreeStreak ? `${daysShownUp} total days shown up (shame-free)` : `Competitive Streak: ${streakDays}d · Personal Best: ${bestStreak}d`}
+          {/* Center: Calm Progress Pill */}
+          <div
+            className={`inline-flex items-center gap-2.5 rounded-full border px-4 py-1.5 text-xs font-bold ${subtlePill}`}
+            title={profile.shameFreeStreak ? `${daysShownUp} total days shown up (shame-free)` : `Competitive Streak: ${streakDays}d · Personal Best: ${bestStreak}d`}
+          >
+            <Flame size={14} className="text-amber-500" />
+            <span>{winsToday} {winsToday === 1 ? 'win' : 'wins'}</span>
+            <span className="opacity-35">·</span>
+            <span className="text-emerald-600 dark:text-emerald-400">{xp} XP</span>
+            <span className="opacity-35">·</span>
+            {profile.shameFreeStreak ? (
+              <span>{daysShownUp}d shown up</span>
+            ) : (
+              <span>{streakDays}d (Best {bestStreak}d)</span>
+            )}
+          </div>
+
+          {/* Right: Separated Spatial Controls (Neural Command · Neural Identity · Theme) */}
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => setShowCommandModal(true)}
+              className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-xs font-black transition-all hover:border-blue-500/50 ${subtlePill}`}
             >
-              <Flame size={14} className="text-amber-500" />
-              <span>{winsToday} {winsToday === 1 ? 'win' : 'wins'}</span>
-              <span className="opacity-40">·</span>
-              <span className="text-emerald-600 dark:text-emerald-400">{xp} XP</span>
-              <span className="opacity-40">·</span>
-              {profile.shameFreeStreak ? (
-                <span>{daysShownUp}d shown up</span>
-              ) : (
-                <span>{streakDays}d (Best {bestStreak}d)</span>
-              )}
-            </div>
+              <Compass size={15} className={theme.accentText} />
+              <span>Neural Command</span>
+              {isCanvasConnected && <span className="h-2 w-2 rounded-full bg-emerald-500" title="Canvas Connected" />}
+            </button>
 
             <button
               onClick={() => setShowIdentityDrawer(true)}
-              className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-colors ${subtlePill} hover:border-blue-500/50`}
+              className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-xs font-black transition-all hover:border-amber-400/60 ${subtlePill}`}
             >
-              <Sliders size={14} className={theme.accentText} /> Neural Identity
-            </button>
-
-            {profile.showBrainDump && (
-              <button
-                onClick={() => setShowBrainDump(true)}
-                className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-colors ${subtlePill} hover:border-amber-500/50`}
-              >
-                <StickyNote size={14} className="text-amber-500" /> Brain Dump
-              </button>
-            )}
-
-            <button
-              onClick={() => setChimesOn((c) => !c)}
-              aria-pressed={chimesOn}
-              aria-label={chimesOn ? 'Mute win chimes' : 'Enable win chimes'}
-              title={chimesOn ? 'Win chimes On' : 'Win chimes Off'}
-              className={`inline-flex items-center gap-1 rounded-2xl border px-2.5 py-1.5 text-xs font-bold transition-colors ${subtlePill}`}
-            >
-              {chimesOn ? <Volume2 size={14} className="text-emerald-500" /> : <VolumeX size={14} />}
-              <span className="hidden sm:inline">{chimesOn ? 'Chimes' : 'Muted'}</span>
-            </button>
-
-            <button
-              onClick={() => setShowQuestDrawer(true)}
-              className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-colors ${subtlePill} hover:border-blue-500/50`}
-            >
-              <Compass size={14} className={theme.accentText} /> Switch Quest
-            </button>
-
-            <button
-              onClick={() => setShowConnectModal(true)}
-              className={`inline-flex items-center gap-1.5 rounded-2xl px-3.5 py-1.5 text-xs font-bold text-white shadow-md transition-all active:scale-95 ${theme.accentBg}`}
-            >
-              <KeyRound size={13} /> {isCanvasConnected ? 'Canvas Connected' : 'Connect Canvas'}
+              <Crown size={15} className="text-amber-400" />
+              <span>Neural Identity</span>
             </button>
 
             <button
               onClick={() => setDarkMode((d) => !d)}
               aria-label={darkMode ? 'Switch to Soft Paper Light Mode' : 'Switch to Dark Mode'}
               title={darkMode ? 'Switch to Soft Paper Light Mode' : 'Switch to Dark Mode'}
-              className={`rounded-2xl border p-2 transition-colors ${subtlePill}`}
+              className={`rounded-2xl border p-2.5 transition-colors ${subtlePill}`}
             >
               {darkMode ? <Sun size={15} /> : <Moon size={15} />}
             </button>
           </div>
-        </header>
+        </div>
+      </header>
 
+      {/* Spacious, Uncluttered Center Reading Stage */}
+      <div className="relative z-10 mx-auto max-w-3xl px-4 pt-6 pb-36 sm:px-6 sm:pt-10 space-y-6">
         {/* Low-Battery Mode Banner ("Just 1 Card Today") */}
         {profile.lowBatteryMode && (
-          <div className={`flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-2.5 text-xs font-bold ${subtlePill}`}>
+          <div className={`flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-3 text-xs font-bold ${subtlePill}`}>
             <span className="inline-flex items-center gap-2">
               <BatteryLow size={15} className="text-emerald-500" />
-              Low-Battery Mode: Just this 1 calm card today. Extra bars are tucked away.
+              Low-Battery Mode: Just this 1 calm card today. Extra docks are tucked away.
             </span>
             <button
               onClick={() => setProfile((p) => ({ ...p, preset: 'custom', lowBatteryMode: false }))}
@@ -999,7 +1021,7 @@ export default function CanvasPrismPlayPage() {
 
         {/* Cross-Session Resume Banner */}
         {resumedBanner && !profile.lowBatteryMode && (
-          <div className={`flex items-center justify-between gap-2 rounded-2xl border px-4 py-2 text-xs font-semibold ${subtlePill}`}>
+          <div className={`flex items-center justify-between gap-2 rounded-2xl border px-4 py-2.5 text-xs font-semibold ${subtlePill}`}>
             <span className="flex items-center gap-2">
               <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
               {resumedBanner}
@@ -1010,225 +1032,71 @@ export default function CanvasPrismPlayPage() {
           </div>
         )}
 
-        {/* Privacy & Unlimited Bar */}
+        {/* Single Slim Reading Comfort Strip (the ONLY control bar above the card!) */}
         {!profile.lowBatteryMode && (
-          <div className={`flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-2.5 text-xs ${subtlePill}`}>
+          <section
+            aria-label="Reading comfort controls"
+            className={`flex flex-wrap items-center justify-between gap-3 rounded-3xl border px-4 py-3 backdrop-blur-2xl ${glassCard}`}
+          >
+            {/* Text Size */}
             <div className="flex items-center gap-2">
-              <Lock size={14} className="text-emerald-500 shrink-0" />
-              <span>
-                <strong>Private to your browser:</strong> Your Canvas link, token, and notes stay on your device — nobody else can see them.
-              </span>
-            </div>
-            <button
-              onClick={() => setLocalOnlyMode((m) => !m)}
-              className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
-                localOnlyMode
-                  ? 'bg-emerald-600 text-white'
-                  : darkMode ? 'bg-white/10 text-slate-200 hover:bg-white/15' : 'bg-[#dfd7c7] text-[#1e293b] hover:bg-[#d3cab7]'
-              }`}
-            >
-              {localOnlyMode ? 'Unlimited Local Prism: ON' : 'Unlimited Fallback: Ready'}
-            </button>
-          </div>
-        )}
-
-        {/* Sensory Soundscape Bar (Brown / Pink / Rain / 40Hz Pulse Tool E + Optional Spotify/YouTube Pin) */}
-        {profile.showSensoryBar && !profile.lowBatteryMode && (
-          <SensorySoundscapeBar
-            darkMode={darkMode}
-            showSoundtrackPin={profile.showSoundtrackPin}
-            showGamma40={profile.showGamma40}
-            glassCard={glassCard}
-            subtlePill={subtlePill}
-            mutedText={mutedText}
-          />
-        )}
-
-        {/* Reading Comfort + Visual Color Themes Bar */}
-        {!profile.lowBatteryMode && (
-          <section
-            aria-label="Reading comfort and visual themes"
-            className={`space-y-3 rounded-3xl border p-3.5 sm:p-4 backdrop-blur-2xl ${glassCard}`}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              {/* Prominent Small / Comfortable / Big */}
-              <div className="flex items-center gap-2">
-                <span className={`text-xs font-bold ${mutedText}`}>Text size:</span>
-                <div
-                  className={`inline-flex rounded-2xl border p-1 ${darkMode ? 'border-white/10 bg-black/30' : 'border-[#d6ccb9] bg-[#ebe4d7]'}`}
-                  role="group"
-                  aria-label="Text size"
-                >
-                  {(['small', 'comfortable', 'big'] as TextSize[]).map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setTextSize(size)}
-                      aria-pressed={textSize === size}
-                      className={`rounded-xl px-3 py-1.5 text-xs font-bold capitalize transition-all ${
-                        textSize === size
-                          ? `${theme.accentBg} text-white shadow-sm`
-                          : `${mutedText} hover:opacity-100`
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={() => setBionicOn((b) => !b)}
-                  aria-pressed={bionicOn}
-                  className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
-                    bionicOn
-                      ? `border-transparent text-white ${theme.accentBg}`
-                      : `${subtlePill} hover:border-blue-500/40`
-                  }`}
-                >
-                  <Eye size={13} /> Bionic {bionicOn ? 'On' : 'Off'}
-                </button>
-
-                <button
-                  onClick={() => setDyslexiaFriendly((d) => !d)}
-                  aria-pressed={dyslexiaFriendly}
-                  className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
-                    dyslexiaFriendly
-                      ? 'border-emerald-500 bg-emerald-600 text-white'
-                      : `${subtlePill} hover:border-emerald-500/40`
-                  }`}
-                >
-                  <BookOpen size={13} /> Easy-Read Font
-                </button>
-
-                {currentCard && (
-                  <ReadAloud
-                    text={`${currentCard.heading}. ${currentCard.text}`}
-                    darkMode={darkMode}
-                    defaultSpeed={profile.preferredReadSpeed}
-                  />
-                )}
+              <span className={`text-xs font-bold ${mutedText}`}>Size:</span>
+              <div
+                className={`inline-flex rounded-2xl border p-1 ${darkMode ? 'border-white/10 bg-black/30' : 'border-[#d6ccb9] bg-[#ebe4d7]'}`}
+                role="group"
+                aria-label="Text size"
+              >
+                {(['small', 'comfortable', 'big'] as TextSize[]).map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setTextSize(size)}
+                    aria-pressed={textSize === size}
+                    className={`rounded-xl px-3 py-1 text-xs font-bold capitalize transition-all ${
+                      textSize === size
+                        ? `${theme.accentBg} text-white shadow-sm`
+                        : `${mutedText} hover:opacity-100`
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* 5 Visual Color Themes Swatch Row */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-black/10 dark:border-white/10">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${mutedText}`}>
-                  <Palette size={13} /> Vibe:
-                </span>
-                {(Object.values(COLOR_THEMES) as ColorTheme[]).map((t) => {
-                  const active = t.id === colorTheme;
-                  return (
-                    <button
-                      key={t.id}
-                      onClick={() => setColorTheme(t.id)}
-                      aria-pressed={active}
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold transition-all ${
-                        active
-                          ? darkMode
-                            ? 'border-white/40 bg-white/15 text-white'
-                            : 'border-slate-700/40 bg-[#e2dacb] text-slate-900'
-                          : `${subtlePill} opacity-80 hover:opacity-100`
-                      }`}
-                    >
-                      <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: t.swatch }} />
-                      {t.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-        )}
+            {/* Bionic · Easy-Read · Read Aloud */}
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setBionicOn((b) => !b)}
+                aria-pressed={bionicOn}
+                className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                  bionicOn
+                    ? `border-transparent text-white ${theme.accentBg}`
+                    : `${subtlePill} hover:border-blue-500/40`
+                }`}
+              >
+                <Eye size={13} /> Bionic
+              </button>
 
-        {/* Gentle Focus Timer / Body-Doubling Companion + Beat-the-Clock Challenge Mode (Tool B) */}
-        {profile.showBodyDoubling && !profile.lowBatteryMode && (
-          <section
-            aria-label="Gentle body-doubling focus companion"
-            className={`rounded-3xl border px-4 py-3 backdrop-blur-2xl ${glassCard} space-y-2.5`}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2.5 text-xs">
-                <span className="relative flex h-2.5 w-2.5 shrink-0">
-                  {sprintRunning && !profile.reducedMotion && (
-                    <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${challengeSprintActive ? 'bg-amber-400' : 'bg-emerald-400'}`} />
-                  )}
-                  <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${sprintRunning ? (challengeSprintActive ? 'bg-amber-500' : 'bg-emerald-500') : 'bg-blue-500/70'}`} />
-                </span>
-                {challengeSprintActive ? (
-                  <Timer size={14} className="text-amber-500" />
-                ) : (
-                  <HeartHandshake size={14} className={theme.accentText} />
-                )}
-                <span className="font-semibold">{bodyDoubleMessage}</span>
-              </div>
+              <button
+                onClick={() => setDyslexiaFriendly((d) => !d)}
+                aria-pressed={dyslexiaFriendly}
+                className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                  dyslexiaFriendly
+                    ? 'border-emerald-500 bg-emerald-600 text-white'
+                    : `${subtlePill} hover:border-emerald-500/40`
+                }`}
+              >
+                <BookOpen size={13} /> Easy-Read
+              </button>
 
-              <div className="flex flex-wrap items-center gap-1.5">
-                {sprintTotalSecs === 0 ? (
-                  <>
-                    {profile.challengeMode && (
-                      <button
-                        onClick={() => startSprint(4, true)}
-                        className="inline-flex items-center gap-1 rounded-xl bg-amber-500 px-3 py-1 text-xs font-black text-slate-950 hover:bg-amber-400"
-                      >
-                        <Timer size={12} /> 4m Beat-the-Clock (3 cards!)
-                      </button>
-                    )}
-                    {[5, 10, 15].map((mins) => (
-                      <button
-                        key={mins}
-                        onClick={() => startSprint(mins, false)}
-                        className={`rounded-xl border px-2.5 py-1 text-xs font-bold transition-colors ${subtlePill} hover:border-emerald-500/50`}
-                      >
-                        {mins}m sprint
-                      </button>
-                    ))}
-                  </>
-                ) : (
-                  <>
-                    <span className={`rounded-xl border px-2.5 py-1 font-mono text-xs font-black tabular-nums ${subtlePill}`}>
-                      {formatTimer(sprintSecsLeft)}
-                    </span>
-                    {sprintSecsLeft > 0 ? (
-                      <button
-                        onClick={() => setSprintRunning((r) => !r)}
-                        className={`inline-flex items-center gap-1 rounded-xl border px-2.5 py-1 text-xs font-bold ${subtlePill}`}
-                      >
-                        {sprintRunning ? <Pause size={12} /> : <Play size={12} />}
-                        {sprintRunning ? 'Pause' : 'Resume'}
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setSprintFinishedNote(false);
-                          setShowBreak(true);
-                        }}
-                        className="rounded-xl bg-emerald-600 px-3 py-1 text-xs font-bold text-white hover:bg-emerald-500"
-                      >
-                        Take 20s Break
-                      </button>
-                    )}
-                    <button
-                      onClick={resetSprint}
-                      aria-label="Reset focus sprint"
-                      className={`rounded-xl border p-1.5 ${subtlePill}`}
-                    >
-                      <RotateCcw size={12} />
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {sprintTotalSecs > 0 && (
-              <div className={`h-1.5 w-full overflow-hidden rounded-full ${darkMode ? 'bg-white/10' : 'bg-black/10'}`}>
-                <div
-                  className={`h-full rounded-full transition-all duration-1000 ${challengeSprintActive ? 'bg-amber-500' : 'bg-emerald-500'}`}
-                  style={{ width: `${Math.min(100, ((sprintTotalSecs - sprintSecsLeft) / sprintTotalSecs) * 100)}%` }}
+              {currentCard && (
+                <ReadAloud
+                  text={`${currentCard.heading}. ${currentCard.text}`}
+                  darkMode={darkMode}
+                  defaultSpeed={profile.preferredReadSpeed}
                 />
-              </div>
-            )}
+              )}
+            </div>
           </section>
         )}
 
@@ -1852,6 +1720,344 @@ export default function CanvasPrismPlayPage() {
             darkMode={darkMode}
             onClose={() => setLensWord(null)}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Dedicated Bottom Floating Studio Dock (gives Soundscape, Focus Companion, Brain Dump & Quests their own spacious home) */}
+      {!profile.lowBatteryMode && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[260] w-[calc(100%-1.5rem)] max-w-2xl flex flex-col items-center gap-3 pointer-events-none">
+          {/* Soundscape Studio Popover (kept mounted so audio/Spotify keeps playing when collapsed!) */}
+          {profile.showSensoryBar && (
+            <div className={`w-full pointer-events-auto ${soundStudioOpen ? 'block' : 'hidden'}`}>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setSoundStudioOpen(false)}
+                  aria-label="Hide Soundscape Studio"
+                  className={`absolute right-3 top-3 z-10 rounded-xl border p-1.5 ${subtlePill}`}
+                >
+                  <X size={14} />
+                </button>
+                <SensorySoundscapeBar
+                  darkMode={darkMode}
+                  showSoundtrackPin={profile.showSoundtrackPin}
+                  showGamma40={profile.showGamma40}
+                  glassCard={glassCard}
+                  subtlePill={subtlePill}
+                  mutedText={mutedText}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Focus Companion / Beat-the-Clock Popover */}
+          <AnimatePresence>
+            {profile.showBodyDoubling && focusStudioOpen && (
+              <motion.section
+                initial={{ opacity: 0, y: 12, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 12, scale: 0.97 }}
+                aria-label="Gentle body-doubling focus companion"
+                className={`w-full pointer-events-auto rounded-3xl border p-4 sm:p-5 backdrop-blur-2xl shadow-2xl ${glassCard} space-y-3`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5 text-xs">
+                    <span className="relative flex h-2.5 w-2.5 shrink-0">
+                      {sprintRunning && !profile.reducedMotion && (
+                        <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${challengeSprintActive ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+                      )}
+                      <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${sprintRunning ? (challengeSprintActive ? 'bg-amber-500' : 'bg-emerald-500') : 'bg-blue-500/70'}`} />
+                    </span>
+                    {challengeSprintActive ? (
+                      <Timer size={15} className="text-amber-500 shrink-0" />
+                    ) : (
+                      <HeartHandshake size={15} className={`${theme.accentText} shrink-0`} />
+                    )}
+                    <span className="font-bold">{bodyDoubleMessage}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFocusStudioOpen(false)}
+                    aria-label="Hide Focus Companion"
+                    className={`rounded-xl border p-1.5 shrink-0 ${subtlePill}`}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {sprintTotalSecs === 0 ? (
+                    <>
+                      {profile.challengeMode && (
+                        <button
+                          onClick={() => startSprint(4, true)}
+                          className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2 text-xs font-black text-slate-950 hover:bg-amber-400"
+                        >
+                          <Timer size={13} /> 4m Beat-the-Clock (3 cards!)
+                        </button>
+                      )}
+                      {[5, 10, 15].map((mins) => (
+                        <button
+                          key={mins}
+                          onClick={() => startSprint(mins, false)}
+                          className={`rounded-xl border px-3 py-2 text-xs font-bold transition-colors ${subtlePill} hover:border-emerald-500/50`}
+                        >
+                          {mins}m sprint
+                        </button>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      <span className={`rounded-xl border px-3 py-1.5 font-mono text-xs font-black tabular-nums ${subtlePill}`}>
+                        {formatTimer(sprintSecsLeft)}
+                      </span>
+                      {sprintSecsLeft > 0 ? (
+                        <button
+                          onClick={() => setSprintRunning((r) => !r)}
+                          className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-bold ${subtlePill}`}
+                        >
+                          {sprintRunning ? <Pause size={12} /> : <Play size={12} />}
+                          {sprintRunning ? 'Pause' : 'Resume'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setSprintFinishedNote(false);
+                            setShowBreak(true);
+                          }}
+                          className="rounded-xl bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-emerald-500"
+                        >
+                          Take 20s Break
+                        </button>
+                      )}
+                      <button
+                        onClick={resetSprint}
+                        aria-label="Reset focus sprint"
+                        className={`rounded-xl border p-1.5 ${subtlePill}`}
+                      >
+                        <RotateCcw size={13} />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {sprintTotalSecs > 0 && (
+                  <div className={`h-1.5 w-full overflow-hidden rounded-full ${darkMode ? 'bg-white/10' : 'bg-black/10'}`}>
+                    <div
+                      className={`h-full rounded-full transition-all duration-1000 ${challengeSprintActive ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                      style={{ width: `${Math.min(100, ((sprintTotalSecs - sprintSecsLeft) / sprintTotalSecs) * 100)}%` }}
+                    />
+                  </div>
+                )}
+              </motion.section>
+            )}
+          </AnimatePresence>
+
+          {/* Compact Floating Studio Pill Bar */}
+          <nav
+            aria-label="Prism Play studio tools"
+            className={`pointer-events-auto inline-flex flex-wrap items-center justify-center gap-2 rounded-full border px-3 py-2 backdrop-blur-2xl shadow-2xl ${glassCard}`}
+          >
+            <button
+              type="button"
+              onClick={() => setShowQuestDrawer(true)}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all hover:border-blue-500/50 ${subtlePill}`}
+            >
+              <Layers size={14} className={theme.accentText} /> Quests
+            </button>
+
+            {profile.showSensoryBar && (
+              <button
+                type="button"
+                aria-pressed={soundStudioOpen}
+                onClick={() => {
+                  setFocusStudioOpen(false);
+                  setSoundStudioOpen((o) => !o);
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all ${
+                  soundStudioOpen ? `${theme.accentBg} border-transparent text-white` : `${subtlePill} hover:border-blue-500/50`
+                }`}
+              >
+                <Headphones size={14} /> Soundscape
+              </button>
+            )}
+
+            {profile.showBodyDoubling && (
+              <button
+                type="button"
+                aria-pressed={focusStudioOpen}
+                onClick={() => {
+                  setSoundStudioOpen(false);
+                  setFocusStudioOpen((o) => !o);
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all ${
+                  focusStudioOpen || sprintRunning
+                    ? 'border-emerald-500 bg-emerald-600 text-white'
+                    : `${subtlePill} hover:border-emerald-500/50`
+                }`}
+              >
+                <HeartHandshake size={14} />
+                {sprintTotalSecs > 0 && sprintSecsLeft > 0 ? formatTimer(sprintSecsLeft) : 'Focus Sprint'}
+              </button>
+            )}
+
+            {profile.showBrainDump && (
+              <button
+                type="button"
+                onClick={() => setShowBrainDump(true)}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all hover:border-amber-500/50 ${subtlePill}`}
+              >
+                <StickyNote size={14} className="text-amber-500" /> Brain Dump
+              </button>
+            )}
+          </nav>
+        </div>
+      )}
+
+      {/* Dedicated Neural Command Modal (mirroring main Dassah's Prism: Canvas Sync, Quests, Vibes, Chimes & Privacy) */}
+      <AnimatePresence>
+        {showCommandModal && (
+          <div className="fixed inset-0 z-[450] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 sm:p-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 12 }}
+              className={`w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2.25rem] border p-6 sm:p-10 space-y-7 shadow-2xl ${
+                darkMode ? 'border-white/15 bg-[#0b1224]/95 text-slate-100' : 'border-[#d6ccb9] bg-[#f8f4eb]/98 text-[#1e293b]'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-4 border-b border-black/10 dark:border-white/10 pb-5">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-black italic flex items-center gap-3">
+                    <Compass size={22} className="text-blue-500" /> Neural Command
+                  </h2>
+                  <p className={`text-xs sm:text-sm ${mutedText}`}>
+                    Manage your Canvas course, switch quests, pick your color vibe, and control privacy.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowCommandModal(false)}
+                  aria-label="Close Neural Command"
+                  className={`rounded-2xl border p-2.5 ${subtlePill}`}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Section 1: Canvas & Readings */}
+              <section className="space-y-3">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-500">Canvas &amp; Readings</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCommandModal(false);
+                      setShowConnectModal(true);
+                    }}
+                    className={`rounded-2xl border p-4 text-left transition-all hover:border-blue-500/60 ${subtlePill}`}
+                  >
+                    <p className="text-sm font-black flex items-center gap-2">
+                      <KeyRound size={15} className="text-blue-500" />
+                      {isCanvasConnected ? 'Canvas Connected' : 'Connect Canvas / Paste Notes'}
+                    </p>
+                    <p className={`mt-1 text-xs leading-relaxed ${mutedText}`}>
+                      Sync your own Canvas course link or paste any reading privately in this browser.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCommandModal(false);
+                      setShowQuestDrawer(true);
+                    }}
+                    className={`rounded-2xl border p-4 text-left transition-all hover:border-blue-500/60 ${subtlePill}`}
+                  >
+                    <p className="text-sm font-black flex items-center gap-2">
+                      <Layers size={15} className="text-emerald-500" /> Choose a Quest
+                    </p>
+                    <p className={`mt-1 text-xs leading-relaxed ${mutedText}`}>
+                      Jump between your loaded Canvas topics or saved readings without seeing scary totals.
+                    </p>
+                  </button>
+                </div>
+              </section>
+
+              {/* Section 2: Visual Vibe & Win Chimes */}
+              <section className="space-y-3">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-500">Visual Vibe &amp; Sound Feedback</p>
+                <div className="flex flex-wrap gap-2">
+                  {(Object.values(COLOR_THEMES) as ColorTheme[]).map((t) => {
+                    const active = t.id === colorTheme;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setColorTheme(t.id)}
+                        aria-pressed={active}
+                        className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-xs font-bold transition-all ${
+                          active
+                            ? darkMode
+                              ? 'border-white/50 bg-white/15 text-white'
+                              : 'border-slate-700/50 bg-[#e2dacb] text-slate-900'
+                            : `${subtlePill} opacity-85 hover:opacity-100`
+                        }`}
+                      >
+                        <span className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: t.swatch }} />
+                        {t.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className={`rounded-2xl border p-4 flex items-center justify-between gap-3 ${subtlePill}`}>
+                  <div>
+                    <p className="text-sm font-bold flex items-center gap-2">
+                      {chimesOn ? <Volume2 size={15} className="text-emerald-500" /> : <VolumeX size={15} />}
+                      Celebration Win Chimes
+                    </p>
+                    <p className={`text-xs ${mutedText}`}>Soft harmonic chimes when you claim a card win or clear a stage.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setChimesOn((c) => !c)}
+                    className={`rounded-xl px-4 py-2 text-xs font-black ${
+                      chimesOn ? 'bg-emerald-600 text-white' : darkMode ? 'bg-white/10 text-slate-200' : 'bg-[#d9d0be] text-slate-800'
+                    }`}
+                  >
+                    {chimesOn ? 'On' : 'Muted'}
+                  </button>
+                </div>
+              </section>
+
+              {/* Section 3: Privacy & Unlimited Mode */}
+              <section className="space-y-3">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-500">Privacy &amp; Unlimited Reading</p>
+                <div className={`rounded-2xl border p-4 space-y-3 ${subtlePill}`}>
+                  <div className="flex items-start gap-2.5 text-xs leading-relaxed">
+                    <Lock size={15} className="text-emerald-500 shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Private to your browser:</strong> Your Canvas link, access token, and notes stay strictly on your device — nobody else can see them.
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-black/10 dark:border-white/10">
+                    <span className={`text-xs ${mutedText}`}>Force zero-token-limit instant local refraction:</span>
+                    <button
+                      type="button"
+                      onClick={() => setLocalOnlyMode((m) => !m)}
+                      className={`rounded-xl px-3.5 py-1.5 text-xs font-black transition-colors ${
+                        localOnlyMode
+                          ? 'bg-emerald-600 text-white'
+                          : darkMode ? 'bg-white/10 text-slate-200 hover:bg-white/15' : 'bg-[#dfd7c7] text-[#1e293b]'
+                      }`}
+                    >
+                      {localOnlyMode ? 'Unlimited Local Prism: ON' : 'Auto AI + Unlimited Fallback'}
+                    </button>
+                  </div>
+                </div>
+              </section>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

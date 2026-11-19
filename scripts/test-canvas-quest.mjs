@@ -148,12 +148,15 @@ test('Neural Identity presets, Quick Brain Check-In analysis, and all A–H pola
   assert.equal(parseSoundtrackEmbedUrl('https://evil.example.com/embed/123'), null);
 });
 
-test('/canvas integrates QuickBrainCheckIn, NeuralIdentityDrawer, SensorySoundscapeBar, and all A–H tools', async () => {
+test('/canvas integrates QuickBrainCheckIn, NeuralIdentityDrawer, Neural Command, Studio Dock, and all power tools', async () => {
   const canvasPage = await readFile(new URL('../src/app/canvas/page.tsx', import.meta.url), 'utf8');
+  const identityPanel = await readFile(new URL('../src/components/canvas/NeuralIdentityPanel.tsx', import.meta.url), 'utf8');
   const audioLib = await readFile(new URL('../src/lib/prism-audio.ts', import.meta.url), 'utf8');
 
   assert.match(canvasPage, /QuickBrainCheckIn/);
   assert.match(canvasPage, /NeuralIdentityDrawer/);
+  assert.match(canvasPage, /Neural Command/);
+  assert.match(canvasPage, /Soundscape/);
   assert.match(canvasPage, /SensorySoundscapeBar/);
   assert.match(canvasPage, /BrainDumpDrawer/);
   assert.match(canvasPage, /RsvpSpeedReader/);
@@ -162,6 +165,7 @@ test('/canvas integrates QuickBrainCheckIn, NeuralIdentityDrawer, SensorySoundsc
   assert.match(canvasPage, /PrismLensPopup/);
   assert.match(canvasPage, /PrismWeaver/);
   assert.match(canvasPage, /Beat-the-Clock/);
+  assert.doesNotMatch(identityPanel, /A–H tools ON/);
   assert.match(audioLib, /gamma40/);
   assert.match(audioLib, /startSoundscape/);
 });

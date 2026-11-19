@@ -99,9 +99,9 @@ export function SensorySoundscapeBar({
   return (
     <section
       aria-label="Sensory soundscape bar"
-      className={`rounded-3xl border px-4 py-3 backdrop-blur-2xl space-y-3 ${glassCard}`}
+      className={`rounded-3xl border px-4 py-4 backdrop-blur-2xl shadow-2xl space-y-3 ${glassCard}`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 pr-9">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className={`inline-flex items-center gap-1.5 text-xs font-bold mr-1 ${mutedText}`}>
             <Headphones size={14} className="text-blue-500" /> Sound:
