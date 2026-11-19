@@ -35,7 +35,7 @@ const PRIVATE_HOST_RE = /^(localhost|127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.1
 export function parseCanvasCourseUrl(rawUrl: string): ParsedCanvasCourse {
   const trimmed = rawUrl.trim();
   if (!trimmed) {
-    throw new Error('Please paste your Canvas course link (for example, https://moringa.instructure.com/courses/1713/modules).');
+    throw new Error('Please paste your Canvas course link (for example, https://your-school.instructure.com/courses/1234/modules).');
   }
 
   let parsed: URL;
@@ -51,12 +51,12 @@ export function parseCanvasCourseUrl(rawUrl: string): ParsedCanvasCourse {
 
   const host = parsed.hostname.toLowerCase();
   if (PRIVATE_HOST_RE.test(host) || !host.includes('.') || host.endsWith('.local') || host.endsWith('.internal')) {
-    throw new Error('Please enter a public Canvas LMS address such as moringa.instructure.com.');
+    throw new Error('Please enter a public Canvas LMS address such as your-school.instructure.com.');
   }
 
   const courseMatch = parsed.pathname.match(/\/courses\/(\d+)/i);
   if (!courseMatch) {
-    throw new Error('Could not find a course number in that link. Open your course Modules page and copy the URL (it includes /courses/1713).');
+    throw new Error('Could not find a course number in that link. Open your course Modules page and copy the URL (it includes /courses/1234).');
   }
 
   return {

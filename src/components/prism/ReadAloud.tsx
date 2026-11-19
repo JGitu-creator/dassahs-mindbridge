@@ -11,7 +11,7 @@ const VOICES = [
   { id: 'sal', name: 'Sal (Smooth)' },
 ];
 
-export const ReadAloud = ({ text }: { text: string }) => {
+export const ReadAloud = ({ text, darkMode }: { text: string; darkMode?: boolean }) => {
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [voice, setVoice] = useState('eve');
@@ -99,20 +99,41 @@ export const ReadAloud = ({ text }: { text: string }) => {
     setStatusNote(null);
   };
 
+  const selectClass = darkMode === true
+    ? 'rounded-xl border border-white/15 bg-slate-900 px-2.5 py-2 text-xs font-semibold text-slate-100 focus:border-blue-500 focus:outline-none'
+    : darkMode === false
+      ? 'rounded-xl border border-stone-300 bg-[#fbf8f1] px-2.5 py-2 text-xs font-semibold text-slate-900 focus:border-blue-500 focus:outline-none'
+      : 'rounded-lg border border-[var(--color-border)] bg-[var(--color-glass)] p-2 text-xs text-[var(--fg)]';
+
+  const optionClass = darkMode === true
+    ? 'bg-slate-900 text-slate-100'
+    : darkMode === false
+      ? 'bg-[#fbf8f1] text-slate-900'
+      : 'bg-slate-900 text-slate-100';
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <select
         value={voice}
         onChange={(event) => setVoice(event.target.value)}
         aria-label="Read aloud voice"
-        className="rounded-lg border border-[var(--color-border)] bg-[var(--color-glass)] p-2 text-xs text-[var(--fg)]"
+        style={{ colorScheme: darkMode === false ? 'light' : 'dark' }}
+        className={selectClass}
       >
-        {VOICES.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+        {VOICES.map((item) => (
+          <option key={item.id} value={item.id} className={optionClass}>
+            {item.name}
+          </option>
+        ))}
       </select>
       <button
         onClick={playing ? handleStop : () => void handleRead()}
         disabled={loading}
-        className="rounded-full bg-blue-500/20 p-2 text-blue-400 hover:bg-blue-500/40 disabled:opacity-50"
+        className={`rounded-full p-2 transition-colors disabled:opacity-50 ${
+          darkMode === false
+            ? 'bg-blue-600/15 text-blue-700 hover:bg-blue-600/25'
+            : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/40'
+        }`}
         aria-label={playing ? 'Stop reading aloud' : 'Read aloud'}
       >
         {loading ? <Loader2 size={16} className="animate-spin" /> : playing ? <Square size={14} /> : <Play size={16} />}

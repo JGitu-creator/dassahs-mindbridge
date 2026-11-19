@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -12,17 +12,24 @@ import {
   Compass,
   Eye,
   Flame,
+  HeartHandshake,
   KeyRound,
   Layers,
   Loader2,
   Lock,
   Moon,
+  Palette,
+  Pause,
+  Play,
   Rocket,
+  RotateCcw,
   ShieldCheck,
   Sparkles,
   Star,
   Sun,
   Trophy,
+  Volume2,
+  VolumeX,
   Wand2,
   X,
 } from 'lucide-react';
@@ -38,13 +45,138 @@ import {
   type PrismCard,
   type PrismCardRefraction,
 } from '@/lib/canvas-parser';
+import {
+  playCardWinChime,
+  playRefractPulse,
+  playSprintCompleteChime,
+  playStageClearFanfare,
+} from '@/lib/prism-audio';
 
 type TextSize = 'small' | 'comfortable' | 'big';
+type ColorThemeId = 'midnight' | 'silk' | 'gold' | 'ocean' | 'grace';
+
+interface ColorTheme {
+  id: ColorThemeId;
+  label: string;
+  swatch: string;
+  darkBg: string;
+  darkCard: string;
+  darkInner: string;
+  darkGlowA: string;
+  darkGlowB: string;
+  lightBg: string;
+  lightCard: string;
+  lightInner: string;
+  lightText: string;
+  lightMuted: string;
+  lightGlowA: string;
+  lightGlowB: string;
+  accentBg: string;
+  accentText: string;
+}
+
+const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
+  midnight: {
+    id: 'midnight',
+    label: 'Midnight Focus',
+    swatch: '#2563eb',
+    darkBg: 'bg-[#070d1d] text-slate-100',
+    darkCard: 'bg-[#0f172a]/85 border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.45)]',
+    darkInner: 'bg-[#080f21]/85 border-white/10 text-slate-100',
+    darkGlowA: 'bg-blue-600/15',
+    darkGlowB: 'bg-cyan-500/10',
+    lightBg: 'bg-[#f3efe6] text-[#1e293b]',
+    lightCard: 'bg-[#faf7f0]/95 border-[#dfd8c8] shadow-[0_18px_50px_rgba(30,41,59,0.07)]',
+    lightInner: 'bg-[#f1ece1] border-[#ddd6c5] text-[#1e293b]',
+    lightText: 'text-[#1e293b]',
+    lightMuted: 'text-[#526071]',
+    lightGlowA: 'bg-amber-300/20',
+    lightGlowB: 'bg-blue-300/15',
+    accentBg: 'bg-blue-600 hover:bg-blue-500',
+    accentText: 'text-blue-500',
+  },
+  silk: {
+    id: 'silk',
+    label: 'Hadassah Silk',
+    swatch: '#059669',
+    darkBg: 'bg-[#041d16] text-emerald-50',
+    darkCard: 'bg-[#082c22]/85 border-emerald-400/15 shadow-[0_24px_80px_rgba(0,0,0,0.45)]',
+    darkInner: 'bg-[#052119]/85 border-emerald-400/15 text-emerald-50',
+    darkGlowA: 'bg-emerald-500/15',
+    darkGlowB: 'bg-teal-400/10',
+    lightBg: 'bg-[#ecf3ee] text-[#143025]',
+    lightCard: 'bg-[#f5faf6]/95 border-[#cde0d2] shadow-[0_18px_50px_rgba(20,48,37,0.07)]',
+    lightInner: 'bg-[#e7f1ea] border-[#c8dccd] text-[#143025]',
+    lightText: 'text-[#143025]',
+    lightMuted: 'text-[#3d6051]',
+    lightGlowA: 'bg-emerald-300/20',
+    lightGlowB: 'bg-teal-200/20',
+    accentBg: 'bg-emerald-600 hover:bg-emerald-500',
+    accentText: 'text-emerald-500',
+  },
+  gold: {
+    id: 'gold',
+    label: 'Golden Glow',
+    swatch: '#d97706',
+    darkBg: 'bg-[#141008] text-amber-50',
+    darkCard: 'bg-[#20190d]/85 border-amber-400/15 shadow-[0_24px_80px_rgba(0,0,0,0.5)]',
+    darkInner: 'bg-[#171209]/85 border-amber-400/15 text-amber-50',
+    darkGlowA: 'bg-amber-500/15',
+    darkGlowB: 'bg-orange-400/10',
+    lightBg: 'bg-[#f6efe1] text-[#352612]',
+    lightCard: 'bg-[#fcf8ee]/95 border-[#e3d6bc] shadow-[0_18px_50px_rgba(53,38,18,0.07)]',
+    lightInner: 'bg-[#f2e8d4] border-[#ded0b4] text-[#352612]',
+    lightText: 'text-[#352612]',
+    lightMuted: 'text-[#6c5534]',
+    lightGlowA: 'bg-amber-300/25',
+    lightGlowB: 'bg-yellow-200/20',
+    accentBg: 'bg-amber-600 hover:bg-amber-500',
+    accentText: 'text-amber-500',
+  },
+  ocean: {
+    id: 'ocean',
+    label: 'Ocean Calm',
+    swatch: '#0891b2',
+    darkBg: 'bg-[#061820] text-cyan-50',
+    darkCard: 'bg-[#0c2632]/85 border-cyan-400/15 shadow-[0_24px_80px_rgba(0,0,0,0.45)]',
+    darkInner: 'bg-[#081d26]/85 border-cyan-400/15 text-cyan-50',
+    darkGlowA: 'bg-cyan-500/15',
+    darkGlowB: 'bg-sky-500/10',
+    lightBg: 'bg-[#ebf3f5] text-[#12303c]',
+    lightCard: 'bg-[#f4f9fa]/95 border-[#cadde2] shadow-[0_18px_50px_rgba(18,48,60,0.07)]',
+    lightInner: 'bg-[#e4eff2] border-[#c4d8de] text-[#12303c]',
+    lightText: 'text-[#12303c]',
+    lightMuted: 'text-[#3e606e]',
+    lightGlowA: 'bg-cyan-300/20',
+    lightGlowB: 'bg-sky-200/20',
+    accentBg: 'bg-cyan-600 hover:bg-cyan-500',
+    accentText: 'text-cyan-500',
+  },
+  grace: {
+    id: 'grace',
+    label: 'Electric Grace',
+    swatch: '#e11d48',
+    darkBg: 'bg-[#180b10] text-rose-50',
+    darkCard: 'bg-[#261219]/85 border-rose-400/15 shadow-[0_24px_80px_rgba(0,0,0,0.45)]',
+    darkInner: 'bg-[#1c0d13]/85 border-rose-400/15 text-rose-50',
+    darkGlowA: 'bg-rose-500/15',
+    darkGlowB: 'bg-amber-400/10',
+    lightBg: 'bg-[#f5ecee] text-[#3a1824]',
+    lightCard: 'bg-[#fbf6f7]/95 border-[#e3cdd2] shadow-[0_18px_50px_rgba(58,24,36,0.07)]',
+    lightInner: 'bg-[#f1e5e8] border-[#dfc6cc] text-[#3a1824]',
+    lightText: 'text-[#3a1824]',
+    lightMuted: 'text-[#6e4050]',
+    lightGlowA: 'bg-rose-300/20',
+    lightGlowB: 'bg-amber-200/20',
+    accentBg: 'bg-rose-600 hover:bg-rose-500',
+    accentText: 'text-rose-500',
+  },
+};
 
 const TEXT_SIZE_STYLES: Record<TextSize, string> = {
-  small: 'text-base sm:text-[17px] leading-[1.7]',
-  comfortable: 'text-lg sm:text-[21px] leading-[1.8]',
-  big: 'text-2xl sm:text-[26px] leading-[1.9]',
+  small: 'text-base sm:text-[17px] leading-[1.75]',
+  comfortable: 'text-lg sm:text-[20px] leading-[1.85]',
+  big: 'text-xl sm:text-[25px] leading-[1.9]',
 };
 
 const CANVAS_TOKEN_KEY = 'prism_canvas_token';
@@ -54,14 +186,41 @@ const TEXT_SIZE_KEY = 'prism_canvas_text_size';
 const DYSLEXIA_KEY = 'prism_canvas_dyslexia';
 const BIONIC_KEY = 'prism_canvas_bionic';
 const THEME_KEY = 'prism_canvas_theme';
+const COLOR_THEME_KEY = 'prism_canvas_color_theme';
+const CHIMES_KEY = 'prism_canvas_chimes';
+const PROGRESS_KEY = 'prism_canvas_progress_v1';
+
+interface SavedProgress {
+  xp: number;
+  winsToday: number;
+  streakDays: number;
+  lastActiveDate: string;
+  completedTopics: string[];
+  lastTopicId?: string;
+  lastCardIdx?: number;
+  customTopics?: CanvasTopic[];
+}
+
+function todayKey(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function formatTimer(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
 
 export default function CanvasPrismPlayPage() {
   // Theme & Reading Comfort
   const [darkMode, setDarkMode] = useState(true);
+  const [colorTheme, setColorTheme] = useState<ColorThemeId>('midnight');
   const [textSize, setTextSize] = useState<TextSize>('comfortable');
   const [bionicOn, setBionicOn] = useState(false);
   const [dyslexiaFriendly, setDyslexiaFriendly] = useState(true);
+  const [chimesOn, setChimesOn] = useState(true);
   const [localOnlyMode, setLocalOnlyMode] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   // Topics & Cards (100% browser-private)
   const [topics, setTopics] = useState<CanvasTopic[]>(DEMO_QUESTS);
@@ -70,6 +229,7 @@ export default function CanvasPrismPlayPage() {
   const [cardIdx, setCardIdx] = useState(0);
   const [loadingTopic, setLoadingTopic] = useState(false);
   const [topicError, setTopicError] = useState<string | null>(null);
+  const [resumedBanner, setResumedBanner] = useState<string | null>(null);
 
   // Per-card Prism Refractions
   const [refractions, setRefractions] = useState<Record<string, PrismCardRefraction>>({});
@@ -77,9 +237,10 @@ export default function CanvasPrismPlayPage() {
   const [refracting, setRefracting] = useState(false);
   const [refractNotice, setRefractNotice] = useState<string | null>(null);
 
-  // Game Loop State
+  // Game Loop & Cross-Session Progress
   const [winsToday, setWinsToday] = useState(0);
   const [xp, setXp] = useState(0);
+  const [streakDays, setStreakDays] = useState(1);
   const [completedTopics, setCompletedTopics] = useState<string[]>([]);
   const [showStageClear, setShowStageClear] = useState(false);
   const [showBreak, setShowBreak] = useState(false);
@@ -87,13 +248,21 @@ export default function CanvasPrismPlayPage() {
   const [winBurst, setWinBurst] = useState(false);
   const [starredContents, setStarredContents] = useState<string[]>([]);
 
+  // Gentle Focus Timer / Body-Doubling Companion
+  const [sprintTotalSecs, setSprintTotalSecs] = useState<number>(0);
+  const [sprintSecsLeft, setSprintSecsLeft] = useState<number>(0);
+  const [sprintRunning, setSprintRunning] = useState(false);
+  const [sprintFinishedNote, setSprintFinishedNote] = useState(false);
+  const chimesRef = useRef(chimesOn);
+  chimesRef.current = chimesOn;
+
   // Modals & Drawers
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [connectTab, setConnectTab] = useState<'canvas' | 'paste'>('canvas');
   const [showQuestDrawer, setShowQuestDrawer] = useState(false);
 
-  // Private Canvas Connection (sessionStorage only)
-  const [courseUrl, setCourseUrl] = useState('https://moringa.instructure.com/courses/1713/modules');
+  // Private Canvas Connection (sessionStorage only — NEVER pre-filled with personal course URL!)
+  const [courseUrl, setCourseUrl] = useState('');
   const [canvasToken, setCanvasToken] = useState('');
   const [isCanvasConnected, setIsCanvasConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
@@ -103,9 +272,10 @@ export default function CanvasPrismPlayPage() {
   const [pasteTitle, setPasteTitle] = useState('');
   const [pasteText, setPasteText] = useState('');
 
-  // Load saved reading preferences + extension handoff + session token
+  // Load saved preferences, cross-session progress, and extension handoff
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
     const savedSize = localStorage.getItem(TEXT_SIZE_KEY) as TextSize | null;
     if (savedSize && ['small', 'comfortable', 'big'].includes(savedSize)) setTextSize(savedSize);
     const savedDyslexia = localStorage.getItem(DYSLEXIA_KEY);
@@ -114,6 +284,10 @@ export default function CanvasPrismPlayPage() {
     if (savedBionic !== null) setBionicOn(savedBionic === 'true');
     const savedTheme = localStorage.getItem(THEME_KEY);
     if (savedTheme) setDarkMode(savedTheme === 'dark');
+    const savedColor = localStorage.getItem(COLOR_THEME_KEY) as ColorThemeId | null;
+    if (savedColor && savedColor in COLOR_THEMES) setColorTheme(savedColor);
+    const savedChimes = localStorage.getItem(CHIMES_KEY);
+    if (savedChimes !== null) setChimesOn(savedChimes === 'true');
 
     try {
       const vault = JSON.parse(localStorage.getItem('prism_starred_items') || '[]');
@@ -124,12 +298,53 @@ export default function CanvasPrismPlayPage() {
       // Ignore malformed vault
     }
 
+    // Restore cross-session progress (XP, streak, completed topics, custom pasted topics, last card)
+    try {
+      const rawProgress = localStorage.getItem(PROGRESS_KEY);
+      if (rawProgress) {
+        const saved = JSON.parse(rawProgress) as SavedProgress;
+        const today = todayKey();
+        const isSameDay = saved.lastActiveDate === today;
+        const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+        const nextStreak = isSameDay
+          ? Math.max(1, saved.streakDays || 1)
+          : saved.lastActiveDate === yesterday
+            ? (saved.streakDays || 1) + 1
+            : 1;
+
+        setXp(Number(saved.xp || 0));
+        setWinsToday(isSameDay ? Number(saved.winsToday || 0) : 0);
+        setStreakDays(nextStreak);
+        if (Array.isArray(saved.completedTopics)) setCompletedTopics(saved.completedTopics);
+
+        const mergedTopics = Array.isArray(saved.customTopics) && saved.customTopics.length > 0
+          ? [...saved.customTopics, ...DEMO_QUESTS]
+          : DEMO_QUESTS;
+        setTopics(mergedTopics);
+
+        if (saved.lastTopicId) {
+          const foundIdx = mergedTopics.findIndex((t) => t.id === saved.lastTopicId);
+          if (foundIdx >= 0 && mergedTopics[foundIdx].cards?.length) {
+            const topicCards = mergedTopics[foundIdx].cards!;
+            const safeCardIdx = Math.min(Math.max(0, saved.lastCardIdx || 0), topicCards.length - 1);
+            setActiveTopicIdx(foundIdx);
+            setCards(topicCards);
+            setCardIdx(safeCardIdx);
+            if (safeCardIdx > 0 || (saved.xp || 0) > 0) {
+              setResumedBanner(`Welcome back — resumed at Card ${safeCardIdx + 1} (${saved.xp || 0} XP saved)`);
+            }
+          }
+        }
+      }
+    } catch {
+      // Ignore malformed saved progress
+    }
+
     const savedUrl = sessionStorage.getItem(CANVAS_URL_KEY);
     const savedToken = sessionStorage.getItem(CANVAS_TOKEN_KEY);
     if (savedUrl) setCourseUrl(savedUrl);
     if (savedToken) setCanvasToken(savedToken);
 
-    // Check if the upgraded Chrome Extension handed off a Canvas page
     const loadHandoff = () => {
       const raw = sessionStorage.getItem(CANVAS_HANDOFF_KEY);
       if (!raw) return;
@@ -157,17 +372,63 @@ export default function CanvasPrismPlayPage() {
     };
     loadHandoff();
     window.addEventListener('prism:canvas-handoff', loadHandoff);
+    setHydrated(true);
     return () => window.removeEventListener('prism:canvas-handoff', loadHandoff);
   }, []);
 
+  // Persist visual & audio preferences
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!hydrated || typeof window === 'undefined') return;
     localStorage.setItem(TEXT_SIZE_KEY, textSize);
     localStorage.setItem(DYSLEXIA_KEY, String(dyslexiaFriendly));
     localStorage.setItem(BIONIC_KEY, String(bionicOn));
     localStorage.setItem(THEME_KEY, darkMode ? 'dark' : 'light');
-  }, [textSize, dyslexiaFriendly, bionicOn, darkMode]);
+    localStorage.setItem(COLOR_THEME_KEY, colorTheme);
+    localStorage.setItem(CHIMES_KEY, String(chimesOn));
+  }, [hydrated, textSize, dyslexiaFriendly, bionicOn, darkMode, colorTheme, chimesOn]);
 
+  // Persist cross-session progress
+  useEffect(() => {
+    if (!hydrated || typeof window === 'undefined') return;
+    const active = topics[activeTopicIdx];
+    const customTopics = topics.filter((t) => t.type === 'Custom').slice(0, 12);
+    const payload: SavedProgress = {
+      xp,
+      winsToday,
+      streakDays,
+      lastActiveDate: todayKey(),
+      completedTopics,
+      lastTopicId: active?.id,
+      lastCardIdx: cardIdx,
+      customTopics,
+    };
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(payload));
+    } catch {
+      // Ignore quota errors
+    }
+  }, [hydrated, xp, winsToday, streakDays, completedTopics, topics, activeTopicIdx, cardIdx]);
+
+  // Gentle Body-Doubling Sprint timer tick
+  useEffect(() => {
+    if (!sprintRunning || sprintSecsLeft <= 0) return;
+    const interval = setInterval(() => {
+      setSprintSecsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setSprintRunning(false);
+          setSprintFinishedNote(true);
+          setXp((curr) => curr + 15);
+          if (chimesRef.current) playSprintCompleteChime();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sprintRunning, sprintSecsLeft]);
+
+  const theme = COLOR_THEMES[colorTheme];
   const activeTopic = topics[activeTopicIdx] || DEMO_QUESTS[0];
   const currentCard = cards[cardIdx] || cards[0];
   const currentCardKey = currentCard ? `${activeTopic.id}:${currentCard.id}` : '';
@@ -179,6 +440,31 @@ export default function CanvasPrismPlayPage() {
     return null;
   }, [activeTopicIdx, topics]);
 
+  const bodyDoubleMessage = useMemo(() => {
+    if (sprintFinishedNote) return 'Sprint complete! +15 XP — want a quick 20s brain break?';
+    if (sprintTotalSecs === 0) return 'Studying with you — pick a gentle sprint or just read at your own pace.';
+    const pct = 1 - sprintSecsLeft / sprintTotalSecs;
+    if (!sprintRunning) return 'Paused — zero pressure. Resume whenever your brain feels ready.';
+    if (pct < 0.35) return 'Right here with you — just focus on this one calm card.';
+    if (pct < 0.75) return 'Halfway through this sprint — steady, awesome momentum!';
+    return 'Final stretch — proud of your focus!';
+  }, [sprintFinishedNote, sprintTotalSecs, sprintSecsLeft, sprintRunning]);
+
+  const startSprint = (minutes: number) => {
+    const secs = minutes * 60;
+    setSprintTotalSecs(secs);
+    setSprintSecsLeft(secs);
+    setSprintRunning(true);
+    setSprintFinishedNote(false);
+  };
+
+  const resetSprint = () => {
+    setSprintRunning(false);
+    setSprintTotalSecs(0);
+    setSprintSecsLeft(0);
+    setSprintFinishedNote(false);
+  };
+
   const loadTopicByIndex = async (idx: number, topicList: CanvasTopic[] = topics, tokenOverride?: string, urlOverride?: string) => {
     const target = topicList[idx];
     if (!target) return;
@@ -187,6 +473,7 @@ export default function CanvasPrismPlayPage() {
     setShowStageClear(false);
     setTopicError(null);
     setRefractNotice(null);
+    setResumedBanner(null);
 
     if (target.cards && target.cards.length > 0) {
       setCards(target.cards);
@@ -266,8 +553,10 @@ export default function CanvasPrismPlayPage() {
   const handleDisconnectCanvas = () => {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem(CANVAS_TOKEN_KEY);
+      sessionStorage.removeItem(CANVAS_URL_KEY);
     }
     setCanvasToken('');
+    setCourseUrl('');
     setIsCanvasConnected(false);
     setTopics(DEMO_QUESTS);
     setActiveTopicIdx(0);
@@ -302,7 +591,6 @@ export default function CanvasPrismPlayPage() {
   const handleRefractCard = async () => {
     if (!currentCard || !currentCardKey) return;
 
-    // If already refracted, just toggle visibility
     if (currentRefraction) {
       setShowPrismForCard((prev) => ({ ...prev, [currentCardKey]: !prev[currentCardKey] }));
       return;
@@ -315,6 +603,7 @@ export default function CanvasPrismPlayPage() {
       const local = createInstantLocalPrism(currentCard.text, currentCard.heading);
       setRefractions((prev) => ({ ...prev, [currentCardKey]: local }));
       setShowPrismForCard((prev) => ({ ...prev, [currentCardKey]: true }));
+      if (chimesOn) playRefractPulse();
       setRefracting(false);
       return;
     }
@@ -334,11 +623,11 @@ export default function CanvasPrismPlayPage() {
 
       const payload = await res.json().catch(() => null);
 
-      // Never lock out the learner on quota/trial/provider limits — seamlessly use Instant Local Prism!
       if (!res.ok || !payload?.chunks?.[0]) {
         const local = createInstantLocalPrism(currentCard.text, currentCard.heading);
         setRefractions((prev) => ({ ...prev, [currentCardKey]: local }));
         setShowPrismForCard((prev) => ({ ...prev, [currentCardKey]: true }));
+        if (chimesOn) playRefractPulse();
         setRefractNotice('Using Instant Local Prism (unlimited, zero token limit).');
         return;
       }
@@ -356,10 +645,12 @@ export default function CanvasPrismPlayPage() {
 
       setRefractions((prev) => ({ ...prev, [currentCardKey]: refracted }));
       setShowPrismForCard((prev) => ({ ...prev, [currentCardKey]: true }));
+      if (chimesOn) playRefractPulse();
     } catch {
       const local = createInstantLocalPrism(currentCard.text, currentCard.heading);
       setRefractions((prev) => ({ ...prev, [currentCardKey]: local }));
       setShowPrismForCard((prev) => ({ ...prev, [currentCardKey]: true }));
+      if (chimesOn) playRefractPulse();
       setRefractNotice('Using Instant Local Prism (unlimited, works offline too).');
     } finally {
       setRefracting(false);
@@ -387,10 +678,12 @@ export default function CanvasPrismPlayPage() {
     setWinsToday(nextWins);
     setXp((prev) => prev + 25);
     setWinBurst(true);
+    setResumedBanner(null);
     setTimeout(() => setWinBurst(false), 750);
 
     const isLastCard = cardIdx >= cards.length - 1;
     if (isLastCard) {
+      if (chimesOn) playStageClearFanfare();
       if (!completedTopics.includes(activeTopic.id)) {
         setCompletedTopics((prev) => [...prev, activeTopic.id]);
       }
@@ -398,7 +691,8 @@ export default function CanvasPrismPlayPage() {
       return;
     }
 
-    // Gentle micro-break every 3 card wins
+    if (chimesOn) playCardWinChime();
+
     if (nextWins % 3 === 0) {
       setBreakLevel(Math.floor(nextWins / 3));
       setShowBreak(true);
@@ -408,29 +702,24 @@ export default function CanvasPrismPlayPage() {
     setRefractNotice(null);
   };
 
-  const surfaceBg = darkMode
-    ? 'bg-slate-950 text-slate-100'
-    : 'bg-slate-50 text-slate-900';
-
-  const glassCard = darkMode
-    ? 'bg-slate-900/75 border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.45)]'
-    : 'bg-white/90 border-slate-200/90 shadow-[0_20px_60px_rgba(15,23,42,0.08)]';
-
-  const mutedText = darkMode ? 'text-slate-400' : 'text-slate-600';
+  const surfaceBg = darkMode ? theme.darkBg : theme.lightBg;
+  const glassCard = darkMode ? theme.darkCard : theme.lightCard;
+  const readingSurface = darkMode ? theme.darkInner : theme.lightInner;
+  const mutedText = darkMode ? 'text-slate-400' : theme.lightMuted;
   const subtlePill = darkMode
     ? 'bg-white/5 border-white/10 text-slate-200'
-    : 'bg-slate-100 border-slate-200 text-slate-800';
+    : 'bg-[#ede7db]/90 border-[#d6ccb9] text-[#243040]';
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${surfaceBg}`}>
-      {/* Soft ambient background glow (no purple-on-dark cliché) */}
+      {/* Soft ambient background glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className={`absolute -top-32 left-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? 'bg-blue-600/15' : 'bg-blue-400/15'}`} />
-        <div className={`absolute bottom-0 right-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? 'bg-emerald-500/10' : 'bg-emerald-400/15'}`} />
+        <div className={`absolute -top-32 left-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? theme.darkGlowA : theme.lightGlowA}`} />
+        <div className={`absolute bottom-0 right-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? theme.darkGlowB : theme.lightGlowB}`} />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8 space-y-6">
-        {/* Calm Header — ZERO intimidating totals or countdowns */}
+      <div className="relative z-10 mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8 space-y-5">
+        {/* Calm Header */}
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
@@ -439,41 +728,53 @@ export default function CanvasPrismPlayPage() {
             >
               <ArrowLeft size={14} /> Prism Home
             </Link>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white">
-                  <Sparkles size={11} /> Prism Play
-                </span>
-                <span className={`text-xs font-semibold ${mutedText}`}>Canvas Quest</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white ${theme.accentBg}`}>
+                <Sparkles size={11} /> Prism Play
+              </span>
+              <span className={`text-xs font-semibold ${mutedText}`}>Canvas Quest</span>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className={`inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-bold ${subtlePill}`}>
+            <div className={`inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-bold ${subtlePill}`} title={`${streakDays}-day focus streak`}>
               <Flame size={14} className="text-amber-500" />
               <span>{winsToday} {winsToday === 1 ? 'win' : 'wins'}</span>
               <span className="opacity-40">·</span>
-              <span className="text-emerald-500">{xp} XP</span>
+              <span className="text-emerald-600 dark:text-emerald-400">{xp} XP</span>
+              <span className="opacity-40">·</span>
+              <span>{streakDays}d</span>
             </div>
+
+            <button
+              onClick={() => setChimesOn((c) => !c)}
+              aria-pressed={chimesOn}
+              aria-label={chimesOn ? 'Mute win chimes' : 'Enable win chimes'}
+              title={chimesOn ? 'Win chimes On' : 'Win chimes Off'}
+              className={`inline-flex items-center gap-1 rounded-2xl border px-2.5 py-1.5 text-xs font-bold transition-colors ${subtlePill}`}
+            >
+              {chimesOn ? <Volume2 size={14} className="text-emerald-500" /> : <VolumeX size={14} />}
+              <span className="hidden sm:inline">{chimesOn ? 'Chimes' : 'Muted'}</span>
+            </button>
 
             <button
               onClick={() => setShowQuestDrawer(true)}
               className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-colors ${subtlePill} hover:border-blue-500/50`}
             >
-              <Compass size={14} className="text-blue-500" /> Switch Quest
+              <Compass size={14} className={theme.accentText} /> Switch Quest
             </button>
 
             <button
               onClick={() => setShowConnectModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-2xl bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md transition-all hover:bg-blue-500 active:scale-95"
+              className={`inline-flex items-center gap-1.5 rounded-2xl px-3.5 py-1.5 text-xs font-bold text-white shadow-md transition-all active:scale-95 ${theme.accentBg}`}
             >
               <KeyRound size={13} /> {isCanvasConnected ? 'Canvas Connected' : 'Connect Canvas'}
             </button>
 
             <button
               onClick={() => setDarkMode((d) => !d)}
-              aria-label={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label={darkMode ? 'Switch to Soft Paper Light Mode' : 'Switch to Dark Mode'}
+              title={darkMode ? 'Switch to Soft Paper Light Mode' : 'Switch to Dark Mode'}
               className={`rounded-2xl border p-2 transition-colors ${subtlePill}`}
             >
               {darkMode ? <Sun size={15} /> : <Moon size={15} />}
@@ -481,12 +782,25 @@ export default function CanvasPrismPlayPage() {
           </div>
         </header>
 
-        {/* Privacy & Unlimited Assurance Bar */}
+        {/* Cross-Session Resume Banner */}
+        {resumedBanner && (
+          <div className={`flex items-center justify-between gap-2 rounded-2xl border px-4 py-2 text-xs font-semibold ${subtlePill}`}>
+            <span className="flex items-center gap-2">
+              <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+              {resumedBanner}
+            </span>
+            <button onClick={() => setResumedBanner(null)} aria-label="Dismiss welcome back notice" className="opacity-70 hover:opacity-100">
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
+        {/* Privacy & Unlimited Bar */}
         <div className={`flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-2.5 text-xs ${subtlePill}`}>
           <div className="flex items-center gap-2">
             <Lock size={14} className="text-emerald-500 shrink-0" />
             <span>
-              <strong>Private to your browser:</strong> Your Canvas token and notes stay on your device — nobody else can see them.
+              <strong>Private to your browser:</strong> Your Canvas link, token, and notes stay on your device — nobody else can see them.
             </span>
           </div>
           <button
@@ -494,73 +808,177 @@ export default function CanvasPrismPlayPage() {
             className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
               localOnlyMode
                 ? 'bg-emerald-600 text-white'
-                : darkMode ? 'bg-white/10 text-slate-200 hover:bg-white/15' : 'bg-slate-200 text-slate-800 hover:bg-slate-300'
+                : darkMode ? 'bg-white/10 text-slate-200 hover:bg-white/15' : 'bg-[#dfd7c7] text-[#1e293b] hover:bg-[#d3cab7]'
             }`}
-            title="Switch between AI + Unlimited Local Fallback or Instant Local-Only mode"
           >
             {localOnlyMode ? 'Unlimited Local Prism: ON' : 'Unlimited Fallback: Ready'}
           </button>
         </div>
 
-        {/* Working Reading Comfort Controls */}
+        {/* Reading Comfort + Visual Color Themes Bar */}
         <section
-          aria-label="Reading comfort controls"
-          className={`flex flex-wrap items-center justify-between gap-3 rounded-3xl border p-3 sm:p-4 backdrop-blur-2xl ${glassCard}`}
+          aria-label="Reading comfort and visual themes"
+          className={`space-y-3 rounded-3xl border p-3.5 sm:p-4 backdrop-blur-2xl ${glassCard}`}
         >
-          {/* Prominent Small / Comfortable / Big */}
-          <div className="flex items-center gap-2">
-            <span className={`text-xs font-bold ${mutedText}`}>Text size:</span>
-            <div
-              className={`inline-flex rounded-2xl border p-1 ${darkMode ? 'border-white/10 bg-slate-950/60' : 'border-slate-200 bg-slate-100'}`}
-              role="group"
-              aria-label="Text size"
-            >
-              {(['small', 'comfortable', 'big'] as TextSize[]).map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setTextSize(size)}
-                  aria-pressed={textSize === size}
-                  className={`rounded-xl px-3 py-1.5 text-xs font-bold capitalize transition-all ${
-                    textSize === size
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : `${mutedText} hover:text-blue-500`
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* Prominent Small / Comfortable / Big */}
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-bold ${mutedText}`}>Text size:</span>
+              <div
+                className={`inline-flex rounded-2xl border p-1 ${darkMode ? 'border-white/10 bg-black/30' : 'border-[#d6ccb9] bg-[#ebe4d7]'}`}
+                role="group"
+                aria-label="Text size"
+              >
+                {(['small', 'comfortable', 'big'] as TextSize[]).map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setTextSize(size)}
+                    aria-pressed={textSize === size}
+                    className={`rounded-xl px-3 py-1.5 text-xs font-bold capitalize transition-all ${
+                      textSize === size
+                        ? `${theme.accentBg} text-white shadow-sm`
+                        : `${mutedText} hover:opacity-100`
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setBionicOn((b) => !b)}
+                aria-pressed={bionicOn}
+                className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                  bionicOn
+                    ? `border-transparent text-white ${theme.accentBg}`
+                    : `${subtlePill} hover:border-blue-500/40`
+                }`}
+              >
+                <Eye size={13} /> Bionic {bionicOn ? 'On' : 'Off'}
+              </button>
+
+              <button
+                onClick={() => setDyslexiaFriendly((d) => !d)}
+                aria-pressed={dyslexiaFriendly}
+                className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                  dyslexiaFriendly
+                    ? 'border-emerald-500 bg-emerald-600 text-white'
+                    : `${subtlePill} hover:border-emerald-500/40`
+                }`}
+              >
+                <BookOpen size={13} /> Easy-Read Font
+              </button>
+
+              {currentCard && (
+                <ReadAloud text={`${currentCard.heading}. ${currentCard.text}`} darkMode={darkMode} />
+              )}
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setBionicOn((b) => !b)}
-              aria-pressed={bionicOn}
-              className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
-                bionicOn
-                  ? 'border-blue-500 bg-blue-600 text-white'
-                  : `${subtlePill} hover:border-blue-500/40`
-              }`}
-            >
-              <Eye size={13} /> Bionic {bionicOn ? 'On' : 'Off'}
-            </button>
-
-            <button
-              onClick={() => setDyslexiaFriendly((d) => !d)}
-              aria-pressed={dyslexiaFriendly}
-              className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
-                dyslexiaFriendly
-                  ? 'border-emerald-500 bg-emerald-600 text-white'
-                  : `${subtlePill} hover:border-emerald-500/40`
-              }`}
-            >
-              <BookOpen size={13} /> Easy-Read Font
-            </button>
-
-            {currentCard && (
-              <ReadAloud text={`${currentCard.heading}. ${currentCard.text}`} />
-            )}
+          {/* 5 Visual Color Themes Swatch Row */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-black/10 dark:border-white/10">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${mutedText}`}>
+                <Palette size={13} /> Vibe:
+              </span>
+              {(Object.values(COLOR_THEMES) as ColorTheme[]).map((t) => {
+                const active = t.id === colorTheme;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setColorTheme(t.id)}
+                    aria-pressed={active}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold transition-all ${
+                      active
+                        ? darkMode
+                          ? 'border-white/40 bg-white/15 text-white'
+                          : 'border-slate-700/40 bg-[#e2dacb] text-slate-900'
+                        : `${subtlePill} opacity-80 hover:opacity-100`
+                    }`}
+                  >
+                    <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: t.swatch }} />
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
+        </section>
+
+        {/* Gentle Focus Timer / Body-Doubling Companion Bar */}
+        <section
+          aria-label="Gentle body-doubling focus companion"
+          className={`rounded-3xl border px-4 py-3 backdrop-blur-2xl ${glassCard} space-y-2.5`}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 text-xs">
+              <span className={`relative flex h-2.5 w-2.5 shrink-0`}>
+                {sprintRunning && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />}
+                <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${sprintRunning ? 'bg-emerald-500' : 'bg-blue-500/70'}`} />
+              </span>
+              <HeartHandshake size={14} className={theme.accentText} />
+              <span className="font-semibold">{bodyDoubleMessage}</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              {sprintTotalSecs === 0 ? (
+                <>
+                  {[5, 10, 15].map((mins) => (
+                    <button
+                      key={mins}
+                      onClick={() => startSprint(mins)}
+                      className={`rounded-xl border px-2.5 py-1 text-xs font-bold transition-colors ${subtlePill} hover:border-emerald-500/50`}
+                    >
+                      {mins}m sprint
+                    </button>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <span className={`rounded-xl border px-2.5 py-1 font-mono text-xs font-black tabular-nums ${subtlePill}`}>
+                    {formatTimer(sprintSecsLeft)}
+                  </span>
+                  {sprintSecsLeft > 0 ? (
+                    <button
+                      onClick={() => setSprintRunning((r) => !r)}
+                      className={`inline-flex items-center gap-1 rounded-xl border px-2.5 py-1 text-xs font-bold ${subtlePill}`}
+                    >
+                      {sprintRunning ? <Pause size={12} /> : <Play size={12} />}
+                      {sprintRunning ? 'Pause' : 'Resume'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setSprintFinishedNote(false);
+                        setShowBreak(true);
+                      }}
+                      className="rounded-xl bg-emerald-600 px-3 py-1 text-xs font-bold text-white hover:bg-emerald-500"
+                    >
+                      Take 20s Break
+                    </button>
+                  )}
+                  <button
+                    onClick={resetSprint}
+                    aria-label="Reset focus sprint"
+                    className={`rounded-xl border p-1.5 ${subtlePill}`}
+                  >
+                    <RotateCcw size={12} />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {sprintTotalSecs > 0 && (
+            <div className={`h-1.5 w-full overflow-hidden rounded-full ${darkMode ? 'bg-white/10' : 'bg-black/10'}`}>
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-all duration-1000"
+                style={{ width: `${Math.min(100, ((sprintTotalSecs - sprintSecsLeft) / sprintTotalSecs) * 100)}%` }}
+              />
+            </div>
+          )}
         </section>
 
         {/* Main Quest Card Surface */}
@@ -576,7 +994,7 @@ export default function CanvasPrismPlayPage() {
               <p className="text-base font-bold text-rose-500">{topicError}</p>
               <button
                 onClick={() => setShowConnectModal(true)}
-                className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-500"
+                className={`rounded-2xl px-5 py-2.5 text-sm font-bold text-white ${theme.accentBg}`}
               >
                 Open Canvas Connection
               </button>
@@ -602,14 +1020,14 @@ export default function CanvasPrismPlayPage() {
                 {nextTopic ? (
                   <button
                     onClick={() => void loadTopicByIndex(activeTopicIdx + 1)}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-7 py-4 text-sm font-black text-white shadow-xl transition-all hover:bg-blue-500 active:scale-95"
+                    className={`inline-flex items-center gap-2 rounded-2xl px-7 py-4 text-sm font-black text-white shadow-xl transition-all active:scale-95 ${theme.accentBg}`}
                   >
                     Play Next Topic: {nextTopic.title.slice(0, 34)}{nextTopic.title.length > 34 ? '…' : ''} <ArrowRight size={16} />
                   </button>
                 ) : (
                   <button
                     onClick={() => setShowQuestDrawer(true)}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-7 py-4 text-sm font-black text-white shadow-xl transition-all hover:bg-blue-500"
+                    className={`inline-flex items-center gap-2 rounded-2xl px-7 py-4 text-sm font-black text-white shadow-xl transition-all ${theme.accentBg}`}
                   >
                     Pick Another Quest <Compass size={16} />
                   </button>
@@ -636,7 +1054,6 @@ export default function CanvasPrismPlayPage() {
                 transition={{ duration: 0.25 }}
                 className={`relative overflow-hidden rounded-[2.25rem] border p-6 sm:p-9 backdrop-blur-2xl ${glassCard} space-y-6`}
               >
-                {/* Win Burst Feedback */}
                 {winBurst && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -648,10 +1065,10 @@ export default function CanvasPrismPlayPage() {
                   </motion.div>
                 )}
 
-                {/* Calm Quest Meta — ONLY Today's Quest + Card X of Y */}
+                {/* Calm Quest Meta */}
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-xs font-black uppercase tracking-[0.2em] text-blue-500">
+                    <span className={`text-xs font-black uppercase tracking-[0.18em] ${theme.accentText}`}>
                       Today&apos;s Tiny Quest · {activeTopic.title}
                     </span>
                     <span className={`rounded-full border px-3 py-1 text-xs font-bold ${subtlePill}`}>
@@ -661,24 +1078,22 @@ export default function CanvasPrismPlayPage() {
 
                   <ProgressPrism progress={(cardIdx + 1) / Math.max(1, cards.length)} />
 
-                  <h1 className="pt-1 text-xl sm:text-2xl font-black tracking-tight">
+                  <h1 className="pt-1 text-xl sm:text-2xl font-black tracking-tight break-words">
                     {currentCard.heading}
                   </h1>
                 </div>
 
-                {/* Readable Card Body */}
+                {/* Readable Card Body — strictly wrapped inside bounds at any text size */}
                 <div
-                  className={`rounded-3xl border p-5 sm:p-7 transition-all ${
-                    darkMode ? 'border-white/10 bg-slate-950/55' : 'border-slate-200 bg-slate-50/90'
-                  } ${TEXT_SIZE_STYLES[textSize]} ${
-                    dyslexiaFriendly ? 'tracking-[0.03em] [word-spacing:0.12em]' : ''
+                  className={`w-full max-w-full overflow-hidden rounded-3xl border p-5 sm:p-7 transition-all break-words [overflow-wrap:anywhere] ${readingSurface} ${TEXT_SIZE_STYLES[textSize]} ${
+                    dyslexiaFriendly ? 'tracking-[0.025em] [word-spacing:0.1em]' : ''
                   }`}
                   style={{
                     fontFamily: dyslexiaFriendly ? 'var(--font-reading), Lexend, sans-serif' : 'var(--font-sans), Inter, sans-serif',
                   }}
                 >
                   {currentCard.text.split('\n\n').map((paragraph, pIdx) => (
-                    <p key={pIdx} className={pIdx > 0 ? 'mt-4' : ''}>
+                    <p key={pIdx} className={`break-words [overflow-wrap:anywhere] ${pIdx > 0 ? 'mt-4' : ''}`}>
                       {bionicOn ? <BionicText text={paragraph} /> : paragraph}
                     </p>
                   ))}
@@ -689,7 +1104,7 @@ export default function CanvasPrismPlayPage() {
                   <button
                     onClick={() => void handleRefractCard()}
                     disabled={refracting}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-black text-white shadow-lg transition-all hover:brightness-110 active:scale-95 disabled:opacity-60"
+                    className={`inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-black text-white shadow-lg transition-all active:scale-95 disabled:opacity-60 ${theme.accentBg}`}
                   >
                     {refracting ? (
                       <>
@@ -711,7 +1126,7 @@ export default function CanvasPrismPlayPage() {
                   )}
                 </div>
 
-                {/* Refracted Prism Cards: The Tiny Idea + The Metaphor + Dopamine Boost + One Small Move */}
+                {/* Refracted Prism Cards */}
                 <AnimatePresence>
                   {isPrismVisible && currentRefraction && (
                     <motion.div
@@ -720,8 +1135,8 @@ export default function CanvasPrismPlayPage() {
                       exit={{ opacity: 0, height: 0 }}
                       className="space-y-4 overflow-hidden pt-2"
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-black uppercase tracking-[0.2em] text-blue-500">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className={`text-xs font-black uppercase tracking-[0.2em] ${theme.accentText}`}>
                           Prism View ({currentRefraction.source === 'ai' ? 'AI Prism' : 'Instant Local Prism · Unlimited'})
                         </span>
                         {currentRefraction.keyTerms.length > 0 && (
@@ -738,19 +1153,17 @@ export default function CanvasPrismPlayPage() {
                         )}
                       </div>
 
-                      {/* The Tiny Idea */}
-                      <div className={`rounded-2xl border p-4 sm:p-5 ${darkMode ? 'border-blue-500/30 bg-blue-500/10' : 'border-blue-200 bg-blue-50'}`}>
-                        <div className="mb-1.5 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-blue-500">
+                      <div className={`rounded-2xl border p-4 sm:p-5 ${darkMode ? 'border-blue-500/30 bg-blue-500/10' : 'border-blue-300/70 bg-blue-50/75 text-slate-900'}`}>
+                        <div className="mb-1.5 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-blue-600 dark:text-blue-400">
                           <Sparkles size={14} /> The Tiny Idea
                         </div>
-                        <p className="text-base font-bold leading-relaxed">{currentRefraction.tinyIdea}</p>
+                        <p className="text-base font-bold leading-relaxed break-words">{currentRefraction.tinyIdea}</p>
                       </div>
 
-                      {/* Metaphor & Dopamine Boost */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className={`rounded-2xl border p-4 sm:p-5 space-y-2 ${darkMode ? 'border-cyan-500/30 bg-cyan-500/10' : 'border-cyan-200 bg-cyan-50'}`}>
+                        <div className={`rounded-2xl border p-4 sm:p-5 space-y-2 ${darkMode ? 'border-cyan-500/30 bg-cyan-500/10' : 'border-cyan-300/70 bg-cyan-50/75 text-slate-900'}`}>
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-cyan-500">
+                            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-cyan-700 dark:text-cyan-400">
                               <Brain size={14} /> The Metaphor
                             </div>
                             <button
@@ -765,14 +1178,14 @@ export default function CanvasPrismPlayPage() {
                               <Star size={14} fill={starredContents.includes(currentRefraction.metaphor) ? 'currentColor' : 'none'} />
                             </button>
                           </div>
-                          <p className="text-sm sm:text-base font-semibold leading-relaxed italic">
+                          <p className="text-sm sm:text-base font-semibold leading-relaxed italic break-words">
                             &ldquo;{currentRefraction.metaphor}&rdquo;
                           </p>
                         </div>
 
-                        <div className={`rounded-2xl border p-4 sm:p-5 space-y-2 ${darkMode ? 'border-amber-500/30 bg-amber-500/10' : 'border-amber-200 bg-amber-50'}`}>
+                        <div className={`rounded-2xl border p-4 sm:p-5 space-y-2 ${darkMode ? 'border-amber-500/30 bg-amber-500/10' : 'border-amber-300/70 bg-amber-50/75 text-slate-900'}`}>
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-500">
+                            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-400">
                               <Rocket size={14} /> Dopamine Boost
                             </div>
                             <button
@@ -787,25 +1200,24 @@ export default function CanvasPrismPlayPage() {
                               <Star size={14} fill={starredContents.includes(currentRefraction.dopamineBoost) ? 'currentColor' : 'none'} />
                             </button>
                           </div>
-                          <p className="text-sm sm:text-base font-semibold leading-relaxed italic">
+                          <p className="text-sm sm:text-base font-semibold leading-relaxed italic break-words">
                             &ldquo;{currentRefraction.dopamineBoost}&rdquo;
                           </p>
                         </div>
                       </div>
 
-                      {/* One Small Move */}
-                      <div className={`rounded-2xl border p-4 ${darkMode ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-emerald-200 bg-emerald-50'}`}>
-                        <div className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-emerald-500">
+                      <div className={`rounded-2xl border p-4 ${darkMode ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-emerald-300/70 bg-emerald-50/75 text-slate-900'}`}>
+                        <div className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                           <CheckCircle2 size={14} /> One Small Move
                         </div>
-                        <p className="text-sm font-medium leading-relaxed">{currentRefraction.oneSmallMove}</p>
+                        <p className="text-sm font-medium leading-relaxed break-words">{currentRefraction.oneSmallMove}</p>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
 
                 {/* Gentle Game Navigation */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/10">
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-black/10 dark:border-white/10">
                   <button
                     onClick={() => setCardIdx((i) => Math.max(0, i - 1))}
                     disabled={cardIdx === 0}
@@ -839,7 +1251,7 @@ export default function CanvasPrismPlayPage() {
         )}
       </AnimatePresence>
 
-      {/* Switch Quest Drawer (Optional — stays hidden so course mountain never scares you) */}
+      {/* Switch Quest Drawer */}
       <AnimatePresence>
         {showQuestDrawer && (
           <div className="fixed inset-0 z-[400] flex justify-end bg-black/60 backdrop-blur-sm">
@@ -848,20 +1260,20 @@ export default function CanvasPrismPlayPage() {
               animate={{ x: 0 }}
               exit={{ x: 360 }}
               className={`h-full w-full max-w-md overflow-y-auto border-l p-6 space-y-5 ${
-                darkMode ? 'border-white/10 bg-slate-950 text-slate-100' : 'border-slate-200 bg-white text-slate-900'
+                darkMode ? 'border-white/10 bg-[#0b1224] text-slate-100' : 'border-[#d6ccb9] bg-[#f8f4eb] text-[#1e293b]'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-black flex items-center gap-2">
-                    <Layers size={18} className="text-blue-500" /> Choose a Quest
+                    <Layers size={18} className={theme.accentText} /> Choose a Quest
                   </h2>
                   <p className={`text-xs ${mutedText}`}>Pick just one topic that feels doable right now.</p>
                 </div>
                 <button
                   onClick={() => setShowQuestDrawer(false)}
                   aria-label="Close quest drawer"
-                  className={`rounded-xl p-2 ${subtlePill}`}
+                  className={`rounded-xl border p-2 ${subtlePill}`}
                 >
                   <X size={18} />
                 </button>
@@ -883,18 +1295,18 @@ export default function CanvasPrismPlayPage() {
                           ? 'border-blue-500 bg-blue-600/15'
                           : darkMode
                             ? 'border-white/10 bg-white/5 hover:border-blue-500/40'
-                            : 'border-slate-200 bg-slate-50 hover:border-blue-400'
+                            : 'border-[#dcd3c2] bg-[#f1ebe0] hover:border-blue-500/50'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className={`text-[11px] font-bold ${mutedText}`}>{topic.moduleName}</span>
                         {isDone && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-black text-emerald-500">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-black text-emerald-600 dark:text-emerald-400">
                             <CheckCircle2 size={11} /> Cleared
                           </span>
                         )}
                       </div>
-                      <p className="mt-1 text-sm font-bold">{topic.title}</p>
+                      <p className="mt-1 text-sm font-bold break-words">{topic.title}</p>
                     </button>
                   );
                 })}
@@ -913,7 +1325,7 @@ export default function CanvasPrismPlayPage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`w-full max-w-lg rounded-[2rem] border p-6 sm:p-8 space-y-5 ${
-                darkMode ? 'border-white/15 bg-slate-900 text-slate-100' : 'border-slate-200 bg-white text-slate-900'
+                darkMode ? 'border-white/15 bg-[#0f172a] text-slate-100' : 'border-[#d6ccb9] bg-[#faf7f0] text-[#1e293b]'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -921,17 +1333,17 @@ export default function CanvasPrismPlayPage() {
                 <button
                   onClick={() => setShowConnectModal(false)}
                   aria-label="Close connect dialog"
-                  className={`rounded-xl p-2 ${subtlePill}`}
+                  className={`rounded-xl border p-2 ${subtlePill}`}
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 p-1">
+              <div className={`grid grid-cols-2 gap-2 rounded-2xl border p-1 ${darkMode ? 'border-white/10' : 'border-[#d6ccb9] bg-[#eee8dc]'}`}>
                 <button
                   onClick={() => setConnectTab('canvas')}
                   className={`rounded-xl py-2 text-xs font-bold transition-colors ${
-                    connectTab === 'canvas' ? 'bg-blue-600 text-white' : mutedText
+                    connectTab === 'canvas' ? `${theme.accentBg} text-white` : mutedText
                   }`}
                 >
                   Canvas Auto-Sync
@@ -939,7 +1351,7 @@ export default function CanvasPrismPlayPage() {
                 <button
                   onClick={() => setConnectTab('paste')}
                   className={`rounded-xl py-2 text-xs font-bold transition-colors ${
-                    connectTab === 'paste' ? 'bg-blue-600 text-white' : mutedText
+                    connectTab === 'paste' ? `${theme.accentBg} text-white` : mutedText
                   }`}
                 >
                   Paste a Reading (No Token)
@@ -953,21 +1365,21 @@ export default function CanvasPrismPlayPage() {
                       <ShieldCheck size={14} className="text-emerald-500" /> 100% Private to You
                     </p>
                     <p className={mutedText}>
-                      In Canvas, open <strong>Account → Settings → Approved Integrations → + New Access Token</strong>. Your token stays only in this browser tab and clears when you close it.
+                      In Canvas, open <strong>Account → Settings → Approved Integrations → + New Access Token</strong>. Your course link and token stay only in this browser tab and clear when you close it.
                     </p>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold" htmlFor="canvas-course-url">Canvas Course Link</label>
+                    <label className="text-xs font-bold" htmlFor="canvas-course-url">Your Canvas Course Link</label>
                     <input
                       id="canvas-course-url"
                       type="url"
                       required
                       value={courseUrl}
                       onChange={(e) => setCourseUrl(e.target.value)}
-                      placeholder="https://moringa.instructure.com/courses/1713/modules"
+                      placeholder="https://your-school.instructure.com/courses/1234/modules"
                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 ${
-                        darkMode ? 'border-white/15 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                        darkMode ? 'border-white/15 bg-slate-950 text-white placeholder:text-slate-500' : 'border-[#cfc5b2] bg-[#f3efe6] text-slate-900 placeholder:text-slate-500'
                       }`}
                     />
                   </div>
@@ -982,13 +1394,13 @@ export default function CanvasPrismPlayPage() {
                       onChange={(e) => setCanvasToken(e.target.value)}
                       placeholder="Paste your Canvas access token"
                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 ${
-                        darkMode ? 'border-white/15 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                        darkMode ? 'border-white/15 bg-slate-950 text-white placeholder:text-slate-500' : 'border-[#cfc5b2] bg-[#f3efe6] text-slate-900 placeholder:text-slate-500'
                       }`}
                     />
                   </div>
 
                   {connectError && (
-                    <p className="rounded-xl bg-rose-500/15 px-3.5 py-2.5 text-xs font-semibold text-rose-400">
+                    <p className="rounded-xl bg-rose-500/15 px-3.5 py-2.5 text-xs font-semibold text-rose-500">
                       {connectError}
                     </p>
                   )}
@@ -998,7 +1410,7 @@ export default function CanvasPrismPlayPage() {
                       <button
                         type="button"
                         onClick={handleDisconnectCanvas}
-                        className="rounded-xl border border-rose-500/40 px-4 py-2.5 text-xs font-bold text-rose-400 hover:bg-rose-500/10"
+                        className="rounded-xl border border-rose-500/40 px-4 py-2.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10"
                       >
                         Disconnect &amp; Clear Token
                       </button>
@@ -1006,7 +1418,7 @@ export default function CanvasPrismPlayPage() {
                     <button
                       type="submit"
                       disabled={connecting}
-                      className="ml-auto inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white hover:bg-blue-500 disabled:opacity-60"
+                      className={`ml-auto inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-black text-white disabled:opacity-60 ${theme.accentBg}`}
                     >
                       {connecting ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                       {connecting ? 'Loading Quests...' : 'Load My Canvas Quests'}
@@ -1016,7 +1428,7 @@ export default function CanvasPrismPlayPage() {
               ) : (
                 <form onSubmit={handleLoadPastedReading} className="space-y-4">
                   <p className={`text-xs ${mutedText}`}>
-                    If your school disabled access tokens, paste any Canvas lesson here (or click the upgraded Dassah&apos;s Prism Chrome Extension on any Canvas page).
+                    Paste any Canvas lesson, article, or study notes here — Prism Play saves it privately in your browser and splits it into calm cards automatically.
                   </p>
                   <input
                     type="text"
@@ -1024,7 +1436,7 @@ export default function CanvasPrismPlayPage() {
                     onChange={(e) => setPasteTitle(e.target.value)}
                     placeholder="Topic name (optional)"
                     className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 ${
-                      darkMode ? 'border-white/15 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                      darkMode ? 'border-white/15 bg-slate-950 text-white placeholder:text-slate-500' : 'border-[#cfc5b2] bg-[#f3efe6] text-slate-900 placeholder:text-slate-500'
                     }`}
                   />
                   <textarea
@@ -1032,9 +1444,9 @@ export default function CanvasPrismPlayPage() {
                     rows={6}
                     value={pasteText}
                     onChange={(e) => setPasteText(e.target.value)}
-                    placeholder="Paste your Canvas notes here — Prism Play will split them into calm cards automatically..."
+                    placeholder="Paste your notes here — Prism Play will turn them into calm playable cards..."
                     className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 ${
-                      darkMode ? 'border-white/15 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                      darkMode ? 'border-white/15 bg-slate-950 text-white placeholder:text-slate-500' : 'border-[#cfc5b2] bg-[#f3efe6] text-slate-900 placeholder:text-slate-500'
                     }`}
                   />
                   <button
