@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, JetBrains_Mono, Lexend, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import SessionSync from "@/components/SessionSync";
@@ -59,6 +60,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${lexend.variable} ${jetbrainsMono.variable} h-full antialiased`}>
       <body className={`${inter.className} h-full`}>
+        <Script
+          src="https://www.googletagmanager.com/gtm.js?id=GTM-P9WZRQB6"
+          strategy="afterInteractive"
+        />
+        <Script id="google-tag-manager" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'GTM-P9WZRQB6');
+          `}
+        </Script>
         <SessionSync />
         {children}
         <SpeedInsights />
