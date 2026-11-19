@@ -6,11 +6,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   ArrowRight,
+  BatteryLow,
   BookOpen,
   Brain,
   CheckCircle2,
   Compass,
   Eye,
+  FastForward,
   Flame,
   HeartHandshake,
   KeyRound,
@@ -24,9 +26,12 @@ import {
   Rocket,
   RotateCcw,
   ShieldCheck,
+  Sliders,
   Sparkles,
   Star,
+  StickyNote,
   Sun,
+  Timer,
   Trophy,
   Volume2,
   VolumeX,
@@ -37,6 +42,26 @@ import { BionicText } from '@/components/prism/BionicText';
 import { ProgressPrism } from '@/components/prism/ProgressPrism';
 import { ReadAloud } from '@/components/prism/ReadAloud';
 import { NeuralMicroBreak } from '@/components/prism/NeuralMicroBreak';
+import { PrismWeaver } from '@/components/prism/PrismWeaver';
+import {
+  NeuralIdentityDrawer,
+  QuickBrainCheckIn,
+} from '@/components/canvas/NeuralIdentityPanel';
+import {
+  BrainDumpDrawer,
+  PrismLensPopup,
+  RsvpSpeedReader,
+  SensorySoundscapeBar,
+  StageBossFight,
+  VoiceTalkItOut,
+} from '@/components/canvas/SensoryAndTools';
+import {
+  DEFAULT_NEURAL_PROFILE,
+  NEURAL_PRESETS,
+  type NeuralPresetId,
+  type NeuralProfile,
+  type buildProfileFromCheckIn,
+} from '@/lib/neural-identity';
 import {
   DEMO_QUESTS,
   createInstantLocalPrism,
@@ -189,11 +214,15 @@ const THEME_KEY = 'prism_canvas_theme';
 const COLOR_THEME_KEY = 'prism_canvas_color_theme';
 const CHIMES_KEY = 'prism_canvas_chimes';
 const PROGRESS_KEY = 'prism_canvas_progress_v1';
+const NEURAL_PROFILE_KEY = 'prism_canvas_neural_profile_v1';
+const CHECKIN_DONE_KEY = 'prism_canvas_checkin_done_v1';
 
 interface SavedProgress {
   xp: number;
   winsToday: number;
   streakDays: number;
+  bestStreak?: number;
+  daysShownUp?: number;
   lastActiveDate: string;
   completedTopics: string[];
   lastTopicId?: string;
@@ -241,18 +270,31 @@ export default function CanvasPrismPlayPage() {
   const [winsToday, setWinsToday] = useState(0);
   const [xp, setXp] = useState(0);
   const [streakDays, setStreakDays] = useState(1);
+  const [bestStreak, setBestStreak] = useState(1);
+  const [daysShownUp, setDaysShownUp] = useState(1);
   const [completedTopics, setCompletedTopics] = useState<string[]>([]);
   const [showStageClear, setShowStageClear] = useState(false);
   const [showBreak, setShowBreak] = useState(false);
   const [breakLevel, setBreakLevel] = useState(1);
   const [winBurst, setWinBurst] = useState(false);
+  const [winPulseCount, setWinPulseCount] = useState(0);
   const [starredContents, setStarredContents] = useState<string[]>([]);
 
-  // Gentle Focus Timer / Body-Doubling Companion
+  // Neural Identity & Opt-In Superpowers (A–H)
+  const [profile, setProfile] = useState<NeuralProfile>(DEFAULT_NEURAL_PROFILE);
+  const [showCheckIn, setShowCheckIn] = useState(false);
+  const [showIdentityDrawer, setShowIdentityDrawer] = useState(false);
+  const [showBrainDump, setShowBrainDump] = useState(false);
+  const [rsvpActive, setRsvpActive] = useState(false);
+  const [lensWord, setLensWord] = useState<string | null>(null);
+
+  // Gentle Focus Timer / Body-Doubling Companion + Beat-the-Clock Challenge (B)
   const [sprintTotalSecs, setSprintTotalSecs] = useState<number>(0);
   const [sprintSecsLeft, setSprintSecsLeft] = useState<number>(0);
   const [sprintRunning, setSprintRunning] = useState(false);
   const [sprintFinishedNote, setSprintFinishedNote] = useState(false);
+  const [challengeSprintActive, setChallengeSprintActive] = useState(false);
+  const [sprintCardsDone, setSprintCardsDone] = useState(0);
   const chimesRef = useRef(chimesOn);
   chimesRef.current = chimesOn;
 
@@ -272,7 +314,7 @@ export default function CanvasPrismPlayPage() {
   const [pasteTitle, setPasteTitle] = useState('');
   const [pasteText, setPasteText] = useState('');
 
-  // Load saved preferences, cross-session progress, and extension handoff
+  // Load saved preferences, Neural Identity, cross-session progress, and extension handoff
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -290,6 +332,20 @@ export default function CanvasPrismPlayPage() {
     if (savedChimes !== null) setChimesOn(savedChimes === 'true');
 
     try {
+      const savedProfileRaw = localStorage.getItem(NEURAL_PROFILE_KEY);
+      if (savedProfileRaw) {
+        const parsed = JSON.parse(savedProfileRaw) as Partial<NeuralProfile>;
+        setProfile({ ...DEFAULT_NEURAL_PROFILE, ...parsed });
+      }
+      const checkInDone = localStorage.getItem(CHECKIN_DONE_KEY);
+      if (!checkInDone) {
+        setShowCheckIn(true);
+      }
+    } catch {
+      // Ignore malformed profile
+    }
+
+    try {
       const vault = JSON.parse(localStorage.getItem('prism_starred_items') || '[]');
       if (Array.isArray(vault)) {
         setStarredContents(vault.map((v: { content?: string }) => v.content || ''));
@@ -298,7 +354,7 @@ export default function CanvasPrismPlayPage() {
       // Ignore malformed vault
     }
 
-    // Restore cross-session progress (XP, streak, completed topics, custom pasted topics, last card)
+    // Restore cross-session progress (XP, streak, best streak, days shown up, completed topics, custom pasted topics, last card)
     try {
       const rawProgress = localStorage.getItem(PROGRESS_KEY);
       if (rawProgress) {
@@ -311,10 +367,16 @@ export default function CanvasPrismPlayPage() {
           : saved.lastActiveDate === yesterday
             ? (saved.streakDays || 1) + 1
             : 1;
+        const nextDaysShownUp = isSameDay
+          ? Math.max(1, saved.daysShownUp || saved.streakDays || 1)
+          : (saved.daysShownUp || saved.streakDays || 1) + 1;
+        const nextBestStreak = Math.max(nextStreak, saved.bestStreak || 1);
 
         setXp(Number(saved.xp || 0));
         setWinsToday(isSameDay ? Number(saved.winsToday || 0) : 0);
         setStreakDays(nextStreak);
+        setBestStreak(nextBestStreak);
+        setDaysShownUp(nextDaysShownUp);
         if (Array.isArray(saved.completedTopics)) setCompletedTopics(saved.completedTopics);
 
         const mergedTopics = Array.isArray(saved.customTopics) && saved.customTopics.length > 0
@@ -376,7 +438,7 @@ export default function CanvasPrismPlayPage() {
     return () => window.removeEventListener('prism:canvas-handoff', loadHandoff);
   }, []);
 
-  // Persist visual & audio preferences
+  // Persist visual, audio, and Neural Identity preferences
   useEffect(() => {
     if (!hydrated || typeof window === 'undefined') return;
     localStorage.setItem(TEXT_SIZE_KEY, textSize);
@@ -385,7 +447,12 @@ export default function CanvasPrismPlayPage() {
     localStorage.setItem(THEME_KEY, darkMode ? 'dark' : 'light');
     localStorage.setItem(COLOR_THEME_KEY, colorTheme);
     localStorage.setItem(CHIMES_KEY, String(chimesOn));
-  }, [hydrated, textSize, dyslexiaFriendly, bionicOn, darkMode, colorTheme, chimesOn]);
+    try {
+      localStorage.setItem(NEURAL_PROFILE_KEY, JSON.stringify(profile));
+    } catch {
+      // Ignore quota errors
+    }
+  }, [hydrated, textSize, dyslexiaFriendly, bionicOn, darkMode, colorTheme, chimesOn, profile]);
 
   // Persist cross-session progress
   useEffect(() => {
@@ -396,6 +463,8 @@ export default function CanvasPrismPlayPage() {
       xp,
       winsToday,
       streakDays,
+      bestStreak: Math.max(bestStreak, streakDays),
+      daysShownUp,
       lastActiveDate: todayKey(),
       completedTopics,
       lastTopicId: active?.id,
@@ -407,7 +476,7 @@ export default function CanvasPrismPlayPage() {
     } catch {
       // Ignore quota errors
     }
-  }, [hydrated, xp, winsToday, streakDays, completedTopics, topics, activeTopicIdx, cardIdx]);
+  }, [hydrated, xp, winsToday, streakDays, bestStreak, daysShownUp, completedTopics, topics, activeTopicIdx, cardIdx]);
 
   // Gentle Body-Doubling Sprint timer tick
   useEffect(() => {
@@ -418,7 +487,7 @@ export default function CanvasPrismPlayPage() {
           clearInterval(interval);
           setSprintRunning(false);
           setSprintFinishedNote(true);
-          setXp((curr) => curr + 15);
+          setXp((curr) => curr + (challengeSprintActive ? 30 : 15));
           if (chimesRef.current) playSprintCompleteChime();
           return 0;
         }
@@ -426,7 +495,36 @@ export default function CanvasPrismPlayPage() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [sprintRunning, sprintSecsLeft]);
+  }, [sprintRunning, sprintSecsLeft, challengeSprintActive]);
+
+  const applyPreset = (presetId: Exclude<NeuralPresetId, 'custom'>) => {
+    const preset = NEURAL_PRESETS[presetId];
+    setProfile(preset.profile);
+    setTextSize(preset.recommendedTextSize);
+    setBionicOn(preset.recommendedBionic);
+    setDyslexiaFriendly(preset.recommendedEasyRead);
+    if (!preset.profile.showRsvpMode) setRsvpActive(false);
+  };
+
+  const handleCheckInComplete = (result: ReturnType<typeof buildProfileFromCheckIn>) => {
+    setProfile(result.profile);
+    setTextSize(result.textSize);
+    setBionicOn(result.bionicOn);
+    setDyslexiaFriendly(result.dyslexiaFriendly);
+    setChimesOn(result.chimesOn);
+    if (!result.profile.showRsvpMode) setRsvpActive(false);
+    setShowCheckIn(false);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(CHECKIN_DONE_KEY, '1');
+    }
+  };
+
+  const handleSkipCheckIn = () => {
+    setShowCheckIn(false);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(CHECKIN_DONE_KEY, '1');
+    }
+  };
 
   const theme = COLOR_THEMES[colorTheme];
   const activeTopic = topics[activeTopicIdx] || DEMO_QUESTS[0];
@@ -441,21 +539,36 @@ export default function CanvasPrismPlayPage() {
   }, [activeTopicIdx, topics]);
 
   const bodyDoubleMessage = useMemo(() => {
-    if (sprintFinishedNote) return 'Sprint complete! +15 XP — want a quick 20s brain break?';
-    if (sprintTotalSecs === 0) return 'Studying with you — pick a gentle sprint or just read at your own pace.';
+    if (sprintFinishedNote) {
+      return challengeSprintActive
+        ? `Beat-the-Clock complete! ${sprintCardsDone} cards cleared (+30 XP)!`
+        : 'Sprint complete! +15 XP — want a quick 20s brain break?';
+    }
+    if (sprintTotalSecs === 0) {
+      return profile.challengeMode
+        ? 'Beat-the-Clock ready — race 3 cards in 4 minutes or pick a steady sprint!'
+        : 'Studying with you — pick a gentle sprint or just read at your own pace.';
+    }
     const pct = 1 - sprintSecsLeft / sprintTotalSecs;
     if (!sprintRunning) return 'Paused — zero pressure. Resume whenever your brain feels ready.';
+    if (challengeSprintActive) {
+      return sprintCardsDone >= 3
+        ? 'Goal crushed! 3+ cards cleared before the clock!'
+        : `Beat-the-Clock active: ${sprintCardsDone} / 3 cards cleared — keep rolling!`;
+    }
     if (pct < 0.35) return 'Right here with you — just focus on this one calm card.';
     if (pct < 0.75) return 'Halfway through this sprint — steady, awesome momentum!';
     return 'Final stretch — proud of your focus!';
-  }, [sprintFinishedNote, sprintTotalSecs, sprintSecsLeft, sprintRunning]);
+  }, [sprintFinishedNote, sprintTotalSecs, sprintSecsLeft, sprintRunning, profile.challengeMode, challengeSprintActive, sprintCardsDone]);
 
-  const startSprint = (minutes: number) => {
+  const startSprint = (minutes: number, isChallenge = false) => {
     const secs = minutes * 60;
     setSprintTotalSecs(secs);
     setSprintSecsLeft(secs);
     setSprintRunning(true);
     setSprintFinishedNote(false);
+    setChallengeSprintActive(isChallenge);
+    setSprintCardsDone(0);
   };
 
   const resetSprint = () => {
@@ -463,6 +576,8 @@ export default function CanvasPrismPlayPage() {
     setSprintTotalSecs(0);
     setSprintSecsLeft(0);
     setSprintFinishedNote(false);
+    setChallengeSprintActive(false);
+    setSprintCardsDone(0);
   };
 
   const loadTopicByIndex = async (idx: number, topicList: CanvasTopic[] = topics, tokenOverride?: string, urlOverride?: string) => {
@@ -677,9 +792,15 @@ export default function CanvasPrismPlayPage() {
     const nextWins = winsToday + 1;
     setWinsToday(nextWins);
     setXp((prev) => prev + 25);
-    setWinBurst(true);
+    setWinPulseCount((c) => c + 1);
+    if (sprintRunning) {
+      setSprintCardsDone((c) => c + 1);
+    }
+    if (!profile.reducedMotion) {
+      setWinBurst(true);
+      setTimeout(() => setWinBurst(false), 750);
+    }
     setResumedBanner(null);
-    setTimeout(() => setWinBurst(false), 750);
 
     const isLastCard = cardIdx >= cards.length - 1;
     if (isLastCard) {
@@ -702,6 +823,38 @@ export default function CanvasPrismPlayPage() {
     setRefractNotice(null);
   };
 
+  // Keyboard Flow Shortcuts (← / → for cards, R to Refract, B for Bionic)
+  const claimWinRef = useRef(handleClaimWin);
+  claimWinRef.current = handleClaimWin;
+  const refractRef = useRef(handleRefractCard);
+  refractRef.current = handleRefractCard;
+
+  useEffect(() => {
+    if (!profile.keyboardFlow || typeof window === 'undefined') return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (showConnectModal || showQuestDrawer || showCheckIn || showIdentityDrawer || showBrainDump || showBreak || showStageClear) {
+        return;
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        claimWinRef.current();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setCardIdx((i) => Math.max(0, i - 1));
+      } else if (e.key.toLowerCase() === 'r' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        void refractRef.current();
+      } else if (e.key.toLowerCase() === 'b' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setBionicOn((b) => !b);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [profile.keyboardFlow, showConnectModal, showQuestDrawer, showCheckIn, showIdentityDrawer, showBrainDump, showBreak, showStageClear]);
+
   const surfaceBg = darkMode ? theme.darkBg : theme.lightBg;
   const glassCard = darkMode ? theme.darkCard : theme.lightCard;
   const readingSurface = darkMode ? theme.darkInner : theme.lightInner;
@@ -712,10 +865,32 @@ export default function CanvasPrismPlayPage() {
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${surfaceBg}`}>
-      {/* Soft ambient background glow */}
+      {/* Quiet Fidget Corner (Reusing Dassah's Prism PrismWeaver) */}
+      {profile.showFidgetCorner && !profile.reducedMotion && !profile.lowBatteryMode && (
+        <PrismWeaver completedPulse={winPulseCount} focusMode="dastastic" />
+      )}
+
+      {/* Soft ambient background glow (+ optional Kinetic Glow Tool F) */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className={`absolute -top-32 left-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? theme.darkGlowA : theme.lightGlowA}`} />
-        <div className={`absolute bottom-0 right-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? theme.darkGlowB : theme.lightGlowB}`} />
+        {profile.kineticMotion && !profile.reducedMotion ? (
+          <>
+            <motion.div
+              animate={{ x: [0, 60, -40, 0], y: [0, 45, -25, 0], scale: [1, 1.12, 0.96, 1] }}
+              transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+              className={`absolute -top-32 left-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? theme.darkGlowA : theme.lightGlowA}`}
+            />
+            <motion.div
+              animate={{ x: [0, -65, 45, 0], y: [0, -40, 30, 0], scale: [1, 0.94, 1.1, 1] }}
+              transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+              className={`absolute bottom-0 right-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? theme.darkGlowB : theme.lightGlowB}`}
+            />
+          </>
+        ) : (
+          <>
+            <div className={`absolute -top-32 left-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? theme.darkGlowA : theme.lightGlowA}`} />
+            <div className={`absolute bottom-0 right-1/4 h-96 w-96 rounded-full blur-3xl ${darkMode ? theme.darkGlowB : theme.lightGlowB}`} />
+          </>
+        )}
       </div>
 
       <div className="relative z-10 mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8 space-y-5">
@@ -737,14 +912,38 @@ export default function CanvasPrismPlayPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className={`inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-bold ${subtlePill}`} title={`${streakDays}-day focus streak`}>
+            {/* Shame-Free Days Shown Up vs Competitive High-Score Streak (Tool G) */}
+            <div
+              className={`inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-bold ${subtlePill}`}
+              title={profile.shameFreeStreak ? `${daysShownUp} total days shown up (shame-free)` : `Competitive Streak: ${streakDays}d · Personal Best: ${bestStreak}d`}
+            >
               <Flame size={14} className="text-amber-500" />
               <span>{winsToday} {winsToday === 1 ? 'win' : 'wins'}</span>
               <span className="opacity-40">·</span>
               <span className="text-emerald-600 dark:text-emerald-400">{xp} XP</span>
               <span className="opacity-40">·</span>
-              <span>{streakDays}d</span>
+              {profile.shameFreeStreak ? (
+                <span>{daysShownUp}d shown up</span>
+              ) : (
+                <span>{streakDays}d (Best {bestStreak}d)</span>
+              )}
             </div>
+
+            <button
+              onClick={() => setShowIdentityDrawer(true)}
+              className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-colors ${subtlePill} hover:border-blue-500/50`}
+            >
+              <Sliders size={14} className={theme.accentText} /> Neural Identity
+            </button>
+
+            {profile.showBrainDump && (
+              <button
+                onClick={() => setShowBrainDump(true)}
+                className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-colors ${subtlePill} hover:border-amber-500/50`}
+              >
+                <StickyNote size={14} className="text-amber-500" /> Brain Dump
+              </button>
+            )}
 
             <button
               onClick={() => setChimesOn((c) => !c)}
@@ -782,8 +981,24 @@ export default function CanvasPrismPlayPage() {
           </div>
         </header>
 
+        {/* Low-Battery Mode Banner ("Just 1 Card Today") */}
+        {profile.lowBatteryMode && (
+          <div className={`flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-2.5 text-xs font-bold ${subtlePill}`}>
+            <span className="inline-flex items-center gap-2">
+              <BatteryLow size={15} className="text-emerald-500" />
+              Low-Battery Mode: Just this 1 calm card today. Extra bars are tucked away.
+            </span>
+            <button
+              onClick={() => setProfile((p) => ({ ...p, preset: 'custom', lowBatteryMode: false }))}
+              className="rounded-xl bg-blue-600 px-3 py-1 text-[11px] font-black text-white hover:bg-blue-500"
+            >
+              Exit Low-Battery
+            </button>
+          </div>
+        )}
+
         {/* Cross-Session Resume Banner */}
-        {resumedBanner && (
+        {resumedBanner && !profile.lowBatteryMode && (
           <div className={`flex items-center justify-between gap-2 rounded-2xl border px-4 py-2 text-xs font-semibold ${subtlePill}`}>
             <span className="flex items-center gap-2">
               <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
@@ -796,190 +1011,226 @@ export default function CanvasPrismPlayPage() {
         )}
 
         {/* Privacy & Unlimited Bar */}
-        <div className={`flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-2.5 text-xs ${subtlePill}`}>
-          <div className="flex items-center gap-2">
-            <Lock size={14} className="text-emerald-500 shrink-0" />
-            <span>
-              <strong>Private to your browser:</strong> Your Canvas link, token, and notes stay on your device — nobody else can see them.
-            </span>
+        {!profile.lowBatteryMode && (
+          <div className={`flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-2.5 text-xs ${subtlePill}`}>
+            <div className="flex items-center gap-2">
+              <Lock size={14} className="text-emerald-500 shrink-0" />
+              <span>
+                <strong>Private to your browser:</strong> Your Canvas link, token, and notes stay on your device — nobody else can see them.
+              </span>
+            </div>
+            <button
+              onClick={() => setLocalOnlyMode((m) => !m)}
+              className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                localOnlyMode
+                  ? 'bg-emerald-600 text-white'
+                  : darkMode ? 'bg-white/10 text-slate-200 hover:bg-white/15' : 'bg-[#dfd7c7] text-[#1e293b] hover:bg-[#d3cab7]'
+              }`}
+            >
+              {localOnlyMode ? 'Unlimited Local Prism: ON' : 'Unlimited Fallback: Ready'}
+            </button>
           </div>
-          <button
-            onClick={() => setLocalOnlyMode((m) => !m)}
-            className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
-              localOnlyMode
-                ? 'bg-emerald-600 text-white'
-                : darkMode ? 'bg-white/10 text-slate-200 hover:bg-white/15' : 'bg-[#dfd7c7] text-[#1e293b] hover:bg-[#d3cab7]'
-            }`}
-          >
-            {localOnlyMode ? 'Unlimited Local Prism: ON' : 'Unlimited Fallback: Ready'}
-          </button>
-        </div>
+        )}
+
+        {/* Sensory Soundscape Bar (Brown / Pink / Rain / 40Hz Pulse Tool E + Optional Spotify/YouTube Pin) */}
+        {profile.showSensoryBar && !profile.lowBatteryMode && (
+          <SensorySoundscapeBar
+            darkMode={darkMode}
+            showSoundtrackPin={profile.showSoundtrackPin}
+            showGamma40={profile.showGamma40}
+            glassCard={glassCard}
+            subtlePill={subtlePill}
+            mutedText={mutedText}
+          />
+        )}
 
         {/* Reading Comfort + Visual Color Themes Bar */}
-        <section
-          aria-label="Reading comfort and visual themes"
-          className={`space-y-3 rounded-3xl border p-3.5 sm:p-4 backdrop-blur-2xl ${glassCard}`}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            {/* Prominent Small / Comfortable / Big */}
-            <div className="flex items-center gap-2">
-              <span className={`text-xs font-bold ${mutedText}`}>Text size:</span>
-              <div
-                className={`inline-flex rounded-2xl border p-1 ${darkMode ? 'border-white/10 bg-black/30' : 'border-[#d6ccb9] bg-[#ebe4d7]'}`}
-                role="group"
-                aria-label="Text size"
-              >
-                {(['small', 'comfortable', 'big'] as TextSize[]).map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setTextSize(size)}
-                    aria-pressed={textSize === size}
-                    className={`rounded-xl px-3 py-1.5 text-xs font-bold capitalize transition-all ${
-                      textSize === size
-                        ? `${theme.accentBg} text-white shadow-sm`
-                        : `${mutedText} hover:opacity-100`
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+        {!profile.lowBatteryMode && (
+          <section
+            aria-label="Reading comfort and visual themes"
+            className={`space-y-3 rounded-3xl border p-3.5 sm:p-4 backdrop-blur-2xl ${glassCard}`}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {/* Prominent Small / Comfortable / Big */}
+              <div className="flex items-center gap-2">
+                <span className={`text-xs font-bold ${mutedText}`}>Text size:</span>
+                <div
+                  className={`inline-flex rounded-2xl border p-1 ${darkMode ? 'border-white/10 bg-black/30' : 'border-[#d6ccb9] bg-[#ebe4d7]'}`}
+                  role="group"
+                  aria-label="Text size"
+                >
+                  {(['small', 'comfortable', 'big'] as TextSize[]).map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setTextSize(size)}
+                      aria-pressed={textSize === size}
+                      className={`rounded-xl px-3 py-1.5 text-xs font-bold capitalize transition-all ${
+                        textSize === size
+                          ? `${theme.accentBg} text-white shadow-sm`
+                          : `${mutedText} hover:opacity-100`
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => setBionicOn((b) => !b)}
+                  aria-pressed={bionicOn}
+                  className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                    bionicOn
+                      ? `border-transparent text-white ${theme.accentBg}`
+                      : `${subtlePill} hover:border-blue-500/40`
+                  }`}
+                >
+                  <Eye size={13} /> Bionic {bionicOn ? 'On' : 'Off'}
+                </button>
+
+                <button
+                  onClick={() => setDyslexiaFriendly((d) => !d)}
+                  aria-pressed={dyslexiaFriendly}
+                  className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                    dyslexiaFriendly
+                      ? 'border-emerald-500 bg-emerald-600 text-white'
+                      : `${subtlePill} hover:border-emerald-500/40`
+                  }`}
+                >
+                  <BookOpen size={13} /> Easy-Read Font
+                </button>
+
+                {currentCard && (
+                  <ReadAloud
+                    text={`${currentCard.heading}. ${currentCard.text}`}
+                    darkMode={darkMode}
+                    defaultSpeed={profile.preferredReadSpeed}
+                  />
+                )}
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                onClick={() => setBionicOn((b) => !b)}
-                aria-pressed={bionicOn}
-                className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
-                  bionicOn
-                    ? `border-transparent text-white ${theme.accentBg}`
-                    : `${subtlePill} hover:border-blue-500/40`
-                }`}
-              >
-                <Eye size={13} /> Bionic {bionicOn ? 'On' : 'Off'}
-              </button>
-
-              <button
-                onClick={() => setDyslexiaFriendly((d) => !d)}
-                aria-pressed={dyslexiaFriendly}
-                className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all ${
-                  dyslexiaFriendly
-                    ? 'border-emerald-500 bg-emerald-600 text-white'
-                    : `${subtlePill} hover:border-emerald-500/40`
-                }`}
-              >
-                <BookOpen size={13} /> Easy-Read Font
-              </button>
-
-              {currentCard && (
-                <ReadAloud text={`${currentCard.heading}. ${currentCard.text}`} darkMode={darkMode} />
-              )}
-            </div>
-          </div>
-
-          {/* 5 Visual Color Themes Swatch Row */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-black/10 dark:border-white/10">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${mutedText}`}>
-                <Palette size={13} /> Vibe:
-              </span>
-              {(Object.values(COLOR_THEMES) as ColorTheme[]).map((t) => {
-                const active = t.id === colorTheme;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setColorTheme(t.id)}
-                    aria-pressed={active}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold transition-all ${
-                      active
-                        ? darkMode
-                          ? 'border-white/40 bg-white/15 text-white'
-                          : 'border-slate-700/40 bg-[#e2dacb] text-slate-900'
-                        : `${subtlePill} opacity-80 hover:opacity-100`
-                    }`}
-                  >
-                    <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: t.swatch }} />
-                    {t.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* Gentle Focus Timer / Body-Doubling Companion Bar */}
-        <section
-          aria-label="Gentle body-doubling focus companion"
-          className={`rounded-3xl border px-4 py-3 backdrop-blur-2xl ${glassCard} space-y-2.5`}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5 text-xs">
-              <span className={`relative flex h-2.5 w-2.5 shrink-0`}>
-                {sprintRunning && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />}
-                <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${sprintRunning ? 'bg-emerald-500' : 'bg-blue-500/70'}`} />
-              </span>
-              <HeartHandshake size={14} className={theme.accentText} />
-              <span className="font-semibold">{bodyDoubleMessage}</span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-1.5">
-              {sprintTotalSecs === 0 ? (
-                <>
-                  {[5, 10, 15].map((mins) => (
+            {/* 5 Visual Color Themes Swatch Row */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-black/10 dark:border-white/10">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${mutedText}`}>
+                  <Palette size={13} /> Vibe:
+                </span>
+                {(Object.values(COLOR_THEMES) as ColorTheme[]).map((t) => {
+                  const active = t.id === colorTheme;
+                  return (
                     <button
-                      key={mins}
-                      onClick={() => startSprint(mins)}
-                      className={`rounded-xl border px-2.5 py-1 text-xs font-bold transition-colors ${subtlePill} hover:border-emerald-500/50`}
+                      key={t.id}
+                      onClick={() => setColorTheme(t.id)}
+                      aria-pressed={active}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold transition-all ${
+                        active
+                          ? darkMode
+                            ? 'border-white/40 bg-white/15 text-white'
+                            : 'border-slate-700/40 bg-[#e2dacb] text-slate-900'
+                          : `${subtlePill} opacity-80 hover:opacity-100`
+                      }`}
                     >
-                      {mins}m sprint
+                      <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: t.swatch }} />
+                      {t.label}
                     </button>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <span className={`rounded-xl border px-2.5 py-1 font-mono text-xs font-black tabular-nums ${subtlePill}`}>
-                    {formatTimer(sprintSecsLeft)}
-                  </span>
-                  {sprintSecsLeft > 0 ? (
-                    <button
-                      onClick={() => setSprintRunning((r) => !r)}
-                      className={`inline-flex items-center gap-1 rounded-xl border px-2.5 py-1 text-xs font-bold ${subtlePill}`}
-                    >
-                      {sprintRunning ? <Pause size={12} /> : <Play size={12} />}
-                      {sprintRunning ? 'Pause' : 'Resume'}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setSprintFinishedNote(false);
-                        setShowBreak(true);
-                      }}
-                      className="rounded-xl bg-emerald-600 px-3 py-1 text-xs font-bold text-white hover:bg-emerald-500"
-                    >
-                      Take 20s Break
-                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Gentle Focus Timer / Body-Doubling Companion + Beat-the-Clock Challenge Mode (Tool B) */}
+        {profile.showBodyDoubling && !profile.lowBatteryMode && (
+          <section
+            aria-label="Gentle body-doubling focus companion"
+            className={`rounded-3xl border px-4 py-3 backdrop-blur-2xl ${glassCard} space-y-2.5`}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 text-xs">
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                  {sprintRunning && !profile.reducedMotion && (
+                    <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${challengeSprintActive ? 'bg-amber-400' : 'bg-emerald-400'}`} />
                   )}
-                  <button
-                    onClick={resetSprint}
-                    aria-label="Reset focus sprint"
-                    className={`rounded-xl border p-1.5 ${subtlePill}`}
-                  >
-                    <RotateCcw size={12} />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
+                  <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${sprintRunning ? (challengeSprintActive ? 'bg-amber-500' : 'bg-emerald-500') : 'bg-blue-500/70'}`} />
+                </span>
+                {challengeSprintActive ? (
+                  <Timer size={14} className="text-amber-500" />
+                ) : (
+                  <HeartHandshake size={14} className={theme.accentText} />
+                )}
+                <span className="font-semibold">{bodyDoubleMessage}</span>
+              </div>
 
-          {sprintTotalSecs > 0 && (
-            <div className={`h-1.5 w-full overflow-hidden rounded-full ${darkMode ? 'bg-white/10' : 'bg-black/10'}`}>
-              <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-1000"
-                style={{ width: `${Math.min(100, ((sprintTotalSecs - sprintSecsLeft) / sprintTotalSecs) * 100)}%` }}
-              />
+              <div className="flex flex-wrap items-center gap-1.5">
+                {sprintTotalSecs === 0 ? (
+                  <>
+                    {profile.challengeMode && (
+                      <button
+                        onClick={() => startSprint(4, true)}
+                        className="inline-flex items-center gap-1 rounded-xl bg-amber-500 px-3 py-1 text-xs font-black text-slate-950 hover:bg-amber-400"
+                      >
+                        <Timer size={12} /> 4m Beat-the-Clock (3 cards!)
+                      </button>
+                    )}
+                    {[5, 10, 15].map((mins) => (
+                      <button
+                        key={mins}
+                        onClick={() => startSprint(mins, false)}
+                        className={`rounded-xl border px-2.5 py-1 text-xs font-bold transition-colors ${subtlePill} hover:border-emerald-500/50`}
+                      >
+                        {mins}m sprint
+                      </button>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <span className={`rounded-xl border px-2.5 py-1 font-mono text-xs font-black tabular-nums ${subtlePill}`}>
+                      {formatTimer(sprintSecsLeft)}
+                    </span>
+                    {sprintSecsLeft > 0 ? (
+                      <button
+                        onClick={() => setSprintRunning((r) => !r)}
+                        className={`inline-flex items-center gap-1 rounded-xl border px-2.5 py-1 text-xs font-bold ${subtlePill}`}
+                      >
+                        {sprintRunning ? <Pause size={12} /> : <Play size={12} />}
+                        {sprintRunning ? 'Pause' : 'Resume'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setSprintFinishedNote(false);
+                          setShowBreak(true);
+                        }}
+                        className="rounded-xl bg-emerald-600 px-3 py-1 text-xs font-bold text-white hover:bg-emerald-500"
+                      >
+                        Take 20s Break
+                      </button>
+                    )}
+                    <button
+                      onClick={resetSprint}
+                      aria-label="Reset focus sprint"
+                      className={`rounded-xl border p-1.5 ${subtlePill}`}
+                    >
+                      <RotateCcw size={12} />
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
-          )}
-        </section>
+
+            {sprintTotalSecs > 0 && (
+              <div className={`h-1.5 w-full overflow-hidden rounded-full ${darkMode ? 'bg-white/10' : 'bg-black/10'}`}>
+                <div
+                  className={`h-full rounded-full transition-all duration-1000 ${challengeSprintActive ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                  style={{ width: `${Math.min(100, ((sprintTotalSecs - sprintSecsLeft) / sprintTotalSecs) * 100)}%` }}
+                />
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Main Quest Card Surface */}
         <main>
@@ -1016,6 +1267,16 @@ export default function CanvasPrismPlayPage() {
                 </p>
               </div>
 
+              {profile.bossFightMode && (
+                <StageBossFight
+                  cards={cards}
+                  darkMode={darkMode}
+                  subtlePill={subtlePill}
+                  timedMode={profile.challengeMode}
+                  onVictory={(bonus) => setXp((curr) => curr + bonus)}
+                />
+              )}
+
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                 {nextTopic ? (
                   <button
@@ -1048,13 +1309,13 @@ export default function CanvasPrismPlayPage() {
             <AnimatePresence mode="wait">
               <motion.article
                 key={currentCardKey}
-                initial={{ opacity: 0, y: 12 }}
+                initial={profile.reducedMotion ? false : { opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.25 }}
+                exit={profile.reducedMotion ? undefined : { opacity: 0, y: -10 }}
+                transition={{ duration: profile.reducedMotion ? 0 : 0.25 }}
                 className={`relative overflow-hidden rounded-[2.25rem] border p-6 sm:p-9 backdrop-blur-2xl ${glassCard} space-y-6`}
               >
-                {winBurst && (
+                {winBurst && !profile.reducedMotion && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -1071,33 +1332,112 @@ export default function CanvasPrismPlayPage() {
                     <span className={`text-xs font-black uppercase tracking-[0.18em] ${theme.accentText}`}>
                       Today&apos;s Tiny Quest · {activeTopic.title}
                     </span>
-                    <span className={`rounded-full border px-3 py-1 text-xs font-bold ${subtlePill}`}>
-                      Card {cardIdx + 1} of {cards.length}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {profile.showRsvpMode && (
+                        <button
+                          type="button"
+                          onClick={() => setRsvpActive((r) => !r)}
+                          aria-pressed={rsvpActive}
+                          className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold transition-colors ${
+                            rsvpActive ? 'border-blue-500 bg-blue-600 text-white' : subtlePill
+                          }`}
+                        >
+                          <FastForward size={12} /> {rsvpActive ? 'RSVP On' : 'RSVP Flash'}
+                        </button>
+                      )}
+                      <span className={`rounded-full border px-3 py-1 text-xs font-bold ${subtlePill}`}>
+                        Card {cardIdx + 1} of {cards.length}
+                      </span>
+                    </div>
                   </div>
 
                   <ProgressPrism progress={(cardIdx + 1) / Math.max(1, cards.length)} />
+
+                  {/* "Where Was I?" 1-Line Story Recap */}
+                  {cardIdx > 0 && cards[cardIdx - 1] && (
+                    <p className={`rounded-xl border px-3 py-1.5 text-xs ${subtlePill} opacity-85`}>
+                      <strong>Previously:</strong> {cards[cardIdx - 1].heading} —{' '}
+                      {cards[cardIdx - 1].text.split(/(?<=[.!?])\s+/)[0]?.slice(0, 120)}
+                    </p>
+                  )}
 
                   <h1 className="pt-1 text-xl sm:text-2xl font-black tracking-tight break-words">
                     {currentCard.heading}
                   </h1>
                 </div>
 
-                {/* Readable Card Body — strictly wrapped inside bounds at any text size */}
-                <div
-                  className={`w-full max-w-full overflow-hidden rounded-3xl border p-5 sm:p-7 transition-all break-words [overflow-wrap:anywhere] ${readingSurface} ${TEXT_SIZE_STYLES[textSize]} ${
-                    dyslexiaFriendly ? 'tracking-[0.025em] [word-spacing:0.1em]' : ''
-                  }`}
-                  style={{
-                    fontFamily: dyslexiaFriendly ? 'var(--font-reading), Lexend, sans-serif' : 'var(--font-sans), Inter, sans-serif',
-                  }}
-                >
-                  {currentCard.text.split('\n\n').map((paragraph, pIdx) => (
-                    <p key={pIdx} className={`break-words [overflow-wrap:anywhere] ${pIdx > 0 ? 'mt-4' : ''}`}>
-                      {bionicOn ? <BionicText text={paragraph} /> : paragraph}
-                    </p>
-                  ))}
-                </div>
+                {/* Readable Card Body — RSVP Flash (Tool D) OR Standard / Bionic with Prism Lens */}
+                {profile.showRsvpMode && rsvpActive ? (
+                  <RsvpSpeedReader
+                    text={currentCard.text}
+                    darkMode={darkMode}
+                    subtlePill={subtlePill}
+                  />
+                ) : (
+                  <div
+                    className={`w-full max-w-full overflow-hidden rounded-3xl border p-5 sm:p-7 transition-all break-words [overflow-wrap:anywhere] ${readingSurface} ${TEXT_SIZE_STYLES[textSize]} ${
+                      dyslexiaFriendly ? 'tracking-[0.025em] [word-spacing:0.1em]' : ''
+                    }`}
+                    style={{
+                      fontFamily: dyslexiaFriendly ? 'var(--font-reading), Lexend, sans-serif' : 'var(--font-sans), Inter, sans-serif',
+                    }}
+                  >
+                    {currentCard.text.split('\n\n').map((paragraph, pIdx) => (
+                      <p key={pIdx} className={`break-words [overflow-wrap:anywhere] ${pIdx > 0 ? 'mt-4' : ''}`}>
+                        {bionicOn ? (
+                          <BionicText
+                            text={paragraph}
+                            onWordSelect={profile.showPrismLens ? (w) => setLensWord(w) : undefined}
+                          />
+                        ) : profile.showPrismLens ? (
+                          paragraph.split(/\s+/).filter(Boolean).map((word, wIdx, arr) => {
+                            const cleaned = word.replace(/^[^a-zA-Z0-9\u00C0-\u024F]+|[^a-zA-Z0-9\u00C0-\u024F]+$/g, '').trim();
+                            const trailing = wIdx < arr.length - 1 ? ' ' : '';
+                            if (cleaned.length < 3 || cleaned.length > 60) {
+                              return <React.Fragment key={wIdx}>{word}{trailing}</React.Fragment>;
+                            }
+                            return (
+                              <React.Fragment key={wIdx}>
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={() => setLensWord(cleaned)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.preventDefault();
+                                      setLensWord(cleaned);
+                                    }
+                                  }}
+                                  title={`Tap to inspect “${cleaned}” in Prism Lens`}
+                                  className="inline rounded-md px-0.5 cursor-pointer transition-colors hover:bg-blue-500/15 active:bg-blue-500/25"
+                                >
+                                  {word}
+                                </span>
+                                {trailing}
+                              </React.Fragment>
+                            );
+                          })
+                        ) : (
+                          paragraph
+                        )}
+                      </p>
+                    ))}
+                    {profile.showPrismLens && (
+                      <p className={`mt-4 text-[11px] font-semibold opacity-65 ${mutedText}`}>
+                        Tip: Tap any word to open Prism Lens (Ask DJ or Google without leaving your quest).
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Voice "Talk It Out" Rubber-Duck Recap Mic (Tool H) */}
+                {profile.showVoiceRecap && (
+                  <VoiceTalkItOut
+                    key={currentCardKey}
+                    subtlePill={subtlePill}
+                    onXpEarned={(bonus) => setXp((curr) => curr + bonus)}
+                  />
+                )}
 
                 {/* Refract with Prism Trigger */}
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1459,6 +1799,59 @@ export default function CanvasPrismPlayPage() {
               )}
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Quick Brain Check-In (15-Second Setup & A–H Analysis with "Skip & Just Continue") */}
+      <AnimatePresence>
+        {showCheckIn && (
+          <QuickBrainCheckIn
+            darkMode={darkMode}
+            onComplete={handleCheckInComplete}
+            onSkip={handleSkipCheckIn}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Neural Identity Drawer (4 Presets + All Individual & A–H Toggles) */}
+      <AnimatePresence>
+        {showIdentityDrawer && (
+          <NeuralIdentityDrawer
+            darkMode={darkMode}
+            profile={profile}
+            onChangeProfile={(next) => {
+              setProfile(next);
+              if (!next.showRsvpMode) setRsvpActive(false);
+            }}
+            onApplyPreset={applyPreset}
+            onOpenCheckIn={() => {
+              setShowIdentityDrawer(false);
+              setShowCheckIn(true);
+            }}
+            onClose={() => setShowIdentityDrawer(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Brain Dump Distraction Catcher Drawer */}
+      <AnimatePresence>
+        {showBrainDump && (
+          <BrainDumpDrawer
+            darkMode={darkMode}
+            onClose={() => setShowBrainDump(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Prism Lens Word Helper Popup (Tap Any Word -> Ask DJ / Google) */}
+      <AnimatePresence>
+        {lensWord && currentCard && (
+          <PrismLensPopup
+            word={lensWord}
+            cardContext={`${currentCard.heading}\n${currentCard.text}`}
+            darkMode={darkMode}
+            onClose={() => setLensWord(null)}
+          />
         )}
       </AnimatePresence>
     </div>

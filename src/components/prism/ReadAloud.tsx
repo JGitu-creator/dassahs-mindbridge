@@ -11,13 +11,30 @@ const VOICES = [
   { id: 'sal', name: 'Sal (Smooth)' },
 ];
 
-export const ReadAloud = ({ text, darkMode }: { text: string; darkMode?: boolean }) => {
+const SPEEDS = [1, 1.25, 1.5, 1.75, 2] as const;
+
+export type ReadAloudSpeed = (typeof SPEEDS)[number];
+
+export const ReadAloud = ({
+  text,
+  darkMode,
+  defaultSpeed = 1,
+}: {
+  text: string;
+  darkMode?: boolean;
+  defaultSpeed?: ReadAloudSpeed;
+}) => {
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [voice, setVoice] = useState('eve');
+  const [speed, setSpeed] = useState<number>(defaultSpeed);
   const [statusNote, setStatusNote] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const objectUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    setSpeed(defaultSpeed);
+  }, [defaultSpeed]);
 
   const cleanupAudio = () => {
     if (audioRef.current) {
@@ -37,6 +54,12 @@ export const ReadAloud = ({ text, darkMode }: { text: string; darkMode?: boolean
 
   useEffect(() => cleanupAudio, []);
 
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = speed;
+    }
+  }, [speed]);
+
   const speakWithBrowserFallback = (content: string) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       setStatusNote('Read-aloud is unavailable in this browser.');
@@ -45,6 +68,7 @@ export const ReadAloud = ({ text, darkMode }: { text: string; darkMode?: boolean
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(content);
+    utterance.rate = speed;
     utterance.onend = () => setPlaying(false);
     utterance.onerror = () => {
       setPlaying(false);
@@ -76,6 +100,7 @@ export const ReadAloud = ({ text, darkMode }: { text: string; darkMode?: boolean
       const audio = audioRef.current ?? new Audio();
       audioRef.current = audio;
       audio.src = url;
+      audio.playbackRate = speed;
       audio.onended = () => {
         setPlaying(false);
         cleanupAudio();
@@ -97,6 +122,12 @@ export const ReadAloud = ({ text, darkMode }: { text: string; darkMode?: boolean
     cleanupAudio();
     setPlaying(false);
     setStatusNote(null);
+  };
+
+  const cycleSpeed = () => {
+    const idx = SPEEDS.indexOf(speed as (typeof SPEEDS)[number]);
+    const next = SPEEDS[(idx + 1) % SPEEDS.length];
+    setSpeed(next);
   };
 
   const selectClass = darkMode === true
@@ -126,6 +157,19 @@ export const ReadAloud = ({ text, darkMode }: { text: string; darkMode?: boolean
           </option>
         ))}
       </select>
+      <button
+        type="button"
+        onClick={cycleSpeed}
+        title="Adjust read-aloud speed (1x to 2x)"
+        aria-label={`Read aloud speed ${speed}x`}
+        className={`rounded-xl border px-2 py-1.5 text-xs font-bold tabular-nums transition-colors ${
+          darkMode === false
+            ? 'border-stone-300 bg-[#fbf8f1] text-slate-900 hover:border-blue-500'
+            : 'border-white/15 bg-slate-900 text-slate-100 hover:border-blue-400'
+        }`}
+      >
+        {speed}x
+      </button>
       <button
         onClick={playing ? handleStop : () => void handleRead()}
         disabled={loading}
