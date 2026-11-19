@@ -57,6 +57,7 @@ export function providerErrorCategory(error: unknown): string {
 async function runGroqChat(
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
   temperature: number,
+  jsonMode = false,
 ): Promise<ProviderResult> {
   const groqKey = process.env.GROQ_API_KEY?.trim();
   if (!groqKey) throw new Error('groq_key_missing');
@@ -71,7 +72,12 @@ async function runGroqChat(
           Authorization: `Bearer ${groqKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ model, messages, temperature }),
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature,
+          ...(jsonMode ? { response_format: { type: 'json_object' } } : {}),
+        }),
       });
       if (!response.ok) throw new Error(`Groq returned ${response.status} for ${model}`);
       const data = await response.json();
@@ -216,8 +222,9 @@ export async function callPrismCompletion(
   prompt: string,
   preferredProvider: ProviderPreference = 'auto',
   image?: ImageInput,
+  jsonMode = false,
 ): Promise<ProviderResult> {
-  const tryGroq = () => runGroqChat([{ role: 'user', content: prompt }], 0.2);
+  const tryGroq = () => runGroqChat([{ role: 'user', content: prompt }], 0.2, jsonMode);
   const tryOpenRouter = (explicitModel?: string) => {
     const content = image
       ? [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: `data:${image.mimeType};base64,${image.data}` } }]

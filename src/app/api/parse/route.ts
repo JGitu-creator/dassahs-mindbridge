@@ -36,8 +36,10 @@ export async function POST(req: NextRequest) {
 
     if (fileName.endsWith('.pdf')) {
       try {
-        // Use standard pdf-parse with direct buffer to avoid worker issues
-        const pdf = require('pdf-parse');
+        // Load pdf-parse core directly to avoid the pdf-parse@1.1.1 index.js debug-file read bug on serverless
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const pdfMod = require('pdf-parse/lib/pdf-parse.js');
+        const pdf = typeof pdfMod === 'function' ? pdfMod : pdfMod.default;
         const data = await pdf(buffer);
         text = data.text;
       } catch (pdfErr: any) {

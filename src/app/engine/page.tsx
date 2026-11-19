@@ -58,62 +58,112 @@ export default function PrismEnginePortalPage() {
       onPointerMove={handlePointerMove}
       className={`relative min-h-screen overflow-hidden transition-colors duration-500 ${pageBg}`}
     >
-      {/* Interactive Antigravity / GitHub-inspired Mouse-Reactive Light Mesh */}
+      {/* Active Living Prism Universe Background */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+        {/* Reactive Dual-Halo Prismatic Cursor Spotlight */}
         <div
           className="absolute inset-0 transition-opacity duration-300"
           style={{
             background: darkMode
-              ? `radial-gradient(720px circle at ${mouse.x}% ${mouse.y}%, rgba(59,130,246,0.22), rgba(168,85,247,0.10) 35%, transparent 70%)`
-              : `radial-gradient(680px circle at ${mouse.x}% ${mouse.y}%, rgba(37,99,235,0.14), rgba(16,185,129,0.08) 38%, transparent 70%)`,
+              ? `radial-gradient(620px circle at ${mouse.x}% ${mouse.y}%, rgba(56,189,248,0.32), rgba(168,85,247,0.20) 32%, rgba(16,185,129,0.10) 56%, transparent 74%)`
+              : `radial-gradient(620px circle at ${mouse.x}% ${mouse.y}%, rgba(37,99,235,0.22), rgba(168,85,247,0.14) 36%, rgba(16,185,129,0.10) 58%, transparent 74%)`,
           }}
         />
 
         {/* Subtle Architectural Grid Overlay */}
         <div
-          className="absolute inset-0 opacity-[0.06]"
+          className="absolute inset-0 opacity-[0.07]"
           style={{
             backgroundImage:
               'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)',
-            backgroundSize: '64px 64px',
+            backgroundSize: '56px 56px',
           }}
         />
 
-        {/* Kinetic Orbital Prism Light Ribbons */}
+        {/* Active Sweeping Refraction Beams, Orbital Rings & Floating Prism Particles */}
         {!reducedMotion && (
           <>
             <motion.div
-              animate={{ x: [0, 120, -80, 0], y: [0, 90, -50, 0], scale: [1, 1.18, 0.92, 1] }}
-              transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -top-24 -left-24 h-[30rem] w-[30rem] rounded-full blur-3xl"
+              animate={{ x: ['-35%', '125%'] }}
+              transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.5 }}
+              className="absolute -top-1/4 h-[150%] w-56 rotate-[24deg] blur-2xl"
               style={{
                 background: darkMode
-                  ? 'radial-gradient(circle, rgba(37,99,235,0.42) 0%, transparent 70%)'
-                  : 'radial-gradient(circle, rgba(59,130,246,0.28) 0%, transparent 70%)',
+                  ? 'linear-gradient(90deg, transparent, rgba(56,189,248,0.22), rgba(168,85,247,0.26), rgba(16,185,129,0.18), transparent)'
+                  : 'linear-gradient(90deg, transparent, rgba(37,99,235,0.16), rgba(168,85,247,0.18), rgba(16,185,129,0.14), transparent)',
               }}
             />
             <motion.div
-              animate={{ x: [0, -130, 80, 0], y: [0, -100, 70, 0], scale: [1, 0.92, 1.2, 1] }}
-              transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -bottom-24 -right-24 h-[32rem] w-[32rem] rounded-full blur-3xl"
+              animate={{ x: ['125%', '-35%'] }}
+              transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+              className="absolute -top-1/4 h-[150%] w-40 -rotate-[18deg] blur-2xl"
               style={{
                 background: darkMode
-                  ? 'radial-gradient(circle, rgba(16,185,129,0.34) 0%, transparent 70%)'
-                  : 'radial-gradient(circle, rgba(16,185,129,0.24) 0%, transparent 70%)',
+                  ? 'linear-gradient(90deg, transparent, rgba(245,158,11,0.16), rgba(236,72,153,0.20), rgba(59,130,246,0.18), transparent)'
+                  : 'linear-gradient(90deg, transparent, rgba(245,158,11,0.12), rgba(236,72,153,0.14), rgba(59,130,246,0.14), transparent)',
               }}
             />
+            <motion.div
+              animate={{ x: [0, 150, -90, 0], y: [0, 110, -70, 0], scale: [1, 1.25, 0.9, 1] }}
+              transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -top-24 -left-24 h-[32rem] w-[32rem] rounded-full blur-3xl"
+              style={{
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(37,99,235,0.52) 0%, rgba(168,85,247,0.22) 45%, transparent 72%)'
+                  : 'radial-gradient(circle, rgba(59,130,246,0.34) 0%, rgba(168,85,247,0.16) 45%, transparent 72%)',
+              }}
+            />
+            <motion.div
+              animate={{ x: [0, -150, 95, 0], y: [0, -110, 80, 0], scale: [1, 0.92, 1.24, 1] }}
+              transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -bottom-24 -right-24 h-[34rem] w-[34rem] rounded-full blur-3xl"
+              style={{
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(16,185,129,0.44) 0%, rgba(56,189,248,0.20) 48%, transparent 72%)'
+                  : 'radial-gradient(circle, rgba(16,185,129,0.28) 0%, rgba(56,189,248,0.16) 48%, transparent 72%)',
+              }}
+            />
+            <motion.div
+              animate={{ x: [0, 90, -110, 0], y: [0, -80, 60, 0], scale: [0.95, 1.18, 0.9, 0.95] }}
+              transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute top-1/3 left-1/2 -translate-x-1/2 h-[24rem] w-[24rem] rounded-full blur-3xl"
+              style={{
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(168,85,247,0.30) 0%, rgba(236,72,153,0.14) 50%, transparent 74%)'
+                  : 'radial-gradient(circle, rgba(168,85,247,0.18) 0%, rgba(236,72,153,0.10) 50%, transparent 74%)',
+              }}
+            />
+            {/* Floating Luminous Prism Nodes */}
+            {[
+              { top: '14%', left: '12%', size: 10, color: 'bg-cyan-400', dy: -26, dur: 5.5 },
+              { top: '26%', left: '84%', size: 12, color: 'bg-purple-400', dy: 30, dur: 6.8 },
+              { top: '62%', left: '16%', size: 8, color: 'bg-emerald-400', dy: -22, dur: 7.2 },
+              { top: '74%', left: '78%', size: 11, color: 'bg-blue-400', dy: 24, dur: 6.1 },
+              { top: '42%', left: '6%', size: 9, color: 'bg-amber-400', dy: -28, dur: 8.0 },
+              { top: '18%', left: '54%', size: 7, color: 'bg-pink-400', dy: 20, dur: 5.9 },
+              { top: '82%', left: '42%', size: 10, color: 'bg-cyan-300', dy: -24, dur: 6.6 },
+              { top: '52%', left: '92%', size: 9, color: 'bg-emerald-300', dy: 26, dur: 7.5 },
+            ].map((node, i) => (
+              <motion.span
+                key={i}
+                animate={{ y: [0, node.dy, 0], opacity: [0.35, 0.95, 0.35], scale: [0.9, 1.35, 0.9] }}
+                transition={{ duration: node.dur, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
+                style={{ top: node.top, left: node.left, width: node.size, height: node.size }}
+                className={`absolute rounded-full ${node.color} shadow-[0_0_20px_currentColor]`}
+              />
+            ))}
             <motion.div
               animate={{ rotate: [0, 360] }}
-              transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
-              className={`hidden md:block absolute top-24 right-14 h-52 w-52 rounded-[3rem] border ${
-                darkMode ? 'border-cyan-400/20 bg-cyan-400/[0.03]' : 'border-blue-500/20 bg-blue-500/[0.03]'
+              transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
+              className={`hidden md:block absolute top-20 right-12 h-56 w-56 rounded-[3.25rem] border ${
+                darkMode ? 'border-cyan-400/30 bg-cyan-400/[0.04]' : 'border-blue-500/25 bg-blue-500/[0.04]'
               }`}
             />
             <motion.div
               animate={{ rotate: [360, 0] }}
-              transition={{ duration: 34, repeat: Infinity, ease: 'linear' }}
-              className={`hidden md:block absolute bottom-24 left-14 h-44 w-44 rounded-full border ${
-                darkMode ? 'border-purple-400/20 bg-purple-400/[0.03]' : 'border-emerald-500/20 bg-emerald-500/[0.03]'
+              transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
+              className={`hidden md:block absolute bottom-20 left-12 h-48 w-48 rounded-full border ${
+                darkMode ? 'border-purple-400/30 bg-purple-400/[0.04]' : 'border-emerald-500/25 bg-emerald-500/[0.04]'
               }`}
             />
           </>
@@ -150,25 +200,25 @@ export default function PrismEnginePortalPage() {
       {/* Main Hero & Dual Portal Stage */}
       <main className="relative z-10 mx-auto max-w-6xl px-5 pt-6 pb-20 sm:px-8 sm:pt-12 space-y-12">
         {/* Refractive Hero Centerpiece */}
-        <section className="mx-auto max-w-3xl text-center space-y-6">
+        <section className="mx-auto max-w-4xl text-center space-y-6">
           <motion.div
             initial={reducedMotion ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
-            className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-blue-400"
+            className="inline-flex items-center gap-2 rounded-full border border-blue-500/35 bg-blue-500/15 px-4 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-blue-400 shadow-[0_0_25px_rgba(59,130,246,0.25)]"
           >
             <Zap size={13} className="text-amber-400" /> Choose Your Cognitive Mode
           </motion.div>
 
           <motion.h1
-            initial={reducedMotion ? false : { opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.05 }}
-            className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.06]"
+            initial={reducedMotion ? false : { opacity: 0, y: 18, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="prism-brand text-5xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-black italic tracking-tight leading-[1.06]"
           >
-            The{' '}
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
-              Prism Engine
+            The Prism{' '}
+            <span className="prism-text">
+              Engine
             </span>
           </motion.h1>
 
