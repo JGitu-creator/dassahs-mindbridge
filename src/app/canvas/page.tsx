@@ -1005,16 +1005,24 @@ export default function CanvasPrismPlayPage() {
       <div className="relative z-10 mx-auto max-w-3xl px-4 pt-6 pb-36 sm:px-6 sm:pt-8 space-y-6">
         {/* Signature Prism Play Wordmark & Catchphrase (mirroring Dassah's Prism hero) */}
         {!profile.lowBatteryMode && (
-          <div className="text-center space-y-1.5">
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight italic">
+          <div className="text-center space-y-2">
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight italic leading-[1.15]">
               Prism{' '}
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              <span className="inline-block pr-2.5 bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
                 Play
               </span>
             </h1>
-            <p className={`text-xs sm:text-sm font-bold tracking-wide ${mutedText}`}>
-              Turning Dread into Play.
-            </p>
+            <div className="relative inline-flex items-center justify-center">
+              <p
+                className={`text-base sm:text-xl font-bold italic tracking-tight ${
+                  darkMode
+                    ? 'text-blue-400 drop-shadow-[0_0_18px_rgba(59,130,246,0.35)]'
+                    : 'text-blue-600'
+                }`}
+              >
+                &ldquo;Turning Dread into Play.&rdquo;
+              </p>
+            </div>
           </div>
         )}
         {/* Low-Battery Mode Banner ("Just 1 Card Today") */}
