@@ -46,6 +46,7 @@ const DastasticShell = ({ children, theme, themeMode }: { children: React.ReactN
 };
 import { ContextAnchor } from '@/components/prism/ContextAnchor';
 import { ProgressPrism } from '@/components/prism/ProgressPrism';
+import { MicroWinTrail } from '@/components/prism/MicroWinTrail';
 import { ReadAloud } from '@/components/prism/ReadAloud';
 import { AIUsageControl } from '@/components/AIUsageControl';
 import type { ProviderPreference } from '@/lib/ai-usage';
@@ -973,14 +974,20 @@ export default function Home() {
     setShowLogicRoot(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
   const [completedPulse, setCompletedPulse] = useState(0);
+  const [microWinMessage, setMicroWinMessage] = useState<string | null>(null);
   const [prismArrival, setPrismArrival] = useState(false);
   const [signingIn, setSigningIn] = useState(false);
+  const announceMicroWin = (message: string) => {
+    setMicroWinMessage(message);
+    window.setTimeout(() => setMicroWinMessage(null), 2600);
+  };
   const toggleTask = (taskIndex: number) => {
     const key = `${data?.id || 'current'}-${taskIndex}`;
     setCompletedTasks(prev => ({ ...prev, [key]: !prev[key] }));
     if (!completedTasks[key]) {
       setDassahPoints(p => p + 5); // Reward for action
       setCompletedPulse(c => c + 1);
+      announceMicroWin('Action secured. Keep the next step small.');
     }
   };
   const currentActions = data?.actions ?? [];
@@ -1811,11 +1818,13 @@ export default function Home() {
       }
       setCurrentChunk(nextChunk);
       setCompletedPulse(c => c + 1);
+      announceMicroWin(nextChunk === 0 ? 'Your first segment is open.' : `Segment ${Math.min(nextChunk, data.chunks.length)} complete.`);
       setRewardType('step');
       setTimeout(() => setRewardType('none'), 2000);
     }
     else if (data && currentChunk === data.chunks.length) {
       setCompletedPulse(c => c + 1);
+      announceMicroWin('Mission complete. You made it through.');
       setRewardType('final'); setIsZenLocked(false); if (document.fullscreenElement) document.exitFullscreen();
       setDassahPoints(prev => { const next = prev + 10; localStorage.setItem('dassah_points', next.toString()); return next; });
       setTimeout(() => { setShowRecap(true); }, 2000);
@@ -2904,6 +2913,7 @@ export default function Home() {
                   {/* Progress Prism at the bottom of content */}
                   <div className="pt-8">
                     <ProgressPrism progress={(currentChunk + 1) / data.chunks.length} label={`Segment ${currentChunk + 1} of ${data.chunks.length}`} />
+                    <MicroWinTrail progress={(currentChunk + 1) / data.chunks.length} total={data.chunks.length} message={microWinMessage} />
                   </div>
                   {data.chartData && currentChunk === 0 && (<div className="bg-[var(--color-glass)] p-5 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-[var(--color-border)] space-y-6"><div className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-xs"><BarChart3 size={20} /> Data Pulse</div><div className="h-[250px] w-full"><ResponsiveContainer width="100%" height="100%">{data.chartData.type === 'bar' ? (<BarChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}<Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} /></BarChart>) : data.chartData.type === 'line' ? (<LineChart data={data.chartData.data}><XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} /><Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} /></LineChart>) : (<PieChart><Pie data={data.chartData.data} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{data.chartData.data.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie></PieChart>)}</ResponsiveContainer></div></div>)}                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-amber-500/5 p-5 sm:p-8 rounded-[1.75rem] sm:rounded-[2.5rem] border-2 border-amber-500/10 space-y-4 relative group/card overflow-hidden">
