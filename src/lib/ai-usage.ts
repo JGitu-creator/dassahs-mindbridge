@@ -1,4 +1,4 @@
-export type ProviderPreference = 'auto' | 'openrouter' | 'gemini' | 'gpt' | 'claude' | 'deepseek';
+export type ProviderPreference = 'auto' | 'groq' | 'openrouter' | 'gemini' | 'gpt' | 'claude' | 'deepseek';
 
 export type AiUsage = {
   provider: string;
@@ -29,6 +29,18 @@ export const usageFromOpenRouter = (usage: Record<string, unknown> | undefined, 
   const completionTokens = Number(usage?.completion_tokens || usage?.output_tokens || 0);
   return {
     provider: 'openrouter',
+    model,
+    promptTokens,
+    completionTokens,
+    totalTokens: Number(usage?.total_tokens || promptTokens + completionTokens),
+  };
+};
+
+export const usageFromGroq = (usage: Record<string, unknown> | undefined, model: string): AiUsage => {
+  const promptTokens = Number(usage?.prompt_tokens || 0);
+  const completionTokens = Number(usage?.completion_tokens || 0);
+  return {
+    provider: 'groq',
     model,
     promptTokens,
     completionTokens,

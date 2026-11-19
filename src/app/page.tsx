@@ -3049,6 +3049,8 @@ export default function Home() {
           <button onClick={() => setShowAbout(true)} className="mt-2 px-6 py-2 bg-[var(--bg)]/5 border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-[var(--fg)] transition-all">About the Prism</button>
 
           <button onClick={() => { setTutorialStep(0); setShowTutorial(true); }} className="mt-2 px-6 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-blue-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Neural Guide</button>
+          <a href="/canvas" className="mt-2 px-6 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-cyan-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><BookOpen size={10}/> Prism Play</a>
+          <a href="/engine" className="mt-2 px-6 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-purple-400 hover:text-[var(--fg)] transition-all flex items-center gap-2"><Sparkles size={10}/> Prism Engine</a>
           <a href="/dassahs-prism-extension.zip" download className="mt-2 px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[8px] font-black uppercase tracking-widest text-emerald-500 hover:text-[var(--fg)] transition-all">Browser Extension</a>
         </div>
       </footer>
