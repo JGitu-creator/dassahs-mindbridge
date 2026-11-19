@@ -937,20 +937,20 @@ export default function CanvasPrismPlayPage() {
       {/* Full-Width Spacious Top Navigation Bar (mirroring main Dassah's Prism) */}
       <header className="relative z-20 w-full border-b border-black/5 dark:border-white/5 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-8">
-          {/* Left: Brand & Home */}
-          <div className="flex items-center gap-3">
+          {/* Left: Brand & Engine Hub */}
+          <div className="flex items-center gap-2.5">
             <Link
-              href="/"
+              href="/engine"
               className={`inline-flex items-center gap-1.5 rounded-2xl border px-3.5 py-2 text-xs font-bold transition-colors ${subtlePill} hover:border-blue-500/50`}
             >
-              <ArrowLeft size={14} /> Prism Home
+              <Sparkles size={13} className="text-cyan-400" /> Prism Engine
             </Link>
-            <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wider text-white ${theme.accentBg}`}>
-                <Sparkles size={11} /> Prism Play
-              </span>
-              <span className={`hidden sm:inline text-xs font-semibold ${mutedText}`}>Canvas Quest</span>
-            </div>
+            <Link
+              href="/"
+              className={`hidden sm:inline-flex items-center gap-1.5 rounded-2xl border px-3 py-2 text-xs font-bold transition-colors ${subtlePill} hover:border-blue-500/50`}
+            >
+              <ArrowLeft size={13} /> Dassah&apos;s Prism
+            </Link>
           </div>
 
           {/* Center: Calm Progress Pill */}
@@ -1002,7 +1002,21 @@ export default function CanvasPrismPlayPage() {
       </header>
 
       {/* Spacious, Uncluttered Center Reading Stage */}
-      <div className="relative z-10 mx-auto max-w-3xl px-4 pt-6 pb-36 sm:px-6 sm:pt-10 space-y-6">
+      <div className="relative z-10 mx-auto max-w-3xl px-4 pt-6 pb-36 sm:px-6 sm:pt-8 space-y-6">
+        {/* Signature Prism Play Wordmark & Catchphrase (mirroring Dassah's Prism hero) */}
+        {!profile.lowBatteryMode && (
+          <div className="text-center space-y-1.5">
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight italic">
+              Prism{' '}
+              <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+                Play
+              </span>
+            </h1>
+            <p className={`text-xs sm:text-sm font-bold tracking-wide ${mutedText}`}>
+              Turning Dread into Play.
+            </p>
+          </div>
+        )}
         {/* Low-Battery Mode Banner ("Just 1 Card Today") */}
         {profile.lowBatteryMode && (
           <div className={`flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-3 text-xs font-bold ${subtlePill}`}>

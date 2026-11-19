@@ -2609,6 +2609,20 @@ export default function Home() {
           <header className="text-center space-y-4 md:space-y-8 relative">
             <h1 className="prism-brand text-4xl sm:text-6xl md:text-9xl font-black text-[var(--fg)] leading-[1.2] tracking-tight italic">Dassah&apos;s <span className="prism-text brand-prism">Prism</span></h1>
             <RefractiveTagline />
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+              <a
+                href="/canvas"
+                className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-black text-emerald-400 hover:bg-emerald-500/25 transition-all"
+              >
+                <Sparkles size={13} /> Prism Play · Turning Dread into Play →
+              </a>
+              <a
+                href="/engine"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-[var(--color-glass)] px-4 py-2 text-xs font-bold text-[var(--fg)]/80 hover:text-[var(--fg)] hover:border-blue-400/50 transition-all"
+              >
+                The Prism Engine Hub
+              </a>
+            </div>
           </header>
           <NeuralRefractionSlider />
           <div className="bg-[var(--color-glass)] backdrop-blur-3xl rounded-[2rem] md:rounded-[3rem] border-2 border-white/20 p-2 md:p-3 shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden relative group focus-within:border-blue-500/50 hover:border-white/30 transition-all flex flex-col items-center">

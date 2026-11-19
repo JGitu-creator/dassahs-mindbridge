@@ -169,3 +169,49 @@ test('/canvas integrates QuickBrainCheckIn, NeuralIdentityDrawer, Neural Command
   assert.match(audioLib, /gamma40/);
   assert.match(audioLib, /startSoundscape/);
 });
+
+test('Unified 4-tier Prism Engine AI cascade powers both /api/simplify and /api/chat with zero-API local fallback', async () => {
+  const cascade = await readFile(new URL('../src/lib/server/prism-ai-cascade.ts', import.meta.url), 'utf8');
+  const simplifyRoute = await readFile(new URL('../src/app/api/simplify/route.ts', import.meta.url), 'utf8');
+  const chatRoute = await readFile(new URL('../src/app/api/chat/route.ts', import.meta.url), 'utf8');
+  const envExample = await readFile(new URL('../.env.example', import.meta.url), 'utf8');
+
+  // 4-Tier Cascade: Groq -> OpenRouter Free -> Gemini -> Unlimited Local Prism
+  assert.match(cascade, /llama-3\.3-70b-versatile/);
+  assert.match(cascade, /meta-llama\/llama-3\.3-70b-instruct:free/);
+  assert.match(cascade, /google\/gemini-2\.0-flash-exp:free/);
+  assert.match(cascade, /openrouter\/free/);
+  assert.match(cascade, /gemini-2\.0-flash/);
+  assert.match(cascade, /createLocalChatReply/);
+
+  // Both routes use the unified cascade and local fallback
+  assert.match(simplifyRoute, /callPrismCompletion/);
+  assert.match(simplifyRoute, /createLocalChatReply/);
+  assert.match(simplifyRoute, /createLocalRefraction/);
+  assert.match(chatRoute, /callPrismChat/);
+  assert.match(chatRoute, /createLocalChatReply/);
+
+  // .env.example documents GROQ_API_KEY safely without any real secret
+  assert.match(envExample, /GROQ_API_KEY=your_groq_api_key/);
+  assert.doesNotMatch(envExample, /gsk_[A-Za-z0-9]{10,}/);
+});
+
+test('Prism Engine Launchpad (/engine), Prism Play (/canvas), and Dassah\'s Prism (/) are interconnected', async () => {
+  const enginePage = await readFile(new URL('../src/app/engine/page.tsx', import.meta.url), 'utf8');
+  const canvasPage = await readFile(new URL('../src/app/canvas/page.tsx', import.meta.url), 'utf8');
+  const mainPage = await readFile(new URL('../src/app/page.tsx', import.meta.url), 'utf8');
+
+  assert.match(enginePage, /The Prism Engine/);
+  assert.match(enginePage, /Turning Dread into Play/);
+  assert.match(enginePage, /href="\/"/);
+  assert.match(enginePage, /href="\/canvas"/);
+  assert.match(enginePage, /Groq LPU/);
+  assert.match(enginePage, /Unlimited Local Prism/);
+
+  assert.match(canvasPage, /Turning Dread into Play/);
+  assert.match(canvasPage, /href="\/engine"/);
+
+  assert.match(mainPage, /href="\/canvas"/);
+  assert.match(mainPage, /href="\/engine"/);
+});
+

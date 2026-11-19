@@ -1,21 +1,15 @@
 import { after, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { tokenLogger } from '@/lib/tokenLogger';
-import { getOpenRouterChatCompletionsUrl } from '@/lib/server/openrouter';
-import { emptyUsage, mergeUsage, usageFromOpenRouter, type AiUsage, type ProviderPreference } from '@/lib/ai-usage';
+import { mergeUsage, type AiUsage } from '@/lib/ai-usage';
 import { recordUsage, refundCredits, reserveCredits, type QuotaReservation } from '@/lib/ai-quota';
 import { logShadowTelemetry, runShadowProbe } from '@/lib/server/shadow-mode';
 import { createInstantLocalPrism } from '@/lib/canvas-parser';
-
-const apiKey = process.env.GEMINI_API_KEY;
-// Preserve compatibility with the existing deployment variable while preferring the explicit name.
-const openrouterKey = process.env.OPENROUTER_API_KEY || process.env.ROUTER_API_KEY;
-const openrouterModel = process.env.OPENROUTER_MODEL || 'openrouter/free';
+import {
+  callPrismCompletion,
+  createLocalChatReply,
+  type ImageInput,
+} from '@/lib/server/prism-ai-cascade';
 
 export const dynamic = 'force-dynamic';
-
-type ProviderResult = { text: string; usage: AiUsage };
-type ImageInput = { data: string; mimeType: string };
 
 export async function POST(req: Request) {
   let reservation: QuotaReservation | null = null;
@@ -55,7 +49,16 @@ export async function POST(req: Request) {
 
     if (mode === 'chat') {
       const chatPrompt = `You are "Ask DJ," a Focus Guide. Answer the following question based on the context provided.\n\nContext: ${context}\n\nQuestion: ${question}`;
-      const result = await callProvider(chatPrompt, preferredProvider, image);
+      const result = await callPrismCompletion(chatPrompt, preferredProvider, image);
+      if (!result.text) {
+        await refundCredits(reservation);
+        return respond({
+          answer: createLocalChatReply(String(question || ''), context),
+          usage: { provider: 'local', model: 'local-ask-dj', promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+          mode: 'local',
+        });
+      }
+      await recordUsage(reservation, result.usage);
       return respond({ answer: result.text, usage: result.usage });
     }
 
@@ -70,7 +73,7 @@ export async function POST(req: Request) {
         if (chunkIndex >= chunksOfText.length) return results;
         const chunkText = chunksOfText[chunkIndex];
         try {
-      const generationPrompt = `
+          const generationPrompt = `
         You are "Ask DJ," a Focus Guide. Your mission is to perform a Deep Neural Refraction on the provided Noise.
         GOAL: ${missionGoal || 'Discovery'}
         TARGET COGNITIVE MODE: ${cognitiveMode}
@@ -87,8 +90,8 @@ export async function POST(req: Request) {
         }
         INPUT NOISE:\n${chunkText}
       `;
-      const result = await callProvider(generationPrompt, preferredProvider, image);
-      if (!result.text) throw new Error('No response from providers');
+          const result = await callPrismCompletion(generationPrompt, preferredProvider, image);
+          if (!result.text) throw new Error('No response from providers');
           results.push({ status: 'fulfilled', value: { data: extractJSON(result.text), usage: result.usage } });
         } catch (reason) {
           results.push({ status: 'rejected', reason });
@@ -142,47 +145,6 @@ export async function POST(req: Request) {
     await refundCredits(reservation);
     return NextResponse.json({ error: error.message || 'The Neural Engine is unavailable.' }, { status: 500 });
   }
-}
-
-async function callProvider(prompt: string, preferredProvider: ProviderPreference = 'auto', image?: ImageInput): Promise<ProviderResult> {
-  const tryGemini = async (): Promise<ProviderResult> => {
-    if (!apiKey) throw new Error('No Gemini Key');
-    const model = 'gemini-2.0-flash';
-    const content = image ? [{ text: prompt }, { inlineData: { data: image.data, mimeType: image.mimeType } }] : prompt;
-    const result = await Promise.race([
-      new GoogleGenerativeAI(apiKey).getGenerativeModel({ model }).generateContent(content),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Gemini request timed out')), 25000)),
-    ]);
-    const metadata: any = result.response.usageMetadata;
-    const promptTokens = Number(metadata?.promptTokenCount || 0);
-    const completionTokens = Number(metadata?.candidatesTokenCount || 0);
-    const usage = { provider: 'gemini', model, promptTokens, completionTokens, totalTokens: Number(metadata?.totalTokenCount || promptTokens + completionTokens) };
-    tokenLogger(model, usage.totalTokens);
-    return { text: result.response.text(), usage };
-  };
-  const tryOpenRouter = async (model = openrouterModel): Promise<ProviderResult> => {
-    if (!openrouterKey) throw new Error('No OpenRouter Key');
-    const content = image ? [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: `data:${image.mimeType};base64,${image.data}` } }] : prompt;
-    const response = await fetch(getOpenRouterChatCompletionsUrl(), { method: 'POST', signal: AbortSignal.timeout(25000), headers: { Authorization: `Bearer ${openrouterKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://dassahs-prism.vercel.app', 'X-OpenRouter-Title': "Dassah's Prism" }, body: JSON.stringify({ model, messages: [{ role: 'user', content }], temperature: 0.2 }) });
-    if (!response.ok) throw new Error(`OpenRouter returned ${response.status}`);
-    const data = await response.json();
-    const usage = usageFromOpenRouter(data.usage, data.model || model);
-    tokenLogger(usage.model, usage.totalTokens);
-    return { text: data.choices?.[0]?.message?.content || '', usage };
-  };
-
-  const openRouterModelFor = (provider: ProviderPreference) => ({ gpt: 'openai/gpt-4o-mini', claude: 'anthropic/claude-3.5-sonnet', deepseek: 'deepseek/deepseek-chat' } as Record<string, string>)[provider];
-  const openRouterChoice = openRouterModelFor(preferredProvider);
-  const providers: (() => Promise<ProviderResult>)[] =
-    preferredProvider === 'openrouter'
-      ? [() => tryOpenRouter(), tryGemini]
-      : openRouterChoice
-        ? [() => tryOpenRouter(openRouterChoice), tryGemini]
-        : [tryGemini, () => tryOpenRouter()];
-  for (const provider of providers) {
-    try { const result = await provider(); if (result.text) return result; } catch (error) { console.error('Provider failed:', error); }
-  }
-  return { text: '', usage: emptyUsage() };
 }
 
 const extractJSON = (text: string) => {
