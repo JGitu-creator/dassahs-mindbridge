@@ -90,7 +90,7 @@ export async function POST(req: Request) {
         }
         INPUT NOISE:\n${chunkText}
       `;
-          const result = await callPrismCompletion(generationPrompt, preferredProvider, image);
+          const result = await callPrismCompletion(generationPrompt, preferredProvider, image, true);
           if (!result.text) throw new Error('No response from providers');
           results.push({ status: 'fulfilled', value: { data: extractJSON(result.text), usage: result.usage } });
         } catch (reason) {
@@ -148,10 +148,11 @@ export async function POST(req: Request) {
 }
 
 const extractJSON = (text: string) => {
-  const start = text.indexOf('{');
-  const end = text.lastIndexOf('}');
+  const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
   if (start === -1 || end === -1) throw new Error('The Neural Engine produced a malformed refraction. Please try again.');
-  return JSON.parse(text.slice(start, end + 1));
+  return JSON.parse(cleaned.slice(start, end + 1));
 };
 
 const createLocalRefraction = (text: string, level = 'standard', cognitiveMode = 'adhd') => {

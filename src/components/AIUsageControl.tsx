@@ -49,11 +49,11 @@ export function AIUsageControl({
       </a>
       <div
         className="flex min-w-0 items-center gap-1 border-l border-[var(--color-border)] pl-2"
-        title={isLocalFallback ? 'Unlimited Local Prism used (0 tokens spent)' : `${providerLabel} · ${usage.model || 'auto cascade ready'}`}
+        title={isLocalFallback ? 'Unlimited Local Prism used (0 tokens spent)' : `${providerLabel} · ${usage.model || 'auto cascade ready'} (${usage.totalTokens.toLocaleString()} session tokens)`}
       >
         <Coins size={12} className="text-amber-400 shrink-0" />
-        <span className="text-[8px] font-black tabular-nums sm:text-[9px]">
-          {usage.totalTokens.toLocaleString()} <span className="hidden sm:inline">tokens</span><span className="sm:hidden">tok</span>
+        <span className="text-[8px] font-black uppercase tracking-wider text-amber-300 sm:text-[9px]">
+          Unlimited
         </span>
       </div>
     </div>

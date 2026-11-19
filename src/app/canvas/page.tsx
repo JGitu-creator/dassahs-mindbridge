@@ -1005,24 +1005,14 @@ export default function CanvasPrismPlayPage() {
       <div className="relative z-10 mx-auto max-w-3xl px-4 pt-6 pb-36 sm:px-6 sm:pt-8 space-y-6">
         {/* Signature Prism Play Wordmark & Catchphrase (mirroring Dassah's Prism hero) */}
         {!profile.lowBatteryMode && (
-          <div className="text-center space-y-2">
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight italic leading-[1.15]">
+          <div className="text-center space-y-2.5">
+            <h1 className="prism-brand text-4xl sm:text-6xl md:text-7xl font-black tracking-tight italic leading-[1.15]">
               Prism{' '}
-              <span className="inline-block pr-2.5 bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              <span className="prism-text brand-prism">
                 Play
               </span>
             </h1>
-            <div className="relative inline-flex items-center justify-center">
-              <p
-                className={`text-base sm:text-xl font-bold italic tracking-tight ${
-                  darkMode
-                    ? 'text-blue-400 drop-shadow-[0_0_18px_rgba(59,130,246,0.35)]'
-                    : 'text-blue-600'
-                }`}
-              >
-                &ldquo;Turning Dread into Play.&rdquo;
-              </p>
-            </div>
+            <PrismPlayTagline darkMode={darkMode} reducedMotion={profile.reducedMotion} />
           </div>
         )}
         {/* Low-Battery Mode Banner ("Just 1 Card Today") */}
@@ -2085,3 +2075,62 @@ export default function CanvasPrismPlayPage() {
     </div>
   );
 }
+
+function PrismPlayTagline({ darkMode, reducedMotion }: { darkMode: boolean; reducedMotion: boolean }) {
+  const [phase, setPhase] = useState<'noise' | 'flash' | 'clarity'>(reducedMotion ? 'clarity' : 'noise');
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setPhase('clarity');
+      return;
+    }
+    const timer1 = setTimeout(() => setPhase('flash'), 900);
+    const timer2 = setTimeout(() => setPhase('clarity'), 1250);
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, [reducedMotion]);
+
+  return (
+    <div className="relative h-10 flex items-center justify-center overflow-hidden">
+      <motion.p
+        animate={{
+          filter: phase === 'noise' ? 'blur(4px)' : 'blur(0px)',
+          opacity: phase === 'noise' ? 0.6 : 1,
+          x: phase === 'noise' ? [0, -2, 2, -1, 0] : 0,
+          scale: phase === 'flash' ? 1.05 : 1,
+        }}
+        transition={{
+          x: phase === 'noise' ? { repeat: Infinity, duration: 0.2 } : { duration: 0.2 },
+          filter: { duration: 0.5 },
+          scale: { duration: 0.2 },
+        }}
+        className={`text-base sm:text-xl font-bold italic tracking-tight text-center transition-colors duration-500 ${
+          phase === 'clarity'
+            ? darkMode
+              ? 'text-blue-400 drop-shadow-[0_0_18px_rgba(59,130,246,0.35)]'
+              : 'text-blue-600'
+            : darkMode
+              ? 'text-slate-200'
+              : 'text-slate-700'
+        }`}
+      >
+        &ldquo;Turning Dread into Play.&rdquo;
+      </motion.p>
+
+      <AnimatePresence>
+        {phase === 'flash' && !reducedMotion && (
+          <motion.div
+            initial={{ left: '-100%' }}
+            animate={{ left: '200%' }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: 'easeInOut' }}
+            className="absolute inset-0 z-10 w-40 bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-20deg] pointer-events-none"
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+

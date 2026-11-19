@@ -1306,7 +1306,7 @@ export default function Home() {
       }
     });
     setUsageCount(parseInt(localStorage.getItem('dassahs_prism_usage') || '0'));
-    setProviderPreference((localStorage.getItem('dassahs_provider_preference') as ProviderPreference) || 'auto');
+    setProviderPreference('auto');
     setAiUsage({ totalTokens: parseInt(localStorage.getItem('dassahs_ai_tokens') || '0'), provider: localStorage.getItem('dassahs_ai_provider') || 'automatic', model: localStorage.getItem('dassahs_ai_model') || 'not used yet' });
     const urlParams = new URLSearchParams(window.location.search);
     const textParam = urlParams.get('text');
