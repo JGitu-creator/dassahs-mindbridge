@@ -15,8 +15,14 @@ document.getElementById('simplifyBtn').addEventListener('click', async () => {
 
     statusEl.innerText = "Refracting Web...";
 
-    // v1.4.0: sessionStorage handoff instead of URL params (handled by background.js)
-    await chrome.runtime.sendMessage({ action: "openPrismWithDocument", text });
+    // v1.5.2: sessionStorage handoff (Canvas pages open directly in /canvas Prism Play)
+    await chrome.runtime.sendMessage({
+      action: "openPrismWithDocument",
+      text,
+      source: response.source,
+      title: response.title,
+      url: response.url,
+    });
     window.close(); 
 
   } catch (err) {

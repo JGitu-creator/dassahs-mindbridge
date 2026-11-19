@@ -6,24 +6,37 @@
 // document into the tab's sessionStorage under `prism_pending_document`.
 const PRISM_APP_URL = "https://dassahs-prism.vercel.app";
 const PRISM_HANDOFF_PATH = "/";
+const PRISM_CANVAS_PATH = "/canvas";
 const PRISM_STORAGE_KEY = "prism_pending_document";
-const MAX_DOCUMENT_CHARS = 8000;
+const PRISM_CANVAS_KEY = "prism_canvas_handoff";
+const MAX_DOCUMENT_CHARS = 25000;
 
 // Runs inside the Prism tab (page context): writes the doc and notifies the page
 // in case it already mounted before injection.
-function writePendingDocument(storageKey, documentContent) {
+function writePendingDocument(storageKey, documentContent, eventName) {
   try {
     sessionStorage.setItem(storageKey, documentContent);
-    window.dispatchEvent(new CustomEvent("prism:pending-document", { detail: { length: documentContent.length } }));
+    window.dispatchEvent(new CustomEvent(eventName, { detail: { length: documentContent.length } }));
   } catch (e) {
     console.warn("Dassah's Prism: sessionStorage handoff failed", e);
   }
 }
 
-// v1.4.0: sessionStorage handoff instead of URL params
-function openPrismWithDocument(documentContent) {
-  const content = String(documentContent || "").slice(0, MAX_DOCUMENT_CHARS);
-  chrome.tabs.create({ url: `${PRISM_APP_URL}${PRISM_HANDOFF_PATH}` }, (tab) => {
+// v1.5.2: sessionStorage handoff (routes Canvas pages straight into /canvas Prism Play)
+function openPrismWithDocument(documentContent, options = {}) {
+  const isCanvas = options.source === "canvas";
+  const targetPath = isCanvas ? PRISM_CANVAS_PATH : PRISM_HANDOFF_PATH;
+  const storageKey = isCanvas ? PRISM_CANVAS_KEY : PRISM_STORAGE_KEY;
+  const eventName = isCanvas ? "prism:canvas-handoff" : "prism:pending-document";
+  const content = isCanvas
+    ? JSON.stringify({
+        title: String(options.title || "Canvas Reading"),
+        text: String(documentContent || "").slice(0, MAX_DOCUMENT_CHARS),
+        url: String(options.url || ""),
+      })
+    : String(documentContent || "").slice(0, 8000);
+
+  chrome.tabs.create({ url: `${PRISM_APP_URL}${targetPath}` }, (tab) => {
     if (!tab || tab.id === undefined) return;
     const tabId = tab.id;
     let injected = false;
@@ -36,7 +49,7 @@ function openPrismWithDocument(documentContent) {
         .executeScript({
           target: { tabId },
           func: writePendingDocument,
-          args: [PRISM_STORAGE_KEY, content],
+          args: [storageKey, content, eventName],
           injectImmediately: true,
         })
         .catch((err) => console.warn("Dassah's Prism: injection failed", err));
@@ -80,8 +93,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
   }
   if (request.action === "openPrismWithDocument") {
-    // v1.4.0: sessionStorage handoff instead of URL params
-    openPrismWithDocument(request.text);
+    openPrismWithDocument(request.text, {
+      source: request.source,
+      title: request.title,
+      url: request.url,
+    });
     sendResponse({ ok: true });
   }
 });

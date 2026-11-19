@@ -110,12 +110,47 @@ const injectPrismAlert = (wordCount) => {
   document.body.appendChild(alertDiv);
 
   alertDiv.addEventListener('click', () => {
-    const text = document.body.innerText;
-    // v1.4.0: sessionStorage handoff instead of URL params (handled by background.js)
-    chrome.runtime.sendMessage({ action: "openPrismWithDocument", text });
+    const payload = extractReadableContent();
+    // v1.5.2: sessionStorage handoff (Canvas pages open directly in /canvas Prism Play)
+    chrome.runtime.sendMessage({
+      action: "openPrismWithDocument",
+      text: payload.text,
+      source: payload.source,
+      title: payload.title,
+      url: payload.url,
+    });
     alertDiv.style.opacity = '0';
     setTimeout(() => alertDiv.remove(), 500);
   });
+};
+
+const isCanvasPage = () =>
+  /instructure\.com$/i.test(window.location.hostname) ||
+  Boolean(document.querySelector('#wiki_page_show, .show-content.user_content, #assignment_show'));
+
+const extractReadableContent = () => {
+  if (isCanvasPage()) {
+    const titleEl =
+      document.querySelector('.page-title, #wiki_page_show h1, #assignment_show h1, h1.title') ||
+      document.querySelector('h1');
+    const bodyEl =
+      document.querySelector('.show-content.user_content') ||
+      document.querySelector('#wiki_page_show') ||
+      document.querySelector('#assignment_show .description') ||
+      document.querySelector('#content');
+    return {
+      source: 'canvas',
+      title: (titleEl?.innerText || document.title || 'Canvas Reading').trim(),
+      text: (bodyEl?.innerText || document.body.innerText || '').trim().slice(0, 25000),
+      url: window.location.href,
+    };
+  }
+  return {
+    source: 'web',
+    title: document.title || 'Web Reading',
+    text: (document.body.innerText || '').slice(0, 8000),
+    url: window.location.href,
+  };
 };
 
 // Delay check to allow page to load
@@ -123,9 +158,7 @@ setTimeout(checkNoiseLevel, 2000);
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "extractText") {
-    // Basic extraction: get all visible text in the body
-    const text = document.body.innerText;
-    sendResponse({ text: text.slice(0, 8000) }); // Increased limit
+    sendResponse(extractReadableContent());
     return false; // Sync response
   }
   sendResponse({});

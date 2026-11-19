@@ -5,6 +5,7 @@ import { getOpenRouterChatCompletionsUrl } from '@/lib/server/openrouter';
 import { emptyUsage, mergeUsage, usageFromOpenRouter, type AiUsage, type ProviderPreference } from '@/lib/ai-usage';
 import { recordUsage, refundCredits, reserveCredits, type QuotaReservation } from '@/lib/ai-quota';
 import { logShadowTelemetry, runShadowProbe } from '@/lib/server/shadow-mode';
+import { createInstantLocalPrism } from '@/lib/canvas-parser';
 
 const apiKey = process.env.GEMINI_API_KEY;
 // Preserve compatibility with the existing deployment variable while preferring the explicit name.
@@ -192,26 +193,29 @@ const extractJSON = (text: string) => {
 };
 
 const createLocalRefraction = (text: string, level = 'standard', cognitiveMode = 'adhd') => {
-  const sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean);
   const words = text.match(/[A-Za-z][A-Za-z'-]*/g) || [];
-  const keyTerms = Array.from(new Set(words.filter(word => word.length > 4).map(word => word.toLowerCase()))).slice(0, 6);
-  const lead = sentences[0] || text.slice(0, 240);
-  const detail = level === 'concise' ? 'Keep only the next essential step.' : level === 'detailed' ? 'Break the idea into smaller parts and check each part before moving on.' : 'Find the main point first, then take one clear next step.';
+  const localPrism = createInstantLocalPrism(text);
+  const detail = level === 'concise'
+    ? localPrism.tinyIdea
+    : level === 'detailed'
+      ? `${localPrism.tinyIdea} ${localPrism.oneSmallMove}`
+      : localPrism.tinyIdea;
   return {
-    tldr: [lead.slice(0, 180)],
-    whyCare: `This ${cognitiveMode === 'ceo' ? 'decision or document' : 'piece of information'} becomes easier to act on when the main signal is separated from the surrounding noise.`,
+    mode: 'local' as const,
+    tldr: [localPrism.tinyIdea],
+    whyCare: `This ${cognitiveMode === 'ceo' ? 'decision or document' : 'topic'} clicks faster when you take one calm card at a time.`,
     readingTime: `${Math.max(1, Math.round(words.length / 200))}m`,
     chunks: [{
-      heading: 'Local Structural Refraction',
+      heading: 'Instant Local Prism',
       content: text.slice(0, 1200),
       summary: detail,
-      keyTerms,
-      metaphor: 'Think of this as a tangled set of earphones: find the one visible end, then loosen one knot at a time.',
-      dopamineHook: 'You do not need to solve the whole document now—complete the next small move and let momentum do the rest.',
-      logicRoot: `Core signal: ${lead.slice(0, 220)}`,
-      citations: 'Generated locally from the supplied text while external AI providers are unavailable.',
+      keyTerms: localPrism.keyTerms,
+      metaphor: localPrism.metaphor,
+      dopamineHook: localPrism.dopamineBoost,
+      logicRoot: localPrism.tinyIdea,
+      citations: 'Instant local refraction (zero token limit).',
     }],
-    actions: [{ task: detail, priority: 'high', estimatedMinutes: '5' }],
+    actions: [{ task: localPrism.oneSmallMove, priority: 'high', estimatedMinutes: '2' }],
     chartData: null,
   };
 };
