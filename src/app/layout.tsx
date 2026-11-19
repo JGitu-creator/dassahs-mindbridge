@@ -22,7 +22,10 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   verification: {
-    google: "e6jGjBArh4BltMG2MGWLqlH9-b8-sRuEfMF_dyceQ4w",
+    google: [
+      "e6jGjBArh4BltMG2MGWLqlH9-b8-sRuEfMF_dyceQ4w",
+      "YEfuEJS5zA9GRMvseo0Dp0HU70i_1fJdsXf0kmLuMQ0",
+    ],
   },
   openGraph: {
     title: "Dassah's Prism | The Prism Engine & Prism Play",
