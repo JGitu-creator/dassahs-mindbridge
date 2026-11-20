@@ -7,6 +7,7 @@ import {
   ArrowRight,
   BookOpen,
   Brain,
+  Code2,
   Cpu,
   Gamepad2,
   Headphones,
@@ -17,8 +18,40 @@ import {
   Sparkles,
   Sun,
   Swords,
+  Users,
+  Video,
   Zap,
 } from 'lucide-react';
+
+const FUTURE_EXPANSIONS = [
+  {
+    name: 'Prism Forge',
+    parentApp: "Dassah's Prism",
+    badge: 'In Development',
+    status: 'Active Sprint',
+    accent: 'cyan',
+    icon: Code2,
+    description: 'Translates cryptic terminal stack traces, Python/JS errors, and dense documentation into visual LEGO-brick logic and metaphors.',
+  },
+  {
+    name: 'Prism Echo',
+    parentApp: 'Prism Play',
+    badge: 'R&D Spec',
+    status: 'Prototype',
+    accent: 'amber',
+    icon: Video,
+    description: 'Turn a 45-minute YouTube or Zoom recorded lecture into 5 bite-sized interactive cards with synchronized timestamps.',
+  },
+  {
+    name: 'Prism Guild',
+    parentApp: 'The Prism Engine',
+    badge: 'Architecture',
+    status: 'Roadmap',
+    accent: 'purple',
+    icon: Users,
+    description: 'Silent virtual body-doubling rooms with synchronized Pomodoro timers, non-verbal presence, and group dopamine streaks without video exhaustion.',
+  },
+];
 
 export default function PrismEnginePortalPage() {
   const [darkMode, setDarkMode] = useState(true);
@@ -246,21 +279,23 @@ export default function PrismEnginePortalPage() {
             initial={reducedMotion ? false : { opacity: 0, y: 18, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="prism-brand text-5xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-black italic tracking-tight leading-[1.06]"
+            className="prism-brand text-4xl sm:text-6xl md:text-8xl lg:text-[6.5rem] font-black italic tracking-tight leading-[1.08]"
           >
-            <span className={darkMode ? 'text-white/90 drop-shadow-[0_0_18px_rgba(255,255,255,0.2)]' : 'text-slate-900'}>
-              The{' '}
-            </span>
-            <span
-              className={`inline-block pr-2 bg-clip-text text-transparent ${
-                darkMode
-                  ? 'bg-gradient-to-r from-sky-300 via-blue-400 to-violet-400 drop-shadow-[0_0_32px_rgba(59,130,246,0.55)]'
-                  : 'bg-gradient-to-r from-blue-700 via-indigo-600 to-violet-600'
-              }`}
-            >
-              Prism
+            <span className="inline-block whitespace-nowrap">
+              <span className={darkMode ? 'text-white/90 drop-shadow-[0_0_18px_rgba(255,255,255,0.2)]' : 'text-slate-900'}>
+                The{' '}
+              </span>
+              <span
+                className={`pr-2 bg-clip-text text-transparent ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-sky-300 via-blue-400 to-violet-400 drop-shadow-[0_0_32px_rgba(59,130,246,0.55)]'
+                    : 'bg-gradient-to-r from-blue-700 via-indigo-600 to-violet-600'
+                }`}
+              >
+                Prism
+              </span>
             </span>{' '}
-            <span className="prism-text">
+            <span className="inline-block prism-text">
               Engine
             </span>
           </motion.h1>
@@ -442,6 +477,92 @@ export default function PrismEnginePortalPage() {
               <ArrowRight size={18} className="transition-transform group-hover:translate-x-1.5" />
             </Link>
           </motion.div>
+        </section>
+
+        {/* In Orbit · Upcoming Engine Expansions (Phase 4 Roadmap) */}
+        <section aria-label="Upcoming Engine Expansions" className="space-y-5 pt-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-1">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-2.5 w-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#22d3ee]" />
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-cyan-400">
+                  In Orbit · Upcoming Expansions
+                </h3>
+              </div>
+              <p className={`text-xs ${muted} mt-1`}>
+                Specialized cognitive modules currently in active R&amp;D, expanding directly into Dassah&apos;s Prism and Prism Play.
+              </p>
+            </div>
+            <span className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1 text-[10px] font-black uppercase tracking-wider ${pillSurface}`}>
+              <Sparkles size={11} className="text-cyan-400" /> Phase 4 Roadmap
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {FUTURE_EXPANSIONS.map((item) => (
+              <motion.div
+                key={item.name}
+                whileHover={reducedMotion ? undefined : { y: -5, scale: 1.01 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+                className={`group relative overflow-hidden rounded-[2rem] border p-6 backdrop-blur-2xl transition-all duration-300 flex flex-col justify-between gap-5 ${
+                  darkMode
+                    ? 'bg-[#091122]/70 border-white/[0.08] hover:border-cyan-400/40 hover:bg-[#0c162e]/85 shadow-[0_16px_50px_rgba(0,0,0,0.4)]'
+                    : 'bg-white/80 border-slate-200 hover:border-blue-400/50 hover:bg-white/95 shadow-[0_14px_40px_rgba(0,0,0,0.04)]'
+                }`}
+              >
+                {/* Ambient Subtle Specular Glow */}
+                <div
+                  className={`pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full blur-2xl transition-opacity opacity-0 group-hover:opacity-100 duration-500 ${
+                    item.accent === 'cyan'
+                      ? 'bg-cyan-500/25'
+                      : item.accent === 'amber'
+                      ? 'bg-amber-500/25'
+                      : 'bg-purple-500/25'
+                  }`}
+                />
+
+                <div className="space-y-3 relative z-10">
+                  <div className="flex items-center justify-between gap-2">
+                    <span
+                      className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl border transition-transform duration-300 group-hover:scale-105 ${
+                        item.accent === 'cyan'
+                          ? 'bg-cyan-500/15 border-cyan-400/35 text-cyan-400 shadow-[0_0_18px_rgba(34,211,238,0.2)]'
+                          : item.accent === 'amber'
+                          ? 'bg-amber-500/15 border-amber-400/35 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.2)]'
+                          : 'bg-purple-500/15 border-purple-400/35 text-purple-400 shadow-[0_0_18px_rgba(168,85,247,0.2)]'
+                      }`}
+                    >
+                      <item.icon size={20} />
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-slate-300 group-hover:text-cyan-300 transition-colors">
+                      <Lock size={9} /> {item.badge}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="prism-brand text-2xl font-black italic tracking-tight flex items-baseline gap-2">
+                      <span className="group-hover:text-cyan-400 transition-colors">{item.name}</span>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider not-italic ${muted}`}>
+                        · {item.parentApp}
+                      </span>
+                    </h4>
+                    <p className={`text-xs mt-1.5 leading-relaxed ${muted}`}>
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative z-10 pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs font-bold text-slate-400">
+                  <span className="uppercase tracking-widest text-[9px] font-black text-cyan-400/80">
+                    {item.status}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 group-hover:text-cyan-300 transition-colors">
+                    Preview Spec <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </section>
 
         {/* Live 4-Tier Engine Reliability Strip */}
