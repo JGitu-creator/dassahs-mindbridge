@@ -23,6 +23,7 @@ import {
 export default function PrismEnginePortalPage() {
   const [darkMode, setDarkMode] = useState(true);
   const [mouse, setMouse] = useState({ x: 50, y: 35 });
+  const [hasInteracted, setHasInteracted] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -34,12 +35,23 @@ export default function PrismEnginePortalPage() {
     return () => mq.removeEventListener('change', sync);
   }, []);
 
+  const updateCoordinates = (clientX: number, clientY: number, target: HTMLElement) => {
+    const rect = target.getBoundingClientRect();
+    const x = ((clientX - rect.left) / Math.max(1, rect.width)) * 100;
+    const y = ((clientY - rect.top) / Math.max(1, rect.height)) * 100;
+    setMouse({ x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) });
+    setHasInteracted(true);
+  };
+
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (reducedMotion) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / Math.max(1, rect.width)) * 100;
-    const y = ((e.clientY - rect.top) / Math.max(1, rect.height)) * 100;
-    setMouse({ x, y });
+    updateCoordinates(e.clientX, e.clientY, e.currentTarget);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (reducedMotion) return;
+    const touch = e.touches[0];
+    if (touch) updateCoordinates(touch.clientX, touch.clientY, e.currentTarget);
   };
 
   const pageBg = darkMode
@@ -56,17 +68,40 @@ export default function PrismEnginePortalPage() {
   return (
     <div
       onPointerMove={handlePointerMove}
+      onTouchStart={handleTouchMove}
+      onTouchMove={handleTouchMove}
       className={`relative min-h-screen overflow-hidden transition-colors duration-500 ${pageBg}`}
     >
-      {/* Active Living Prism Universe Background */}
+      {/* Active Living Prism Universe Background (Optimized for Mobile & Desktop) */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-        {/* Reactive Dual-Halo Prismatic Cursor Spotlight */}
-        <div
-          className="absolute inset-0 transition-opacity duration-300"
+        {/* 1. Autonomous Kinetic Gliding Ambient Aurora (Drifts constantly even on phones without mouse interaction!) */}
+        <motion.div
+          animate={
+            reducedMotion
+              ? undefined
+              : {
+                  x: [0, 60, -50, 40, 0],
+                  y: [0, -40, 50, -30, 0],
+                  scale: [1, 1.18, 0.94, 1.12, 1],
+                }
+          }
+          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute inset-0"
           style={{
             background: darkMode
-              ? `radial-gradient(620px circle at ${mouse.x}% ${mouse.y}%, rgba(56,189,248,0.32), rgba(168,85,247,0.20) 32%, rgba(16,185,129,0.10) 56%, transparent 74%)`
-              : `radial-gradient(620px circle at ${mouse.x}% ${mouse.y}%, rgba(37,99,235,0.22), rgba(168,85,247,0.14) 36%, rgba(16,185,129,0.10) 58%, transparent 74%)`,
+              ? 'radial-gradient(760px circle at 50% 36%, rgba(56,189,248,0.26), rgba(168,85,247,0.18) 36%, rgba(16,185,129,0.12) 58%, transparent 74%)'
+              : 'radial-gradient(700px circle at 50% 36%, rgba(37,99,235,0.18), rgba(168,85,247,0.12) 36%, rgba(16,185,129,0.09) 58%, transparent 74%)',
+          }}
+        />
+
+        {/* 2. Interactive Prismatic Cursor / Touch Spotlight (Reacts dynamically to touch on phone or mouse on desktop) */}
+        <div
+          className="absolute inset-0 transition-opacity duration-500"
+          style={{
+            background: darkMode
+              ? `radial-gradient(560px circle at ${mouse.x}% ${mouse.y}%, rgba(56,189,248,0.36), rgba(168,85,247,0.22) 32%, rgba(16,185,129,0.10) 55%, transparent 72%)`
+              : `radial-gradient(540px circle at ${mouse.x}% ${mouse.y}%, rgba(37,99,235,0.24), rgba(168,85,247,0.15) 34%, rgba(16,185,129,0.08) 55%, transparent 72%)`,
+            opacity: hasInteracted ? 1 : 0.65,
           }}
         />
 
@@ -80,90 +115,87 @@ export default function PrismEnginePortalPage() {
           }}
         />
 
-        {/* Active Sweeping Refraction Beams, Orbital Rings & Floating Prism Particles */}
+        {/* 3. Real Full-Viewport Sweeping Kinetic Refraction Beams (Travels across the whole phone & screen) */}
         {!reducedMotion && (
           <>
+            {/* Left-to-Right Prismatic Laser Sweep */}
             <motion.div
-              animate={{ x: ['-35%', '125%'] }}
-              transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.5 }}
-              className="absolute -top-1/4 h-[150%] w-56 rotate-[24deg] blur-2xl"
+              animate={{ x: ['-100vw', '100vw'] }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
+              className="absolute -top-1/4 h-[150%] w-72 sm:w-96 rotate-[24deg] blur-3xl opacity-75 sm:opacity-90 pointer-events-none"
               style={{
                 background: darkMode
-                  ? 'linear-gradient(90deg, transparent, rgba(56,189,248,0.22), rgba(168,85,247,0.26), rgba(16,185,129,0.18), transparent)'
-                  : 'linear-gradient(90deg, transparent, rgba(37,99,235,0.16), rgba(168,85,247,0.18), rgba(16,185,129,0.14), transparent)',
+                  ? 'linear-gradient(90deg, transparent, rgba(56,189,248,0.35), rgba(168,85,247,0.40), rgba(16,185,129,0.28), transparent)'
+                  : 'linear-gradient(90deg, transparent, rgba(37,99,235,0.24), rgba(168,85,247,0.26), rgba(16,185,129,0.20), transparent)'
+              }}
+            />
+            {/* Right-to-Left Amber & Rose Secondary Sweep */}
+            <motion.div
+              animate={{ x: ['100vw', '-100vw'] }}
+              transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 3, repeatDelay: 1.5 }}
+              className="absolute -top-1/4 h-[150%] w-60 sm:w-80 -rotate-[20deg] blur-3xl opacity-60 sm:opacity-80 pointer-events-none"
+              style={{
+                background: darkMode
+                  ? 'linear-gradient(90deg, transparent, rgba(245,158,11,0.24), rgba(236,72,153,0.30), rgba(59,130,246,0.25), transparent)'
+                  : 'linear-gradient(90deg, transparent, rgba(245,158,11,0.16), rgba(236,72,153,0.20), rgba(59,130,246,0.18), transparent)',
+              }}
+            />
+
+            {/* Pulsing Luminous Color Orbs */}
+            <motion.div
+              animate={{ x: [0, 110, -70, 0], y: [0, 80, -50, 0], scale: [1, 1.25, 0.9, 1] }}
+              transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -top-20 -left-20 h-72 w-72 sm:h-[32rem] sm:w-[32rem] rounded-full blur-3xl"
+              style={{
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(37,99,235,0.58) 0%, rgba(168,85,247,0.28) 45%, transparent 72%)'
+                  : 'radial-gradient(circle, rgba(59,130,246,0.38) 0%, rgba(168,85,247,0.20) 45%, transparent 72%)',
               }}
             />
             <motion.div
-              animate={{ x: ['125%', '-35%'] }}
-              transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-              className="absolute -top-1/4 h-[150%] w-40 -rotate-[18deg] blur-2xl"
+              animate={{ x: [0, -110, 75, 0], y: [0, -80, 60, 0], scale: [1, 0.92, 1.24, 1] }}
+              transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -bottom-20 -right-20 h-72 w-72 sm:h-[34rem] sm:w-[34rem] rounded-full blur-3xl"
               style={{
                 background: darkMode
-                  ? 'linear-gradient(90deg, transparent, rgba(245,158,11,0.16), rgba(236,72,153,0.20), rgba(59,130,246,0.18), transparent)'
-                  : 'linear-gradient(90deg, transparent, rgba(245,158,11,0.12), rgba(236,72,153,0.14), rgba(59,130,246,0.14), transparent)',
+                  ? 'radial-gradient(circle, rgba(16,185,129,0.50) 0%, rgba(56,189,248,0.26) 48%, transparent 72%)'
+                  : 'radial-gradient(circle, rgba(16,185,129,0.32) 0%, rgba(56,189,248,0.20) 48%, transparent 72%)',
               }}
             />
-            <motion.div
-              animate={{ x: [0, 150, -90, 0], y: [0, 110, -70, 0], scale: [1, 1.25, 0.9, 1] }}
-              transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -top-24 -left-24 h-[32rem] w-[32rem] rounded-full blur-3xl"
-              style={{
-                background: darkMode
-                  ? 'radial-gradient(circle, rgba(37,99,235,0.52) 0%, rgba(168,85,247,0.22) 45%, transparent 72%)'
-                  : 'radial-gradient(circle, rgba(59,130,246,0.34) 0%, rgba(168,85,247,0.16) 45%, transparent 72%)',
-              }}
-            />
-            <motion.div
-              animate={{ x: [0, -150, 95, 0], y: [0, -110, 80, 0], scale: [1, 0.92, 1.24, 1] }}
-              transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -bottom-24 -right-24 h-[34rem] w-[34rem] rounded-full blur-3xl"
-              style={{
-                background: darkMode
-                  ? 'radial-gradient(circle, rgba(16,185,129,0.44) 0%, rgba(56,189,248,0.20) 48%, transparent 72%)'
-                  : 'radial-gradient(circle, rgba(16,185,129,0.28) 0%, rgba(56,189,248,0.16) 48%, transparent 72%)',
-              }}
-            />
-            <motion.div
-              animate={{ x: [0, 90, -110, 0], y: [0, -80, 60, 0], scale: [0.95, 1.18, 0.9, 0.95] }}
-              transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute top-1/3 left-1/2 -translate-x-1/2 h-[24rem] w-[24rem] rounded-full blur-3xl"
-              style={{
-                background: darkMode
-                  ? 'radial-gradient(circle, rgba(168,85,247,0.30) 0%, rgba(236,72,153,0.14) 50%, transparent 74%)'
-                  : 'radial-gradient(circle, rgba(168,85,247,0.18) 0%, rgba(236,72,153,0.10) 50%, transparent 74%)',
-              }}
-            />
-            {/* Floating Luminous Prism Nodes */}
+
+            {/* 4. Visible Floating Luminous Prism Sparkles (Positioned along visible viewport edges for mobile & desktop) */}
             {[
-              { top: '14%', left: '12%', size: 10, color: 'bg-cyan-400', dy: -26, dur: 5.5 },
-              { top: '26%', left: '84%', size: 12, color: 'bg-purple-400', dy: 30, dur: 6.8 },
-              { top: '62%', left: '16%', size: 8, color: 'bg-emerald-400', dy: -22, dur: 7.2 },
-              { top: '74%', left: '78%', size: 11, color: 'bg-blue-400', dy: 24, dur: 6.1 },
-              { top: '42%', left: '6%', size: 9, color: 'bg-amber-400', dy: -28, dur: 8.0 },
-              { top: '18%', left: '54%', size: 7, color: 'bg-pink-400', dy: 20, dur: 5.9 },
-              { top: '82%', left: '42%', size: 10, color: 'bg-cyan-300', dy: -24, dur: 6.6 },
-              { top: '52%', left: '92%', size: 9, color: 'bg-emerald-300', dy: 26, dur: 7.5 },
+              { top: '8%', left: '15%', size: 9, color: 'bg-cyan-400', dy: -20, dur: 4.8 },
+              { top: '16%', left: '82%', size: 11, color: 'bg-purple-400', dy: 24, dur: 5.6 },
+              { top: '48%', left: '4%', size: 8, color: 'bg-emerald-400', dy: -18, dur: 6.2 },
+              { top: '52%', left: '92%', size: 10, color: 'bg-blue-400', dy: 22, dur: 5.2 },
+              { top: '34%', left: '88%', size: 8, color: 'bg-pink-400', dy: -16, dur: 5.9 },
+              { top: '68%', left: '6%', size: 9, color: 'bg-amber-400', dy: 20, dur: 6.5 },
+              { top: '88%', left: '20%', size: 10, color: 'bg-cyan-300', dy: -22, dur: 5.5 },
+              { top: '92%', left: '78%', size: 9, color: 'bg-emerald-300', dy: 18, dur: 6.8 },
             ].map((node, i) => (
               <motion.span
                 key={i}
-                animate={{ y: [0, node.dy, 0], opacity: [0.35, 0.95, 0.35], scale: [0.9, 1.35, 0.9] }}
-                transition={{ duration: node.dur, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
+                animate={{ y: [0, node.dy, 0], opacity: [0.4, 1, 0.4], scale: [0.85, 1.4, 0.85] }}
+                transition={{ duration: node.dur, repeat: Infinity, ease: 'easeInOut', delay: i * 0.35 }}
                 style={{ top: node.top, left: node.left, width: node.size, height: node.size }}
-                className={`absolute rounded-full ${node.color} shadow-[0_0_20px_currentColor]`}
+                className={`absolute rounded-full ${node.color} shadow-[0_0_18px_currentColor]`}
               />
             ))}
+
+            {/* 5. Kinetic Rotating Orbital Rings (Visible on mobile and desktop, scaled for mobile screens!) */}
             <motion.div
               animate={{ rotate: [0, 360] }}
-              transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
-              className={`hidden md:block absolute top-20 right-12 h-56 w-56 rounded-[3.25rem] border ${
-                darkMode ? 'border-cyan-400/30 bg-cyan-400/[0.04]' : 'border-blue-500/25 bg-blue-500/[0.04]'
+              transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
+              className={`absolute top-16 -right-6 sm:top-20 sm:right-12 h-32 w-32 sm:h-56 sm:w-56 rounded-[2rem] sm:rounded-[3.25rem] border ${
+                darkMode ? 'border-cyan-400/35 bg-cyan-400/[0.05] shadow-[0_0_30px_rgba(34,211,238,0.15)]' : 'border-blue-500/30 bg-blue-500/[0.05]'
               }`}
             />
             <motion.div
               animate={{ rotate: [360, 0] }}
-              transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
-              className={`hidden md:block absolute bottom-20 left-12 h-48 w-48 rounded-full border ${
-                darkMode ? 'border-purple-400/30 bg-purple-400/[0.04]' : 'border-emerald-500/25 bg-emerald-500/[0.04]'
+              transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+              className={`absolute bottom-16 -left-6 sm:bottom-20 sm:left-12 h-28 w-28 sm:h-48 sm:w-48 rounded-full border ${
+                darkMode ? 'border-purple-400/35 bg-purple-400/[0.05] shadow-[0_0_30px_rgba(168,85,247,0.15)]' : 'border-emerald-500/30 bg-emerald-500/[0.05]'
               }`}
             />
           </>
