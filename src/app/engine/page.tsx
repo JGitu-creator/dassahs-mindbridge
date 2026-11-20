@@ -27,29 +27,26 @@ const FUTURE_EXPANSIONS = [
   {
     name: 'Prism Forge',
     parentApp: "Dassah's Prism",
-    badge: 'In Development',
-    status: 'Active Sprint',
+    badge: 'Prototype in Forge',
     accent: 'cyan',
     icon: Code2,
-    description: 'Translates cryptic terminal stack traces, Python/JS errors, and dense documentation into visual LEGO-brick logic and metaphors.',
+    description: 'Translates cryptic terminal stack traces, Python/JS errors, and dense docs into visual LEGO-brick logic.',
   },
   {
     name: 'Prism Echo',
     parentApp: 'Prism Play',
-    badge: 'R&D Spec',
-    status: 'Prototype',
+    badge: 'R&D',
     accent: 'amber',
     icon: Video,
-    description: 'Turn a 45-minute YouTube or Zoom recorded lecture into 5 bite-sized interactive cards with synchronized timestamps.',
+    description: 'Turns a 45-minute YouTube or Zoom recorded lecture into 5 bite-sized interactive play cards with timestamps.',
   },
   {
     name: 'Prism Guild',
     parentApp: 'The Prism Engine',
-    badge: 'Architecture',
-    status: 'Roadmap',
+    badge: 'R&D',
     accent: 'purple',
     icon: Users,
-    description: 'Silent virtual body-doubling rooms with synchronized Pomodoro timers, non-verbal presence, and group dopamine streaks without video exhaustion.',
+    description: 'Silent virtual body-doubling rooms with shared focus timers and group dopamine streaks without camera exhaustion.',
   },
 ];
 
@@ -58,6 +55,7 @@ export default function PrismEnginePortalPage() {
   const [mouse, setMouse] = useState({ x: 50, y: 35 });
   const [hasInteracted, setHasInteracted] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [revealedPrototype, setRevealedPrototype] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -68,23 +66,13 @@ export default function PrismEnginePortalPage() {
     return () => mq.removeEventListener('change', sync);
   }, []);
 
-  const updateCoordinates = (clientX: number, clientY: number, target: HTMLElement) => {
-    const rect = target.getBoundingClientRect();
-    const x = ((clientX - rect.left) / Math.max(1, rect.width)) * 100;
-    const y = ((clientY - rect.top) / Math.max(1, rect.height)) * 100;
-    setMouse({ x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) });
-    setHasInteracted(true);
-  };
-
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (reducedMotion) return;
-    updateCoordinates(e.clientX, e.clientY, e.currentTarget);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (reducedMotion) return;
-    const touch = e.touches[0];
-    if (touch) updateCoordinates(touch.clientX, touch.clientY, e.currentTarget);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / Math.max(1, rect.width)) * 100;
+    const y = ((e.clientY - rect.top) / Math.max(1, rect.height)) * 100;
+    setMouse({ x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) });
+    setHasInteracted(true);
   };
 
   const pageBg = darkMode
@@ -101,46 +89,23 @@ export default function PrismEnginePortalPage() {
   return (
     <div
       onPointerMove={handlePointerMove}
-      onTouchStart={handleTouchMove}
-      onTouchMove={handleTouchMove}
       className={`relative min-h-screen overflow-hidden transition-colors duration-500 ${pageBg}`}
     >
-      {/* Active Living Prism Universe Background (Optimized for Mobile & Desktop) */}
+      {/* Background: Lightweight & Fast on Mobile, Full Living Kinetic Prism Universe on Desktop */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-        {/* 1. Autonomous Kinetic Gliding Ambient Aurora (Drifts constantly even on phones without mouse interaction!) */}
-        <motion.div
-          animate={
-            reducedMotion
-              ? undefined
-              : {
-                  x: [0, 60, -50, 40, 0],
-                  y: [0, -40, 50, -30, 0],
-                  scale: [1, 1.18, 0.94, 1.12, 1],
-                }
-          }
-          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute inset-0"
-          style={{
-            background: darkMode
-              ? 'radial-gradient(760px circle at 50% 36%, rgba(56,189,248,0.26), rgba(168,85,247,0.18) 36%, rgba(16,185,129,0.12) 58%, transparent 74%)'
-              : 'radial-gradient(700px circle at 50% 36%, rgba(37,99,235,0.18), rgba(168,85,247,0.12) 36%, rgba(16,185,129,0.09) 58%, transparent 74%)',
-          }}
-        />
-
-        {/* 2. Interactive Prismatic Cursor / Touch Spotlight (Reacts dynamically to touch on phone or mouse on desktop) */}
+        {/* Ultra-lightweight static ambient wash for mobile phones (zero GPU lag / battery friendly) */}
         <div
-          className="absolute inset-0 transition-opacity duration-500"
+          className="md:hidden absolute inset-0"
           style={{
             background: darkMode
-              ? `radial-gradient(560px circle at ${mouse.x}% ${mouse.y}%, rgba(56,189,248,0.36), rgba(168,85,247,0.22) 32%, rgba(16,185,129,0.10) 55%, transparent 72%)`
-              : `radial-gradient(540px circle at ${mouse.x}% ${mouse.y}%, rgba(37,99,235,0.24), rgba(168,85,247,0.15) 34%, rgba(16,185,129,0.08) 55%, transparent 72%)`,
-            opacity: hasInteracted ? 1 : 0.65,
+              ? 'radial-gradient(circle at 50% 15%, rgba(56,189,248,0.16), rgba(168,85,247,0.08) 42%, transparent 72%)'
+              : 'radial-gradient(circle at 50% 15%, rgba(37,99,235,0.10), rgba(16,185,129,0.06) 45%, transparent 72%)',
           }}
         />
 
         {/* Subtle Architectural Grid Overlay */}
         <div
-          className="absolute inset-0 opacity-[0.07]"
+          className="absolute inset-0 opacity-[0.06]"
           style={{
             backgroundImage:
               'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)',
@@ -148,91 +113,120 @@ export default function PrismEnginePortalPage() {
           }}
         />
 
-        {/* 3. Real Full-Viewport Sweeping Kinetic Refraction Beams (Travels across the whole phone & screen) */}
-        {!reducedMotion && (
-          <>
-            {/* Left-to-Right Prismatic Laser Sweep */}
-            <motion.div
-              animate={{ x: ['-100vw', '100vw'] }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
-              className="absolute -top-1/4 h-[150%] w-72 sm:w-96 rotate-[24deg] blur-3xl opacity-75 sm:opacity-90 pointer-events-none"
-              style={{
-                background: darkMode
-                  ? 'linear-gradient(90deg, transparent, rgba(56,189,248,0.35), rgba(168,85,247,0.40), rgba(16,185,129,0.28), transparent)'
-                  : 'linear-gradient(90deg, transparent, rgba(37,99,235,0.24), rgba(168,85,247,0.26), rgba(16,185,129,0.20), transparent)'
-              }}
-            />
-            {/* Right-to-Left Amber & Rose Secondary Sweep */}
-            <motion.div
-              animate={{ x: ['100vw', '-100vw'] }}
-              transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 3, repeatDelay: 1.5 }}
-              className="absolute -top-1/4 h-[150%] w-60 sm:w-80 -rotate-[20deg] blur-3xl opacity-60 sm:opacity-80 pointer-events-none"
-              style={{
-                background: darkMode
-                  ? 'linear-gradient(90deg, transparent, rgba(245,158,11,0.24), rgba(236,72,153,0.30), rgba(59,130,246,0.25), transparent)'
-                  : 'linear-gradient(90deg, transparent, rgba(245,158,11,0.16), rgba(236,72,153,0.20), rgba(59,130,246,0.18), transparent)',
-              }}
-            />
+        {/* Desktop-Only Living Kinetic Prism Universe (Hidden on mobile to keep phones fast and light) */}
+        <div className="hidden md:block absolute inset-0">
+          {/* 1. Autonomous Kinetic Gliding Ambient Aurora */}
+          <motion.div
+            animate={
+              reducedMotion
+                ? undefined
+                : {
+                    x: [0, 60, -50, 40, 0],
+                    y: [0, -40, 50, -30, 0],
+                    scale: [1, 1.18, 0.94, 1.12, 1],
+                  }
+            }
+            transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute inset-0"
+            style={{
+              background: darkMode
+                ? 'radial-gradient(760px circle at 50% 36%, rgba(56,189,248,0.26), rgba(168,85,247,0.18) 36%, rgba(16,185,129,0.12) 58%, transparent 74%)'
+                : 'radial-gradient(700px circle at 50% 36%, rgba(37,99,235,0.18), rgba(168,85,247,0.12) 36%, rgba(16,185,129,0.09) 58%, transparent 74%)',
+            }}
+          />
 
-            {/* Pulsing Luminous Color Orbs */}
-            <motion.div
-              animate={{ x: [0, 110, -70, 0], y: [0, 80, -50, 0], scale: [1, 1.25, 0.9, 1] }}
-              transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -top-20 -left-20 h-72 w-72 sm:h-[32rem] sm:w-[32rem] rounded-full blur-3xl"
-              style={{
-                background: darkMode
-                  ? 'radial-gradient(circle, rgba(37,99,235,0.58) 0%, rgba(168,85,247,0.28) 45%, transparent 72%)'
-                  : 'radial-gradient(circle, rgba(59,130,246,0.38) 0%, rgba(168,85,247,0.20) 45%, transparent 72%)',
-              }}
-            />
-            <motion.div
-              animate={{ x: [0, -110, 75, 0], y: [0, -80, 60, 0], scale: [1, 0.92, 1.24, 1] }}
-              transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -bottom-20 -right-20 h-72 w-72 sm:h-[34rem] sm:w-[34rem] rounded-full blur-3xl"
-              style={{
-                background: darkMode
-                  ? 'radial-gradient(circle, rgba(16,185,129,0.50) 0%, rgba(56,189,248,0.26) 48%, transparent 72%)'
-                  : 'radial-gradient(circle, rgba(16,185,129,0.32) 0%, rgba(56,189,248,0.20) 48%, transparent 72%)',
-              }}
-            />
+          {/* 2. Interactive Prismatic Cursor Spotlight */}
+          <div
+            className="absolute inset-0 transition-opacity duration-500"
+            style={{
+              background: darkMode
+                ? `radial-gradient(560px circle at ${mouse.x}% ${mouse.y}%, rgba(56,189,248,0.36), rgba(168,85,247,0.22) 32%, rgba(16,185,129,0.10) 55%, transparent 72%)`
+                : `radial-gradient(540px circle at ${mouse.x}% ${mouse.y}%, rgba(37,99,235,0.24), rgba(168,85,247,0.15) 34%, rgba(16,185,129,0.08) 55%, transparent 72%)`,
+              opacity: hasInteracted ? 1 : 0.65,
+            }}
+          />
 
-            {/* 4. Visible Floating Luminous Prism Sparkles (Positioned along visible viewport edges for mobile & desktop) */}
-            {[
-              { top: '8%', left: '15%', size: 9, color: 'bg-cyan-400', dy: -20, dur: 4.8 },
-              { top: '16%', left: '82%', size: 11, color: 'bg-purple-400', dy: 24, dur: 5.6 },
-              { top: '48%', left: '4%', size: 8, color: 'bg-emerald-400', dy: -18, dur: 6.2 },
-              { top: '52%', left: '92%', size: 10, color: 'bg-blue-400', dy: 22, dur: 5.2 },
-              { top: '34%', left: '88%', size: 8, color: 'bg-pink-400', dy: -16, dur: 5.9 },
-              { top: '68%', left: '6%', size: 9, color: 'bg-amber-400', dy: 20, dur: 6.5 },
-              { top: '88%', left: '20%', size: 10, color: 'bg-cyan-300', dy: -22, dur: 5.5 },
-              { top: '92%', left: '78%', size: 9, color: 'bg-emerald-300', dy: 18, dur: 6.8 },
-            ].map((node, i) => (
-              <motion.span
-                key={i}
-                animate={{ y: [0, node.dy, 0], opacity: [0.4, 1, 0.4], scale: [0.85, 1.4, 0.85] }}
-                transition={{ duration: node.dur, repeat: Infinity, ease: 'easeInOut', delay: i * 0.35 }}
-                style={{ top: node.top, left: node.left, width: node.size, height: node.size }}
-                className={`absolute rounded-full ${node.color} shadow-[0_0_18px_currentColor]`}
+          {/* 3. Full-Viewport Sweeping Kinetic Refraction Beams, Orbs, Sparkles & Orbital Rings */}
+          {!reducedMotion && (
+            <>
+              <motion.div
+                animate={{ x: ['-100vw', '100vw'] }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
+                className="absolute -top-1/4 h-[150%] w-96 rotate-[24deg] blur-3xl opacity-90 pointer-events-none"
+                style={{
+                  background: darkMode
+                    ? 'linear-gradient(90deg, transparent, rgba(56,189,248,0.35), rgba(168,85,247,0.40), rgba(16,185,129,0.28), transparent)'
+                    : 'linear-gradient(90deg, transparent, rgba(37,99,235,0.24), rgba(168,85,247,0.26), rgba(16,185,129,0.20), transparent)',
+                }}
               />
-            ))}
+              <motion.div
+                animate={{ x: ['100vw', '-100vw'] }}
+                transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 3, repeatDelay: 1.5 }}
+                className="absolute -top-1/4 h-[150%] w-80 -rotate-[20deg] blur-3xl opacity-80 pointer-events-none"
+                style={{
+                  background: darkMode
+                    ? 'linear-gradient(90deg, transparent, rgba(245,158,11,0.24), rgba(236,72,153,0.30), rgba(59,130,246,0.25), transparent)'
+                    : 'linear-gradient(90deg, transparent, rgba(245,158,11,0.16), rgba(236,72,153,0.20), rgba(59,130,246,0.18), transparent)',
+                }}
+              />
 
-            {/* 5. Kinetic Rotating Orbital Rings (Visible on mobile and desktop, scaled for mobile screens!) */}
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
-              className={`absolute top-16 -right-6 sm:top-20 sm:right-12 h-32 w-32 sm:h-56 sm:w-56 rounded-[2rem] sm:rounded-[3.25rem] border ${
-                darkMode ? 'border-cyan-400/35 bg-cyan-400/[0.05] shadow-[0_0_30px_rgba(34,211,238,0.15)]' : 'border-blue-500/30 bg-blue-500/[0.05]'
-              }`}
-            />
-            <motion.div
-              animate={{ rotate: [360, 0] }}
-              transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
-              className={`absolute bottom-16 -left-6 sm:bottom-20 sm:left-12 h-28 w-28 sm:h-48 sm:w-48 rounded-full border ${
-                darkMode ? 'border-purple-400/35 bg-purple-400/[0.05] shadow-[0_0_30px_rgba(168,85,247,0.15)]' : 'border-emerald-500/30 bg-emerald-500/[0.05]'
-              }`}
-            />
-          </>
-        )}
+              <motion.div
+                animate={{ x: [0, 110, -70, 0], y: [0, 80, -50, 0], scale: [1, 1.25, 0.9, 1] }}
+                transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute -top-20 -left-20 h-[32rem] w-[32rem] rounded-full blur-3xl"
+                style={{
+                  background: darkMode
+                    ? 'radial-gradient(circle, rgba(37,99,235,0.58) 0%, rgba(168,85,247,0.28) 45%, transparent 72%)'
+                    : 'radial-gradient(circle, rgba(59,130,246,0.38) 0%, rgba(168,85,247,0.20) 45%, transparent 72%)',
+                }}
+              />
+              <motion.div
+                animate={{ x: [0, -110, 75, 0], y: [0, -80, 60, 0], scale: [1, 0.92, 1.24, 1] }}
+                transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute -bottom-20 -right-20 h-[34rem] w-[34rem] rounded-full blur-3xl"
+                style={{
+                  background: darkMode
+                    ? 'radial-gradient(circle, rgba(16,185,129,0.50) 0%, rgba(56,189,248,0.26) 48%, transparent 72%)'
+                    : 'radial-gradient(circle, rgba(16,185,129,0.32) 0%, rgba(56,189,248,0.20) 48%, transparent 72%)',
+                }}
+              />
+
+              {[
+                { top: '8%', left: '15%', size: 9, color: 'bg-cyan-400', dy: -20, dur: 4.8 },
+                { top: '16%', left: '82%', size: 11, color: 'bg-purple-400', dy: 24, dur: 5.6 },
+                { top: '48%', left: '4%', size: 8, color: 'bg-emerald-400', dy: -18, dur: 6.2 },
+                { top: '52%', left: '92%', size: 10, color: 'bg-blue-400', dy: 22, dur: 5.2 },
+                { top: '34%', left: '88%', size: 8, color: 'bg-pink-400', dy: -16, dur: 5.9 },
+                { top: '68%', left: '6%', size: 9, color: 'bg-amber-400', dy: 20, dur: 6.5 },
+                { top: '88%', left: '20%', size: 10, color: 'bg-cyan-300', dy: -22, dur: 5.5 },
+                { top: '92%', left: '78%', size: 9, color: 'bg-emerald-300', dy: 18, dur: 6.8 },
+              ].map((node, i) => (
+                <motion.span
+                  key={i}
+                  animate={{ y: [0, node.dy, 0], opacity: [0.4, 1, 0.4], scale: [0.85, 1.4, 0.85] }}
+                  transition={{ duration: node.dur, repeat: Infinity, ease: 'easeInOut', delay: i * 0.35 }}
+                  style={{ top: node.top, left: node.left, width: node.size, height: node.size }}
+                  className={`absolute rounded-full ${node.color} shadow-[0_0_18px_currentColor]`}
+                />
+              ))}
+
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
+                className={`absolute top-20 right-12 h-56 w-56 rounded-[3.25rem] border ${
+                  darkMode ? 'border-cyan-400/35 bg-cyan-400/[0.05] shadow-[0_0_30px_rgba(34,211,238,0.15)]' : 'border-blue-500/30 bg-blue-500/[0.05]'
+                }`}
+              />
+              <motion.div
+                animate={{ rotate: [360, 0] }}
+                transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+                className={`absolute bottom-20 left-12 h-48 w-48 rounded-full border ${
+                  darkMode ? 'border-purple-400/35 bg-purple-400/[0.05] shadow-[0_0_30px_rgba(168,85,247,0.15)]' : 'border-emerald-500/30 bg-emerald-500/[0.05]'
+                }`}
+              />
+            </>
+          )}
+        </div>
       </div>
 
       {/* Top Navigation */}
@@ -479,89 +473,152 @@ export default function PrismEnginePortalPage() {
           </motion.div>
         </section>
 
-        {/* In Orbit · Upcoming Engine Expansions (Phase 4 Roadmap) */}
-        <section aria-label="Upcoming Engine Expansions" className="space-y-5 pt-3">
+        {/* In Orbit · The Prism Roadmap (Classified Prototype Constellation) */}
+        <section aria-label="In Orbit · The Prism Roadmap" className="space-y-5 pt-3">
           <div className="flex flex-wrap items-center justify-between gap-3 px-1">
             <div>
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-2.5 w-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#22d3ee]" />
                 <h3 className="text-sm font-black uppercase tracking-[0.2em] text-cyan-400">
-                  In Orbit · Upcoming Expansions
+                  In Orbit · The Prism Roadmap
                 </h3>
               </div>
               <p className={`text-xs ${muted} mt-1`}>
-                Specialized cognitive modules currently in active R&amp;D, expanding directly into Dassah&apos;s Prism and Prism Play.
+                Classified prototypes in our lab — hover (or tap) any tile to decrypt the upcoming expansion.
               </p>
             </div>
             <span className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1 text-[10px] font-black uppercase tracking-wider ${pillSurface}`}>
-              <Sparkles size={11} className="text-cyan-400" /> Phase 4 Roadmap
+              <Sparkles size={11} className="text-cyan-400" /> Roadmap
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {FUTURE_EXPANSIONS.map((item) => (
-              <motion.div
-                key={item.name}
-                whileHover={reducedMotion ? undefined : { y: -5, scale: 1.01 }}
-                transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-                className={`group relative overflow-hidden rounded-[2rem] border p-6 backdrop-blur-2xl transition-all duration-300 flex flex-col justify-between gap-5 ${
-                  darkMode
-                    ? 'bg-[#091122]/70 border-white/[0.08] hover:border-cyan-400/40 hover:bg-[#0c162e]/85 shadow-[0_16px_50px_rgba(0,0,0,0.4)]'
-                    : 'bg-white/80 border-slate-200 hover:border-blue-400/50 hover:bg-white/95 shadow-[0_14px_40px_rgba(0,0,0,0.04)]'
-                }`}
-              >
-                {/* Ambient Subtle Specular Glow */}
-                <div
-                  className={`pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full blur-2xl transition-opacity opacity-0 group-hover:opacity-100 duration-500 ${
-                    item.accent === 'cyan'
-                      ? 'bg-cyan-500/25'
-                      : item.accent === 'amber'
-                      ? 'bg-amber-500/25'
-                      : 'bg-purple-500/25'
+            {FUTURE_EXPANSIONS.map((item) => {
+              const isRevealed = revealedPrototype === item.name;
+              const edgeGlow =
+                item.accent === 'cyan'
+                  ? 'via-cyan-400/75'
+                  : item.accent === 'amber'
+                  ? 'via-amber-400/75'
+                  : 'via-purple-400/75';
+              const hoverBorder =
+                item.accent === 'cyan'
+                  ? 'hover:border-cyan-400/50'
+                  : item.accent === 'amber'
+                  ? 'hover:border-amber-400/50'
+                  : 'hover:border-purple-400/50';
+              const neonText =
+                item.accent === 'cyan'
+                  ? darkMode
+                    ? 'text-cyan-300 drop-shadow-[0_0_14px_rgba(34,211,238,0.65)]'
+                    : 'text-cyan-700'
+                  : item.accent === 'amber'
+                  ? darkMode
+                    ? 'text-amber-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.65)]'
+                    : 'text-amber-700'
+                  : darkMode
+                  ? 'text-purple-300 drop-shadow-[0_0_14px_rgba(192,132,252,0.65)]'
+                  : 'text-purple-700';
+
+              const hoverNeonClass =
+                item.accent === 'cyan'
+                  ? darkMode
+                    ? 'group-hover:text-cyan-300 group-hover:drop-shadow-[0_0_14px_rgba(34,211,238,0.65)]'
+                    : 'group-hover:text-cyan-700'
+                  : item.accent === 'amber'
+                  ? darkMode
+                    ? 'group-hover:text-amber-300 group-hover:drop-shadow-[0_0_14px_rgba(251,191,36,0.65)]'
+                    : 'group-hover:text-amber-700'
+                  : darkMode
+                  ? 'group-hover:text-purple-300 group-hover:drop-shadow-[0_0_14px_rgba(192,132,252,0.65)]'
+                  : 'group-hover:text-purple-700';
+
+              return (
+                <motion.button
+                  key={item.name}
+                  type="button"
+                  onClick={() => setRevealedPrototype((prev) => (prev === item.name ? null : item.name))}
+                  whileHover={reducedMotion ? undefined : { y: -5, scale: 1.01 }}
+                  transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+                  className={`group relative text-left overflow-hidden rounded-[2rem] border p-6 backdrop-blur-3xl transition-all duration-300 flex flex-col justify-between gap-5 cursor-pointer ${hoverBorder} ${
+                    darkMode
+                      ? 'bg-[#050914]/85 border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.10)]'
+                      : 'bg-white/85 border-slate-200/90 shadow-[0_14px_40px_rgba(0,0,0,0.05)]'
                   }`}
-                />
+                >
+                  {/* Subtle Glowing Obsidian Edge */}
+                  <div className={`pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent ${edgeGlow} to-transparent opacity-60 group-hover:opacity-100 transition-opacity`} />
 
-                <div className="space-y-3 relative z-10">
-                  <div className="flex items-center justify-between gap-2">
-                    <span
-                      className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl border transition-transform duration-300 group-hover:scale-105 ${
-                        item.accent === 'cyan'
-                          ? 'bg-cyan-500/15 border-cyan-400/35 text-cyan-400 shadow-[0_0_18px_rgba(34,211,238,0.2)]'
-                          : item.accent === 'amber'
-                          ? 'bg-amber-500/15 border-amber-400/35 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.2)]'
-                          : 'bg-purple-500/15 border-purple-400/35 text-purple-400 shadow-[0_0_18px_rgba(168,85,247,0.2)]'
-                      }`}
-                    >
-                      <item.icon size={20} />
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-slate-300 group-hover:text-cyan-300 transition-colors">
-                      <Lock size={9} /> {item.badge}
-                    </span>
-                  </div>
+                  {/* Ambient Specular Glow */}
+                  <div
+                    className={`pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full blur-2xl transition-opacity duration-500 ${
+                      isRevealed ? 'opacity-100' : 'opacity-25 group-hover:opacity-100'
+                    } ${
+                      item.accent === 'cyan'
+                        ? 'bg-cyan-500/25'
+                        : item.accent === 'amber'
+                        ? 'bg-amber-500/25'
+                        : 'bg-purple-500/25'
+                    }`}
+                  />
 
-                  <div>
-                    <h4 className="prism-brand text-2xl font-black italic tracking-tight flex items-baseline gap-2">
-                      <span className="group-hover:text-cyan-400 transition-colors">{item.name}</span>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider not-italic ${muted}`}>
-                        · {item.parentApp}
+                  <div className="space-y-4 relative z-10 w-full">
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl border transition-transform duration-300 group-hover:scale-105 ${
+                          item.accent === 'cyan'
+                            ? 'bg-cyan-500/15 border-cyan-400/35 text-cyan-400'
+                            : item.accent === 'amber'
+                            ? 'bg-amber-500/15 border-amber-400/35 text-amber-400'
+                            : 'bg-purple-500/15 border-purple-400/35 text-purple-400'
+                        }`}
+                      >
+                        <item.icon size={19} />
                       </span>
-                    </h4>
-                    <p className={`text-xs mt-1.5 leading-relaxed ${muted}`}>
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-white/12 bg-white/[0.06] px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-slate-300">
+                        <Lock size={9} /> {item.badge}
+                      </span>
+                    </div>
 
-                <div className="relative z-10 pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs font-bold text-slate-400">
-                  <span className="uppercase tracking-widest text-[9px] font-black text-cyan-400/80">
-                    {item.status}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 group-hover:text-cyan-300 transition-colors">
-                    Preview Spec <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
-                  </span>
-                </div>
-              </motion.div>
-            ))}
+                    <div>
+                      <h4 className="prism-brand text-2xl font-black italic tracking-tight flex flex-wrap items-baseline gap-2">
+                        <span
+                          className={`transition-all duration-500 ${
+                            isRevealed
+                              ? `blur-0 opacity-100 ${neonText}`
+                              : `blur-[5px] opacity-75 group-hover:blur-0 group-hover:opacity-100 ${hoverNeonClass}`
+                          }`}
+                        >
+                          {item.name}
+                        </span>
+                        <span className={`text-[10px] font-bold uppercase tracking-wider not-italic ${muted}`}>
+                          · {item.parentApp}
+                        </span>
+                      </h4>
+
+                      <p
+                        className={`text-xs mt-2 leading-relaxed transition-all duration-500 ${muted} ${
+                          isRevealed
+                            ? 'blur-0 opacity-100'
+                            : 'blur-[4px] opacity-35 group-hover:blur-0 group-hover:opacity-100'
+                        }`}
+                      >
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 w-full pt-2.5 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-bold">
+                    <span className="uppercase tracking-[0.18em] text-slate-400">
+                      {isRevealed ? 'Decrypted' : 'Classified Prototype'}
+                    </span>
+                    <span className="text-cyan-400/80 group-hover:text-cyan-300 transition-colors">
+                      {isRevealed ? 'Tap to veil' : 'Hover / Tap to reveal'}
+                    </span>
+                  </div>
+                </motion.button>
+              );
+            })}
           </div>
         </section>
 
